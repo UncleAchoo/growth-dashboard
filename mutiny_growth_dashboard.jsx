@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   PieChart, Pie, Cell, ResponsiveContainer,
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -501,14 +501,39 @@ function computeWeeklyData() {
   }));
 }
 
-// Compute Sessions → Signups channel table for the window.
+// plg_signup_click events were first reliably captured on 2026-05-07 — before
+// that, GA4's File 2 has no per-channel signup data, only the overall daily
+// totals from Amplitude. So the channel-funnel table (Web Conv = signups ÷
+// website visitors per channel) must use the same start date on BOTH numerator
+// and denominator, otherwise the ratio is meaningless.
+const ATTRIBUTION_START_YYYYMMDD = '20260507';
+const ATTRIBUTION_START_LABEL    = 'May 7, 2026';
+
+// Compute Sessions → Signups channel table for the conversion window
+// (2026-05-07 → end of Last 30 Days). Aggregates raw GA4 rows directly so we
+// can slice mid-week without re-bucketing the weekly summary.
 function computeChannelTable() {
   const channels = ['Direct','Search','Referral','LinkedIn','Social','Unassigned','AEO','Email'];
-  return channels.map((ch) => {
-    const engagedSessions = SIGNUPS_BY_CHANNEL_WEEKLY.reduce((s, w) => s + (w.sessions[ch] || 0), 0);
-    const signups = SIGNUPS_BY_CHANNEL_WEEKLY.reduce((s, w) => s + (w.signups[ch] || 0), 0);
-    return { channel: ch, engagedSessions, signups };
-  });
+  const sessions = Object.fromEntries(channels.map((c) => [c, 0]));
+  const signups  = Object.fromEntries(channels.map((c) => [c, 0]));
+  const inAttribWindow = (d) =>
+    d >= ATTRIBUTION_START_YYYYMMDD && d <= LIVE_END_YYYYMMDD;
+
+  for (const r of dataJson.ga4.file2) {
+    if (!inAttribWindow(r.date)) continue;
+    const b = bucketRowFromGA(r);
+    if (b in signups) signups[b] += (r.eventCount || 0);
+  }
+  for (const r of dataJson.ga4.file3) {
+    if (!inAttribWindow(r.date)) continue;
+    const b = bucketRowFromGA(r);
+    if (b in sessions) sessions[b] += (r.engagedSessions || 0);
+  }
+  return channels.map((ch) => ({
+    channel: ch,
+    engagedSessions: sessions[ch],
+    signups: signups[ch],
+  }));
 }
 
 // Compute a deep-dive weekly array for one or more channel keys.
@@ -1878,7 +1903,7 @@ export default function MutinyGrowthDashboard() {
             >
               Channel funnel
               <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
-                Per-channel signups, conversion, share of total
+                Since {ATTRIBUTION_START_LABEL} (signup attribution start)
               </span>
             </div>
           </div>
@@ -1916,12 +1941,25 @@ export default function MutinyGrowthDashboard() {
                 <div></div>
                 <div>Channel</div>
                 <div style={{ textAlign: 'right' }}>Signups</div>
-                <div style={{ textAlign: 'right' }}>Web Conv.</div>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    gap: 0,
+                  }}
+                >
+                  Web Conv.
+                  <InfoTooltip width={240}>
+                    <strong>Signups ÷ Website Visitors</strong>, per channel. Calculated from {ATTRIBUTION_START_LABEL} onward — when per-channel signup attribution began.
+                  </InfoTooltip>
+                </div>
                 <div style={{ textAlign: 'right' }}>% of total</div>
               </div>
 
-              {/* Rows */}
-              {channelTable.map((row, i) => {
+              {/* Rows — sorted by signup volume desc (= % of total desc since
+                  they share the same denominator). */}
+              {[...channelTable].sort((a, b) => b.signups - a.signups).map((row, i) => {
                 const rate = row.engagedSessions > 0
                   ? (row.signups / row.engagedSessions) * 100
                   : 0;
@@ -1970,7 +2008,7 @@ export default function MutinyGrowthDashboard() {
                         fontVariantNumeric: 'tabular-nums',
                         fontWeight: isHighlight ? 600 : 400,
                         opacity: rate === 0 ? 0.35 : 1,
-                        color: rate >= 3 ? C.purple : C.black,
+                        color: C.black,
                       }}
                     >
                       {rate === 0 ? '—' : rate.toFixed(2) + '%'}
@@ -3019,19 +3057,39 @@ function ProgrammaticTag() {
 // InfoTooltip — small "i" icon that reveals contextual info on hover. Used to
 // hide methodology / explanation text that would otherwise clutter section
 // headings, while keeping the info one hover away.
-function InfoTooltip({ children, width = 320 }) {
+function InfoTooltip({ children, width = 320, align }) {
   const [open, setOpen] = useState(false);
+  const [autoAlign, setAutoAlign] = useState('left');
+  const iconRef = useRef(null);
+
+  // Resolve final alignment: explicit prop wins, else auto-detect based on
+  // viewport. If tooltip extending right would clip past viewport, anchor
+  // from the right edge instead (so it extends leftward).
+  const effectiveAlign = align || autoAlign;
+  const horizontalAnchor = effectiveAlign === 'right' ? { right: 0 } : { left: 0 };
+
+  const handleEnter = () => {
+    if (!align && iconRef.current) {
+      const rect = iconRef.current.getBoundingClientRect();
+      const vw = window.innerWidth || document.documentElement.clientWidth;
+      // 16px buffer for body margins / scrollbars
+      setAutoAlign(rect.left + width + 16 > vw ? 'right' : 'left');
+    }
+    setOpen(true);
+  };
+
   return (
     <span
+      ref={iconRef}
       style={{
         position: 'relative',
         display: 'inline-flex',
         alignItems: 'center',
         marginLeft: 6,
       }}
-      onMouseEnter={() => setOpen(true)}
+      onMouseEnter={handleEnter}
       onMouseLeave={() => setOpen(false)}
-      onFocus={() => setOpen(true)}
+      onFocus={handleEnter}
       onBlur={() => setOpen(false)}
       tabIndex={0}
     >
@@ -3049,7 +3107,7 @@ function InfoTooltip({ children, width = 320 }) {
           style={{
             position: 'absolute',
             top: '100%',
-            left: 0,
+            ...horizontalAnchor,
             marginTop: 6,
             zIndex: 50,
             background: C.white,
