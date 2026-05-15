@@ -1,0 +1,39 @@
+# HubSpot pull — Talk to Sales form submissions
+# Form: Talk to Sales: Talk to Sales (March 23, 2026)
+# Form ID: 5edce853-8ac4-4290-b9d3-b5e54da40a89, portal 6371341
+# Contact property: how_did_you_discover_mutiny
+# Window: Apr 27 - May 13, 2026 (by actual Talk to Sales submission date)
+# Pulled: May 13, 2026
+#
+# Submission date logic:
+#   - if recent_conversion_event_name contains "Talk to Sales" → use recent_conversion_date
+#   - else (recent is a later meeting booking) → use first_conversion_date (= createdate for those whose first form was TtS)
+#
+# Test filter: emails containing "mutiny", plus kedwardsfake@1mind.com
+#
+# Result: 23 raw → 14 valid (4 test excluded, 5 outside-window excluded)
+#
+email,company,referral_source,tts_submission_date,bucket,status
+cdemaree@gnapartners.com,gnapartners,Agency,2026-05-13,Other / Unparseable,valid
+drew.stark@bigeye.com,bigeye,We share an investor,2026-05-13,Other / Unparseable,valid
+kamal.sharma@razorpay.com,razorpay,Google,2026-05-12,Search,valid
+hshore@ontic.co,ontic,My VP of marketing,2026-05-11,Word of Mouth,valid
+erin.hoskins@continued.com,continued,Podcast,2026-05-08,Influencer / Community,valid
+camren@verito.com,verito,Perplexity,2026-05-06,LLM,valid
+hunter.hamren@abridge.com,abridge,Previous colleague,2026-05-05,Word of Mouth,valid
+jkimbrough@solutionsbytext.com,solutionsbytext,LinkedIn,2026-05-04,LinkedIn,valid
+andrew.jacon@koerber.com,koerber,Podcast my employee listened to,2026-05-01,Influencer / Community,valid
+najma.bani@tryhackme.com,tryhackme,wom,2026-04-30,Word of Mouth,valid
+chase.hackner@genetiqsoftware.com,genetiqsoftware,30 MPC,2026-04-30,Influencer / Community,valid
+rajesh.sreenivasan@ibsplc.com,ibsplc,ChatGPT,2026-04-29,LLM,valid
+bill.lacalle@lacallegroup.com,lacallegroup,X post,2026-04-29,Social,valid
+kfoos@pexcard.com,pexcard,Product manager,2026-04-28,Word of Mouth,valid
+matt.ratchford+gatest2@mutinyhq.com,mutinyhq,claude,2026-05-07,LLM,test (mutiny email)
+matt.ratchford+gatest@mutinyhq.com,mutinyhq,claude,2026-05-07,LLM,test (mutiny email)
+matt.ratchford+test@mutinyhq.com,mutinyhq,Claude,2026-05-07,LLM,test (mutiny email)
+kedwardsfake@1mind.com,1mind,Tyler,2026-05-06,Word of Mouth,test (email contains 'fake')
+jessep@chargeflow.io,chargeflow,Google,2026-04-24,Search,outside window
+amy.doyle@frontify.com,frontify,Colleague,2026-04-10,Word of Mouth,outside window
+rachel.kirwan@zendesk.com,zendesk,WOM,2026-04-08,Word of Mouth,outside window
+matthew.talbott@workbooks.com,workbooks,Google,2026-04-08,Search,outside window
+jake@redo.com,redo,LinkedIn,2026-04-08,LinkedIn,outside window

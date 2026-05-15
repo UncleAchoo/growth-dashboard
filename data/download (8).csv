@@ -1,0 +1,1152 @@
+# ----------------------------------------
+# Corp Site - GA4
+# Growth Dashboard Data-3 — All engaged sessions by channel 
+# 20260415-20260515
+# ----------------------------------------
+
+Date,Session Mutiny - With AI Referrals,Session source / medium,Event count,Engaged sessions,Sessions,Total users
+,,,854008,31215,191284,189021,Grand total
+20260515,AI Referrals,chatgpt.com / referral,8,2,2,2
+20260515,Direct,(direct) / (none),98,6,27,27
+20260515,Email,hs_email / email,5,0,2,2
+20260515,Organic Search,bing / organic,17,1,1,1
+20260515,Organic Search,google / organic,131,19,30,30
+20260515,Organic Social - Twitter,t.co / referral,2,0,1,1
+20260515,Referral,52.72.37.2:6080 / referral,2,0,1,1
+20260515,Referral,accounts.google.com / referral,15,1,3,3
+20260515,Referral,joyspace.jd.com / referral,13,2,2,2
+20260515,Referral,statics.teams.cdn.office.net / referral,3,0,1,1
+20260515,Unassigned,(not set),2,0,1,1
+20260514,AI Referrals,chatgpt.com / referral,53,6,8,8
+20260514,AI Referrals,perplexity.ai / referral,2,0,1,1
+20260514,Direct,(direct) / (none),17255,562,3743,3667
+20260514,Email,hs_automation / email,31,2,5,5
+20260514,Email,hs_email / email,44,4,5,5
+20260514,Email,mkt1 / email,5,1,1,1
+20260514,Organic Search,bing / organic,41,4,5,5
+20260514,Organic Search,google / organic,1405,152,237,234
+20260514,Organic Social - LinkedIn,linkedin / social,24,2,7,7
+20260514,Organic Social - LinkedIn,linkedin.com / referral,11,1,2,2
+20260514,Organic Social - Reddit,reddit.com / referral,18,2,3,3
+20260514,Organic Social - Twitter,t.co / referral,16,1,2,2
+20260514,Referral,10.66.103.129 / referral,11,1,1,1
+20260514,Referral,30mpc.com / referral,7,0,2,2
+20260514,Referral,52.72.37.2:6080 / referral,7,1,1,1
+20260514,Referral,accounts.google.com / referral,11,0,3,3
+20260514,Referral,amplitude.com / referral,14,1,2,2
+20260514,Referral,andy-s-production-company.mutiny-sites.com / referral,4,0,1,1
+20260514,Referral,app.asana.com / referral,8,1,1,1
+20260514,Referral,app.mutiny.local / referral,4,0,1,1
+20260514,Referral,bookface.ycombinator.com / referral,6,1,1,1
+20260514,Referral,claude.com / referral,8,1,1,1
+20260514,Referral,dashboard.lusha.com / referral,5,1,1,1
+20260514,Referral,distillintelligence.com / referral,2,0,1,1
+20260514,Referral,docs.google.com / referral,74,1,1,1
+20260514,Referral,findaitools.app / referral,3,0,1,1
+20260514,Referral,framer.com / referral,25,1,1,1
+20260514,Referral,gokickflip.com / referral,4,0,1,1
+20260514,Referral,joyspace.jd.com / referral,6,1,1,1
+20260514,Referral,mail.google.com / referral,7,1,2,2
+20260514,Referral,mc10lxkn1j7.sg.larksuite.com / referral,4,0,1,1
+20260514,Referral,pendo.lightning.force.com / referral,4,0,1,1
+20260514,Referral,sequel.io / referral,21,2,2,2
+20260514,Referral,startups.gallery / referral,3,0,1,1
+20260514,Referral,statics.teams.cdn.office.net / referral,18,2,5,5
+20260514,Referral,url43.mailanyone.net / referral,3,0,1,1
+20260514,Referral,workatastartup.com / referral,3,0,1,1
+20260514,Referral,ycombinator.com / referral,16,1,3,3
+20260514,Unassigned,(not set),2,0,2,2
+20260514,Unassigned,ecosia.org / organic,4,0,1,1
+20260514,Unassigned,gptdemo.net / marketplace,3,0,1,1
+20260514,Unassigned,thisweekinaiclub.substack.com / (not set),13,1,3,3
+20260514,Unassigned,topstartups.io / (not set),8,1,2,2
+20260513,AI Referrals,chatgpt.com / (not set),4,1,1,1
+20260513,AI Referrals,chatgpt.com / referral,47,6,8,8
+20260513,AI Referrals,gemini.google.com / referral,6,0,2,2
+20260513,AI Referrals,perplexity.ai / referral,10,1,1,1
+20260513,Direct,(direct) / (none),29054,1096,6332,6359
+20260513,Email,hs_automation / email,19,1,3,3
+20260513,Email,hs_email / email,17,1,4,4
+20260513,Email,newsletter / email,3,0,1,1
+20260513,Organic Search,bing / organic,17,2,5,5
+20260513,Organic Search,google / organic,1403,184,264,257
+20260513,Organic Social - LinkedIn,linkedin / social,31,4,8,8
+20260513,Organic Social - LinkedIn,linkedin.com / referral,38,3,7,7
+20260513,Organic Social - Reddit,reddit.com / referral,38,5,7,7
+20260513,Organic Social - Twitter,t.co / referral,7,1,2,2
+20260513,Paid Social,fb / paid_social,8,1,1,1
+20260513,Referral,30mpc.com / referral,9,0,2,2
+20260513,Referral,44.207.89.184:6080 / referral,2,0,1,1
+20260513,Referral,a-lign.lightning.force.com / referral,8,1,1,1
+20260513,Referral,accounts.google.com / referral,18,2,4,4
+20260513,Referral,app.asana.com / referral,16,1,2,2
+20260513,Referral,app.mutiny.local / referral,2,0,1,1
+20260513,Referral,app.vanta.com / referral,5,1,1,1
+20260513,Referral,claude.com / referral,8,1,1,1
+20260513,Referral,distillintelligence.com / referral,3,0,1,1
+20260513,Referral,docs.google.com / referral,33,1,1,1
+20260513,Referral,eunasolutions.atlassian.net / referral,9,1,1,1
+20260513,Referral,findailist / referral,3,0,1,1
+20260513,Referral,framer.com / referral,57,1,1,1
+20260513,Referral,hoppycopy.co / referral,5,1,1,1
+20260513,Referral,insightpartners.com / referral,3,0,1,1
+20260513,Referral,jyshare.com / referral,3,0,1,1
+20260513,Referral,mail.google.com / referral,28,2,2,2
+20260513,Referral,momentic.ai / referral,4,0,1,1
+20260513,Referral,start.arcline-ai.com / referral,2,0,1,1
+20260513,Referral,startups.gallery / referral,7,1,2,2
+20260513,Referral,statics.teams.cdn.office.net / referral,38,4,6,5
+20260513,Referral,thepcbuild.net / referral,7,1,1,1
+20260513,Referral,toools.design / referral,6,1,1,1
+20260513,Referral,true.thriveiq.com / referral,11,1,1,1
+20260513,Referral,truetalentadvisory.lightning.force.com / referral,4,1,1,1
+20260513,Referral,vtprocessing2.vacancysoft.pl / referral,8,1,1,1
+20260513,Referral,workatastartup.com / referral,4,1,1,1
+20260513,Referral,ycombinator.com / referral,13,1,3,3
+20260513,Unassigned,(not set),15,0,3,3
+20260513,Unassigned,BuiltIn / BuiltIn,4,0,1,1
+20260513,Unassigned,adwords / ppc,14,1,4,4
+20260513,Unassigned,ai.ciy.cn / (not set),3,0,1,1
+20260513,Unassigned,ecosia.org / organic,12,1,1,1
+20260513,Unassigned,famehost / podcast,3,0,1,1
+20260513,Unassigned,moge.ai / (not set),3,0,1,1
+20260513,Unassigned,topstartups.io / (none),3,1,1,1
+20260513,Unassigned,topstartups.io / (not set),4,0,1,1
+20260512,AI Referrals,chatgpt.com / (not set),8,0,3,3
+20260512,AI Referrals,chatgpt.com / referral,41,6,9,9
+20260512,AI Referrals,gemini.google.com / referral,6,1,1,1
+20260512,AI Referrals,perplexity.ai / referral,4,0,1,1
+20260512,Direct,(direct) / (none),24945,932,5510,5473
+20260512,Email,hs_automation / email,68,4,15,15
+20260512,Email,hs_email / email,62,4,10,10
+20260512,Email,newsletter / email,7,1,1,1
+20260512,Organic Search,bing / organic,18,2,2,2
+20260512,Organic Search,google / organic,1790,210,301,295
+20260512,Organic Search,yahoo / organic,5,1,1,1
+20260512,Organic Social - LinkedIn,linkedin / social,49,7,9,9
+20260512,Organic Social - LinkedIn,linkedin.com / referral,43,4,8,8
+20260512,Organic Social - Reddit,reddit.com / referral,21,3,5,5
+20260512,Organic Social - Twitter,t.co / referral,35,4,6,6
+20260512,Referral,accounts.google.com / referral,16,1,4,4
+20260512,Referral,claude.com / referral,18,1,1,1
+20260512,Referral,docs.google.com / referral,7,1,2,2
+20260512,Referral,findaitools.app / referral,3,0,1,1
+20260512,Referral,gokickflip.com / referral,4,1,1,1
+20260512,Referral,jyshare.com / referral,4,0,1,1
+20260512,Referral,kevinyien.com / referral,4,0,1,1
+20260512,Referral,mail.google.com / referral,32,1,1,1
+20260512,Referral,manus.im / referral,3,0,1,1
+20260512,Referral,mkt1 / referral,9,1,1,1
+20260512,Referral,mkt1-website / referral,7,1,1,1
+20260512,Referral,ndx.linkup.com / referral,5,1,1,1
+20260512,Referral,orbitmedia.com / referral,8,1,1,1
+20260512,Referral,otta.com / referral,5,1,1,1
+20260512,Referral,producthunt.com / referral,5,1,1,1
+20260512,Referral,rippling.runlayer.com / referral,15,1,3,3
+20260512,Referral,sequel.io / referral,3,0,1,1
+20260512,Referral,startups.gallery / referral,13,2,2,2
+20260512,Referral,statics.teams.cdn.office.net / referral,43,6,8,8
+20260512,Referral,support.center.exadel.com / referral,4,0,1,1
+20260512,Referral,tagassistant.google.com / referral,10,1,1,1
+20260512,Referral,theresanaiforthat.com / referral,4,1,1,1
+20260512,Referral,toolify / referral,6,1,1,1
+20260512,Referral,topai.tools / referral,7,1,1,1
+20260512,Referral,workatastartup.com / referral,2,0,1,1
+20260512,Referral,ycombinator.com / referral,13,2,2,2
+20260512,Unassigned,(not set),5,0,4,4
+20260512,Unassigned,facebook / home,2,0,1,1
+20260512,Unassigned,manual_test_may12 / qa,7,1,1,1
+20260512,Unassigned,otta.com / (not set),3,0,1,1
+20260512,Unassigned,repvue / (not set),5,1,1,1
+20260512,Unassigned,topstartups.io / (not set),3,1,1,1
+20260512,Unassigned,udi_ledergor / (not set),9,0,3,3
+20260511,AI Referrals,chatgpt.com / (not set),21,3,6,6
+20260511,AI Referrals,chatgpt.com / referral,25,1,8,8
+20260511,Direct,(direct) / (none),12454,456,2759,2749
+20260511,Email,hs_email / email,33,6,9,8
+20260511,Organic Search,bing / organic,15,3,3,3
+20260511,Organic Search,duckduckgo / organic,17,3,3,3
+20260511,Organic Search,google / organic,1513,170,279,268
+20260511,Organic Search,yahoo / organic,22,2,2,1
+20260511,Organic Social - LinkedIn,linkedin / social,76,11,13,13
+20260511,Organic Social - LinkedIn,linkedin.com / referral,22,2,5,5
+20260511,Organic Social - Reddit,reddit.com / referral,46,8,9,9
+20260511,Organic Social - Twitter,t.co / referral,5,1,1,1
+20260511,Referral,andy-s-production-company.mutiny-sites.com / referral,10,1,1,1
+20260511,Referral,biogpt.io / referral,7,1,1,1
+20260511,Referral,cloudkeeper.lightning.force.com / referral,4,1,1,1
+20260511,Referral,console.harmonic.ai / referral,6,1,1,1
+20260511,Referral,content.martechday.com / referral,3,0,1,1
+20260511,Referral,kevinyien.com / referral,3,0,1,1
+20260511,Referral,mail.google.com / referral,38,1,2,2
+20260511,Referral,otta.com / referral,5,1,1,1
+20260511,Referral,sequel.io / referral,8,1,1,1
+20260511,Referral,sequoiacap.com / referral,4,1,1,1
+20260511,Referral,startups.gallery / referral,5,1,1,1
+20260511,Referral,statics.teams.cdn.office.net / referral,10,3,3,3
+20260511,Referral,toolify / referral,5,0,1,1
+20260511,Referral,vizajobs.com / referral,3,0,1,1
+20260511,Referral,ycombinator.com / referral,16,3,5,5
+20260511,Referral,yoonoo.ai / referral,3,1,1,1
+20260511,Unassigned,(not set),1,0,1,1
+20260511,Unassigned,facebook / home,10,1,1,1
+20260511,Unassigned,facebook_test / social,8,1,1,1
+20260511,Unassigned,ig / social,3,0,1,1
+20260511,Unassigned,levels.fyi / (not set),3,0,1,1
+20260511,Unassigned,nicks_house / laptop,16,1,1,1
+20260511,Unassigned,nicktest / (not set),22,3,3,3
+20260511,Unassigned,test_linkedin / social,18,2,2,2
+20260511,Unassigned,thisweekinaiclub.substack.com / (not set),2,0,1,1
+20260511,Unassigned,topstartups.io / (not set),26,5,5,5
+20260510,AI Referrals,chatgpt.com / (not set),17,1,4,4
+20260510,AI Referrals,chatgpt.com / referral,21,3,4,4
+20260510,AI Referrals,gemini.google.com / referral,5,0,2,1
+20260510,Direct,(direct) / (none),949,51,226,226
+20260510,Email,hs_email / email,14,2,2,2
+20260510,Email,mkt1 / email,3,0,1,1
+20260510,Email,thisweekinaiclub.substack.com / email,7,1,2,2
+20260510,Organic Search,bing / organic,14,1,3,3
+20260510,Organic Search,duckduckgo / organic,24,3,3,3
+20260510,Organic Search,google / organic,795,83,155,151
+20260510,Organic Social - LinkedIn,linkedin / social,9,1,2,2
+20260510,Organic Social - LinkedIn,linkedin.com / referral,19,3,4,4
+20260510,Organic Social - Reddit,reddit.com / referral,10,1,2,2
+20260510,Organic Social - Twitter,t.co / referral,2,0,1,1
+20260510,Referral,aixploria.com / referral,4,0,1,1
+20260510,Referral,amplitude.com / referral,18,2,3,3
+20260510,Referral,canva.com / referral,3,1,1,1
+20260510,Referral,jyshare.com / referral,8,1,2,2
+20260510,Referral,prnewswire.com / referral,7,0,2,2
+20260510,Referral,search.brave.com / referral,3,0,1,1
+20260510,Referral,startups.gallery / referral,5,1,1,1
+20260510,Referral,statics.teams.cdn.office.net / referral,3,0,1,1
+20260510,Referral,substack.com / referral,2,0,1,1
+20260510,Referral,superpowerdaily.com / referral,5,1,1,1
+20260510,Referral,thisweekinaiclub.substack.com / referral,15,3,3,3
+20260510,Referral,ycombinator.com / referral,10,0,3,3
+20260510,Referral,zensearch.jobs / referral,3,0,1,1
+20260510,Unassigned,(not set),1,0,1,1
+20260510,Unassigned,ecosia.org / organic,8,1,2,2
+20260510,Unassigned,eliteai.tools / (not set),3,0,1,1
+20260510,Unassigned,evidently.beehiiv.com / newsletter,3,0,1,1
+20260510,Unassigned,in.search.yahoo.com / referral,4,0,1,1
+20260510,Unassigned,prompthorizon.ai / newsletter,3,0,1,1
+20260510,Unassigned,topstartups.io / (not set),12,2,2,2
+20260509,AI Referrals,chatgpt.com / (not set),16,1,4,4
+20260509,AI Referrals,chatgpt.com / referral,8,1,2,2
+20260509,Direct,(direct) / (none),2145,72,510,509
+20260509,Email,thisweekinaiclub.substack.com / email,10,1,1,1
+20260509,Organic Search,duckduckgo / organic,3,0,1,1
+20260509,Organic Search,google / organic,486,55,105,103
+20260509,Organic Search,yandex / organic,4,1,1,1
+20260509,Organic Social - LinkedIn,linkedin / social,13,2,3,3
+20260509,Organic Social - LinkedIn,linkedin.com / referral,18,2,4,4
+20260509,Organic Social - Reddit,reddit.com / referral,3,0,1,1
+20260509,Organic Social - Twitter,t.co / referral,17,3,4,4
+20260509,Referral,amplitude.com / referral,19,3,3,3
+20260509,Referral,github.com / referral,4,0,1,1
+20260509,Referral,inc5000.secure-platform.com / referral,3,0,1,1
+20260509,Referral,mail.google.com / referral,5,0,1,1
+20260509,Referral,messages.ycombinator.com / referral,3,0,1,1
+20260509,Referral,mutiny.tenereteam.com / referral,3,1,1,1
+20260509,Referral,prnewswire.com / referral,7,1,2,2
+20260509,Referral,substack.com / referral,7,1,1,1
+20260509,Referral,thisweekinaiclub.substack.com / referral,6,1,1,1
+20260509,Referral,workatastartup.com / referral,5,1,1,1
+20260509,Referral,ycombinator.com / referral,12,2,2,2
+20260509,Unassigned,(not set),5,0,1,1
+20260509,Unassigned,Simplify / (not set),3,0,1,1
+20260509,Unassigned,aiagentstore.ai / (not set),5,1,1,1
+20260509,Unassigned,ailist.mobilesl.com / (not set),4,0,1,1
+20260509,Unassigned,aipure / (not set),3,0,1,1
+20260509,Unassigned,ecosia.org / organic,4,1,1,1
+20260509,Unassigned,l.instagram.com / referral,4,1,1,1
+20260509,Unassigned,techstartups.com / (not set),3,0,1,1
+20260509,Unassigned,thisweekinaiclub.substack.com / (not set),11,1,3,2
+20260509,Unassigned,toolify / (not set),4,0,1,1
+20260509,Unassigned,topstartups.io / (not set),4,0,1,1
+20260509,Unassigned,vendr.com / (not set),3,0,1,1
+20260509,Unassigned,yandex.ru / referral,4,0,1,1
+20260508,AI Referrals,chatgpt.com / (not set),8,1,2,2
+20260508,AI Referrals,chatgpt.com / organic,9,1,2,2
+20260508,AI Referrals,chatgpt.com / referral,65,8,9,9
+20260508,AI Referrals,claude.ai / referral,7,1,2,2
+20260508,AI Referrals,gemini.google.com / referral,7,1,2,1
+20260508,Direct,(direct) / (none),18855,502,4217,4158
+20260508,Email,hs_email / email,9,1,2,2
+20260508,Email,thisweekinaiclub.substack.com / email,18,2,4,4
+20260508,Organic Search,bing / organic,12,2,3,2
+20260508,Organic Search,duckduckgo / organic,10,1,1,1
+20260508,Organic Search,google / organic,966,124,207,205
+20260508,Organic Social - LinkedIn,linkedin / social,80,7,11,11
+20260508,Organic Social - LinkedIn,linkedin.com / referral,59,4,8,8
+20260508,Organic Social - Reddit,reddit.com / referral,6,1,1,1
+20260508,Organic Social - Twitter,t.co / referral,20,2,5,5
+20260508,Referral,30mpcsite.webflow.io / referral,10,1,1,1
+20260508,Referral,aicenter.ai / referral,3,0,1,1
+20260508,Referral,amplitude.com / referral,4,1,1,1
+20260508,Referral,bookface.ycombinator.com / referral,9,2,3,3
+20260508,Referral,claude.com / referral,4,0,1,1
+20260508,Referral,gamma.app / referral,5,1,1,1
+20260508,Referral,jyshare.com / referral,4,0,1,1
+20260508,Referral,liquid2.vc / referral,5,1,1,1
+20260508,Referral,mail.google.com / referral,7,1,1,1
+20260508,Referral,mkt1-website / referral,5,1,1,1
+20260508,Referral,mutiny.tenereteam.com / referral,7,0,2,2
+20260508,Referral,newsletter.mkt1.co / referral,4,0,1,1
+20260508,Referral,otta.com / referral,5,1,1,1
+20260508,Referral,producthunt.com / referral,2,0,1,1
+20260508,Referral,start.arcline-ai.com / referral,6,1,1,1
+20260508,Referral,support.center.exadel.com / referral,2,0,1,1
+20260508,Referral,taaft / referral,6,1,1,1
+20260508,Referral,tagassistant.google.com / referral,20,1,1,1
+20260508,Referral,toools.design / referral,3,0,1,1
+20260508,Referral,ycombinator.com / referral,34,6,6,6
+20260508,Unassigned,(not set),1,0,1,1
+20260508,Unassigned,aiagentstore.ai / (not set),4,0,1,1
+20260508,Unassigned,cn.bing.com / referral,7,1,1,1
+20260508,Unassigned,listedai / (not set),3,0,1,1
+20260508,Unassigned,m.facebook.com / referral,9,0,3,3
+20260508,Unassigned,otta.com / (not set),3,0,1,1
+20260508,Unassigned,rachelandreago / (not set),4,1,1,1
+20260508,Unassigned,thisweekinaiclub.substack.com / (not set),12,1,4,4
+20260508,Unassigned,topstartups.io / (not set),7,1,1,1
+20260507,AI Referrals,chatgpt.com / referral,35,5,7,7
+20260507,AI Referrals,gemini.google.com / referral,14,2,4,4
+20260507,Direct,(direct) / (none),30264,799,6897,7011
+20260507,Email,hs_email / email,21,3,3,3
+20260507,Email,mkt1 / email,47,1,13,13
+20260507,Organic Search,bing / organic,15,1,3,3
+20260507,Organic Search,duckduckgo / organic,14,2,2,2
+20260507,Organic Search,google / organic,1318,151,256,248
+20260507,Organic Search,yahoo / organic,5,1,1,1
+20260507,Organic Social - LinkedIn,linkedin / social,33,4,8,8
+20260507,Organic Social - LinkedIn,linkedin.com / referral,34,4,6,6
+20260507,Organic Social - Reddit,reddit.com / referral,30,4,7,7
+20260507,Organic Social - Twitter,t.co / referral,13,2,5,5
+20260507,Referral,30mpcsite.webflow.io / referral,4,1,1,1
+20260507,Referral,amplitude.com / referral,8,1,1,1
+20260507,Referral,docs.google.com / referral,4,1,1,1
+20260507,Referral,findaitools.app / referral,3,0,1,1
+20260507,Referral,framer.com / referral,42,1,2,2
+20260507,Referral,github.com / referral,7,1,1,1
+20260507,Referral,globalization.framer.website / referral,3,1,1,1
+20260507,Referral,ihm.lightning.force.com / referral,4,1,1,1
+20260507,Referral,insightpartners.com / referral,9,1,1,1
+20260507,Referral,manus.im / referral,5,1,1,1
+20260507,Referral,messages.ycombinator.com / referral,3,0,1,1
+20260507,Referral,navattic.com / referral,2,0,1,1
+20260507,Referral,producthunt.com / referral,2,0,1,1
+20260507,Referral,sequel.io / referral,19,2,2,2
+20260507,Referral,sequoiacap.com / referral,6,1,2,2
+20260507,Referral,statics.teams.cdn.office.net / referral,19,2,6,6
+20260507,Referral,toolify / referral,5,1,1,1
+20260507,Referral,toools.design / referral,5,1,1,1
+20260507,Referral,weglot.com / referral,4,1,1,1
+20260507,Referral,ycombinator.com / referral,9,1,3,3
+20260507,Unassigned,(not set),1,0,1,1
+20260507,Unassigned,ecosia.org / organic,2,0,1,1
+20260507,Unassigned,famehost / podcast,3,0,1,1
+20260507,Unassigned,topstartups.io / (not set),11,2,2,2
+20260506,AI Referrals,chatgpt.com / referral,39,7,7,7
+20260506,AI Referrals,claude.ai / referral,8,2,2,2
+20260506,AI Referrals,gemini.google.com / referral,8,1,2,2
+20260506,Direct,(direct) / (none),50074,1795,10495,10827
+20260506,Email,hs_email / email,16,2,4,4
+20260506,Email,mkt1 / email,15,1,4,4
+20260506,Email,newsletter / email,22,1,1,1
+20260506,Organic Search,bing / organic,36,3,7,6
+20260506,Organic Search,duckduckgo / organic,4,1,1,1
+20260506,Organic Search,google / organic,1401,169,276,269
+20260506,Organic Search,yahoo / organic,3,0,1,1
+20260506,Organic Social - LinkedIn,linkedin / social,68,10,13,13
+20260506,Organic Social - LinkedIn,linkedin.com / referral,67,7,13,13
+20260506,Organic Social - Reddit,reddit.com / referral,22,2,4,4
+20260506,Organic Social - Twitter,t.co / referral,28,5,7,7
+20260506,Referral,30mpcsite.webflow.io / referral,9,1,2,2
+20260506,Referral,amplitude.com / referral,13,3,3,3
+20260506,Referral,app.prospeo.io / referral,3,0,1,1
+20260506,Referral,bookface.ycombinator.com / referral,7,1,2,2
+20260506,Referral,euc-word-edit.officeapps.live.com / referral,3,1,1,1
+20260506,Referral,framer.com / referral,84,2,2,2
+20260506,Referral,gamma.app / referral,6,1,1,1
+20260506,Referral,mail.google.com / referral,15,1,1,1
+20260506,Referral,mkt1 / referral,1,1,1,1
+20260506,Referral,mkt1-website / referral,2,0,1,1
+20260506,Referral,myapps.microsoft.com / referral,4,1,1,1
+20260506,Referral,navattic.com / referral,3,0,1,1
+20260506,Referral,notebooklm.google.com / referral,5,1,1,1
+20260506,Referral,otta.com / referral,10,1,1,1
+20260506,Referral,producthunt.com / referral,5,1,1,1
+20260506,Referral,sequoiacap.com / referral,14,2,3,3
+20260506,Referral,startups.gallery / referral,3,0,1,1
+20260506,Referral,statics.teams.cdn.office.net / referral,11,1,4,4
+20260506,Referral,toolify / referral,4,1,1,1
+20260506,Referral,ycombinator.com / referral,27,3,5,5
+20260506,Unassigned,(not set),3,0,3,3
+20260506,Unassigned,ecosia.org / organic,4,1,1,1
+20260506,Unassigned,mkt1 / newsletter,5,1,1,1
+20260506,Unassigned,otta.com / (not set),5,1,1,1
+20260506,Unassigned,repvue / (not set),14,2,2,2
+20260506,Unassigned,topstartups.io / (not set),11,2,2,2
+20260506,Unassigned,youtube / video,5,1,1,1
+20260505,AI Referrals,chatgpt.com / referral,31,3,8,8
+20260505,AI Referrals,claude.ai / referral,16,1,1,1
+20260505,AI Referrals,gemini.google.com / referral,24,2,5,5
+20260505,Direct,(direct) / (none),39889,1538,8481,8642
+20260505,Email,hs_email / email,3,0,1,1
+20260505,Email,mkt1 / email,3,1,1,1
+20260505,Organic Search,bing / organic,7,1,1,1
+20260505,Organic Search,google / organic,1720,219,314,307
+20260505,Organic Search,yahoo / organic,13,1,1,1
+20260505,Organic Social - LinkedIn,linkedin / social,71,10,13,13
+20260505,Organic Social - LinkedIn,linkedin.com / referral,83,11,19,19
+20260505,Organic Social - Reddit,reddit.com / referral,29,4,6,6
+20260505,Organic Social - Twitter,t.co / referral,4,1,1,1
+20260505,Referral,30mpcsite.webflow.io / referral,6,0,2,2
+20260505,Referral,a16zbuild.substack.com / referral,6,1,1,1
+20260505,Referral,amplitude.com / referral,4,1,1,1
+20260505,Referral,claude.com / referral,15,2,3,3
+20260505,Referral,framer.com / referral,32,1,2,2
+20260505,Referral,indeed.com / referral,4,0,1,1
+20260505,Referral,jyshare.com / referral,2,0,1,1
+20260505,Referral,mail.google.com / referral,53,1,1,1
+20260505,Referral,mkt1 / referral,21,3,3,3
+20260505,Referral,mkt1-website / referral,5,1,1,1
+20260505,Referral,pendo.lightning.force.com / referral,5,1,1,1
+20260505,Referral,safe2.dbswiso.prd / referral,3,0,1,1
+20260505,Referral,salesforge.ai / referral,3,1,1,1
+20260505,Referral,seismic.lightning.force.com / referral,4,1,1,1
+20260505,Referral,sequoiacap.com / referral,21,3,3,3
+20260505,Referral,startups.gallery / referral,11,0,3,3
+20260505,Referral,statics.teams.cdn.office.net / referral,38,5,9,9
+20260505,Referral,toools.design / referral,14,1,2,2
+20260505,Referral,ycombinator.com / referral,25,3,6,6
+20260505,Unassigned,(not set),12,0,3,3
+20260505,Unassigned,adwords / ppc,12,0,4,4
+20260505,Unassigned,ai-tools-inc / website,3,0,1,1
+20260505,Unassigned,ecosia.org / organic,2,0,1,1
+20260505,Unassigned,eliteai.tools / (not set),4,0,1,1
+20260505,Unassigned,medium.com / referral,5,1,1,1
+20260504,AI Referrals,chatgpt.com / referral,29,3,4,4
+20260504,AI Referrals,perplexity.ai / referral,4,0,1,1
+20260504,Direct,(direct) / (none),22233,815,4933,5005
+20260504,Email,hs_email / email,12,1,2,2
+20260504,Email,mkt1 / email,2,0,1,1
+20260504,Organic Search,bing / organic,38,5,5,5
+20260504,Organic Search,duckduckgo / organic,4,0,1,1
+20260504,Organic Search,google / organic,1573,201,294,285
+20260504,Organic Search,yahoo / organic,6,1,1,1
+20260504,Organic Social - LinkedIn,linkedin / social,31,6,7,7
+20260504,Organic Social - LinkedIn,linkedin.com / referral,76,9,18,18
+20260504,Organic Social - Reddit,reddit.com / referral,27,2,6,5
+20260504,Organic Social - Twitter,t.co / referral,14,2,4,4
+20260504,Referral,30mpcsite.webflow.io / referral,5,1,1,1
+20260504,Referral,a16zbuild.substack.com / referral,8,1,1,1
+20260504,Referral,amplitude.com / referral,7,1,2,2
+20260504,Referral,andy-s-production-company.mutiny-sites.com / referral,19,1,1,1
+20260504,Referral,bookface.ycombinator.com / referral,2,0,1,1
+20260504,Referral,boredpandacom.github.io / referral,4,1,1,1
+20260504,Referral,builtintech.lightning.force.com / referral,4,1,1,1
+20260504,Referral,claude.com / referral,11,2,2,2
+20260504,Referral,dock.us / referral,5,1,1,1
+20260504,Referral,framer.com / referral,10,1,1,1
+20260504,Referral,inc-excel.officeapps.live.com / referral,3,0,1,1
+20260504,Referral,indeed.com / referral,5,1,1,1
+20260504,Referral,jyshare.com / referral,7,1,2,2
+20260504,Referral,mail.google.com / referral,6,1,1,1
+20260504,Referral,mailmodo.com / referral,13,2,2,2
+20260504,Referral,messages.ycombinator.com / referral,9,1,1,1
+20260504,Referral,mkt1-website / referral,21,1,1,1
+20260504,Referral,sequel.io / referral,4,1,1,1
+20260504,Referral,startups.gallery / referral,11,2,2,2
+20260504,Referral,statics.teams.cdn.office.net / referral,11,2,3,3
+20260504,Referral,toolbox.exp.welcometothejungle.com / referral,6,1,1,1
+20260504,Referral,toools.design / referral,4,1,1,1
+20260504,Referral,ycombinator.com / referral,2,0,1,1
+20260504,Unassigned,(not set),7,0,3,3
+20260504,Unassigned,BuiltIn / BuiltIn,6,1,2,1
+20260504,Unassigned,ailist.mobilesl.com / (not set),3,0,1,1
+20260504,Unassigned,glassdoor.co.in / referral,6,1,1,1
+20260504,Unassigned,repvue / (not set),6,1,1,1
+20260504,Unassigned,skillwaala.com / button,3,0,1,1
+20260504,Unassigned,techstartups.com / (not set),3,0,1,1
+20260504,Unassigned,topstartups.io / (not set),22,3,5,4
+20260503,AI Referrals,chatgpt.com / (not set),7,1,1,1
+20260503,AI Referrals,chatgpt.com / referral,13,2,3,3
+20260503,Direct,(direct) / (none),9727,323,2174,2181
+20260503,Email,newsletter / email,4,1,1,1
+20260503,Organic Search,bing / organic,4,0,2,1
+20260503,Organic Search,duckduckgo / organic,10,2,2,2
+20260503,Organic Search,google / organic,539,70,118,116
+20260503,Organic Search,yahoo / organic,6,1,1,1
+20260503,Organic Social - LinkedIn,linkedin / social,46,6,8,8
+20260503,Organic Social - LinkedIn,linkedin.com / referral,28,4,7,7
+20260503,Organic Social - Reddit,reddit.com / referral,10,2,2,2
+20260503,Organic Social - Twitter,t.co / referral,23,2,5,5
+20260503,Referral,30mpcsite.webflow.io / referral,9,0,2,2
+20260503,Referral,amplitude.com / referral,21,3,4,4
+20260503,Referral,app.asana.com / referral,13,1,1,1
+20260503,Referral,eunasolutions.atlassian.net / referral,7,1,1,1
+20260503,Referral,framer.com / referral,5,1,1,1
+20260503,Referral,messages.ycombinator.com / referral,9,1,1,1
+20260503,Referral,producthunt.com / referral,6,1,1,1
+20260503,Referral,startups.gallery / referral,9,2,2,2
+20260503,Referral,toools.design / referral,3,0,1,1
+20260503,Referral,ycombinator.com / referral,13,3,4,4
+20260503,Unassigned,(not set),5,0,2,2
+20260503,Unassigned,topstartups.io / (not set),4,1,1,1
+20260502,AI Referrals,chatgpt.com / (not set),3,0,1,1
+20260502,Direct,(direct) / (none),828,62,208,207
+20260502,Organic Search,bing / organic,3,0,1,1
+20260502,Organic Search,duckduckgo / organic,4,0,1,1
+20260502,Organic Search,google / organic,436,55,82,79
+20260502,Organic Social - LinkedIn,linkedin / social,18,3,4,4
+20260502,Organic Social - LinkedIn,linkedin.com / referral,30,4,6,6
+20260502,Organic Social - Reddit,reddit.com / referral,4,0,1,1
+20260502,Organic Social - Twitter,t.co / referral,14,1,3,3
+20260502,Referral,30mpcsite.webflow.io / referral,2,0,1,1
+20260502,Referral,a16zbuild.substack.com / referral,12,1,1,1
+20260502,Referral,amplitude.com / referral,34,4,4,4
+20260502,Referral,bookface.ycombinator.com / referral,2,0,1,1
+20260502,Referral,jyshare.com / referral,2,0,1,1
+20260502,Referral,mkt1-website / referral,10,1,1,1
+20260502,Referral,newsletter.outbound.kitchen / referral,3,0,1,1
+20260502,Referral,producthunt.com / referral,2,0,1,1
+20260502,Referral,sequoiacap.com / referral,15,2,2,2
+20260502,Referral,startups.gallery / referral,4,1,1,1
+20260502,Referral,tools.haiyong.site / referral,5,0,1,1
+20260502,Referral,ycombinator.com / referral,6,0,2,2
+20260502,Unassigned,BuiltIn / BuiltIn,9,1,2,2
+20260502,Unassigned,repvue / (not set),6,1,1,1
+20260502,Unassigned,salesenablement.wordpress.com / referral,4,1,1,1
+20260502,Unassigned,undefined / undefined,3,0,1,1
+20260501,AI Referrals,chatgpt.com / referral,11,2,3,3
+20260501,AI Referrals,claude.ai / referral,29,1,1,1
+20260501,Direct,(direct) / (none),13581,468,3091,3103
+20260501,Email,mkt1 / email,9,1,1,1
+20260501,Organic Search,bing / organic,19,2,3,3
+20260501,Organic Search,google / organic,906,107,194,190
+20260501,Organic Social - LinkedIn,linkedin / social,40,5,9,9
+20260501,Organic Social - LinkedIn,linkedin.com / referral,70,11,16,16
+20260501,Organic Social - Reddit,reddit.com / referral,6,1,2,2
+20260501,Organic Social - Twitter,t.co / referral,7,0,4,3
+20260501,Referral,a16zbuild.substack.com / referral,2,0,1,1
+20260501,Referral,aixploria.com / referral,4,1,1,1
+20260501,Referral,amplitude.com / referral,20,3,4,4
+20260501,Referral,customerio.lightning.force.com / referral,3,1,1,1
+20260501,Referral,framer.com / referral,11,1,1,1
+20260501,Referral,globalization.framer.website / referral,4,1,1,1
+20260501,Referral,huemor.rocks / referral,5,1,1,1
+20260501,Referral,indeed.com / referral,2,0,1,1
+20260501,Referral,kevinyien.com / referral,4,1,1,1
+20260501,Referral,mail.google.com / referral,9,1,1,1
+20260501,Referral,messages.ycombinator.com / referral,4,0,1,1
+20260501,Referral,mutinyhq.chilipiper.com / referral,5,1,1,1
+20260501,Referral,org62.lightning.force.com / referral,5,0,1,1
+20260501,Referral,pendo.lightning.force.com / referral,10,1,1,1
+20260501,Referral,startups.gallery / referral,8,1,2,2
+20260501,Referral,statics.teams.cdn.office.net / referral,33,2,3,3
+20260501,Referral,url43.mailanyone.net / referral,4,1,1,1
+20260501,Referral,workatastartup.com / referral,5,1,1,1
+20260501,Referral,ycombinator.com / referral,20,3,5,5
+20260501,Unassigned,abmtactics / newsletter,3,0,1,1
+20260501,Unassigned,in.search.yahoo.com / referral,9,1,1,1
+20260501,Unassigned,novatools.cn / (not set),3,0,1,1
+20260501,Unassigned,topstartups.io / (not set),3,1,1,1
+20260430,AI Referrals,chatgpt.com / referral,14,1,5,5
+20260430,AI Referrals,claude.ai / referral,12,2,2,2
+20260430,Direct,(direct) / (none),27838,1030,6549,6430
+20260430,Email,hs_automation / email,4,0,1,1
+20260430,Email,hs_email / email,47,2,2,2
+20260430,Email,mkt1 / email,2,0,1,1
+20260430,Email,newsletter / email,4,0,1,1
+20260430,Organic Search,bing / organic,21,2,5,5
+20260430,Organic Search,duckduckgo / organic,6,1,2,2
+20260430,Organic Search,google / organic,1533,191,279,271
+20260430,Organic Social - LinkedIn,linkedin / social,67,5,16,16
+20260430,Organic Social - LinkedIn,linkedin.com / referral,25,2,7,7
+20260430,Organic Social - Reddit,reddit.com / referral,15,2,4,4
+20260430,Organic Social - Twitter,t.co / referral,49,6,10,10
+20260430,Referral,30mpcsite.webflow.io / referral,29,2,3,3
+20260430,Referral,a16zbuild.substack.com / referral,8,1,2,2
+20260430,Referral,amplitude.com / referral,22,3,4,4
+20260430,Referral,apollo.io / referral,4,0,1,1
+20260430,Referral,bookface.ycombinator.com / referral,6,0,3,3
+20260430,Referral,clearbit-partner / referral,9,1,1,1
+20260430,Referral,jyshare.com / referral,2,0,1,1
+20260430,Referral,mail.google.com / referral,41,2,2,2
+20260430,Referral,messages.ycombinator.com / referral,3,0,1,1
+20260430,Referral,mkt1 / referral,6,1,1,1
+20260430,Referral,newsletter.mkt1.co / referral,4,1,1,1
+20260430,Referral,parker.candidatelabs.com / referral,2,0,1,1
+20260430,Referral,startups.gallery / referral,10,2,2,2
+20260430,Referral,statics.teams.cdn.office.net / referral,38,4,4,4
+20260430,Referral,toools.design / referral,4,1,1,1
+20260430,Referral,uncorkcapital.com / referral,6,1,1,1
+20260430,Referral,ycombinator.com / referral,2,0,1,1
+20260430,Unassigned,(not set),5,0,3,3
+20260430,Unassigned,Toplyne / Substack,4,0,1,1
+20260430,Unassigned,glassdoor.com / referral,3,0,1,1
+20260430,Unassigned,groupifyai / ai_tools,3,0,1,1
+20260430,Unassigned,topstartups.io / (not set),5,1,1,1
+20260429,AI Referrals,chatgpt.com / (not set),3,1,1,1
+20260429,AI Referrals,chatgpt.com / referral,18,3,4,4
+20260429,AI Referrals,claude.ai / referral,3,1,1,1
+20260429,AI Referrals,gemini.google.com / referral,3,0,1,1
+20260429,Direct,(direct) / (none),62459,1888,14879,15061
+20260429,Email,hs_email / email,39,3,4,4
+20260429,Email,substack / email,4,0,1,1
+20260429,Organic Search,bing / organic,33,5,6,6
+20260429,Organic Search,duckduckgo / organic,3,0,1,1
+20260429,Organic Search,google / organic,1668,214,299,290
+20260429,Organic Search,yahoo / organic,4,1,1,1
+20260429,Organic Social - LinkedIn,linkedin / social,186,25,33,33
+20260429,Organic Social - LinkedIn,linkedin.com / referral,148,19,31,31
+20260429,Organic Social - Reddit,reddit.com / referral,9,1,2,2
+20260429,Organic Social - Twitter,t.co / referral,28,4,7,6
+20260429,Referral,30mpcsite.webflow.io / referral,18,1,2,2
+20260429,Referral,amplitude.com / referral,16,2,4,4
+20260429,Referral,business-gsb-stanford.12twenty.com / referral,8,1,1,1
+20260429,Referral,claude.com / referral,8,1,1,1
+20260429,Referral,framer.com / referral,6,1,1,1
+20260429,Referral,indeed.com / referral,16,3,3,3
+20260429,Referral,mail.google.com / referral,58,2,2,2
+20260429,Referral,messages.ycombinator.com / referral,3,1,1,1
+20260429,Referral,mkt1 / referral,13,1,1,1
+20260429,Referral,mkt1-website / referral,2,0,1,1
+20260429,Referral,producthunt.com / referral,6,1,1,1
+20260429,Referral,startups.gallery / referral,4,1,1,1
+20260429,Referral,statics.teams.cdn.office.net / referral,44,3,6,5
+20260429,Referral,toools.design / referral,16,2,4,4
+20260429,Referral,venatici.lightning.force.com / referral,3,1,1,1
+20260429,Referral,ycombinator.com / referral,4,0,2,2
+20260429,Unassigned,(not set),8,0,3,3
+20260429,Unassigned,glassdoor.co.in / referral,6,1,1,1
+20260429,Unassigned,glassdoor.com / referral,5,1,1,1
+20260429,Unassigned,otta.com / (not set),4,1,1,1
+20260429,Unassigned,topstartups.io / (not set),5,0,2,2
+20260428,AI Referrals,chatgpt.com / referral,51,2,6,6
+20260428,AI Referrals,gemini.google.com / referral,7,1,1,1
+20260428,Direct,(direct) / (none),16678,496,3986,3935
+20260428,Email,hs_email / email,16,2,4,4
+20260428,Email,mkt1 / email,5,1,1,1
+20260428,Organic Search,bing / organic,34,5,6,6
+20260428,Organic Search,google / organic,1534,207,296,287
+20260428,Organic Search,yahoo / organic,8,1,1,1
+20260428,Organic Search,yandex / organic,3,0,1,1
+20260428,Organic Social - LinkedIn,linkedin / social,36,5,10,10
+20260428,Organic Social - LinkedIn,linkedin.com / referral,70,10,19,18
+20260428,Organic Social - Reddit,reddit.com / referral,16,3,4,4
+20260428,Organic Social - Twitter,t.co / referral,12,1,4,4
+20260428,Referral,a16zbuild.substack.com / referral,14,3,3,3
+20260428,Referral,amplitude.com / referral,23,4,5,5
+20260428,Referral,crm.summitpartners.com / referral,2,0,1,1
+20260428,Referral,exadel.atlassian.net / referral,7,1,2,1
+20260428,Referral,gamma.app / referral,3,0,1,1
+20260428,Referral,indeed.com / referral,8,1,2,2
+20260428,Referral,jyshare.com / referral,9,1,1,1
+20260428,Referral,mail.google.com / referral,11,1,1,1
+20260428,Referral,mkt1 / referral,6,1,1,1
+20260428,Referral,mkt1-website / referral,12,1,2,2
+20260428,Referral,parker.candidatelabs.com / referral,3,0,1,1
+20260428,Referral,producthunt.com / referral,18,1,2,2
+20260428,Referral,search.nortonbrowser.com / referral,6,1,1,1
+20260428,Referral,sequoiacap.com / referral,23,3,3,3
+20260428,Referral,statics.teams.cdn.office.net / referral,18,1,2,2
+20260428,Referral,techcrunch.com / referral,2,0,1,1
+20260428,Referral,toools.design / referral,12,2,2,2
+20260428,Referral,uncorkcapital.com / referral,3,0,1,1
+20260428,Referral,venatici.lightning.force.com / referral,3,1,1,1
+20260428,Referral,ycombinator.com / referral,20,3,4,4
+20260428,Unassigned,(not set),3,0,2,2
+20260428,Unassigned,topstartups.io / (not set),6,1,1,1
+20260428,Unassigned,yandex.ru / referral,4,1,1,1
+20260427,AI Referrals,chatgpt.com / referral,30,5,7,7
+20260427,AI Referrals,gemini.google.com / referral,17,3,3,3
+20260427,Direct,(direct) / (none),25652,854,5871,5784
+20260427,Email,nurture / email,2,0,1,1
+20260427,Organic Search,bing / organic,22,2,7,7
+20260427,Organic Search,google / organic,1732,233,331,325
+20260427,Organic Search,yahoo / organic,6,1,1,1
+20260427,Organic Social - LinkedIn,linkedin / social,75,9,16,16
+20260427,Organic Social - LinkedIn,linkedin.com / referral,99,11,23,23
+20260427,Organic Social - LinkedIn,lnkd.in / referral,5,1,1,1
+20260427,Organic Social - Reddit,reddit.com / referral,22,2,5,5
+20260427,Organic Social - Twitter,t.co / referral,76,13,17,16
+20260427,Referral,30mpcsite.webflow.io / referral,5,1,1,1
+20260427,Referral,a16zbuild.substack.com / referral,14,2,3,3
+20260427,Referral,alternastack.beehiiv.com / referral,4,1,1,1
+20260427,Referral,amplitude.com / referral,3,0,1,1
+20260427,Referral,chameleon.io / referral,7,1,1,1
+20260427,Referral,claude.com / referral,7,1,1,1
+20260427,Referral,copilot.t-tech.team / referral,7,1,1,1
+20260427,Referral,crm.summitpartners.com / referral,12,1,3,2
+20260427,Referral,customerio.lightning.force.com / referral,6,1,1,1
+20260427,Referral,github.com / referral,7,1,2,2
+20260427,Referral,insightpartners.com / referral,5,1,1,1
+20260427,Referral,mail.google.com / referral,8,1,1,1
+20260427,Referral,messages.ycombinator.com / referral,7,1,1,1
+20260427,Referral,startups.gallery / referral,18,3,3,3
+20260427,Referral,statics.teams.cdn.office.net / referral,44,5,5,5
+20260427,Referral,supporthuman.cx / referral,5,1,1,1
+20260427,Referral,thecmo.com / referral,6,1,1,1
+20260427,Referral,toools.design / referral,8,1,2,2
+20260427,Referral,ws.planhat.com / referral,3,1,1,1
+20260427,Referral,ycombinator.com / referral,34,6,7,7
+20260427,Unassigned,(not set),4,0,3,3
+20260427,Unassigned,BuiltIn / BuiltIn,9,2,2,2
+20260427,Unassigned,btwob-sales-digest.beehiiv.com / newsletter,4,0,1,1
+20260427,Unassigned,topstartups.io / (not set),10,1,2,2
+20260426,AI Referrals,chatgpt.com / referral,14,1,4,4
+20260426,AI Referrals,gemini.google.com / referral,3,0,1,1
+20260426,Direct,(direct) / (none),933,102,211,209
+20260426,Email,hs_email / email,3,0,1,1
+20260426,Organic Search,duckduckgo / organic,8,1,1,1
+20260426,Organic Search,google / organic,843,116,158,151
+20260426,Organic Social - LinkedIn,linkedin / social,38,5,9,9
+20260426,Organic Social - LinkedIn,linkedin.com / referral,81,13,19,19
+20260426,Organic Social - Reddit,reddit.com / referral,28,3,5,4
+20260426,Organic Social - Twitter,t.co / referral,17,2,4,4
+20260426,Referral,a16zbuild.substack.com / referral,6,1,1,1
+20260426,Referral,bookface.ycombinator.com / referral,4,1,1,1
+20260426,Referral,chat.mistral.ai / referral,3,0,1,1
+20260426,Referral,couponannie.com / referral,5,0,1,1
+20260426,Referral,d1yei2z3i6k35z.cloudfront.net / referral,3,0,1,1
+20260426,Referral,findailist / referral,3,0,1,1
+20260426,Referral,messages.ycombinator.com / referral,3,0,1,1
+20260426,Referral,sequoiacap.com / referral,5,1,1,1
+20260426,Referral,software-suggest / referral,4,0,1,1
+20260426,Referral,stackshare.io / referral,3,0,1,1
+20260426,Referral,startups.gallery / referral,18,2,3,3
+20260426,Referral,statics.teams.cdn.office.net / referral,2,0,1,1
+20260426,Referral,toools.design / referral,6,1,1,1
+20260426,Referral,workatastartup.com / referral,17,1,3,3
+20260426,Referral,ycombinator.com / referral,40,8,8,8
+20260426,Unassigned,(not set),2,0,2,2
+20260426,Unassigned,BuiltIn / BuiltIn,9,1,2,2
+20260426,Unassigned,repvue / (not set),5,1,1,1
+20260426,Unassigned,trustradius.com / click,4,1,1,1
+20260425,AI Referrals,chatgpt.com / referral,25,4,5,5
+20260425,AI Referrals,claude.ai / referral,6,1,1,1
+20260425,Direct,(direct) / (none),1118,105,265,263
+20260425,Email,hs_email / email,5,1,1,1
+20260425,Organic Search,duckduckgo / organic,9,1,1,1
+20260425,Organic Search,google / organic,697,78,127,122
+20260425,Organic Social - LinkedIn,linkedin / social,15,4,4,4
+20260425,Organic Social - LinkedIn,linkedin.com / referral,58,8,12,12
+20260425,Organic Social - Reddit,reddit.com / referral,15,2,2,2
+20260425,Organic Social - Twitter,t.co / referral,55,8,12,12
+20260425,Referral,30mpcsite.webflow.io / referral,17,1,1,1
+20260425,Referral,a16zbuild.substack.com / referral,6,1,1,1
+20260425,Referral,chat.mistral.ai / referral,2,0,1,1
+20260425,Referral,crm.summitpartners.com / referral,4,0,1,1
+20260425,Referral,mail.google.com / referral,2,0,1,1
+20260425,Referral,messages.ycombinator.com / referral,2,0,1,1
+20260425,Referral,mkt1-website / referral,2,0,1,1
+20260425,Referral,sequoiacap.com / referral,7,1,1,1
+20260425,Referral,startups.gallery / referral,16,2,3,3
+20260425,Referral,toools.design / referral,13,2,3,3
+20260425,Referral,uber.com / referral,10,1,1,1
+20260425,Referral,workatastartup.com / referral,5,0,1,1
+20260425,Referral,ycombinator.com / referral,15,1,5,5
+20260425,Unassigned,BuiltIn / BuiltIn,8,1,1,1
+20260425,Unassigned,btwob-sales-digest.beehiiv.com / newsletter,4,0,1,1
+20260425,Unassigned,topstartups.io / (not set),5,1,1,1
+20260424,AI Referrals,chatgpt.com / referral,6,1,2,2
+20260424,AI Referrals,claude.ai / referral,6,1,2,2
+20260424,AI Referrals,gemini.google.com / referral,4,1,1,1
+20260424,Direct,(direct) / (none),42996,1298,9564,9462
+20260424,Email,hs_automation / email,14,1,1,1
+20260424,Email,hs_email / email,11,1,3,3
+20260424,Organic Search,bing / organic,38,5,8,8
+20260424,Organic Search,google / organic,1636,195,278,271
+20260424,Organic Search,yahoo / organic,6,1,1,1
+20260424,Organic Social - LinkedIn,linkedin / social,47,8,11,11
+20260424,Organic Social - LinkedIn,linkedin.com / referral,66,8,20,20
+20260424,Organic Social - Reddit,reddit.com / referral,7,1,1,1
+20260424,Organic Social - Twitter,t.co / referral,27,3,9,9
+20260424,Referral,30mpcsite.webflow.io / referral,69,2,3,3
+20260424,Referral,aijuh.com / referral,3,0,1,1
+20260424,Referral,bookface.ycombinator.com / referral,4,0,1,1
+20260424,Referral,customerio.lightning.force.com / referral,2,0,1,1
+20260424,Referral,globalization.framer.website / referral,5,1,1,1
+20260424,Referral,mail.google.com / referral,22,3,3,3
+20260424,Referral,mkt1 / referral,4,1,1,1
+20260424,Referral,mkt1-website / referral,4,1,1,1
+20260424,Referral,newsletter.outbound.kitchen / referral,5,1,1,1
+20260424,Referral,startups.gallery / referral,13,2,2,2
+20260424,Referral,statics.teams.cdn.office.net / referral,7,1,2,2
+20260424,Referral,toools.design / referral,25,4,5,5
+20260424,Referral,workatastartup.com / referral,6,1,2,2
+20260424,Referral,ycombinator.com / referral,36,7,8,8
+20260424,Unassigned,(not set),1,0,1,1
+20260424,Unassigned,BuiltIn / BuiltIn,5,1,1,1
+20260424,Unassigned,btwob-sales-digest.beehiiv.com / newsletter,8,0,2,2
+20260424,Unassigned,otta.com / (not set),2,0,1,1
+20260424,Unassigned,topstartups.io / (not set),8,1,1,1
+20260424,Unassigned,youtube.com / referral,3,0,1,1
+20260423,AI Referrals,chatgpt.com / (not set),3,0,1,1
+20260423,AI Referrals,chatgpt.com / referral,19,3,4,4
+20260423,AI Referrals,claude.ai / referral,3,1,1,1
+20260423,AI Referrals,gemini.google.com / referral,33,4,4,4
+20260423,Direct,(direct) / (none),82722,2468,18754,18765
+20260423,Email,hs_email / email,14,1,4,4
+20260423,Email,mkt1 / email,2,0,1,1
+20260423,Email,nurture / email,5,1,1,1
+20260423,Email,substack / email,2,0,1,1
+20260423,Organic Search,bing / organic,42,5,9,8
+20260423,Organic Search,google / organic,1493,187,279,271
+20260423,Organic Social - LinkedIn,linkedin / social,108,11,18,18
+20260423,Organic Social - LinkedIn,linkedin.com / referral,152,22,35,35
+20260423,Organic Social - Reddit,reddit.com / referral,8,2,2,2
+20260423,Organic Social - Twitter,t.co / referral,84,13,23,23
+20260423,Referral,30mpcsite.webflow.io / referral,7,1,1,1
+20260423,Referral,a16zbuild.substack.com / referral,13,2,3,3
+20260423,Referral,adroll.lightning.force.com / referral,5,1,1,1
+20260423,Referral,app.asana.com / referral,4,1,1,1
+20260423,Referral,bookface.ycombinator.com / referral,8,1,3,3
+20260423,Referral,champaign.mutiny.local / referral,14,1,1,1
+20260423,Referral,claude.com / referral,25,2,3,3
+20260423,Referral,customerio.lightning.force.com / referral,7,1,1,1
+20260423,Referral,experiencewelcome.com / referral,2,0,1,1
+20260423,Referral,framer.com / referral,10,1,1,1
+20260423,Referral,globalization.framer.website / referral,3,1,1,1
+20260423,Referral,insightpartners.com / referral,5,1,1,1
+20260423,Referral,kagi.com / referral,4,0,1,1
+20260423,Referral,mail.google.com / referral,124,2,2,2
+20260423,Referral,marketingprofs.com / referral,5,1,1,1
+20260423,Referral,mkt1-website / referral,24,3,4,4
+20260423,Referral,producthunt.com / referral,5,1,1,1
+20260423,Referral,search.brave.com / referral,4,1,1,1
+20260423,Referral,startups.gallery / referral,5,1,1,1
+20260423,Referral,statics.teams.cdn.office.net / referral,30,5,7,7
+20260423,Referral,toools.design / referral,19,3,4,4
+20260423,Referral,undefined / referral,3,0,1,1
+20260423,Referral,www.superpowerdaily.com / referral,6,1,1,1
+20260423,Referral,ycombinator.com / referral,18,3,4,4
+20260423,Unassigned,(not set),5,0,4,4
+20260423,Unassigned,BuiltIn / BuiltIn,6,1,1,1
+20260423,Unassigned,Toplyne / Substack,3,0,1,1
+20260423,Unassigned,btwob-sales-digest.beehiiv.com / newsletter,107,0,31,31
+20260423,Unassigned,ecosia.org / organic,4,1,1,1
+20260423,Unassigned,futurepedia / marketplace,3,0,1,1
+20260423,Unassigned,otta.com / (not set),6,1,1,1
+20260423,Unassigned,topstartups.io / (not set),7,1,1,1
+20260422,AI Referrals,chatgpt.com / (not set),4,1,1,1
+20260422,AI Referrals,chatgpt.com / referral,3,0,1,1
+20260422,AI Referrals,gemini.google.com / referral,7,2,2,2
+20260422,Direct,(direct) / (none),69006,1911,15874,16066
+20260422,Email,hs_email / email,46,6,10,9
+20260422,Email,mkt1 / email,5,1,2,2
+20260422,Organic Search,bing / organic,16,3,4,4
+20260422,Organic Search,duckduckgo / organic,7,1,1,1
+20260422,Organic Search,google / organic,1297,160,246,240
+20260422,Organic Search,yahoo / organic,8,1,2,2
+20260422,Organic Social - LinkedIn,linkedin / social,124,14,18,18
+20260422,Organic Social - LinkedIn,linkedin.com / referral,110,16,27,27
+20260422,Organic Social - Reddit,reddit.com / referral,37,2,7,7
+20260422,Organic Social - Twitter,t.co / referral,92,12,24,24
+20260422,Referral,30mpc.com / referral,9,1,1,1
+20260422,Referral,30mpcsite.webflow.io / referral,25,2,3,3
+20260422,Referral,a16zbuild.substack.com / referral,9,1,2,2
+20260422,Referral,amplitude.com / referral,6,1,1,1
+20260422,Referral,app.asana.com / referral,15,2,3,3
+20260422,Referral,claude.com / referral,105,11,13,13
+20260422,Referral,customerio.lightning.force.com / referral,9,1,1,1
+20260422,Referral,doc.clickup.com / referral,5,1,1,1
+20260422,Referral,experiencewelcome.com / referral,4,1,1,1
+20260422,Referral,github.com / referral,5,1,1,1
+20260422,Referral,globalization.framer.website / referral,2,0,1,1
+20260422,Referral,greenhouse.lightning.force.com / referral,5,1,1,1
+20260422,Referral,mail.google.com / referral,16,2,2,2
+20260422,Referral,messages.ycombinator.com / referral,4,1,1,1
+20260422,Referral,mkt1-website / referral,6,1,2,2
+20260422,Referral,moge.ai / referral,1,1,1,1
+20260422,Referral,producthunt.com / referral,3,0,1,1
+20260422,Referral,sequoiacap.com / referral,2,0,1,1
+20260422,Referral,start.arcline-ai.com / referral,2,0,1,1
+20260422,Referral,startups.gallery / referral,11,2,2,2
+20260422,Referral,statics.teams.cdn.office.net / referral,27,5,5,5
+20260422,Referral,substack.com / referral,2,0,1,1
+20260422,Referral,support.center.exadel.com / referral,6,0,1,1
+20260422,Referral,temp-mail.org / referral,3,1,1,1
+20260422,Referral,thegtmnewsletter.substack.com / referral,2,0,1,1
+20260422,Referral,toools.design / referral,35,6,6,6
+20260422,Referral,webfx.com / referral,5,1,1,1
+20260422,Referral,workatastartup.com / referral,4,1,1,1
+20260422,Referral,www.growthunhinged.com / referral,3,1,1,1
+20260422,Referral,ycombinator.com / referral,39,6,11,11
+20260422,Unassigned,(not set),5,0,3,3
+20260422,Unassigned,mkt1 / (not set),8,1,1,1
+20260422,Unassigned,topstartups.io / (not set),5,1,1,1
+20260422,Unassigned,youtube.com / referral,2,0,1,1
+20260421,AI Referrals,chatgpt.com / (not set),4,0,1,1
+20260421,AI Referrals,chatgpt.com / referral,18,4,4,4
+20260421,AI Referrals,gemini.google.com / referral,22,2,2,2
+20260421,AI Referrals,perplexity.ai / referral,5,1,1,1
+20260421,Direct,(direct) / (none),46619,1062,10899,11112
+20260421,Email,hs_email / email,2,0,1,1
+20260421,Email,mkt1 / email,13,3,3,3
+20260421,Email,substack / email,5,1,1,1
+20260421,Organic Search,bing / organic,33,5,6,6
+20260421,Organic Search,google / organic,1527,189,289,284
+20260421,Organic Social - LinkedIn,linkedin / social,143,17,20,20
+20260421,Organic Social - LinkedIn,linkedin.com / referral,35,3,10,10
+20260421,Organic Social - Reddit,reddit.com / referral,18,2,4,4
+20260421,Organic Social - Twitter,t.co / referral,11,1,4,4
+20260421,Referral,30mpc.com / referral,14,1,1,1
+20260421,Referral,30mpcsite.webflow.io / referral,31,2,3,3
+20260421,Referral,amplitude.com / referral,11,2,2,2
+20260421,Referral,app.mutiny.local / referral,4,1,1,1
+20260421,Referral,bookface.ycombinator.com / referral,8,1,2,2
+20260421,Referral,clean-email / referral,8,0,2,2
+20260421,Referral,docs.google.com / referral,4,0,1,1
+20260421,Referral,gtmfund.com / referral,3,0,1,1
+20260421,Referral,mail.google.com / referral,50,2,2,2
+20260421,Referral,mkt1-website / referral,2,0,1,1
+20260421,Referral,moge.ai / referral,6,1,2,2
+20260421,Referral,parker.candidatelabs.com / referral,2,0,1,1
+20260421,Referral,producthunt.com / referral,12,3,3,3
+20260421,Referral,sequel.io / referral,11,2,2,2
+20260421,Referral,startups.gallery / referral,14,2,3,3
+20260421,Referral,statics.teams.cdn.office.net / referral,55,5,7,7
+20260421,Referral,toools.design / referral,27,4,6,6
+20260421,Referral,uncorkcapital.com / referral,7,1,1,1
+20260421,Referral,workatastartup.com / referral,11,2,2,2
+20260421,Referral,www.superpowerdaily.com / referral,3,0,1,1
+20260421,Referral,ycombinator.com / referral,16,3,3,3
+20260421,Unassigned,(not set),8,0,3,3
+20260421,Unassigned,BuiltIn / BuiltIn,4,1,1,1
+20260421,Unassigned,Community / Wordpress,4,1,1,1
+20260421,Unassigned,ai-and-marketing.beehiiv.com / newsletter,2,0,1,1
+20260421,Unassigned,ecosia.org / organic,5,1,1,1
+20260421,Unassigned,otta.com / (not set),2,0,1,1
+20260421,Unassigned,repvue / (not set),7,1,1,1
+20260421,Unassigned,topstartups.io / (not set),6,1,1,1
+20260421,Unassigned,youtube.com / referral,5,1,1,1
+20260420,AI Referrals,chatgpt.com / referral,26,4,6,6
+20260420,AI Referrals,gemini.google.com / referral,5,1,1,1
+20260420,Direct,(direct) / (none),10836,420,2629,2616
+20260420,Email,hs_email / email,19,2,5,5
+20260420,Email,substack / email,2,0,1,1
+20260420,Organic Search,bing / organic,9,1,3,3
+20260420,Organic Search,duckduckgo / organic,2,0,1,1
+20260420,Organic Search,google / organic,1372,186,287,279
+20260420,Organic Social - LinkedIn,linkedin / social,125,20,29,29
+20260420,Organic Social - LinkedIn,linkedin.com / referral,122,12,17,17
+20260420,Organic Social - Reddit,reddit.com / referral,7,1,1,1
+20260420,Organic Social - Twitter,t.co / referral,39,4,11,10
+20260420,Referral,30mpcsite.webflow.io / referral,16,2,2,2
+20260420,Referral,a16zbuild.substack.com / referral,4,0,1,1
+20260420,Referral,aixploria.com / referral,4,1,1,1
+20260420,Referral,app.clickup.com / referral,1,1,1,1
+20260420,Referral,bookface.ycombinator.com / referral,32,6,6,6
+20260420,Referral,docs.google.com / referral,10,1,1,1
+20260420,Referral,framer.com / referral,17,1,1,1
+20260420,Referral,jl-gate-restrict-access-business.rc.mutinyhq-staging.com / referral,4,1,1,1
+20260420,Referral,mail.google.com / referral,37,1,1,1
+20260420,Referral,mkt1 / referral,3,0,1,1
+20260420,Referral,moge.ai / referral,3,0,1,1
+20260420,Referral,parker.candidatelabs.com / referral,4,1,1,1
+20260420,Referral,producthunt.com / referral,14,1,1,1
+20260420,Referral,productwatch.io / referral,11,1,1,1
+20260420,Referral,search.brave.com / referral,7,1,1,1
+20260420,Referral,sequel.io / referral,3,1,1,1
+20260420,Referral,sequoiacap.com / referral,7,1,2,2
+20260420,Referral,startups.gallery / referral,2,0,1,1
+20260420,Referral,statics.teams.cdn.office.net / referral,10,1,2,2
+20260420,Referral,substack.com / referral,4,1,1,1
+20260420,Referral,support.center.exadel.com / referral,23,2,2,2
+20260420,Referral,thegtmnewsletter.substack.com / referral,2,0,1,1
+20260420,Referral,workatastartup.com / referral,5,1,1,1
+20260420,Referral,www.superpowerdaily.com / referral,13,1,3,2
+20260420,Referral,ycombinator.com / referral,89,10,20,20
+20260420,Unassigned,(not set),11,0,5,5
+20260420,Unassigned,ai-and-marketing.beehiiv.com / newsletter,6,1,1,1
+20260420,Unassigned,ecosia.org / organic,7,1,2,2
+20260420,Unassigned,topstartups.io / (not set),7,2,2,2
+20260420,Unassigned,youtube / neo-youtube-channel,4,1,1,1
+20260419,AI Referrals,chatgpt.com / referral,2,0,1,1
+20260419,AI Referrals,claude.ai / referral,5,1,1,1
+20260419,Direct,(direct) / (none),5137,188,1213,1216
+20260419,Email,hs_automation / email,24,1,1,1
+20260419,Email,hs_email / email,6,1,2,2
+20260419,Email,substack / email,7,1,2,2
+20260419,Organic Search,bing / organic,12,1,2,2
+20260419,Organic Search,google / organic,563,77,121,120
+20260419,Organic Social - LinkedIn,linkedin / social,77,12,17,16
+20260419,Organic Social - LinkedIn,linkedin.com / referral,41,5,9,9
+20260419,Organic Social - Reddit,reddit.com / referral,3,0,1,1
+20260419,Organic Social - Twitter,t.co / referral,35,5,9,9
+20260419,Referral,akademik.biz.id / referral,4,1,1,1
+20260419,Referral,app.clickup.com / referral,4,1,1,1
+20260419,Referral,github.com / referral,5,1,1,1
+20260419,Referral,mkt1-website / referral,7,1,1,1
+20260419,Referral,producthunt.com / referral,4,0,1,1
+20260419,Referral,sequel.io / referral,3,1,1,1
+20260419,Referral,sequoiacap.com / referral,8,1,1,1
+20260419,Referral,startups.gallery / referral,3,0,1,1
+20260419,Referral,substack.com / referral,7,2,2,1
+20260419,Referral,theaiedgenewsletter.beehiiv.com / referral,3,0,1,1
+20260419,Referral,www.superpowerdaily.com / referral,10,2,2,2
+20260419,Referral,xgrowth.com.au / referral,17,1,1,1
+20260419,Referral,ycombinator.com / referral,89,12,21,21
+20260419,Unassigned,(not set),2,0,2,2
+20260419,Unassigned,converge africa / article,4,0,1,1
+20260419,Unassigned,in.search.yahoo.com / referral,6,1,1,1
+20260419,Unassigned,topstartups.io / (not set),8,1,2,2
+20260418,AI Referrals,chatgpt.com / referral,19,3,4,4
+20260418,Direct,(direct) / (none),7800,180,1863,1861
+20260418,Email,hs_email / email,2,0,1,1
+20260418,Email,substack / email,4,1,1,1
+20260418,Organic Search,bing / organic,4,1,1,1
+20260418,Organic Search,google / organic,522,63,99,98
+20260418,Organic Social - LinkedIn,linkedin / social,61,7,15,14
+20260418,Organic Social - LinkedIn,linkedin.com / referral,56,7,16,16
+20260418,Organic Social - Twitter,t.co / referral,45,5,11,11
+20260418,Referral,30mpcsite.webflow.io / referral,2,0,1,1
+20260418,Referral,insightglobal.com / referral,4,1,1,1
+20260418,Referral,mail.google.com / referral,6,1,2,2
+20260418,Referral,mkt1-website / referral,9,1,1,1
+20260418,Referral,mutiny.tenereteam.com / referral,4,0,1,1
+20260418,Referral,otta.com / referral,7,1,1,1
+20260418,Referral,producthunt.com / referral,26,4,5,5
+20260418,Referral,startups.gallery / referral,16,2,3,3
+20260418,Referral,www.superpowerdaily.com / referral,2,0,1,1
+20260418,Referral,ycombinator.com / referral,43,7,10,10
+20260418,Unassigned,BuiltIn / BuiltIn,5,1,1,1
+20260418,Unassigned,facebook.com / referral,4,1,1,1
+20260418,Unassigned,m.facebook.com / referral,4,0,1,1
+20260418,Unassigned,qwant.com / organic,6,1,1,1
+20260418,Unassigned,salesenablement.wordpress.com / referral,4,1,1,1
+20260418,Unassigned,topstartups.io / (not set),22,2,2,2
+20260418,Unassigned,yandex.ru / referral,3,0,1,1
+20260417,AI Referrals,chatgpt.com / referral,57,4,12,12
+20260417,AI Referrals,perplexity.ai / referral,4,1,1,1
+20260417,Direct,(direct) / (none),47051,937,11462,11359
+20260417,Email,hs_email / email,30,4,5,5
+20260417,Email,substack / email,8,2,2,2
+20260417,Organic Search,bing / organic,8,1,3,3
+20260417,Organic Search,duckduckgo / organic,11,2,3,2
+20260417,Organic Search,google / organic,1487,186,276,270
+20260417,Organic Social - LinkedIn,linkedin / social,262,34,52,52
+20260417,Organic Social - LinkedIn,linkedin.com / referral,160,18,42,41
+20260417,Organic Social - Reddit,reddit.com / referral,29,2,5,4
+20260417,Organic Social - Twitter,t.co / referral,75,7,15,14
+20260417,Referral,adstellar.ai / referral,4,1,1,1
+20260417,Referral,apollo.io / referral,4,1,1,1
+20260417,Referral,app.clickup.com / referral,2,0,1,1
+20260417,Referral,bookface.ycombinator.com / referral,2,0,1,1
+20260417,Referral,docs.google.com / referral,5,1,1,1
+20260417,Referral,framer.com / referral,15,1,1,1
+20260417,Referral,github.com / referral,5,1,1,1
+20260417,Referral,globalization.framer.website / referral,3,1,1,1
+20260417,Referral,inc-excel.officeapps.live.com / referral,2,0,1,1
+20260417,Referral,jyshare.com / referral,5,0,1,1
+20260417,Referral,mail.google.com / referral,70,2,3,3
+20260417,Referral,mkt1 / referral,5,1,1,1
+20260417,Referral,mkt1-website / referral,8,1,2,2
+20260417,Referral,producthunt.com / referral,9,1,1,1
+20260417,Referral,sequoiacap.com / referral,11,2,2,2
+20260417,Referral,startups.gallery / referral,7,1,2,2
+20260417,Referral,statics.teams.cdn.office.net / referral,29,4,9,9
+20260417,Referral,taaft / referral,3,0,1,1
+20260417,Referral,unify3.lightning.force.com / referral,3,0,1,1
+20260417,Referral,www.newsletter.marketermilk.com / referral,3,0,1,1
+20260417,Referral,www.superpowerdaily.com / referral,3,0,1,1
+20260417,Referral,ycombinator.com / referral,52,6,12,10
+20260417,Unassigned,(not set),3,2,2,2
+20260417,Unassigned,ai-and-marketing.beehiiv.com / newsletter,16,2,3,3
+20260417,Unassigned,ecosia.org / organic,4,1,1,1
+20260417,Unassigned,mindmechanics.com / blog,3,0,1,1
+20260417,Unassigned,topstartups.io / (not set),3,0,1,1
+20260416,AI Referrals,chatgpt.com / referral,20,3,5,5
+20260416,AI Referrals,gemini.google.com / referral,9,2,2,2
+20260416,Direct,(direct) / (none),47713,956,11518,10256
+20260416,Email,hs_email / email,19,3,4,4
+20260416,Organic Search,bing / organic,28,5,7,7
+20260416,Organic Search,duckduckgo / organic,15,2,3,3
+20260416,Organic Search,google / organic,1852,243,351,336
+20260416,Organic Search,yahoo / organic,4,1,1,1
+20260416,Organic Social - LinkedIn,linkedin / paid,3,1,1,1
+20260416,Organic Social - LinkedIn,linkedin / social,163,22,29,28
+20260416,Organic Social - LinkedIn,linkedin.com / referral,94,11,14,14
+20260416,Organic Social - Reddit,reddit.com / referral,15,2,3,3
+20260416,Organic Social - Twitter,t.co / referral,266,34,57,57
+20260416,Referral,123movies-to.org / referral,3,0,1,1
+20260416,Referral,ai-and-marketing.beehiiv.com / referral,3,0,1,1
+20260416,Referral,app.clickup.com / referral,2,0,1,1
+20260416,Referral,app.raindrop.io / referral,6,1,1,1
+20260416,Referral,canva.com / referral,8,1,1,1
+20260416,Referral,coda.io / referral,3,1,1,1
+20260416,Referral,docs.google.com / referral,4,1,1,1
+20260416,Referral,failory.com / referral,4,1,1,1
+20260416,Referral,framer.com / referral,13,1,1,1
+20260416,Referral,gtmfund.com / referral,5,1,1,1
+20260416,Referral,hn.algolia.com / referral,9,1,1,1
+20260416,Referral,isaless.com / referral,6,1,1,1
+20260416,Referral,jl-gate-restrict-access-business.rc.mutinyhq-staging.com / referral,3,0,1,1
+20260416,Referral,jyshare.com / referral,5,1,1,1
+20260416,Referral,mail.google.com / referral,47,4,4,3
+20260416,Referral,mkt1-website / referral,6,1,1,1
+20260416,Referral,news.bensbites.co / referral,5,1,1,1
+20260416,Referral,producthunt.com / referral,13,1,2,2
+20260416,Referral,startups.gallery / referral,10,1,1,1
+20260416,Referral,statics.teams.cdn.office.net / referral,50,4,6,6
+20260416,Referral,substack.com / referral,8,1,1,1
+20260416,Referral,uncorkcapital.com / referral,6,1,1,1
+20260416,Referral,workatastartup.com / referral,4,0,1,1
+20260416,Referral,www.superpowerdaily.com / referral,29,4,7,6
+20260416,Referral,ycombinator.com / referral,69,10,13,13
+20260416,Unassigned,(not set),12602,342,3000,2955
+20260416,Unassigned,BuiltIn / BuiltIn,16,3,3,3
+20260416,Unassigned,ai-and-marketing.beehiiv.com / newsletter,16,0,4,4
+20260416,Unassigned,in.search.yahoo.com / referral,5,1,1,1
+20260416,Unassigned,topstartups.io / (not set),4,1,1,1
+20260415,AI Referrals,chatgpt.com / referral,70,6,6,6
+20260415,AI Referrals,gemini.google.com / referral,3,1,1,1
+20260415,Direct,(direct) / (none),17674,566,4072,4110
+20260415,Email,hs_email / email,39,2,10,10
+20260415,Email,mkt1 / email,11,1,1,1
+20260415,Email,newsletter / email,3,1,1,1
+20260415,Email,substack / email,24,3,6,6
+20260415,Organic Search,bing / organic,31,5,7,7
+20260415,Organic Search,duckduckgo / organic,6,0,2,2
+20260415,Organic Search,google / organic,2718,358,473,467
+20260415,Organic Search,yahoo / organic,4,1,1,1
+20260415,Organic Social - LinkedIn,linkedin / social,244,32,39,39
+20260415,Organic Social - LinkedIn,linkedin.com / referral,193,25,45,45
+20260415,Organic Social - Reddit,reddit.com / referral,13,1,3,3
+20260415,Organic Social - Twitter,t.co / referral,1112,149,227,224
+20260415,Referral,a16zbuild.substack.com / referral,66,5,5,5
+20260415,Referral,app.clickup.com / referral,2,0,1,1
+20260415,Referral,bookface.ycombinator.com / referral,36,5,6,6
+20260415,Referral,canva.com / referral,7,1,2,2
+20260415,Referral,coefficient.io / referral,9,1,1,1
+20260415,Referral,docs.google.com / referral,3,0,1,1
+20260415,Referral,framer.com / referral,13,1,1,1
+20260415,Referral,gokickflip.com / referral,4,1,1,1
+20260415,Referral,hacker-news.firebaseio.com / referral,3,0,1,1
+20260415,Referral,insightpartners.com / referral,7,1,1,1
+20260415,Referral,jyshare.com / referral,8,1,1,1
+20260415,Referral,lucid.app / referral,3,1,1,1
+20260415,Referral,luma.com / referral,2,0,1,1
+20260415,Referral,mail.google.com / referral,38,2,3,3
+20260415,Referral,marketingtech.ai / referral,6,1,1,1
+20260415,Referral,mkt1 / referral,1,0,1,1
+20260415,Referral,mkt1-website / referral,9,0,2,2
+20260415,Referral,predictleads.com / referral,22,1,1,1
+20260415,Referral,producthunt.com / referral,35,5,9,9
+20260415,Referral,startups.gallery / referral,53,8,9,9
+20260415,Referral,statics.teams.cdn.office.net / referral,112,11,18,18
+20260415,Referral,ycombinator.com / referral,64,8,12,11
+20260415,Unassigned,(not set),4,0,2,2
+20260415,Unassigned,BuiltIn / BuiltIn,5,1,1,1
+20260415,Unassigned,evidently.beehiiv.com / newsletter,3,0,1,1
+20260415,Unassigned,news.ycombinator.com / referral,59,8,14,14
+20260415,Unassigned,otta.com / (not set),28,5,5,5
+20260415,Unassigned,stormy.ai / (not set),3,0,1,1
+20260415,Unassigned,topstartups.io / (not set),16,1,2,2
+20260415,Unassigned,yandex.uz / referral,4,1,1,1
+

@@ -1,0 +1,67 @@
+# Builds the dashboard and deploys it to GitHub Pages on every push to main.
+#
+# Data flow:
+#   - src/data.json is committed (produced locally by `npm run pull-data`).
+#   - This workflow does NOT run pull-data, so no API secrets are needed in CI.
+#   - To refresh the live dashboard: locally `npm run pull-data`, commit, push.
+#     CI then builds + deploys the new dist/index.html to Pages.
+#
+# Requirements:
+#   - GitHub Pages enabled on this repo (Settings → Pages → Source: GitHub Actions).
+#   - For a PRIVATE repo, Pages requires a GitHub Pro plan ($4/mo for personal
+#     accounts) or Team/Enterprise for orgs. On free, the repo would need to be
+#     public for Pages to serve — in that case, use Vercel/Netlify instead.
+
+name: Deploy dashboard to Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build dashboard
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

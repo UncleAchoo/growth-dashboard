@@ -1,0 +1,31 @@
+# ----------------------------------------
+# Corp Site - GA4
+# Growth Dashboard Data-2 — Signup events by channel 
+# 20260415-20260515
+# ----------------------------------------
+
+Date,Session Mutiny - With AI Referrals,Session source / medium,Event count
+,,,86,Grand total
+20260514,AI Referrals,chatgpt.com / referral,2
+20260514,Direct,(direct) / (none),11
+20260514,Organic Search,google / organic,9
+20260513,Direct,(direct) / (none),21
+20260513,Organic Search,google / organic,1
+20260513,Paid Social,fb / paid_social,1
+20260511,Direct,(direct) / (none),1
+20260511,Organic Search,duckduckgo / organic,1
+20260511,Organic Search,google / organic,5
+20260511,Organic Social - LinkedIn,linkedin / social,2
+20260510,Direct,(direct) / (none),3
+20260510,Organic Search,google / organic,6
+20260510,Referral,thisweekinaiclub.substack.com / referral,1
+20260509,Direct,(direct) / (none),1
+20260509,Organic Search,google / organic,4
+20260509,Unassigned,l.instagram.com / referral,1
+20260508,Direct,(direct) / (none),4
+20260508,Organic Search,google / organic,4
+20260508,Referral,mkt1-website / referral,1
+20260507,Organic Search,google / organic,3
+20260507,Organic Social - LinkedIn,linkedin.com / referral,1
+20260507,Referral,framer.com / referral,3
+

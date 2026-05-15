@@ -1,0 +1,11 @@
+node_modules/
+dist/
+dist-*/
+.DS_Store
+*.log
+.vite/
+vite.config.*.timestamp-*.mjs
+.env.local
+.env.*.local
+.gcp-key.json
+*-key.json

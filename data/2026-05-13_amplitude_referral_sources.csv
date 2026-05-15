@@ -1,0 +1,105 @@
+# Amplitude pull — referral_source breakdown
+# Source: chart iggyu2qz (edit sc3k9okv) — https://app.amplitude.com/analytics/mutiny/chart/iggyu2qz/edit/sc3k9okv
+# Event: [Onboarding] Company Setup Complete (metric: uniques, countGroup: User)
+# Filter: referral_source != "(none)" AND email does not contain "mutiny"
+# Window: Apr 27 - May 13, 2026 (project timezone America/New_York)
+# Pulled: May 13, 2026
+# Grand total: 119 unique users
+#
+# Daily signup counts (all signups, no referral filter) — context for the window:
+#   Apr 27: 26   Apr 28: 24   Apr 29: 52   Apr 30: 43
+#   May  1: 15   May  2: 11   May  3: 12 → Wk 1 total: 183
+#   May  4: 32   May  5: 23   May  6: 25   May  7: 38   May  8: 22   May  9:  6   May 10: 12 → Wk 2 total: 158
+#   May 11: 26   May 12: 35   May 13: 21 → Wk 3 partial: 82
+#   GRAND TOTAL: 423 unique signups (matches KPI tile)
+#
+referral_source,user_count,bucket
+fate,5,Joke / Invalid
+google,6,Search
+Google,5,Search
+LinkedIn,5,LinkedIn
+colleague,5,Word of Mouth
+Coworker,3,Word of Mouth
+-,2,Joke / Invalid
+Claude,2,LLM
+Friend,2,Word of Mouth
+Search,2,Search
+claude,2,LLM
+friend,2,Word of Mouth
+test,2,Joke / Invalid
+--,1,Joke / Invalid
+.,1,Joke / Invalid
+....,1,Joke / Invalid
+1,1,Joke / Invalid
+20 year marketing veteran,1,Joke / Invalid
+30MPC,1,Influencer / Community
+30mpc,1,Influencer / Community
+AI,1,LLM
+BMC,1,Word of Mouth
+Chat GPT,1,LLM
+ChatGPT,1,LLM
+Co-Worker,1,Word of Mouth
+Demo,1,Joke / Invalid
+Fate,1,Joke / Invalid
+Friends,1,Word of Mouth
+Google Search,1,Search
+HBS Alumni site,1,Influencer / Community
+Homebase,1,Word of Mouth
+I didn't,1,Joke / Invalid
+I was so excited about spirit 2.0 that I had to do something,1,Joke / Invalid
+It,1,Joke / Invalid
+It was fate...,1,Joke / Invalid
+Jason Liu my homeboy,1,Joke / Invalid
+LinkedIn - 30mpc,1,LinkedIn
+LinkedIn post,1,LinkedIn
+Linkedin,1,LinkedIn
+Looking for ABM Strategy help,1,Other / Unparseable
+MKT1,1,Influencer / Community
+My manager,1,Word of Mouth
+Newsletter,1,Other / Unparseable
+Online,1,Other / Unparseable
+Our Group CEO is a huge fan,1,Word of Mouth
+Ruben email,1,Other / Unparseable
+Slack,1,Word of Mouth
+Teacher,1,Word of Mouth
+Team,1,Word of Mouth
+Test,1,Joke / Invalid
+Trining,1,Joke / Invalid
+WOM,1,Word of Mouth
+We use it at SWI,1,Word of Mouth
+Word of mouth,1,Word of Mouth
+Y Combinator,1,YC
+YC,1,YC
+YC Video,1,YC
+YC video,1,YC
+a buddy of mine,1,Word of Mouth
+a collegaue,1,Word of Mouth
+calm,1,Word of Mouth
+chatgpt,1,LLM
+company,1,Joke / Invalid
+copilot,1,LLM
+coworker,1,Word of Mouth
+destiny,1,Joke / Invalid
+dj khaled,1,Joke / Invalid
+don't remember,1,Joke / Invalid
+email,1,Other / Unparseable
+from a colleague,1,Word of Mouth
+from friend,1,Word of Mouth
+googl,1,Search
+https://claude.com/customers/mutiny,1,LLM
+https://www.linkedin.com/in/jasonrashidnia,1,LinkedIn
+idk,1,Joke / Invalid
+jk,1,Joke / Invalid
+linkedin,1,LinkedIn
+manager,1,Word of Mouth
+my manager,1,Word of Mouth
+omar,1,Joke / Invalid
+organic,1,Search
+recommendation,1,Word of Mouth
+referred,1,Word of Mouth
+search,1,Search
+sequoia,1,Word of Mouth
+sfasf,1,Joke / Invalid
+web,1,Search
+word of mouth,1,Word of Mouth
+yc,1,YC

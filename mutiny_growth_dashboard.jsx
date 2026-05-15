@@ -1,0 +1,3748 @@
+import React, { useState } from 'react';
+import {
+  PieChart, Pie, Cell, ResponsiveContainer,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  BarChart, Bar,
+} from 'recharts';
+import {
+  ArrowUpRight, ArrowDownRight, HelpCircle, AlertTriangle, Sparkles, Info, ChevronDown,
+} from 'lucide-react';
+import dataJson from './src/data.json';
+
+// ---------------------------------------------------------------------------
+// Mutiny brand tokens
+// ---------------------------------------------------------------------------
+const C = {
+  purple: '#A73BF5',
+  green: '#B2FF14',
+  red: '#FB5A3D',
+  blue: '#96ECFF',
+  lightPurple: '#F2D1FC',
+  lightBlue: '#BCEEFD',
+  lightRed: '#FF9987',
+  lightGreen: '#D6E7DA',
+  black: '#000000',
+  lightGrey: '#EFEFEF',
+  white: '#FFFFFF',
+  paper: '#FAF8F4', // off-white editorial background
+};
+
+const FONT_DISPLAY = "'Fraunces', 'Reckless Condensed S', Georgia, serif";
+const FONT_BODY = "'Manrope', 'KMR Waldenburg', Arial, sans-serif";
+const FONT_MONO = "'Geist Mono', 'JetBrains Mono', 'SF Mono', Consolas, monospace";
+const FONT_CAPTION = "'Fraunces', 'Affix', Georgia, serif";
+
+// ---------------------------------------------------------------------------
+// Live data window — anchored at Apr 27, rolls forward with every build.
+//
+// All three data sources come from src/data.json, pulled at build time by
+// scripts/pull-data.mjs:
+//   ga4       — Apps Script Web App returning Sheets data (sessions, channel)
+//   amplitude — Dashboard REST API (daily signup uniques + referral_source pie)
+//   hubspot   — CRM contact search (Talk-to-Sales submissions)
+//
+// The Apr 27 floor is fixed (data prior is unreliable); the end date is the
+// latest day in the GA4 file1 response.
+// ---------------------------------------------------------------------------
+
+// --- Date helpers (UTC, to avoid CI timezone-shift bugs) -------------------
+function parseYYYYMMDD(s) {
+  const str = String(s);
+  return new Date(Date.UTC(
+    parseInt(str.slice(0, 4), 10),
+    parseInt(str.slice(4, 6), 10) - 1,
+    parseInt(str.slice(6, 8), 10),
+  ));
+}
+function fmtYYYYMMDD(d) {
+  return `${d.getUTCFullYear()}` +
+    `${String(d.getUTCMonth() + 1).padStart(2, '0')}` +
+    `${String(d.getUTCDate()).padStart(2, '0')}`;
+}
+const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtMonDay(d)   { return `${MONTH_ABBR[d.getUTCMonth()]} ${d.getUTCDate()}`; }
+function addUTCDays(d, n) {
+  const r = new Date(d);
+  r.setUTCDate(r.getUTCDate() + n);
+  return r;
+}
+function mondayOfUTC(d) {
+  const day = d.getUTCDay(); // 0 = Sun
+  return addUTCDays(d, day === 0 ? -6 : 1 - day);
+}
+
+// --- Live window: Last 30 days, rolling ------------------------------------
+// "Today" is taken from dataJson.pulledAt so the dashboard's window stays
+// stable for a given build (doesn't drift across user time zones at render).
+const LIVE_END_DATE       = (() => {
+  const iso = dataJson.pulledAt || new Date().toISOString();
+  return new Date(Date.UTC(
+    Number(iso.slice(0, 4)),
+    Number(iso.slice(5, 7)) - 1,
+    Number(iso.slice(8, 10)),
+  ));
+})();
+const LIVE_START_DATE     = addUTCDays(LIVE_END_DATE, -30);
+const LIVE_END_YYYYMMDD   = fmtYYYYMMDD(LIVE_END_DATE);
+const LIVE_START_YYYYMMDD = fmtYYYYMMDD(LIVE_START_DATE);
+const LIVE_DAYS_ELAPSED   = 31;  // today (inclusive) + 30 prior days
+// Use the most recent successful per-source pulledAt for the header. Top-level
+// pulledAt is the orchestrator timestamp; per-source is more accurate.
+const LIVE_DATA_PULLED_AT =
+  dataJson.ga4?.pulledAt
+  || dataJson.amplitude?.pulledAt
+  || dataJson.hubspot?.pulledAt
+  || dataJson.pulledAt;
+
+// --- Daily signups (Amplitude) and meetings (HubSpot), both live ----------
+// dataJson.amplitude.dailySignups : { "20260427": 26, ... }
+// dataJson.hubspot.meetings       : [{ date, email, company, referralSource }]
+const LIVE_SIGNUPS_BY_DATE = dataJson.amplitude?.dailySignups || {};
+const LIVE_MEETINGS_BY_DATE = (() => {
+  const out = {};
+  for (const m of (dataJson.hubspot?.meetings || [])) {
+    out[m.date] = (out[m.date] || 0) + 1;
+  }
+  return out;
+})();
+
+// --- File 1 indexed by date (engaged sessions, daily totals) ---------------
+const LIVE_ENGAGED_BY_DATE = Object.fromEntries(
+  dataJson.ga4.file1.map((r) => [r.date, r.engagedSessions]),
+);
+
+// --- Weekly buckets (Mon-Sun, expanded outward) ---------------------------
+// First bucket = the Mon-Sun week containing LIVE_START (may extend 1-6
+// days earlier than the strict 30-day window). Last bucket = the Mon-Sun
+// week containing LIVE_END (today) — extends into the future if today
+// isn't Sunday yet.
+//
+// `partial` only flags the *current* week (its Sunday is > today). The
+// first bucket is never marked partial, even if it pre-dates the strict
+// 30-day start, per the design call: "if the earliest week is partial,
+// treat it as full."
+function buildWeeks() {
+  const weeks = [];
+  const weeklyStart = mondayOfUTC(LIVE_START_DATE);
+  const weeklyEnd   = addUTCDays(mondayOfUTC(LIVE_END_DATE), 6);  // Sunday of current week
+  let wkStart = weeklyStart;
+  while (wkStart <= weeklyEnd) {
+    const wkEnd = addUTCDays(wkStart, 6);
+    const dates = [];
+    for (let d = new Date(wkStart); d <= wkEnd; d = addUTCDays(d, 1)) {
+      dates.push(fmtYYYYMMDD(d));
+    }
+    weeks.push({
+      weekStartLabel: fmtMonDay(wkStart),
+      weekStart: fmtYYYYMMDD(wkStart),
+      dateRange: `${fmtMonDay(wkStart)} – ${fmtMonDay(wkEnd)}`,
+      partial: wkEnd > LIVE_END_DATE,
+      dates,
+    });
+    wkStart = addUTCDays(wkEnd, 1);
+  }
+  return weeks;
+}
+const LIVE_WEEKS = buildWeeks();
+
+const WINDOW = {
+  start: LIVE_START_YYYYMMDD,
+  end:   LIVE_END_YYYYMMDD,
+  label: `${fmtMonDay(LIVE_START_DATE)} – ${fmtMonDay(LIVE_END_DATE)}, ${LIVE_END_DATE.getUTCFullYear()}`,
+  daysElapsed: LIVE_DAYS_ELAPSED,
+  asteriskNote:
+    'Last 30 days, rolling. Weekly charts extend out to full Mon-Sun weeks; the first week reuses the entire week and the current in-progress week is hatched.',
+};
+
+// KPI cards + pies use the strict 30-day window (LIVE_START → LIVE_END).
+// Weekly charts use the expanded Mon-Sun range. The two ranges can differ
+// by up to 12 days (6 before + 6 after).
+function inStrictWindow(dateStr) {
+  return dateStr >= LIVE_START_YYYYMMDD && dateStr <= LIVE_END_YYYYMMDD;
+}
+
+const SIGNUPS_30D = Object.entries(LIVE_SIGNUPS_BY_DATE)
+  .filter(([d]) => inStrictWindow(d))
+  .reduce((s, [, n]) => s + (Number(n) || 0), 0);
+const MEETINGS_30D = (dataJson.hubspot?.meetings || [])
+  .filter((m) => inStrictWindow(m.date)).length;
+const ENGAGED_30D = Object.entries(LIVE_ENGAGED_BY_DATE)
+  .filter(([d]) => inStrictWindow(d))
+  .reduce((s, [, n]) => s + (Number(n) || 0), 0);
+
+const DATA = {
+  signups:         { window: SIGNUPS_30D },
+  engagedSessions: { window: ENGAGED_30D },
+  salesMeetings:   { window: MEETINGS_30D },
+};
+
+const ratioWindow = (DATA.signups.window / DATA.engagedSessions.window) * 100;
+
+// ---------------------------------------------------------------------------
+// Week-over-Week — same-days-of-week cumulative (option B).
+// Compares this-week's-Mon-through-today against last-week's-same-days.
+// Caveat: a one-day spike in the previous week lingers in the comparison
+// for ~5 days (through end of that week), then resets when we cross into
+// the next Mon-Sun bucket. Acceptable for the "live" reactive feel.
+// ---------------------------------------------------------------------------
+const _currentWeekMon = mondayOfUTC(LIVE_END_DATE);
+const _lastWeekMon    = addUTCDays(_currentWeekMon, -7);
+const _daysIntoWeek   = Math.round((LIVE_END_DATE - _currentWeekMon) / 86400000) + 1; // 1..7
+
+const _thisWeekDates = [];
+for (let i = 0; i < _daysIntoWeek; i++) _thisWeekDates.push(fmtYYYYMMDD(addUTCDays(_currentWeekMon, i)));
+const _lastWeekDates = [];
+for (let i = 0; i < _daysIntoWeek; i++) _lastWeekDates.push(fmtYYYYMMDD(addUTCDays(_lastWeekMon, i)));
+
+function sumByDateMap(map, dates)   { return dates.reduce((s, d) => s + (map[d]   || 0), 0); }
+function countMeetingsIn(dates)     { return (dataJson.hubspot?.meetings || []).filter((m) => dates.includes(m.date)).length; }
+
+const _wowSignups = {
+  thisWeek: sumByDateMap(LIVE_SIGNUPS_BY_DATE, _thisWeekDates),
+  lastWeek: sumByDateMap(LIVE_SIGNUPS_BY_DATE, _lastWeekDates),
+};
+const _wowEngaged = {
+  thisWeek: sumByDateMap(LIVE_ENGAGED_BY_DATE, _thisWeekDates),
+  lastWeek: sumByDateMap(LIVE_ENGAGED_BY_DATE, _lastWeekDates),
+};
+const _wowMeetings = {
+  thisWeek: countMeetingsIn(_thisWeekDates),
+  lastWeek: countMeetingsIn(_lastWeekDates),
+};
+const _wowRatio = {
+  thisWeek: _wowEngaged.thisWeek ? (_wowSignups.thisWeek / _wowEngaged.thisWeek) * 100 : 0,
+  lastWeek: _wowEngaged.lastWeek ? (_wowSignups.lastWeek / _wowEngaged.lastWeek) * 100 : 0,
+};
+
+// Returns { raw, pct } or null if there's no comparable prior period.
+// `raw` is the absolute change (this − last); `pct` is the relative %.
+// If `prev` is zero we still render `raw` (it's meaningful) but suppress
+// `pct` so we don't show "+Infinity%".
+function wow(curr, prev) {
+  if (curr === undefined || curr === null || prev === undefined || prev === null) return null;
+  return {
+    raw: curr - prev,
+    pct: prev !== 0 ? ((curr - prev) / prev) * 100 : null,
+  };
+}
+const WOW = {
+  signups:         wow(_wowSignups.thisWeek,  _wowSignups.lastWeek),
+  engagedSessions: wow(_wowEngaged.thisWeek,  _wowEngaged.lastWeek),
+  salesMeetings:   wow(_wowMeetings.thisWeek, _wowMeetings.lastWeek),
+  // Ratio WoW: raw is percentage-points (pp); pct is relative change of the ratio.
+  ratio:           wow(_wowRatio.thisWeek,    _wowRatio.lastWeek),
+};
+
+// Weekly top-of-funnel — all three series live now.
+//   sessions ← GA4 file1 daily
+//   signups  ← Amplitude dailySignups
+//   meetings ← HubSpot meetings, counted per submission date
+const WEEKLY_TOP_OF_FUNNEL = LIVE_WEEKS.map((w) => {
+  const sumIn = (m) => w.dates.reduce((s, d) => s + (m[d] || 0), 0);
+  return {
+    week:      w.weekStartLabel,
+    dateRange: w.dateRange,
+    partial:   w.partial,
+    sessions:  sumIn(LIVE_ENGAGED_BY_DATE),
+    signups:   sumIn(LIVE_SIGNUPS_BY_DATE),
+    meetings:  sumIn(LIVE_MEETINGS_BY_DATE),
+  };
+});
+
+// Share of Signups
+// ---------------------------------------------------------------------------
+// Share of Signups — categorization rules + bucketed data.
+// The `rules` array below is the source of truth for how raw referral_source
+// strings get bucketed. Each rule is (regex, bucketName) checked top-to-bottom;
+// first match wins, so order matters. New entries from future Amplitude pulls
+// can be auto-bucketed by running them through categorizeReferralSource() —
+// no manual re-categorization required.
+// ---------------------------------------------------------------------------
+// Known employer/customer mentions that indicate "heard from coworkers at
+// this company" — bucketed as Word of Mouth. Grows over time as new
+// employer-mention patterns appear in raw data.
+const KNOWN_EMPLOYER_MENTIONS = /^(BMC|Homebase|Slack|calm|sequoia|Team|SWI)$|we use it at/i;
+
+const CATEGORIZATION_RULES = [
+  // Specific brand/community names first, before generic keywords might catch them
+  { match: /linkedin/i,                                                  bucket: 'LinkedIn' },
+  { match: /chatgpt|chat gpt|claude|perplexity|gemini|copilot|\bai\b/i,  bucket: 'LLM' },
+  { match: /y\s?combinator|\byc\b/i,                                     bucket: 'YC' },
+  { match: /mkt1|hbs|alumni|community|30\s?mpc/i,                        bucket: 'Influencer / Community' },
+  { match: /podcast/i,                                                   bucket: 'Influencer / Community' }, // collapsed bucket
+  // Word-of-mouth signals — anything indicating "heard about Mutiny from a real
+  // person." Covers people the user knows (friend/colleague/coworker/manager/
+  // teacher/CEO/VP/boss/buddy), the abbreviation WOM, "(someone) is a fan"
+  // phrasings, and known employer mentions ("heard about it at BMC/Slack/etc.").
+  // `colleag` stem catches both "colleague" and the typo "collegaue".
+  // `\bfan\b` is safe here — in a "how did you hear" field, "fan" almost
+  // always means a third party is enthusiastic about Mutiny.
+  { match: new RegExp(
+      /friend|colleagu|collegau|co[-\s]?worker|referred|recommendation|word of mouth|\bWOM\b|\bmanager\b|\bteacher\b|\bceo\b|\bVP\b|\bboss\b|\bfan\b|\bbuddy\b|\bhubby\b|\bwife\b|\bhusband\b|\bspouse\b|\binvestor\b|\bruben\b/.source
+      + '|' + KNOWN_EMPLOYER_MENTIONS.source, 'i'),
+    bucket: 'Word of Mouth' },
+  // Search-related — add 'organic' for "organic search" shorthand
+  { match: /google|googl|search|^web$|^organic$/i,                       bucket: 'Search' },
+  // Social — X/Twitter, Reddit, Facebook (incl. FB shorthand), Instagram.
+  // FB-as-shorthand-for-Facebook added May 14, 2026 after it appeared in
+  // the Amplitude referral_source pull.
+  { match: /\bx post\b|twitter|reddit|facebook|^fb$|^fb\b|instagram/i,    bucket: 'Social' },
+  // Joke / Invalid — fate/destiny, test/demo, empty/punctuation, joke phrases.
+  // Captured as a distinct bucket (vs Other) so the pie's "Other" stays small
+  // and represents genuinely unclear-but-real responses rather than noise.
+  { match: /\bfate\b|\bdestiny\b|^test$|^demo$|^trining$|^idk$|^jk$|^it$|^omar$|^dj\s?khaled$|^sfasf$|^company$|^hello$|^\.+$|^-+$|^\d{1,2}$|i didn't|i was so excited|don't remember|pressured me into|its blowing up|my neighbors|home\s?boy|20 year marketing|\bloved it\b/i,
+    bucket: 'Joke / Invalid' },
+];
+
+function categorizeReferralSource(raw) {
+  if (!raw) return 'Other / Unparseable';
+  const trimmed = raw.trim();
+  if (!trimmed) return 'Other / Unparseable';
+  for (const rule of CATEGORIZATION_RULES) {
+    if (rule.match.test(trimmed)) return rule.bucket;
+  }
+  return 'Other / Unparseable';
+}
+
+// ---------------------------------------------------------------------------
+// Signups pie data — live from Amplitude. dataJson.amplitude.referralSources
+// is an array of { source: string, count: number } objects (one per unique
+// referral_source value seen in the window). categorizeReferralSource maps
+// each raw string to one of nine buckets via the rules above.
+// ---------------------------------------------------------------------------
+const BUCKET_DEFINITIONS = [
+  { name: 'Word of Mouth',          color: C.purple },
+  { name: 'Search',                 color: C.lightBlue },
+  { name: 'LLM',                    color: C.green },
+  { name: 'Influencer / Community', color: C.lightPurple },
+  { name: 'YC',                     color: C.red },
+  { name: 'LinkedIn',                color: C.blue },
+  { name: 'Social',                  color: C.lightRed },
+  { name: 'Joke / Invalid',          color: '#9D9D9D' },
+  { name: 'Other / Unparseable',     color: C.black },
+];
+
+const SHARE_OF_SIGNUPS = BUCKET_DEFINITIONS.map((def) => {
+  let value = 0;
+  const sources = [];
+  for (const { source, count } of (dataJson.amplitude?.referralSources || [])) {
+    if (categorizeReferralSource(source) === def.name) {
+      value += count;
+      sources.push(source);
+    }
+  }
+  return { ...def, value, sources };
+});
+
+const TOTAL_SIGNUPS_CATEGORIZED = SHARE_OF_SIGNUPS.reduce((s, x) => s + x.value, 0);
+
+// ---------------------------------------------------------------------------
+// Sales Meeting Discovery — self-reported "how did you discover Mutiny"
+// from the Talk to Sales form (HubSpot contacts, property
+// `how_did_you_discover_mutiny`). Same bucketing rules as Share of Signups.
+// Pull: May 13, 2026.
+// Window: Talk to Sales form-submission date BETWEEN Apr 27 – May 13, 2026.
+//   Submission date logic: if recent_conversion_event_name = "Talk to Sales",
+//   use recent_conversion_date; else (recent = a later "Meetings Link"
+//   booking), use first_conversion_date (createdate) since Talk to Sales was
+//   their first conversion.
+// 23 contacts with how_did_you_discover_mutiny set + any conversion activity
+// in window → 14 valid TtS submissions in window after filtering:
+//   - 4 test accounts excluded (3× matt.ratchford+*@mutinyhq.com; kedwardsfake@1mind.com)
+//   - 5 outside-window excluded (Talk to Sales fill predates Apr 27; their
+//     in-window activity was a meeting booking, not a fresh form fill).
+// ---------------------------------------------------------------------------
+// Sales meetings pie — live from HubSpot. dataJson.hubspot.meetings is an
+// array of { date, email, company, referralSource } objects, one per valid
+// in-window Talk-to-Sales submission (test-filtered, submission-date by
+// the corrected first_conversion_date rule — see CONTEXT.md).
+// Filter HubSpot meetings to the strict 30-day window so the pie matches
+// the KPI tile rather than the weekly chart's expanded Mon-Sun range.
+const SALES_FORM_RAW_RESPONSES = (dataJson.hubspot?.meetings || [])
+  .filter((m) => inStrictWindow(m.date))
+  .map((m) => m.referralSource);
+
+const SHARE_OF_SALES_MEETINGS = BUCKET_DEFINITIONS.map((def) => {
+  const sources = SALES_FORM_RAW_RESPONSES.filter(
+    (raw) => categorizeReferralSource(raw) === def.name
+  );
+  return { ...def, value: sources.length, sources };
+});
+
+const TOTAL_SALES_MEETINGS_CATEGORIZED = SHARE_OF_SALES_MEETINGS.reduce((s, x) => s + x.value, 0);
+
+// Bucketing rules — tightened regexes so that e.g. "mail.google.com" doesn't
+// get caught by the Search rule. Rules applied in order; first match wins.
+const SIGNUPS_BUCKETING_RULES = [
+  // AEO / Answer Engine Optimization — match known LLM/AI search sources
+  { match: /^chatgpt\.com$|^claude\.com$|^claude\.ai$|^perplexity\.ai$|^gemini\.google\.com$|^bard\.google\.com$|^copilot\.microsoft\.com$|^poe\.com$|chatgpt|^claude$|perplexity/i, bucket: 'AEO' },
+  // LinkedIn — broken out from Organic Social
+  { match: /linkedin/i, bucket: 'LinkedIn' },
+  // Social — Twitter/X, Reddit, Facebook, Instagram, other social
+  { match: /twitter|^x\.com$|^t\.co$|reddit|facebook|^fb\.|instagram|^ig$/i, bucket: 'Social' },
+  // Search engines — STRICT exact-match so subdomains like mail.google.com or
+  // tagassistant.google.com don't get caught and end up here incorrectly.
+  { match: /^google$|^bing$|^duckduckgo$|^yahoo$|^brave$|^ecosia$|^qwant$|^baidu$|^yandex$/i, bucket: 'Search' },
+  // Email — medium-based or known mail prefix
+  { match: /^email$|newsletter|mailchimp|^hs_email$/i, bucket: 'Email' },
+  // Direct
+  { match: /^\(direct\)$/i, bucket: 'Direct' },
+];
+
+function bucketSignupEntry(entry) {
+  for (const rule of SIGNUPS_BUCKETING_RULES) {
+    if (rule.match.test(entry.source) || rule.match.test(entry.medium)) return rule.bucket;
+  }
+  // Fallback to GA4's channel group, mapped to our naming. Supports both the
+  // stock "Session default channel group" buckets and the custom Mutiny
+  // "With AI Referrals" group (adds the AI Referrals bucket).
+  const fallback = {
+    'Direct':         'Direct',
+    'Organic Search': 'Search',
+    'Organic Social': 'Social',
+    'Referral':       'Referral',
+    'Paid Search':    'Search',
+    'Paid Social':    'Social',
+    'Email':          'Email',
+    'Unassigned':     'Unassigned',
+    'AI Referrals':   'AEO',
+  };
+  return fallback[entry.gaChannelGroup] || 'Unassigned';
+}
+
+// Color map. Channel order in the stack (bottom → top) decided alongside
+// SIGNUPS_STACK_ORDER below; colors here are the source of truth.
+const SIGNUPS_CHANNEL_COLORS = {
+  'Direct':     C.lightGrey,
+  'Search':     C.blue,
+  'Referral':   C.purple,
+  'Social':     C.lightPurple,
+  'LinkedIn':   C.lightBlue,
+  'Email':      C.red,
+  'Unassigned': '#D5D5D5',
+  'AEO':        C.green,
+};
+
+// Bottom → top stack order. AEO at the top with hero green so it pops even
+// at small values (matches the Channel Mix chart's AI Referrals treatment).
+const SIGNUPS_STACK_ORDER = [
+  { key: 'Direct',     color: SIGNUPS_CHANNEL_COLORS['Direct'] },
+  { key: 'Search',     color: SIGNUPS_CHANNEL_COLORS['Search'] },
+  { key: 'Referral',   color: SIGNUPS_CHANNEL_COLORS['Referral'] },
+  { key: 'Social',     color: SIGNUPS_CHANNEL_COLORS['Social'] },
+  { key: 'LinkedIn',   color: SIGNUPS_CHANNEL_COLORS['LinkedIn'] },
+  { key: 'Email',      color: SIGNUPS_CHANNEL_COLORS['Email'] },
+  { key: 'Unassigned', color: SIGNUPS_CHANNEL_COLORS['Unassigned'] },
+  { key: 'AEO',        color: SIGNUPS_CHANNEL_COLORS['AEO'], hero: true },
+];
+
+// Weekly chart data — Mon-Sun weeks, anchored Apr 27 2026, end date rolls
+// with each build. Per-week sessions + signups are computed live from
+// dataJson.file2 (plg_signup_click events) and dataJson.file3 (all engaged
+// sessions), bucketed via bucketSignupEntry.
+//
+// Note: plg_signup_click events were first reliably captured May 7, 2026 —
+// so any week ending before May 7 has session data but ZERO attributed
+// signups. File 1 vs File 3 grand totals differ by a handful of sessions
+// (GA4 sampling); File 1 is canonical for the KPI, per-channel uses File 3.
+function bucketRowFromGA(row) {
+  const parts  = String(row.sourceMedium || '').split('/').map((s) => s.trim());
+  return bucketSignupEntry({
+    source:         parts[0] || '',
+    medium:         parts[1] || '',
+    gaChannelGroup: row.channelGroup || '',
+  });
+}
+const SIGNUPS_BY_CHANNEL_KEYS = ['Direct','Search','Referral','Social','LinkedIn','Email','Unassigned','AEO'];
+const SIGNUPS_BY_CHANNEL_WEEKLY = LIVE_WEEKS.map((w) => {
+  const blank = () => Object.fromEntries(SIGNUPS_BY_CHANNEL_KEYS.map((k) => [k, 0]));
+  const signups  = blank();
+  const sessions = blank();
+  const weekDates = new Set(w.dates);
+  for (const r of dataJson.ga4.file2) {
+    if (!weekDates.has(r.date)) continue;
+    const b = bucketRowFromGA(r);
+    signups[b] = (signups[b] || 0) + (r.eventCount || 0);
+  }
+  for (const r of dataJson.ga4.file3) {
+    if (!weekDates.has(r.date)) continue;
+    const b = bucketRowFromGA(r);
+    sessions[b] = (sessions[b] || 0) + (r.engagedSessions || 0);
+  }
+  return {
+    weekStartLabel: w.weekStartLabel,
+    dateRange:      w.dateRange,
+    weekStart:      w.weekStart,
+    partial:        w.partial,
+    signups,
+    sessions,
+  };
+});
+
+// Compute chart-shaped weekly data for the signups stacked column chart.
+// Each row has the channel keys flattened (so Recharts can stack them) plus
+// metadata for tooltip/labels. `_ghost` field unused now but kept for shape
+// compatibility with the chart's existing Bar/dataKey definitions.
+function computeWeeklyData() {
+  return SIGNUPS_BY_CHANNEL_WEEKLY.map((w) => ({
+    week: w.weekStartLabel,
+    dateRange: w.dateRange,
+    populated: true,
+    partial: w.partial,
+    Direct: w.signups.Direct,
+    Search: w.signups.Search,
+    Referral: w.signups.Referral,
+    Social: w.signups.Social,
+    LinkedIn: w.signups.LinkedIn,
+    Email: w.signups.Email,
+    Unassigned: w.signups.Unassigned,
+    AEO: w.signups.AEO,
+    _ghost: 0,
+  }));
+}
+
+// Compute Sessions → Signups channel table for the window.
+function computeChannelTable() {
+  const channels = ['Direct','Search','Referral','LinkedIn','Social','Unassigned','AEO','Email'];
+  return channels.map((ch) => {
+    const engagedSessions = SIGNUPS_BY_CHANNEL_WEEKLY.reduce((s, w) => s + (w.sessions[ch] || 0), 0);
+    const signups = SIGNUPS_BY_CHANNEL_WEEKLY.reduce((s, w) => s + (w.signups[ch] || 0), 0);
+    return { channel: ch, engagedSessions, signups };
+  });
+}
+
+// Compute a deep-dive weekly array for one or more channel keys.
+// Each row has the channel keys flattened on it (so Recharts can render
+// either a single bar or a stacked column without code changes), plus the
+// usual week metadata. Pass a string for a single channel or an array of
+// strings for multiple.
+function computeChannelDeepDive(channelKeys) {
+  const keys = Array.isArray(channelKeys) ? channelKeys : [channelKeys];
+  return SIGNUPS_BY_CHANNEL_WEEKLY.map((w) => {
+    const row = {
+      week: w.weekStartLabel,
+      dateRange: w.dateRange,
+      populated: true,
+      partial: w.partial,
+      _ghost: 0,
+    };
+    for (const k of keys) row[k] = w.signups[k] || 0;
+    return row;
+  });
+}
+
+// Equivalent for engaged sessions — used by the Web stacked column section.
+function computeWebSessionsWeekly() {
+  return SIGNUPS_BY_CHANNEL_WEEKLY.map((w) => {
+    const row = {
+      week: w.weekStartLabel,
+      dateRange: w.dateRange,
+      populated: true,
+      partial: w.partial,
+      _ghost: 0,
+    };
+    for (const k of SIGNUPS_BY_CHANNEL_KEYS) row[k] = w.sessions[k] || 0;
+    return row;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Channel deep-dives. Each declares one OR more channel keys from
+// SIGNUPS_BY_CHANNEL_WEEKLY; multiple keys render as a stacked column.
+// `accentColor` is used for the right-edge stripe and KPI tile accent.
+// ---------------------------------------------------------------------------
+const LINKEDIN_DEEP_DIVE = {
+  name: 'LinkedIn',
+  subtitle: 'Organic posts and thought leadership',
+  iconLabel: 'in',
+  iconBg: C.lightBlue,
+  accentColor: C.lightBlue,
+  series: [{ key: 'LinkedIn', label: 'LinkedIn', color: C.lightBlue }],
+};
+
+const AEO_DEEP_DIVE = {
+  name: 'AEO + Search',
+  subtitle: 'Signups attributed to AI engines (ChatGPT, Claude, Perplexity, Gemini) and search engines (Google, Bing, DuckDuckGo)',
+  iconLabel: 'A',
+  iconBg: C.green,
+  accentColor: C.green,
+  series: [
+    { key: 'AEO',    label: 'AEO',    color: C.green },
+    { key: 'Search', label: 'Search', color: C.blue  },
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// AEO data (Peec AI) — pulled live by scripts/pull-data.mjs.
+// Window: Apr 23 → today (Peec coverage starts earlier than the GA4 anchor).
+// Topic IDs and color mapping kept in JSX; everything else comes from data.json.
+// Pre-tracking dates render as `null` so the chart shows a gap rather than
+// a fake zero baseline.
+// ---------------------------------------------------------------------------
+const AEO_TOPIC_COLORS = {
+  'Competitor Comparisons': C.green,
+  'ABM':                    C.purple,
+  'Modern GTM tech stack':  C.blue,
+  'AI Sales Tools':         C.red,
+  'AI Sales Enablement':    C.lightRed,
+};
+
+function buildAEOFromPeec(peec) {
+  if (!peec || peec.error) {
+    // Fallback empty state — keeps the chart rendering without data instead
+    // of throwing. The "Last updated on" header signals staleness.
+    return {
+      windowLabel: '—', windowDays: 0, visibility: 0, mentionCount: 0, avgPosition: 0,
+      competitorRank: null, competitorTotal: 0, topCompetitor: null,
+      topics: [], daily: [],
+    };
+  }
+
+  // Reformat ISO dates ("2026-04-23") to "Apr 23" / "May 7".
+  const fmtPeecDate = (iso) => {
+    const [, m, d] = iso.split('-').map((x) => parseInt(x, 10));
+    return `${MONTH_ABBR[m - 1]} ${d}`;
+  };
+
+  // windowDays count
+  const days = peec.daily?.length || 0;
+  const startLabel = peec.daily?.length ? fmtPeecDate(peec.daily[0].date) : '—';
+  const endLabel   = peec.daily?.length ? fmtPeecDate(peec.daily[peec.daily.length - 1].date) : '—';
+  const year       = (peec.windowEnd || '').slice(0, 4);
+
+  // Topics — attach color from the name-keyed map, plus a "tracked from <date>"
+  // note if any daily row for that topic is null (i.e. tracking started mid-window).
+  const topics = (peec.topics || []).map((t) => {
+    const firstTrackedDate = (peec.daily || []).find((row) => row[t.name] !== null && row[t.name] !== undefined)?.date;
+    const someEarlierAreNull = (peec.daily || []).some((row) => row[t.name] === null);
+    const note = someEarlierAreNull && firstTrackedDate
+      ? `tracked from ${fmtPeecDate(firstTrackedDate)}`
+      : undefined;
+    return {
+      name:       t.name,
+      visibility: t.visibility,
+      mentions:   t.mentions,
+      responses:  t.responses,
+      color:      AEO_TOPIC_COLORS[t.name] || C.lightGrey,
+      ...(note ? { note } : {}),
+    };
+  });
+
+  // Daily rows — reformat dates, keep per-topic columns as-is.
+  const daily = (peec.daily || []).map((r) => {
+    const out = { date: fmtPeecDate(r.date), visibility: r.visibility };
+    for (const t of topics) {
+      out[t.name] = r[t.name];
+    }
+    return out;
+  });
+
+  return {
+    windowLabel:     `${startLabel} – ${endLabel}, ${year}`,
+    windowDays:      days,
+    visibility:      peec.visibility,
+    mentionCount:    peec.mentionCount,
+    avgPosition:     peec.avgPosition,
+    competitorRank:  peec.competitorRank,
+    competitorTotal: peec.competitorTotal,
+    topCompetitor:   peec.topCompetitor,
+    topics,
+    daily,
+  };
+}
+
+const AEO = buildAEOFromPeec(dataJson.peec);
+
+// ---------------------------------------------------------------------------
+// Small components
+// ---------------------------------------------------------------------------
+
+const Delta = ({ value, suffix = '%', precision = 1, secondary, secondarySuffix = '%', secondaryPrecision = 1 }) => {
+  const up = value >= 0;
+  const Icon = up ? ArrowUpRight : ArrowDownRight;
+  const fmtPrimary = (v) => {
+    const n = Number(v);
+    if (precision === 0) return n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    return n.toFixed(precision);
+  };
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4,
+        color: up ? '#117a3d' : '#a8341f',
+        fontFamily: FONT_BODY,
+        fontWeight: 600,
+        fontSize: 14,
+        letterSpacing: '-0.01em',
+      }}
+    >
+      <Icon size={14} strokeWidth={2.5} />
+      {up ? '+' : ''}{fmtPrimary(value)}{suffix}
+      {secondary !== undefined && secondary !== null && Number.isFinite(secondary) && (
+        <span style={{ opacity: 0.7, fontWeight: 500, marginLeft: 2, fontSize: 13 }}>
+          ({secondary >= 0 ? '+' : ''}{secondary.toFixed(secondaryPrecision)}{secondarySuffix})
+        </span>
+      )}
+    </span>
+  );
+};
+
+const KpiCard = ({
+  label,
+  value,
+  sublabel,
+  momNode,
+  momLabel = 'MoM',
+  footnote,
+  bgColor,
+  accentColor,
+  placeholder = false,
+}) => (
+  <div
+    style={{
+      background: bgColor,
+      border: `1px solid ${C.black}`,
+      borderRadius: 4,
+      padding: '14px 18px 14px',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      minHeight: 168,
+      position: 'relative',
+      opacity: placeholder ? 0.55 : 1,
+    }}
+  >
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div
+        style={{
+          fontFamily: FONT_BODY,
+          fontWeight: 700,
+          fontSize: 11,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: C.black,
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        {label}
+        {(sublabel || footnote) && (
+          <InfoTooltip width={280}>
+            {sublabel && (
+              <div style={{ fontWeight: 600, marginBottom: footnote ? 6 : 0 }}>
+                {sublabel}
+              </div>
+            )}
+            {footnote && (
+              <div style={{ opacity: 0.8 }}>{footnote}</div>
+            )}
+          </InfoTooltip>
+        )}
+      </div>
+      {placeholder && (
+        <span
+          style={{
+            fontFamily: FONT_CAPTION,
+            fontStyle: 'italic',
+            fontSize: 11,
+            color: C.black,
+            background: C.white,
+            padding: '2px 8px',
+            borderRadius: 999,
+            border: `1px solid ${C.black}`,
+          }}
+        >
+          data pending
+        </span>
+      )}
+    </div>
+
+    <div
+      style={{
+        fontFamily: FONT_DISPLAY,
+        fontWeight: 400,
+        fontSize: 64,
+        lineHeight: 1,
+        color: C.black,
+        letterSpacing: '-0.03em',
+        fontVariantNumeric: 'tabular-nums',
+        marginTop: 8,
+      }}
+    >
+      {value}
+    </div>
+
+    {momNode && (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}>
+        {momNode}
+        <span
+          style={{
+            fontFamily: FONT_BODY,
+            fontSize: 11,
+            color: C.black,
+            opacity: 0.6,
+            letterSpacing: '0.04em',
+          }}
+        >
+          {momLabel}
+        </span>
+      </div>
+    )}
+
+    <div
+      style={{
+        position: 'absolute',
+        right: -1,
+        top: -1,
+        width: 8,
+        height: 36,
+        background: accentColor,
+        border: `1px solid ${C.black}`,
+      }}
+    />
+  </div>
+);
+
+// ---------------------------------------------------------------------------
+// Custom hover tooltip for the pie — shows raw referral_source values
+// ---------------------------------------------------------------------------
+const PieHoverPanel = ({ slice, total, unit = 'signup' }) => {
+  if (!slice) {
+    return (
+      <div
+        style={{
+          fontFamily: FONT_CAPTION,
+          fontStyle: 'italic',
+          fontSize: 13,
+          color: C.black,
+          opacity: 0.6,
+          lineHeight: 1.5,
+          padding: '8px 0',
+        }}
+      >
+        Hover a slice to see the raw responses it contains.
+      </div>
+    );
+  }
+  const pct = ((slice.value / total) * 100).toFixed(1);
+  return (
+    <div style={{ fontFamily: FONT_BODY }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 4 }}>
+        <div
+          style={{
+            width: 12,
+            height: 12,
+            background: slice.color,
+            border: `1px solid ${C.black}`,
+            alignSelf: 'center',
+          }}
+        />
+        <div
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontSize: 28,
+            letterSpacing: '-0.02em',
+            lineHeight: 1,
+            color: C.black,
+          }}
+        >
+          {slice.name}
+        </div>
+      </div>
+      <div
+        style={{
+          fontFamily: FONT_BODY,
+          fontSize: 13,
+          color: C.black,
+          opacity: 0.7,
+          marginBottom: 12,
+        }}
+      >
+        {slice.value} {unit}{slice.value === 1 ? '' : 's'} · {pct}% of total
+      </div>
+      {slice.sources.length === 0 ? (
+        <div
+          style={{
+            fontFamily: FONT_CAPTION,
+            fontStyle: 'italic',
+            fontSize: 12,
+            color: C.black,
+            opacity: 0.6,
+          }}
+        >
+          No raw responses bucketed here yet. Consider adding this as an explicit
+          option in the onboarding form.
+        </div>
+      ) : (
+        <div>
+          <div
+            style={{
+              fontFamily: FONT_BODY,
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: C.black,
+              opacity: 0.55,
+              marginBottom: 6,
+            }}
+          >
+            Raw responses ({slice.sources.length})
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+            {slice.sources.map((s, i) => (
+              <span
+                key={i}
+                style={{
+                  fontFamily: FONT_BODY,
+                  fontSize: 11,
+                  background: C.white,
+                  border: `1px solid ${C.black}`,
+                  borderRadius: 999,
+                  padding: '2px 9px',
+                  color: C.black,
+                  lineHeight: 1.4,
+                  maxWidth: 240,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+                title={s}
+              >
+                "{s}"
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// TopOfFunnelTrend — three single-axis bar charts answering "how is the top
+// of the funnel trending week-over-week?" Columns: Signups, Engaged Sessions,
+// Sales Meetings Requested. Each chart owns its own y-axis — no dual-axis
+// encoding tricks, no derived metrics overlaid.
+//
+// Partial-week handling: the current week (Wk 3) is rendered with a diagonal
+// hatch pattern in all three charts. A footnote spells out the partial-week
+// caveat so Wk 3 isn't mis-read as a step-down.
+// ---------------------------------------------------------------------------
+function TopOfFunnelTrend({ data }) {
+  // Recharts custom Bar shape that swaps in a hatched fill for partial weeks.
+  const HatchedBar = (color) => (props) => {
+    const { x, y, width, height, payload } = props;
+    if (!payload || height <= 0) return null;
+    const isPartial = payload.partial;
+    const patternId = `hatch-${color.replace('#','')}-${payload.week.replace(' ','')}`;
+    return (
+      <g>
+        {isPartial && (
+          <defs>
+            <pattern id={patternId} patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+              <rect width="6" height="6" fill={color} fillOpacity="0.25" />
+              <line x1="0" y1="0" x2="0" y2="6" stroke={color} strokeWidth="2" />
+            </pattern>
+          </defs>
+        )}
+        <rect
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          fill={isPartial ? `url(#${patternId})` : color}
+          stroke={C.black}
+          strokeWidth={1}
+        />
+      </g>
+    );
+  };
+
+  // Custom tooltip for the bar charts
+  const BarTooltip = (metricLabel, formatter) => ({ active, payload }) => {
+    if (!active || !payload || !payload.length) return null;
+    const d = payload[0].payload;
+    return (
+      <div
+        style={{
+          background: C.white,
+          border: `1px solid ${C.black}`,
+          padding: '8px 10px',
+          fontFamily: FONT_BODY,
+          fontSize: 12,
+        }}
+      >
+        <div style={{ fontWeight: 700, marginBottom: 2 }}>{d.dateRange}{d.partial ? ' · partial' : ''}</div>
+        <div>{metricLabel}: <strong>{formatter(d)}</strong></div>
+      </div>
+    );
+  };
+
+  // Reusable card-shaped bar chart panel
+  const BarPanel = ({ title, source, dataKey, color, format }) => (
+    <div
+      style={{
+        background: C.white,
+        border: `1px solid ${C.black}`,
+        borderRadius: 4,
+        padding: '24px 28px 20px',
+      }}
+    >
+      <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 22, letterSpacing: '-0.02em', margin: 0 }}>
+        {title}
+      </h3>
+      <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6, marginTop: 4 }}>
+        {source} · weekly
+      </div>
+      <div style={{ height: 280, marginTop: 16 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 12, right: 8, bottom: 8, left: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" vertical={false} />
+            <XAxis
+              dataKey="week"
+              axisLine={{ stroke: C.black, strokeWidth: 1 }}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }}
+            />
+            {(() => {
+              const max = Math.max(...data.map((d) => d[dataKey] || 0), 1);
+              const { ticks, max: yMax } = niceTicks(max, 5);
+              return (
+                <YAxis
+                  tickFormatter={format}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontFamily: FONT_BODY, fontSize: 10, fill: C.black, opacity: 0.6 }}
+                  width={40}
+                  domain={[0, yMax]}
+                  ticks={ticks}
+                  allowDecimals={false}
+                />
+              );
+            })()}
+            <Tooltip
+              content={BarTooltip(title, (d) => format ? format(d[dataKey]) : d[dataKey].toLocaleString())}
+              cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+            />
+            <Bar dataKey={dataKey} shape={HatchedBar(color)} maxBarSize={60} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+
+  return (
+    <section style={{ marginBottom: 40 }}>
+      {/* Eyebrow */}
+      <div
+        style={{
+          fontFamily: FONT_BODY,
+          fontWeight: 700,
+          fontSize: 11,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          opacity: 0.7,
+          marginBottom: 8,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}
+      >
+        <span>Top of funnel · weekly trend</span>
+        <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
+      </div>
+
+      {/* Two side-by-side bar charts */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: 20,
+        }}
+      >
+        <BarPanel
+          title="Signups"
+          source="Amplitude"
+          dataKey="signups"
+          color={C.purple}
+        />
+        <BarPanel
+          title="Sales Meetings Requested"
+          source="HubSpot"
+          dataKey="meetings"
+          color={C.red}
+        />
+      </div>
+
+      {/* Footnote — hatched bar is the current week in progress */}
+      <div
+        style={{
+          fontFamily: FONT_CAPTION,
+          fontStyle: 'italic',
+          fontSize: 11,
+          opacity: 0.6,
+          marginTop: 10,
+          lineHeight: 1.5,
+        }}
+      >
+        * The hatched bar is the current week in progress. The first bar is the full Mon-Sun
+        week containing the start of the Last 30 Days range, displayed as a complete week even
+        if its Monday slightly pre-dates 30 days ago.
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// SelfReportedPieCard — reusable card for self-reported source breakdowns.
+// Used for both "Customer signups by channel" (Amplitude) and "Sales meeting
+// requests by channel" (HubSpot). Each card owns its hover state. Layout:
+// header → [pie on left | legend on right] → responses panel below.
+// ---------------------------------------------------------------------------
+function SelfReportedPieCard({
+  eyebrow,
+  title,
+  source,
+  data,
+  total,
+  totalLabel,
+  unit,
+  infoTooltip,
+  dataStartNote,
+}) {
+  const [activeSlice, setActiveSlice] = useState(null);
+  const populated = data.filter((s) => s.value > 0);
+  return (
+    <section
+      style={{
+        background: C.white,
+        border: `1px solid ${C.black}`,
+        borderRadius: 4,
+        padding: '28px 32px',
+      }}
+    >
+      {/* Header */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'baseline',
+          marginBottom: 6,
+          gap: 12,
+        }}
+      >
+        <div>
+          <div
+            style={{
+              fontFamily: FONT_BODY,
+              fontWeight: 700,
+              fontSize: 11,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+            }}
+          >
+            {eyebrow}
+          </div>
+          <h2
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 400,
+              fontSize: 28,
+              lineHeight: 1.05,
+              letterSpacing: '-0.03em',
+              margin: '6px 0 0',
+              display: 'flex',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 10,
+            }}
+          >
+            {title}
+            <SelfReportedTag />
+            <InfoTooltip>{infoTooltip}</InfoTooltip>
+          </h2>
+        </div>
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontSize: 11,
+            opacity: 0.6,
+            letterSpacing: '0.04em',
+            flexShrink: 0,
+          }}
+        >
+          Source: {source}
+          {dataStartNote ? (
+            <div style={{ marginTop: 4, fontStyle: 'italic', fontSize: 10, opacity: 0.7 }}>
+              {dataStartNote}
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Pie on left | Legend on right */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '260px 1fr',
+          gap: 28,
+          alignItems: 'center',
+          marginTop: 16,
+        }}
+      >
+        {/* Pie */}
+        <div style={{ height: 260, position: 'relative' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={populated}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={55}
+                outerRadius={110}
+                paddingAngle={2}
+                stroke={C.black}
+                strokeWidth={1.5}
+                onMouseEnter={(d) => setActiveSlice(d)}
+                onMouseLeave={() => setActiveSlice(null)}
+                isAnimationActive={false}
+              >
+                {populated.map((entry, i) => (
+                  <Cell
+                    key={i}
+                    fill={entry.color}
+                    style={{
+                      cursor: 'pointer',
+                      outline: 'none',
+                      transition: 'opacity 0.15s',
+                      opacity:
+                        activeSlice && activeSlice.name !== entry.name ? 0.35 : 1,
+                    }}
+                  />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              pointerEvents: 'none',
+            }}
+          >
+            <div
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontSize: 40,
+                lineHeight: 1,
+                letterSpacing: '-0.03em',
+              }}
+            >
+              {total}
+            </div>
+            <div
+              style={{
+                fontFamily: FONT_CAPTION,
+                fontStyle: 'italic',
+                fontSize: 11,
+                opacity: 0.65,
+                marginTop: 4,
+              }}
+            >
+              {totalLabel}
+            </div>
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
+          }}
+        >
+          {data.map((s) => {
+            const pct = ((s.value / total) * 100).toFixed(0);
+            const dim =
+              activeSlice && activeSlice.name !== s.name ? 0.4 : 1;
+            return (
+              <div
+                key={s.name}
+                onMouseEnter={() => s.value > 0 && setActiveSlice(s)}
+                onMouseLeave={() => setActiveSlice(null)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  fontFamily: FONT_BODY,
+                  fontSize: 13,
+                  opacity: s.value === 0 ? 0.4 : dim,
+                  cursor: s.value > 0 ? 'pointer' : 'default',
+                  transition: 'opacity 0.15s',
+                }}
+              >
+                <div
+                  style={{
+                    width: 12,
+                    height: 12,
+                    background: s.color,
+                    border: `1px solid ${C.black}`,
+                    flexShrink: 0,
+                  }}
+                />
+                <span style={{ fontWeight: 600 }}>{s.name}</span>
+                <span
+                  style={{
+                    marginLeft: 'auto',
+                    opacity: 0.65,
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {s.value} · {pct}%
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Responses (hover panel) */}
+      <div
+        style={{
+          background: C.paper,
+          border: `1px solid ${C.black}`,
+          borderRadius: 4,
+          padding: '14px 16px',
+          minHeight: 110,
+          marginTop: 20,
+        }}
+      >
+        <PieHoverPanel slice={activeSlice} total={total} unit={unit} />
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main dashboard
+// ---------------------------------------------------------------------------
+export default function MutinyGrowthDashboard() {
+  const [definitionsOpen, setDefinitionsOpen] = useState(false);
+
+  // Single window: Apr 27 – May 13, 2026. Where source data doesn't extend
+  // that far back (e.g. plg_signup_click only captures from May 7), the chart
+  // shows what's available within the window.
+  const weeklyChartData = computeWeeklyData();
+  const channelTable = computeChannelTable();
+  const webSessionsWeekly = computeWebSessionsWeekly();
+  const linkedinKeys = LINKEDIN_DEEP_DIVE.series.map((s) => s.key);
+  const aeoKeys      = AEO_DEEP_DIVE.series.map((s) => s.key);
+  const linkedinWeekly = computeChannelDeepDive(linkedinKeys);
+  const aeoChannelWeekly = computeChannelDeepDive(aeoKeys);
+  // Window totals = sum of all series for that deep-dive.
+  const sumRow = (row, keys) => keys.reduce((s, k) => s + (row[k] || 0), 0);
+  const linkedinWindowSignups   = linkedinWeekly.reduce((s, w) => s + sumRow(w, linkedinKeys), 0);
+  const aeoChannelWindowSignups = aeoChannelWeekly.reduce((s, w) => s + sumRow(w, aeoKeys), 0);
+  const windowLabel = WINDOW.label;
+  const windowDateRange = WINDOW.label;
+
+  return (
+    <div
+      style={{
+        background: C.paper,
+        minHeight: '100vh',
+        padding: '40px 48px 60px',
+        color: C.black,
+        fontFamily: FONT_BODY,
+        backgroundImage:
+          'radial-gradient(rgba(0,0,0,0.025) 1px, transparent 1px)',
+        backgroundSize: '4px 4px',
+      }}
+    >
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      />
+
+      {/* Header */}
+      <header
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-end',
+          paddingBottom: 24,
+          borderBottom: `2px solid ${C.black}`,
+          marginBottom: 32,
+        }}
+      >
+        <div>
+          <div
+            style={{
+              fontFamily: FONT_CAPTION,
+              fontStyle: 'italic',
+              fontSize: 13,
+              opacity: 0.6,
+              letterSpacing: '0.04em',
+            }}
+          >
+            Mutiny · Growth Dashboard
+          </div>
+          <h1
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 400,
+              fontSize: 56,
+              lineHeight: 1,
+              letterSpacing: '-0.035em',
+              margin: '6px 0 0',
+            }}
+          >
+            Growth Dashboard
+          </h1>
+        </div>
+        <div
+          style={{
+            textAlign: 'right',
+            fontFamily: FONT_BODY,
+            fontSize: 12,
+            lineHeight: 1.5,
+          }}
+        >
+          <div style={{ fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Reporting window
+          </div>
+          <div style={{ opacity: 0.7 }}>{WINDOW.label}</div>
+          <div style={{ opacity: 0.6, marginTop: 4, fontFamily: FONT_MONO, fontSize: 11 }}>
+            Last updated on: {new Date(LIVE_DATA_PULLED_AT).toLocaleString('en-US', {
+              dateStyle: 'medium',
+              timeStyle: 'short',
+            })}
+          </div>
+          <div style={{ opacity: 0.5, fontStyle: 'italic', marginTop: 2 }}>
+            * {WINDOW.asteriskNote}
+          </div>
+        </div>
+      </header>
+
+      {/* KPI cards */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 16,
+          marginBottom: 40,
+        }}
+      >
+        <KpiCard
+          label="Signups"
+          value={DATA.signups.window.toLocaleString()}
+          sublabel="Company Setup Complete · Amplitude"
+          footnote={`${WINDOW.label}. WoW: this-week-to-date vs same days of last week. Primary number is raw count delta; (%) is relative.`}
+          bgColor={C.lightPurple}
+          accentColor={C.purple}
+          momLabel="WoW"
+          momNode={WOW.signups ? <Delta value={WOW.signups.raw} suffix="" precision={0} secondary={WOW.signups.pct} /> : null}
+        />
+        <KpiCard
+          label="Website Visitors"
+          value={DATA.engagedSessions.window.toLocaleString()}
+          sublabel="Engaged Sessions · GA4"
+          footnote="Engaged Sessions used as bot-resistant proxy (LLM crawlers inflated Total Users in March). WoW: this-week-to-date vs same days of last week. Primary is raw count delta."
+          bgColor={C.lightBlue}
+          accentColor={C.blue}
+          momLabel="WoW"
+          momNode={WOW.engagedSessions ? <Delta value={WOW.engagedSessions.raw} suffix="" precision={0} secondary={WOW.engagedSessions.pct} /> : null}
+        />
+        <KpiCard
+          label="Visitor → Signup"
+          value={ratioWindow.toFixed(2) + '%'}
+          sublabel="Signups ÷ Engaged Sessions"
+          footnote="Cross-system ratio: Amplitude ÷ GA4, directional only. WoW: this week's ratio vs last week's same-days ratio. Primary is percentage-point change (pp); (%) is relative."
+          bgColor={C.lightGreen}
+          accentColor={C.green}
+          momLabel="WoW"
+          momNode={WOW.ratio ? <Delta value={WOW.ratio.raw} suffix="pp" precision={2} secondary={WOW.ratio.pct} /> : null}
+        />
+        <KpiCard
+          label="Sales Meetings Requested"
+          value={DATA.salesMeetings.window.toLocaleString()}
+          sublabel="Talk to Sales form fills · HubSpot"
+          footnote="HubSpot contacts where Talk to Sales form-submission date is within the window. Test-filtered. WoW: this-week-to-date vs same days of last week. Primary is raw count delta."
+          bgColor={C.lightRed}
+          accentColor={C.red}
+          momLabel="WoW"
+          momNode={WOW.salesMeetings ? <Delta value={WOW.salesMeetings.raw} suffix="" precision={0} secondary={WOW.salesMeetings.pct} /> : null}
+        />
+      </div>
+
+      {/* Top-of-funnel weekly trend — two bar charts + line chart underneath.
+          Answers "how is the top of the funnel trending week-over-week?"
+          without resorting to dual-axis charts. See component for the partial-
+          week handling and a footnote about the 3-week-baseline limitation. */}
+      <TopOfFunnelTrend data={WEEKLY_TOP_OF_FUNNEL} />
+
+      {/* Self-reported channel mix — two cards side-by-side.
+          Customer signups by channel (Amplitude, L4w window) and Sales
+          meeting requests by channel (HubSpot Talk to Sales form, same
+          window). Same bucketing rules applied to both. */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 20,
+          marginBottom: 40,
+        }}
+      >
+        <SelfReportedPieCard
+          eyebrow="Share of Signups"
+          title="Customer signups by channel"
+          source="Amplitude"
+          dataStartNote="* data captured from May 4 onward (form populated)"
+          data={SHARE_OF_SIGNUPS}
+          total={TOTAL_SIGNUPS_CATEGORIZED}
+          totalLabel="total signups"
+          unit="signup"
+          infoTooltip={`Self-reported referral_source at Company Setup. ${TOTAL_SIGNUPS_CATEGORIZED} signups categorized in window (${WINDOW.label}). 11 mutinyhq.com test accounts excluded at the Amplitude query layer. Bucketing is rule-based — see the Definitions panel at the bottom for the full rule set.`}
+        />
+        <SelfReportedPieCard
+          eyebrow="Share of Sales Meetings"
+          title="Sales meeting requests by channel"
+          source="HubSpot"
+          dataStartNote=""
+          data={SHARE_OF_SALES_MEETINGS}
+          total={TOTAL_SALES_MEETINGS_CATEGORIZED}
+          totalLabel="meeting requests"
+          unit="request"
+          infoTooltip={`Self-reported "how did you discover Mutiny" on the Talk to Sales form (HubSpot contacts). ${TOTAL_SALES_MEETINGS_CATEGORIZED} valid submissions in window (${WINDOW.label}) — by actual form-submission date. 4 internal/test accounts excluded (3× matt.ratchford+*@mutinyhq.com, kedwardsfake@1mind.com). Same bucketing rules as Customer signups.`}
+        />
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────────────────
+          Signups by channel · weekly trend (left) + channel comparison table (right).
+          3-week Mon-Sun stacked column chart anchored at Apr 27, 2026.
+          plg_signup_click events were first reliably captured May 7, 2026, so
+          Week 1 (Apr 27–May 3) has session data but zero signups — annotated
+          inline. Cross-domain attribution between mutinyhq.com and
+          app.mutinyhq.com shipped May 11 (Wk 3).
+          ───────────────────────────────────────────────────────────────────── */}
+
+      {/* Eyebrow */}
+      <div
+        style={{
+          fontFamily: FONT_BODY,
+          fontWeight: 700,
+          fontSize: 11,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          opacity: 0.7,
+          marginBottom: 8,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}
+      >
+        <span>Signups by Channel · GA4 plg_signup_click (* from May 7)</span>
+        <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
+      </div>
+
+      <section
+        style={{
+          background: C.white,
+          border: `1px solid ${C.black}`,
+          borderRadius: 4,
+          padding: '28px 32px 24px',
+          marginBottom: 40,
+          position: 'relative',
+        }}
+      >
+        {/* Header row: icon + name + subtitle (left), KPI tile (right) */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            gap: 24,
+            marginBottom: 26,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                background: C.green,
+                border: `1px solid ${C.black}`,
+                borderRadius: 6,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontFamily: FONT_DISPLAY,
+                fontSize: 22,
+                fontWeight: 400,
+                lineHeight: 1,
+                flexShrink: 0,
+              }}
+            >
+              S
+            </div>
+            <div>
+              <h2
+                style={{
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 400,
+                  fontSize: 32,
+                  lineHeight: 1,
+                  letterSpacing: '-0.03em',
+                  margin: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                }}
+              >
+                Signups by Channel
+                <ProgrammaticTag />
+              </h2>
+              <div
+                style={{
+                  fontFamily: FONT_BODY,
+                  fontSize: 13,
+                  opacity: 0.65,
+                  marginTop: 6,
+                  lineHeight: 1.4,
+                }}
+              >
+                Where new signups attribute from (GA4 plg_signup_click)
+              </div>
+            </div>
+          </div>
+          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontWeight: 700,
+                fontSize: 10,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                opacity: 0.7,
+                marginBottom: 4,
+              }}
+            >
+              Signups · {windowLabel}
+            </div>
+            <div
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontSize: 38,
+                lineHeight: 1,
+                letterSpacing: '-0.02em',
+                fontVariantNumeric: 'tabular-nums',
+              }}
+            >
+              {channelTable.reduce((s, r) => s + r.signups, 0)}
+            </div>
+          </div>
+        </div>
+
+        {/* 2-col content: chart left, funnel table right.
+            alignItems: stretch keeps both columns the same height; marginTop: auto
+            on the right-side table wrapper pushes the table to the bottom so its
+            last row aligns with the chart's x-axis line. */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 28, alignItems: 'stretch' }}>
+        <div>
+          {/* Chart heading */}
+          <div style={{ marginBottom: 12 }}>
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontWeight: 600,
+                fontSize: 14,
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: 10,
+              }}
+            >
+              Signups · weekly
+              <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
+                Stacked · events captured from May 7 (Wk 1 = 0)
+              </span>
+            </div>
+          </div>
+
+          {/* Legend */}
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '6px 14px',
+              marginBottom: 14,
+              fontFamily: FONT_BODY,
+              fontSize: 11,
+            }}
+          >
+            {SIGNUPS_STACK_ORDER.slice().reverse().map((s) => (
+              <div key={s.key} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span
+                  style={{
+                    width: 10,
+                    height: 10,
+                    background: s.color,
+                    border: `1px solid ${C.black}`,
+                    borderRadius: 1,
+                    display: 'inline-block',
+                  }}
+                />
+                <span>{s.key}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Chart */}
+          <div style={{ width: '100%', height: 480 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={weeklyChartData}
+                barCategoryGap="22%"
+                margin={{ top: 10, right: 8, bottom: 0, left: -10 }}
+              >
+                <CartesianGrid vertical={false} stroke={C.black} strokeOpacity={0.08} />
+                <XAxis
+                  dataKey="week"
+                  axisLine={{ stroke: C.black }}
+                  tickLine={false}
+                  interval={0}
+                  height={48}
+                  tick={makeWeekTick(
+                    weeklyChartData.reduce(
+                      (acc, r) => ({ ...acc, [r.week]: r.dateRange }),
+                      {}
+                    )
+                  )}
+                />
+                {(() => {
+                  // Clean uniform tick spacing for Signups by Channel.
+                  const max = Math.max(
+                    ...weeklyChartData.map((r) =>
+                      (r.Direct||0) + (r.Search||0) + (r.Referral||0) + (r.Social||0) +
+                      (r.LinkedIn||0) + (r.Email||0) + (r.Unassigned||0) + (r.AEO||0) +
+                      (r._ghost||0)
+                    ),
+                    1
+                  );
+                  const { ticks, max: yMax } = niceTicks(max, 5);
+                  return (
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }}
+                      domain={[0, yMax]}
+                      ticks={ticks}
+                      allowDecimals={false}
+                      width={32}
+                    />
+                  );
+                })()}
+                <Tooltip
+                  cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload || !payload.length) return null;
+                    const row = weeklyChartData.find((r) => r.week === label);
+                    if (!row) return null;
+                    const total =
+                      row.Direct + row.Search + row.Referral + row.Social +
+                      row.LinkedIn + row.Email + row.Unassigned + row.AEO;
+                    return (
+                      <div
+                        style={{
+                          background: C.white,
+                          border: `1px solid ${C.black}`,
+                          borderRadius: 4,
+                          padding: '10px 12px',
+                          fontFamily: FONT_BODY,
+                          fontSize: 11,
+                          minWidth: 180,
+                          boxShadow: '4px 4px 0 rgba(0,0,0,0.08)',
+                        }}
+                      >
+                        <div style={{ fontWeight: 700, marginBottom: 4 }}>
+                          {row.week} · {row.dateRange}
+                          {row.partial && (
+                            <span style={{ fontWeight: 400, opacity: 0.6, marginLeft: 6 }}>
+                              · partial
+                            </span>
+                          )}
+                        </div>
+                        {!row.populated ? (
+                          <div style={{ opacity: 0.6, fontStyle: 'italic' }}>
+                            Future week — placeholder for upcoming data.
+                          </div>
+                        ) : (
+                          <>
+                            <div style={{ marginBottom: 6, opacity: 0.7 }}>
+                              {total} signup{total === 1 ? '' : 's'}
+                            </div>
+                            {SIGNUPS_STACK_ORDER.slice().reverse().map((s) => {
+                              const v = row[s.key];
+                              if (!v) return null;
+                              return (
+                                <div
+                                  key={s.key}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 6,
+                                    marginTop: 2,
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      width: 8,
+                                      height: 8,
+                                      background: s.color,
+                                      border: `1px solid ${C.black}`,
+                                      flexShrink: 0,
+                                    }}
+                                  />
+                                  <span style={{ flex: 1 }}>{s.key}</span>
+                                  <span
+                                    style={{
+                                      fontVariantNumeric: 'tabular-nums',
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    {v}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </>
+                        )}
+                      </div>
+                    );
+                  }}
+                />
+                {/* Real channel bars, stacked bottom→top */}
+                {SIGNUPS_STACK_ORDER.map((s) => (
+                  <Bar
+                    key={s.key}
+                    dataKey={s.key}
+                    stackId="signups"
+                    fill={s.color}
+                    stroke={C.black}
+                    strokeWidth={s.hero ? 1.2 : 0.5}
+                    isAnimationActive={false}
+                  />
+                ))}
+                {/* Ghost placeholder bar — value 8 on empty weeks, 0 on populated.
+                    Same stackId means it only renders when others are 0. */}
+                <Bar
+                  dataKey="_ghost"
+                  stackId="signups"
+                  fill="transparent"
+                  stroke={C.black}
+                  strokeDasharray="4 4"
+                  strokeOpacity={0.22}
+                  isAnimationActive={false}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+        </div>
+
+        {/* Right column: channel funnel table.
+            Flex column so the table can be pushed to the bottom (marginTop:
+            auto on the table wrapper). This makes the table's last row sit
+            at the same Y as the chart's x-axis on the left. */}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {/* Chart heading */}
+          <div style={{ marginBottom: 12 }}>
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontWeight: 600,
+                fontSize: 14,
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: 10,
+              }}
+            >
+              Channel funnel
+              <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
+                Per-channel signups, conversion, share of total
+              </span>
+            </div>
+          </div>
+          <div style={{ marginTop: 'auto' }}>
+
+          {/* Table */}
+          {(() => {
+            const totalChannelSignups = channelTable.reduce((s, r) => s + r.signups, 0);
+            return (
+            <div
+              style={{
+                border: `1px solid ${C.black}`,
+                borderRadius: 4,
+                overflow: 'hidden',
+              }}
+            >
+              {/* Header */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '14px 1fr 60px 96px 80px',
+                  gap: 12,
+                  padding: '10px 14px',
+                  background: C.paper,
+                  borderBottom: `1px solid ${C.black}`,
+                  fontFamily: FONT_BODY,
+                  fontWeight: 700,
+                  fontSize: 10,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  opacity: 0.7,
+                  alignItems: 'center',
+                }}
+              >
+                <div></div>
+                <div>Channel</div>
+                <div style={{ textAlign: 'right' }}>Signups</div>
+                <div style={{ textAlign: 'right' }}>Web Conv.</div>
+                <div style={{ textAlign: 'right' }}>% of total</div>
+              </div>
+
+              {/* Rows */}
+              {channelTable.map((row, i) => {
+                const rate = row.engagedSessions > 0
+                  ? (row.signups / row.engagedSessions) * 100
+                  : 0;
+                const share = totalChannelSignups > 0
+                  ? (row.signups / totalChannelSignups) * 100
+                  : 0;
+                const isHighlight = row.signups > 0;
+                return (
+                  <div
+                    key={row.channel}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '14px 1fr 60px 96px 80px',
+                      gap: 12,
+                      padding: '12px 14px',
+                      borderTop: i > 0 ? `1px solid rgba(0,0,0,0.08)` : 'none',
+                      fontFamily: FONT_BODY,
+                      fontSize: 13,
+                      alignItems: 'center',
+                      background: C.white,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 12,
+                        height: 12,
+                        background: SIGNUPS_CHANNEL_COLORS[row.channel] || C.lightGrey,
+                        border: `1px solid ${C.black}`,
+                        borderRadius: 2,
+                      }}
+                    />
+                    <div style={{ fontWeight: isHighlight ? 600 : 400 }}>{row.channel}</div>
+                    <div
+                      style={{
+                        textAlign: 'right',
+                        fontVariantNumeric: 'tabular-nums',
+                        fontWeight: isHighlight ? 700 : 400,
+                        opacity: row.signups === 0 ? 0.4 : 1,
+                      }}
+                    >
+                      {row.signups}
+                    </div>
+                    <div
+                      style={{
+                        textAlign: 'right',
+                        fontVariantNumeric: 'tabular-nums',
+                        fontWeight: isHighlight ? 600 : 400,
+                        opacity: rate === 0 ? 0.35 : 1,
+                        color: rate >= 3 ? C.purple : C.black,
+                      }}
+                    >
+                      {rate === 0 ? '—' : rate.toFixed(2) + '%'}
+                    </div>
+                    <div
+                      style={{
+                        textAlign: 'right',
+                        fontVariantNumeric: 'tabular-nums',
+                        opacity: share === 0 ? 0.35 : 1,
+                      }}
+                    >
+                      {share === 0 ? '—' : share.toFixed(1) + '%'}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Total row */}
+              {(() => {
+                const totalSessions = channelTable.reduce(
+                  (s, r) => s + r.engagedSessions,
+                  0
+                );
+                const overallRate =
+                  totalSessions > 0 ? (totalChannelSignups / totalSessions) * 100 : 0;
+                return (
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '14px 1fr 60px 96px 80px',
+                      gap: 12,
+                      padding: '12px 14px',
+                      background: C.paper,
+                      borderTop: `1px solid ${C.black}`,
+                      fontFamily: FONT_BODY,
+                      fontSize: 13,
+                      alignItems: 'center',
+                      fontWeight: 700,
+                    }}
+                  >
+                    <div></div>
+                    <div>Total</div>
+                    <div
+                      style={{
+                        textAlign: 'right',
+                        fontVariantNumeric: 'tabular-nums',
+                      }}
+                    >
+                      {totalChannelSignups}
+                    </div>
+                    <div
+                      style={{
+                        textAlign: 'right',
+                        fontVariantNumeric: 'tabular-nums',
+                      }}
+                    >
+                      {overallRate.toFixed(2) + '%'}
+                    </div>
+                    <div
+                      style={{
+                        textAlign: 'right',
+                        fontVariantNumeric: 'tabular-nums',
+                      }}
+                    >
+                      100.0%
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+            );
+          })()}
+
+          {/* Footnote / what this tells us */}
+          <div
+            style={{
+              marginTop: 16,
+              fontFamily: FONT_BODY,
+              fontSize: 11.5,
+              lineHeight: 1.5,
+              opacity: 0.7,
+            }}
+          >
+            LinkedIn and Search are the highest-converting channels (13% and 3%
+            respectively). Direct dominates volume but converts at 0.14% — consistent
+            with bots and dark social. Sample sizes are tiny; rates will stabilize
+            as data accumulates.
+          </div>
+          </div>{/* end marginTop:auto wrapper */}
+
+        </div>
+        </div>
+
+        <div
+          style={{
+            position: 'absolute',
+            right: -1,
+            top: -1,
+            width: 8,
+            height: 36,
+            background: C.green,
+            border: `1px solid ${C.black}`,
+          }}
+        />
+      </section>
+
+      {/* ── Website Visitors ── */}
+      <div
+        style={{
+          fontFamily: FONT_BODY,
+          fontWeight: 700,
+          fontSize: 11,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          opacity: 0.7,
+          marginBottom: 8,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}
+      >
+        <span>Website Visitors · GA4 engaged sessions by channel</span>
+        <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
+      </div>
+      <section
+        style={{
+          background: C.white,
+          border: `1px solid ${C.black}`,
+          borderRadius: 4,
+          padding: '28px 32px 24px',
+          marginBottom: 40,
+          position: 'relative',
+        }}
+      >
+        {/* Header row: icon + name + subtitle (left), KPI tile (right) */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            gap: 24,
+            marginBottom: 26,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                background: C.blue,
+                border: `1px solid ${C.black}`,
+                borderRadius: 6,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontFamily: FONT_DISPLAY,
+                fontSize: 22,
+                fontWeight: 400,
+                lineHeight: 1,
+                flexShrink: 0,
+              }}
+            >
+              W
+            </div>
+            <div>
+              <h2
+                style={{
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 400,
+                  fontSize: 32,
+                  lineHeight: 1,
+                  letterSpacing: '-0.03em',
+                  margin: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                }}
+              >
+                Website Visitors
+                <ProgrammaticTag />
+              </h2>
+              <div
+                style={{
+                  fontFamily: FONT_BODY,
+                  fontSize: 13,
+                  opacity: 0.65,
+                  marginTop: 6,
+                  lineHeight: 1.4,
+                }}
+              >
+                All website visitors by attribution channel
+              </div>
+            </div>
+          </div>
+          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontWeight: 700,
+                fontSize: 10,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                opacity: 0.7,
+                marginBottom: 4,
+              }}
+            >
+              Engaged Sessions · {windowLabel}
+            </div>
+            <div
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontSize: 38,
+                lineHeight: 1,
+                letterSpacing: '-0.02em',
+                fontVariantNumeric: 'tabular-nums',
+              }}
+            >
+              {DATA.engagedSessions.window.toLocaleString()}
+            </div>
+          </div>
+        </div>
+
+        {/* 2-col grid: chart on left, sources table on right.
+            alignItems: stretch + marginTop: auto on the right-side table
+            wrapper pushes the table's bottom row down to align with the
+            chart's x-axis line. */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28, alignItems: 'stretch' }}>
+        <div>
+        <div style={{ marginBottom: 12 }}>
+          <div
+            style={{
+              fontFamily: FONT_BODY,
+              fontWeight: 600,
+              fontSize: 14,
+              display: 'flex',
+              alignItems: 'baseline',
+              gap: 10,
+            }}
+          >
+            Engaged Sessions · weekly
+            <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
+              Stacked by channel
+            </span>
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '6px 14px',
+            marginBottom: 14,
+            fontFamily: FONT_BODY,
+            fontSize: 11,
+          }}
+        >
+          {SIGNUPS_STACK_ORDER.slice().reverse().map((s) => (
+            <div key={s.key} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span
+                style={{
+                  width: 10,
+                  height: 10,
+                  background: s.color,
+                  border: `1px solid ${C.black}`,
+                  borderRadius: 1,
+                  display: 'inline-block',
+                }}
+              />
+              <span>{s.key}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Chart */}
+        <div style={{ width: '100%', height: 480 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={webSessionsWeekly}
+              barCategoryGap="22%"
+              margin={{ top: 10, right: 8, bottom: 0, left: 4 }}
+            >
+              <CartesianGrid vertical={false} stroke={C.black} strokeOpacity={0.08} />
+              <XAxis
+                dataKey="week"
+                axisLine={{ stroke: C.black }}
+                tickLine={false}
+                interval={0}
+                height={48}
+                tick={makeWeekTick(
+                  webSessionsWeekly.reduce(
+                    (acc, r) => ({ ...acc, [r.week]: r.dateRange }),
+                    {}
+                  )
+                )}
+              />
+              {(() => {
+                const max = Math.max(
+                  ...webSessionsWeekly.map((r) =>
+                    SIGNUPS_BY_CHANNEL_KEYS.reduce((s, k) => s + (r[k] || 0), 0)
+                  ),
+                  1
+                );
+                const { ticks, max: yMax } = niceTicks(max, 5);
+                return (
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }}
+                    domain={[0, yMax]}
+                    ticks={ticks}
+                    allowDecimals={false}
+                    width={48}
+                    tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(1)}k` : v}
+                  />
+                );
+              })()}
+              <Tooltip
+                cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                content={({ active, payload, label }) => {
+                  if (!active || !payload || !payload.length) return null;
+                  const row = webSessionsWeekly.find((r) => r.week === label);
+                  if (!row) return null;
+                  const total = SIGNUPS_BY_CHANNEL_KEYS.reduce((s, k) => s + (row[k] || 0), 0);
+                  return (
+                    <div
+                      style={{
+                        background: C.white,
+                        border: `1px solid ${C.black}`,
+                        borderRadius: 4,
+                        padding: '10px 12px',
+                        fontFamily: FONT_BODY,
+                        fontSize: 11,
+                        minWidth: 200,
+                        boxShadow: '4px 4px 0 rgba(0,0,0,0.08)',
+                      }}
+                    >
+                      <div style={{ fontWeight: 700, marginBottom: 4 }}>
+                        {row.week} · {row.dateRange}
+                        {row.partial && (
+                          <span style={{ fontWeight: 400, opacity: 0.6, marginLeft: 6 }}>
+                            · partial
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ marginBottom: 6, opacity: 0.7 }}>
+                        {total.toLocaleString()} engaged session{total === 1 ? '' : 's'}
+                      </div>
+                      {SIGNUPS_STACK_ORDER.slice().reverse().map((s) => {
+                        const v = row[s.key];
+                        if (!v) return null;
+                        return (
+                          <div
+                            key={s.key}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 6,
+                              marginTop: 2,
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: 8,
+                                height: 8,
+                                background: s.color,
+                                border: `1px solid ${C.black}`,
+                                flexShrink: 0,
+                              }}
+                            />
+                            <span style={{ flex: 1 }}>{s.key}</span>
+                            <span
+                              style={{
+                                fontVariantNumeric: 'tabular-nums',
+                                fontWeight: 600,
+                              }}
+                            >
+                              {v.toLocaleString()}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                }}
+              />
+              {SIGNUPS_STACK_ORDER.map((s) => (
+                <Bar
+                  key={s.key}
+                  dataKey={s.key}
+                  stackId="web"
+                  fill={s.color}
+                  stroke={C.black}
+                  strokeWidth={s.hero ? 1.2 : 0.5}
+                  isAnimationActive={false}
+                />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        </div>
+
+        {/* Right slot — sources table.
+            Flex column + marginTop:auto wrapper pushes the table to the
+            bottom so its last row aligns with the chart's x-axis. */}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ marginBottom: 12 }}>
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontWeight: 600,
+                fontSize: 14,
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: 10,
+              }}
+            >
+              Sources · {windowLabel}
+              <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
+                Engaged sessions by channel
+              </span>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 'auto' }}>
+          {(() => {
+            // Aggregate per-channel sessions across all weekly buckets.
+            const totals = SIGNUPS_BY_CHANNEL_KEYS.map((key) => {
+              const colorMeta = SIGNUPS_STACK_ORDER.find((s) => s.key === key);
+              return {
+                key,
+                color: colorMeta?.color || C.lightGrey,
+                sessions: webSessionsWeekly.reduce((s, w) => s + (w[key] || 0), 0),
+              };
+            }).sort((a, b) => b.sessions - a.sessions);
+            const grandTotal = totals.reduce((s, r) => s + r.sessions, 0);
+
+            return (
+              <div
+                style={{
+                  fontFamily: FONT_BODY,
+                  fontSize: 13,
+                  border: `1px solid ${C.black}`,
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Table header */}
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '14px 1fr 90px 80px',
+                    gap: 12,
+                    padding: '10px 14px',
+                    background: C.paper,
+                    borderBottom: `1px solid ${C.black}`,
+                    fontFamily: FONT_BODY,
+                    fontWeight: 700,
+                    fontSize: 10,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    opacity: 0.7,
+                    alignItems: 'center',
+                  }}
+                >
+                  <div></div>
+                  <div>Channel</div>
+                  <div style={{ textAlign: 'right' }}>Sessions</div>
+                  <div style={{ textAlign: 'right' }}>Share</div>
+                </div>
+
+                {/* Table rows */}
+                {totals.map((r, i) => {
+                  const pct = grandTotal ? (r.sessions / grandTotal) * 100 : 0;
+                  return (
+                    <div
+                      key={r.key}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '14px 1fr 90px 80px',
+                        gap: 12,
+                        padding: '12px 14px',
+                        borderTop: i > 0 ? `1px solid rgba(0,0,0,0.08)` : 'none',
+                        alignItems: 'center',
+                        background: C.white,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 12,
+                          height: 12,
+                          background: r.color,
+                          border: `1px solid ${C.black}`,
+                          borderRadius: 2,
+                        }}
+                      />
+                      <div style={{ fontWeight: r.sessions > 0 ? 600 : 400 }}>{r.key}</div>
+                      <div
+                        style={{
+                          textAlign: 'right',
+                          fontVariantNumeric: 'tabular-nums',
+                          fontWeight: r.sessions > 0 ? 700 : 400,
+                          opacity: r.sessions === 0 ? 0.4 : 1,
+                        }}
+                      >
+                        {r.sessions.toLocaleString()}
+                      </div>
+                      <div
+                        style={{
+                          textAlign: 'right',
+                          fontVariantNumeric: 'tabular-nums',
+                          opacity: pct === 0 ? 0.35 : 0.65,
+                        }}
+                      >
+                        {pct === 0 ? '—' : pct.toFixed(1) + '%'}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Total row */}
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '14px 1fr 90px 80px',
+                    gap: 12,
+                    padding: '12px 14px',
+                    background: C.paper,
+                    borderTop: `1px solid ${C.black}`,
+                    fontFamily: FONT_BODY,
+                    fontSize: 13,
+                    alignItems: 'center',
+                    fontWeight: 700,
+                  }}
+                >
+                  <div></div>
+                  <div>Total</div>
+                  <div
+                    style={{
+                      textAlign: 'right',
+                      fontVariantNumeric: 'tabular-nums',
+                    }}
+                  >
+                    {grandTotal.toLocaleString()}
+                  </div>
+                  <div
+                    style={{
+                      textAlign: 'right',
+                      fontVariantNumeric: 'tabular-nums',
+                    }}
+                  >
+                    100.0%
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+          </div>{/* end marginTop:auto wrapper */}
+        </div>
+        </div>
+
+        <div
+          style={{
+            position: 'absolute',
+            right: -1,
+            top: -1,
+            width: 8,
+            height: 36,
+            background: C.blue,
+            border: `1px solid ${C.black}`,
+          }}
+        />
+      </section>
+
+      {/* ── LinkedIn deep-dive ── */}
+      <div
+        style={{
+          fontFamily: FONT_BODY,
+          fontWeight: 700,
+          fontSize: 11,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          opacity: 0.7,
+          marginBottom: 8,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}
+      >
+        <span>LinkedIn · GA4 plg_signup_click (* from May 7)</span>
+        <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
+      </div>
+      <ChannelDeepDive
+        data={LINKEDIN_DEEP_DIVE}
+        weekly={linkedinWeekly}
+        signupsWindow={linkedinWindowSignups}
+        windowLabel={windowLabel}
+        extraChart={<LinkedInPlaceholderChart />}
+      />
+
+      {/* ── AEO deep-dive ── */}
+      <div
+        style={{
+          fontFamily: FONT_BODY,
+          fontWeight: 700,
+          fontSize: 11,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          opacity: 0.7,
+          marginBottom: 8,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}
+      >
+        <span>AEO + Search · Signups attribution (* signups from May 7; visibility Apr 23+)</span>
+        <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
+      </div>
+      <ChannelDeepDive
+        data={AEO_DEEP_DIVE}
+        weekly={aeoChannelWeekly}
+        signupsWindow={aeoChannelWindowSignups}
+        windowLabel={windowLabel}
+        extraChart={<AEOVisibilityChart />}
+      />
+
+      {/* Definitions — collapsible */}
+      <section
+        style={{
+          background: C.black,
+          color: C.white,
+          padding: definitionsOpen ? '24px 36px 32px' : '18px 36px',
+          borderRadius: 4,
+          transition: 'padding 0.15s ease',
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => setDefinitionsOpen((v) => !v)}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: C.white,
+            padding: 0,
+            cursor: 'pointer',
+            width: '100%',
+            textAlign: 'left',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            font: 'inherit',
+          }}
+        >
+          <HelpCircle size={16} color={C.green} strokeWidth={2.5} />
+          <span
+            style={{
+              fontFamily: FONT_BODY,
+              fontWeight: 700,
+              fontSize: 11,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: C.green,
+            }}
+          >
+            Definitions & methodology
+          </span>
+          <span
+            style={{
+              fontFamily: FONT_CAPTION,
+              fontStyle: 'italic',
+              fontSize: 12,
+              color: 'rgba(255,255,255,0.55)',
+              marginLeft: 4,
+            }}
+          >
+            {definitionsOpen ? 'click to collapse' : 'click to expand'}
+          </span>
+          <span style={{ flex: 1 }} />
+          <ChevronDown
+            size={18}
+            color={C.green}
+            strokeWidth={2.5}
+            style={{
+              transform: definitionsOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.18s ease',
+            }}
+          />
+        </button>
+
+        {definitionsOpen && (
+          <>
+            <h2
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 400,
+                fontSize: 32,
+                lineHeight: 1.05,
+                letterSpacing: '-0.025em',
+                margin: '16px 0 22px',
+                color: C.white,
+              }}
+            >
+              What each number means &amp; where it comes from.
+            </h2>
+
+            <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '20px 36px',
+            fontFamily: FONT_BODY,
+            fontSize: 13,
+            lineHeight: 1.55,
+          }}
+        >
+          <Def
+            term="Signups"
+            body={
+              <>
+                Unique users who fired the <code style={codeStyle}>[Onboarding] Company Setup Complete</code> event
+                in Amplitude. This is the source of truth for new account creation.
+              </>
+            }
+          />
+          <Def
+            term="Website Visitors (Engaged Sessions)"
+            body={
+              <>
+                Sum of daily <em>Engaged Sessions</em> from GA4, not Total Users. An Engaged Session = &gt;10s
+                duration, a conversion event, or 2+ pageviews. We use this because LLM crawlers (GPTBot,
+                ClaudeBot, PerplexityBot, etc.) materially inflated Total Users in March 2026 — engagement
+                rate on the spike days dropped to 0.5–7% vs. a 40–60% baseline. Engaged Sessions filter
+                that out implicitly.
+              </>
+            }
+          />
+          <Def
+            term="Visitor → Signup ratio"
+            body={
+              <>
+                Signups ÷ Engaged Sessions over the same window. Directional only: numerator comes from
+                Amplitude (deduplicated by user), denominator from GA4 (counted by session). The two
+                systems don't share user IDs, so this is not a true cohort conversion rate.
+              </>
+            }
+          />
+          <Def
+            term="Share of Signups"
+            body={
+              <>
+                Self-reported <code style={codeStyle}>referral_source</code> from the onboarding
+                form (Amplitude event <code style={codeStyle}>[Onboarding] Company Setup Complete</code>),
+                bucketed into 9 categories: Word of Mouth, Search, LLM, Influencer /
+                Community, YC, LinkedIn, Social, Joke / Invalid, and Other / Unparseable.
+                Bucketing is rule-based (regex patterns) — see <em>Share of Signups · how
+                buckets are assigned</em> below. Hover any slice to see the raw responses
+                bucketed into it. Internal Mutiny test accounts excluded at the Amplitude
+                query layer (<code style={codeStyle}>email does not contain "mutiny"</code>).
+              </>
+            }
+          />
+          <Def
+            term="Share of Signups · how buckets are assigned"
+            body={
+              <>
+                Each raw <code style={codeStyle}>referral_source</code> string runs through a
+                rules pipeline. Order matters; first match wins.
+                <ul style={{ margin: '6px 0 0 0', paddingLeft: 18 }}>
+                  <li><strong>LinkedIn</strong> — contains "linkedin"</li>
+                  <li><strong>LLM</strong> — contains chatgpt, claude, perplexity, gemini, copilot, or "ai" as a whole word</li>
+                  <li><strong>YC</strong> — matches "y combinator" or "yc" as a whole word (catches "YC Video" too)</li>
+                  <li><strong>Influencer / Community</strong> — mkt1, hbs, alumni, community, 30mpc, podcast</li>
+                  <li><strong>Word of Mouth</strong> — friend, colleague (incl. typo "collegaue"), coworker, manager, teacher, CEO, VP, boss, buddy, referred, recommendation, "word of mouth", "WOM", anyone described as a fan ("Our Group CEO is a huge fan"), AND single-token employer mentions (BMC, Homebase, Slack, calm, sequoia, Team, "we use it at X") read as "heard from coworkers there." The signal is "heard from a real person."</li>
+                  <li><strong>Search</strong> — google, search, organic, "web"</li>
+                  <li><strong>Social</strong> — X post, twitter, reddit, facebook, instagram</li>
+                  <li><strong>Joke / Invalid</strong> — fate/destiny, test/demo, empty entries (".", "-", single digits), one-off joke responses ("dj khaled", "I was so excited about spirit 2.0…", "Jason Liu my homeboy", "20 year marketing veteran"). Separated from Other so the Other bucket stays meaningful.</li>
+                  <li><strong>Other / Unparseable</strong> — legit-looking but ambiguous: external products mentioned without context (Online, Newsletter, "Ruben email"), unclear intent ("Looking for ABM Strategy help").</li>
+                </ul>
+                Joke / Invalid (~26%) is the actionable finding: the free-text field
+                attracts a lot of non-signal — the form needs a dropdown.
+              </>
+            }
+          />
+          <Def
+            term="Reporting window · Apr 27 – May 13, 2026"
+            body={<>17 days of data, anchored at Mon Apr 27. Weeks are Mon–Sun: Apr 27–May 3, May 4–10, May 11–17 (partial, through May 13). Where a source started collecting data later than Apr 27 (e.g. <code style={codeStyle}>plg_signup_click</code> from May 7; pie's <code style={codeStyle}>referral_source</code> populated from ~May 4), the section shows what's available within the window and is annotated inline.</>}
+          />
+          <Def
+            term="Data sources"
+            body={
+              <>
+                Amplitude (Signups KPI, Share of Signups) · Google Analytics 4 (Website
+                Visitors KPI, Signups by Channel weekly + funnel table) · HubSpot (Sales
+                Meetings Requested KPI, Share of Sales Meetings — Talk to Sales form
+                <code style={codeStyle}>how_did_you_discover_mutiny</code> property) ·
+                Peec AI (AEO Visibility and Topic breakdown).
+              </>
+            }
+          />
+          <Def
+            term="Signups by Channel · methodology"
+            body={
+              <>
+                Count of <code style={codeStyle}>plg_signup_click</code> events on
+                <code style={codeStyle}>app.mutinyhq.com/register</code>, broken out by the
+                session source that brought the user into the funnel (typically on
+                <code style={codeStyle}>mutinyhq.com</code>, with the source carried across
+                domains via the GA4 cross-domain linker). Channel buckets use GA4's default
+                channel group with overrides to break out LinkedIn, Twitter, Reddit, and
+                AI Referrals (ChatGPT, Claude, Perplexity, Gemini) as their own categories.
+              </>
+            }
+          />
+          <Def
+            term="Signups by Channel · tracking start"
+            body={
+              <>
+                <code style={codeStyle}>plg_signup_click</code> events were first reliably
+                captured on May 7, 2026. Cross-domain attribution between
+                <code style={codeStyle}>mutinyhq.com</code> and
+                <code style={codeStyle}>app.mutinyhq.com</code> shipped May 11, 2026.
+                Week 1 (Apr 27 – May 3) has session data but zero signup events. Weeks 2–3
+                are real attributed signups.
+              </>
+            }
+          />
+          <Def
+            term="Sales Meetings Requested"
+            body={
+              <>
+                Count of <em>Talk to Sales</em> form submissions in HubSpot whose
+                submission date falls in the window. Form-submission date is derived as:
+                if the contact's most recent conversion event is Talk to Sales, use
+                <code style={codeStyle}>recent_conversion_date</code>; otherwise (they
+                later booked a meeting via a Meetings Link), use
+                <code style={codeStyle}>first_conversion_date</code> since Talk to Sales
+                was their first form. Test-filtered: excludes
+                <code style={codeStyle}>@mutinyhq.com</code> emails and the
+                <code style={codeStyle}>kedwardsfake@1mind.com</code> stress-test account.
+              </>
+            }
+          />
+          <Def
+            term="AEO · Visibility"
+            body={
+              <>
+                Percentage of AI search responses (ChatGPT, Claude, Perplexity, Gemini, Google AI
+                Overview) that mention Mutiny. From Peec AI. Computed weighted:
+                sum(mentions) ÷ sum(responses) across the window — not an average of daily
+                ratios, since Peec's prompt run volumes vary day-to-day.
+              </>
+            }
+          />
+          <Def
+            term="AEO · Mentions vs. Visibility"
+            body={
+              <>
+                <em>Visibility</em> counts a response as 1 if it mentions Mutiny at all.
+                <em> Mentions</em> counts every individual reference, so a response that names
+                Mutiny three times contributes 3. Mentions ≫ Visibility means AI tends to
+                discuss Mutiny in depth when it does come up.
+              </>
+            }
+          />
+          <Def
+            term="AEO · Avg position"
+            body={
+              <>
+                When Mutiny is mentioned, its average rank among all brands cited in that
+                response. Lower is better — 1 = mentioned first. Mutiny at 2.9 means typically
+                inside the top 3.
+              </>
+            }
+          />
+          <Def
+            term="AEO · Standalone window"
+            body={
+              <>
+                The AEO section uses a fixed window (Apr 23 – May 10, 2026 = the full history
+                Peec has for Mutiny right now) and does not follow any global date toggle
+                introduced in v2. The window will extend as Peec accumulates more days.
+              </>
+            }
+          />
+            </div>
+          </>
+        )}
+      </section>
+
+      {/* Footer */}
+      <div
+        style={{
+          marginTop: 24,
+          fontFamily: FONT_CAPTION,
+          fontStyle: 'italic',
+          fontSize: 12,
+          opacity: 0.55,
+          textAlign: 'center',
+        }}
+      >
+        Last refreshed May 13, 2026 · v2 (Apr 27 anchor, Mon–Sun weeks)
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Definition row used in the bottom section
+// ---------------------------------------------------------------------------
+const codeStyle = {
+  fontFamily: "'Geist Mono', 'Menlo', monospace",
+  fontSize: 12,
+  background: 'rgba(178, 255, 20, 0.18)',
+  color: C.green,
+  padding: '1px 6px',
+  borderRadius: 3,
+};
+
+function Def({ term, body }) {
+  return (
+    <div>
+      <div
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontSize: 18,
+          lineHeight: 1.15,
+          letterSpacing: '-0.01em',
+          color: C.green,
+          marginBottom: 4,
+        }}
+      >
+        {term}
+      </div>
+      <div style={{ color: 'rgba(255,255,255,0.82)' }}>{body}</div>
+    </div>
+  );
+}
+
+// SelfReportedTag — small pill used next to chart titles when the underlying
+// data comes from user free-text input rather than tracked attribution.
+// Signals that the breakdown is directional, not measured.
+// WeekTick — custom XAxis tick that renders "Wk N" on the first line and
+// the date range ("Apr 12–18") on a second line in italics. Used by both
+// the Channel Mix and Sales Meeting Discovery weekly charts.
+//
+// Recharts injects { x, y, payload } when this is passed as the `tick` prop.
+// `lookup` is a map of weekKey -> dateRangeString, supplied via closure.
+// Pick a clean tick step (1, 2, 5, 10, 20, 50, 100, ...) for a Y-axis on
+// integer-count data. Returns { ticks, max }.
+//   - Candidates are {1, 2, 5, 10}×10ⁿ only — no 2.5, so we never produce
+//     fractional ticks like 0/2.5/5/7.5 on small-scale charts.
+//   - Step is rounded to an integer minimum of 1 (everything we plot in
+//     column charts is a count, never a fraction).
+//   - The top tick is always *one full step* above the data max — so the
+//     tallest bar never butts against the chart's top edge.
+function niceTicks(maxValue, preferredCount = 5) {
+  if (!Number.isFinite(maxValue) || maxValue <= 0) {
+    return { ticks: [0, 1, 2, 3, 4, 5], max: 5 };
+  }
+  const rough = maxValue / preferredCount;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(rough)));
+  const candidates = [1, 2, 5, 10];
+  let step = 10 * magnitude;
+  for (const c of candidates) {
+    if (c * magnitude >= rough) { step = c * magnitude; break; }
+  }
+  step = Math.max(1, Math.round(step));
+  // Always add one step of headroom above the max bar.
+  const max = (Math.floor(maxValue / step) + 1) * step;
+  const ticks = [];
+  for (let v = 0; v <= max + step / 2; v += step) ticks.push(v);
+  return { ticks, max };
+}
+
+function makeWeekTick(lookup) {
+  return function WeekTick({ x, y, payload }) {
+    const dateRange = lookup[payload.value] || '';
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text
+          x={0}
+          y={0}
+          dy={14}
+          textAnchor="middle"
+          style={{
+            fontFamily: FONT_BODY,
+            fontSize: 12,
+            fontWeight: 600,
+            fill: C.black,
+          }}
+        >
+          {payload.value}
+        </text>
+        <text
+          x={0}
+          y={0}
+          dy={28}
+          textAnchor="middle"
+          style={{
+            fontFamily: FONT_CAPTION,
+            fontStyle: 'italic',
+            fontSize: 10.5,
+            fill: C.black,
+            opacity: 0.6,
+          }}
+        >
+          {dateRange}
+        </text>
+      </g>
+    );
+  };
+}
+
+function Tag({ children }) {
+  return (
+    <span
+      style={{
+        fontFamily: FONT_BODY,
+        fontSize: 10,
+        fontWeight: 700,
+        letterSpacing: '0.1em',
+        textTransform: 'uppercase',
+        color: C.black,
+        background: 'transparent',
+        border: `1px solid ${C.black}`,
+        borderRadius: 999,
+        padding: '3px 9px 2px',
+        lineHeight: 1,
+        whiteSpace: 'nowrap',
+        verticalAlign: 'middle',
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function SelfReportedTag() {
+  return <Tag>Self-reported</Tag>;
+}
+
+function ProgrammaticTag() {
+  return <Tag>Programmatic · GA4</Tag>;
+}
+
+// InfoTooltip — small "i" icon that reveals contextual info on hover. Used to
+// hide methodology / explanation text that would otherwise clutter section
+// headings, while keeping the info one hover away.
+function InfoTooltip({ children, width = 320 }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span
+      style={{
+        position: 'relative',
+        display: 'inline-flex',
+        alignItems: 'center',
+        marginLeft: 6,
+      }}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      onFocus={() => setOpen(true)}
+      onBlur={() => setOpen(false)}
+      tabIndex={0}
+    >
+      <Info
+        size={13}
+        strokeWidth={2}
+        style={{
+          opacity: 0.5,
+          cursor: 'help',
+          color: C.black,
+        }}
+      />
+      {open && (
+        <span
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            marginTop: 6,
+            zIndex: 50,
+            background: C.white,
+            border: `1px solid ${C.black}`,
+            borderRadius: 4,
+            padding: '10px 12px',
+            fontFamily: FONT_BODY,
+            fontStyle: 'normal',
+            fontSize: 11.5,
+            lineHeight: 1.5,
+            color: C.black,
+            width,
+            boxShadow: '2px 2px 0 rgba(0,0,0,0.08)',
+            whiteSpace: 'normal',
+          }}
+        >
+          {children}
+        </span>
+      )}
+    </span>
+  );
+}
+
+function AeoStat({ label, value, hint }) {
+  return (
+    <div style={{ textAlign: 'right' }}>
+      <div
+        style={{
+          fontFamily: FONT_BODY,
+          fontWeight: 700,
+          fontSize: 10,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          opacity: 0.7,
+          marginBottom: 4,
+        }}
+      >
+        {label}
+      </div>
+      <div
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontSize: 36,
+          lineHeight: 1,
+          letterSpacing: '-0.03em',
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
+        {value}
+      </div>
+      {hint && (
+        <div
+          style={{
+            fontFamily: FONT_CAPTION,
+            fontStyle: 'italic',
+            fontSize: 11,
+            opacity: 0.6,
+            marginTop: 4,
+          }}
+        >
+          {hint}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Sales Meeting Form chart — single 100%-stacked horizontal column showing
+// how 28 sales prospects discovered Mutiny. Hover any segment to see the raw
+// verbatim responses bucketed into that channel.
+// ---------------------------------------------------------------------------
+// AEOVisibilityChart — multi-line visibility chart for the AEO deep-dive.
+// All 6 lines (overall + 5 topics) use real daily Peec data.
+// Competitor Comparisons was added to monitoring May 5; pre-May-5 cells are
+// null so the line starts cleanly mid-window rather than dragging from 0.
+// Legend items are clickable to toggle lines on/off — Y-axis dynamically
+// rescales to fit only the currently visible lines, so users can drill into
+// low-visibility topics without Competitor Comparisons (~70%) flattening
+// everything else.
+// Placeholder for the LinkedIn deep-dive's right slot. Matches the
+// AEOVisibilityChart's footprint so the LinkedIn card has the same visual
+// weight as AEO + Search.
+function LinkedInPlaceholderChart() {
+  return (
+    <div>
+      <div style={{ marginBottom: 12 }}>
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontWeight: 600,
+            fontSize: 14,
+            display: 'flex',
+            alignItems: 'baseline',
+            gap: 10,
+          }}
+        >
+          LinkedIn deep-dive · daily
+          <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
+            Coming soon
+          </span>
+        </div>
+      </div>
+      <div
+        style={{
+          width: '100%',
+          height: 390,
+          border: `1px dashed ${C.black}`,
+          borderRadius: 4,
+          background: 'rgba(0,0,0,0.02)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: 8,
+          opacity: 0.55,
+        }}
+      >
+        <div
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontSize: 28,
+            letterSpacing: '-0.02em',
+            color: C.black,
+          }}
+        >
+          Placeholder
+        </div>
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontSize: 12,
+            color: C.black,
+            opacity: 0.7,
+            textAlign: 'center',
+            maxWidth: 280,
+            lineHeight: 1.4,
+          }}
+        >
+          Reserved for a future LinkedIn-specific drilldown (post engagement,
+          impressions, or content-type breakdown).
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AEOVisibilityChart() {
+  // All chart lines in render order (later items render on top).
+  // Total at end so it sits on top when visible.
+  const allLines = [
+    ...AEO.topics.map((t) => ({
+      key: t.name,
+      label: t.name,
+      color: t.color,
+      strokeWidth: 1.75,
+      isTotal: false,
+    })),
+    { key: 'Total', label: 'Total (all topics)', color: C.black, strokeWidth: 2.5, isTotal: true },
+  ];
+
+  // Visibility toggle state. Default: only the Total line is visible.
+  // Individual topic toggles render in their muted/greyed legend state and
+  // can be clicked on to reveal one (or many) topic lines on demand.
+  const [visible, setVisible] = useState(
+    Object.fromEntries(allLines.map((l) => [l.key, l.isTotal]))
+  );
+
+  // Build chart dataset (0-1 ratios → 0-100 percentages; nulls flow through).
+  const data = AEO.daily.map((d) => {
+    const row = { date: d.date, Total: +(d.visibility * 100).toFixed(2) };
+    for (const t of AEO.topics) {
+      const v = d[t.name];
+      row[t.name] = v === null || v === undefined ? null : +(v * 100).toFixed(2);
+    }
+    return row;
+  });
+
+  // Y-axis: use the same niceTicks helper as the column charts so the
+  // ticks are evenly spaced on round percentages (0/5/10... or 0/10/20...)
+  // and there's always one full step of headroom above the max.
+  const visibleKeys = allLines.filter((l) => visible[l.key]).map((l) => l.key);
+  const visibleValues = data.flatMap((row) =>
+    visibleKeys
+      .map((k) => row[k])
+      .filter((v) => v !== null && v !== undefined)
+  );
+  const maxVisible = visibleValues.length > 0 ? Math.max(...visibleValues) : 10;
+  const { ticks: yTicks, max: yMax } = niceTicks(maxVisible, 5);
+
+  return (
+    <div>
+      {/* Heading */}
+      <div style={{ marginBottom: 12 }}>
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontWeight: 600,
+            fontSize: 14,
+            display: 'flex',
+            alignItems: 'baseline',
+            gap: 10,
+          }}
+        >
+          Visibility · daily
+          <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
+            % of tracked queries · click legend to toggle
+          </span>
+        </div>
+      </div>
+
+      {/* Interactive legend — click to toggle */}
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '4px 6px',
+          marginBottom: 14,
+        }}
+      >
+        {/* Render in display-friendly order: Total first */}
+        {[allLines[allLines.length - 1], ...allLines.slice(0, -1)].map((line) => {
+          const isOn = visible[line.key];
+          return (
+            <button
+              key={line.key}
+              onClick={() =>
+                setVisible((v) => ({ ...v, [line.key]: !v[line.key] }))
+              }
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                background: isOn ? 'rgba(0,0,0,0.04)' : 'transparent',
+                border: `1px solid ${isOn ? C.black : 'rgba(0,0,0,0.2)'}`,
+                borderRadius: 999,
+                padding: '3px 8px 3px 6px',
+                cursor: 'pointer',
+                fontFamily: FONT_BODY,
+                fontSize: 11,
+                color: C.black,
+                opacity: isOn ? 1 : 0.45,
+                transition: 'opacity 80ms, background 80ms, border-color 80ms',
+              }}
+              type="button"
+            >
+              <span
+                style={{
+                  display: 'inline-block',
+                  width: 16,
+                  height: 0,
+                  borderTop: `${line.isTotal ? '2.5px' : '2px'} solid ${line.color}`,
+                }}
+              />
+              <span
+                style={{
+                  fontWeight: line.isTotal ? 700 : 400,
+                  textDecoration: isOn ? 'none' : 'line-through',
+                }}
+              >
+                {line.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Chart */}
+      <div style={{ width: '100%', height: 390 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data} margin={{ top: 10, right: 16, bottom: 0, left: 0 }}>
+            <CartesianGrid vertical={false} stroke={C.black} strokeOpacity={0.08} />
+            <XAxis
+              dataKey="date"
+              axisLine={{ stroke: C.black }}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 10, fill: C.black }}
+              interval="preserveStartEnd"
+              minTickGap={20}
+              height={28}
+            />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }}
+              tickFormatter={(v) => `${v}%`}
+              domain={[0, yMax]}
+              ticks={yTicks}
+              width={48}
+              allowDecimals={false}
+            />
+            <Tooltip
+              cursor={{ stroke: C.black, strokeOpacity: 0.2, strokeWidth: 1 }}
+              content={({ active, payload, label }) => {
+                if (!active || !payload || !payload.length) return null;
+                const visiblePayload = payload.filter(
+                  (p) => p.value !== null && p.value !== undefined
+                );
+                if (!visiblePayload.length) return null;
+                return (
+                  <div
+                    style={{
+                      background: C.white,
+                      border: `1px solid ${C.black}`,
+                      borderRadius: 4,
+                      padding: '10px 12px',
+                      fontFamily: FONT_BODY,
+                      fontSize: 11,
+                      minWidth: 220,
+                      boxShadow: '4px 4px 0 rgba(0,0,0,0.08)',
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, marginBottom: 6 }}>{label}</div>
+                    {visiblePayload.map((p) => (
+                      <div
+                        key={p.dataKey}
+                        style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}
+                      >
+                        <span
+                          style={{
+                            width: 12,
+                            height: 0,
+                            borderTop: `${p.dataKey === 'Total' ? '2.5px' : '2px'} solid ${p.color || p.stroke}`,
+                          }}
+                        />
+                        <span style={{ flex: 1 }}>{p.dataKey}</span>
+                        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
+                          {p.value}%
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              }}
+            />
+            {/* Render only the visible lines. Topics first, Total last so it overlays. */}
+            {allLines.map((line) =>
+              visible[line.key] ? (
+                <Line
+                  key={line.key}
+                  type="monotone"
+                  dataKey={line.key}
+                  stroke={line.color}
+                  strokeWidth={line.strokeWidth}
+                  dot={line.isTotal ? { r: 2.5, fill: line.color } : false}
+                  activeDot={{ r: line.isTotal ? 5 : 4, stroke: C.black, strokeWidth: 1 }}
+                  connectNulls={false}
+                  isAnimationActive={false}
+                />
+              ) : null
+            )}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Footnote */}
+      <div
+        style={{
+          fontFamily: FONT_BODY,
+          fontSize: 10.5,
+          opacity: 0.55,
+          marginTop: 10,
+          lineHeight: 1.5,
+        }}
+      >
+        Source: Peec AI · {AEO.windowLabel}. Competitor Comparisons topic added to
+        monitoring May 5 (line starts then).
+      </div>
+    </div>
+  );
+}
+
+// ChannelDeepDive — single-channel OR stacked multi-channel deep-dive card.
+// `data.series` is an array of { key, label, color }. One entry = single bar
+// per week. Multiple entries = stacked column. Header: square icon + name +
+// subtitle (left), KPI tile with the window total (right). Ghost-placeholder
+// bars render for empty/future weeks.
+function ChannelDeepDive({ data, weekly, signupsWindow, windowLabel, extraChart }) {
+  const seriesKeys = data.series.map((s) => s.key);
+  const rowTotal = (w) => seriesKeys.reduce((s, k) => s + (w[k] || 0), 0);
+  // Y-axis: niceTicks gives uniform clean intervals (1/2/2.5/5/10 × 10ⁿ).
+  const maxValue = Math.max(...weekly.map((w) => rowTotal(w) + (w._ghost || 0)), 1);
+  const { ticks: yTicks, max: yMax } = niceTicks(maxValue, 5);
+
+  return (
+    <section
+      style={{
+        background: C.white,
+        border: `1px solid ${C.black}`,
+        borderRadius: 4,
+        padding: '28px 32px 24px',
+        marginBottom: 40,
+        position: 'relative',
+      }}
+    >
+      {/* Header row: icon + name + subtitle (left), KPI (right) */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: 24,
+          marginBottom: 26,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          {/* Icon badge */}
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              background: data.iconBg,
+              border: `1px solid ${C.black}`,
+              borderRadius: 6,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontFamily: FONT_DISPLAY,
+              fontSize: 22,
+              fontWeight: 400,
+              lineHeight: 1,
+              flexShrink: 0,
+            }}
+          >
+            {data.iconLabel}
+          </div>
+          <div>
+            <h2
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 400,
+                fontSize: 32,
+                lineHeight: 1,
+                letterSpacing: '-0.03em',
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+              }}
+            >
+              {data.name}
+              <ProgrammaticTag />
+            </h2>
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 13,
+                opacity: 0.65,
+                marginTop: 6,
+                lineHeight: 1.4,
+              }}
+            >
+              {data.subtitle}
+            </div>
+          </div>
+        </div>
+
+        {/* KPI tile */}
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+          <div
+            style={{
+              fontFamily: FONT_BODY,
+              fontWeight: 700,
+              fontSize: 10,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              opacity: 0.7,
+              marginBottom: 4,
+            }}
+          >
+            Signups · {windowLabel}
+          </div>
+          <div
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontSize: 38,
+              lineHeight: 1,
+              letterSpacing: '-0.02em',
+              fontVariantNumeric: 'tabular-nums',
+            }}
+          >
+            {signupsWindow}
+          </div>
+        </div>
+      </div>
+
+      {/* Chart area — single column or 2-col grid based on extraChart prop */}
+      <div
+        style={
+          extraChart
+            ? { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28, alignItems: 'start' }
+            : undefined
+        }
+      >
+      <div>
+      {/* Chart heading */}
+      <div style={{ marginBottom: 12 }}>
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontWeight: 600,
+            fontSize: 14,
+            display: 'flex',
+            alignItems: 'baseline',
+            gap: 10,
+          }}
+        >
+          Signups · weekly
+          <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
+            Self-serve signups{data.series.length > 1 ? ' · stacked by channel' : ''}
+          </span>
+        </div>
+      </div>
+
+      {/* Legend — one swatch per series. Single-channel deep-dives still
+          render their swatch for visual consistency. */}
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '6px 14px',
+          marginBottom: 14,
+          fontFamily: FONT_BODY,
+          fontSize: 11,
+        }}
+      >
+        {data.series.map((s) => (
+          <div key={s.key} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <span
+              style={{
+                width: 10,
+                height: 10,
+                background: s.color,
+                border: `1px solid ${C.black}`,
+                borderRadius: 1,
+              }}
+            />
+            <span>{s.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Chart */}
+      <div style={{ width: '100%', height: 390 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={weekly}
+            barCategoryGap="22%"
+            margin={{ top: 10, right: 8, bottom: 0, left: -10 }}
+          >
+            <CartesianGrid vertical={false} stroke={C.black} strokeOpacity={0.08} />
+            <XAxis
+              dataKey="week"
+              axisLine={{ stroke: C.black }}
+              tickLine={false}
+              interval={0}
+              height={48}
+              tick={makeWeekTick(
+                weekly.reduce((acc, r) => ({ ...acc, [r.week]: r.dateRange }), {})
+              )}
+            />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }}
+              domain={[0, yMax]}
+              ticks={yTicks}
+              allowDecimals={false}
+              width={32}
+            />
+            <Tooltip
+              cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+              content={({ active, payload, label }) => {
+                if (!active || !payload || !payload.length) return null;
+                const row = weekly.find((r) => r.week === label);
+                if (!row) return null;
+                return (
+                  <div
+                    style={{
+                      background: C.white,
+                      border: `1px solid ${C.black}`,
+                      borderRadius: 4,
+                      padding: '10px 12px',
+                      fontFamily: FONT_BODY,
+                      fontSize: 11,
+                      minWidth: 180,
+                      boxShadow: '4px 4px 0 rgba(0,0,0,0.08)',
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, marginBottom: 4 }}>
+                      {row.week} · {row.dateRange}
+                      {row.partial && (
+                        <span style={{ fontWeight: 400, opacity: 0.6, marginLeft: 6 }}>
+                          · partial
+                        </span>
+                      )}
+                    </div>
+                    {!row.populated ? (
+                      <div style={{ opacity: 0.6, fontStyle: 'italic' }}>
+                        Future week — placeholder for upcoming data.
+                      </div>
+                    ) : (
+                      <>
+                        {data.series.map((s) => (
+                          <div
+                            key={s.key}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 6,
+                              marginTop: 2,
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: 8,
+                                height: 8,
+                                background: s.color,
+                                border: `1px solid ${C.black}`,
+                                flexShrink: 0,
+                              }}
+                            />
+                            <span style={{ flex: 1 }}>{s.label}</span>
+                            <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
+                              {row[s.key] || 0}
+                            </span>
+                          </div>
+                        ))}
+                        {data.series.length > 1 && (
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 6,
+                              marginTop: 6,
+                              paddingTop: 6,
+                              borderTop: `1px solid rgba(0,0,0,0.15)`,
+                              fontWeight: 600,
+                            }}
+                          >
+                            <span style={{ flex: 1 }}>Total</span>
+                            <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                              {rowTotal(row)}
+                            </span>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                );
+              }}
+            />
+            {data.series.map((s) => (
+              <Bar
+                key={s.key}
+                dataKey={s.key}
+                stackId="deepdive"
+                fill={s.color}
+                stroke={C.black}
+                strokeWidth={0.6}
+                isAnimationActive={false}
+              />
+            ))}
+            <Bar
+              dataKey="_ghost"
+              stackId="deepdive"
+              fill="transparent"
+              stroke={C.black}
+              strokeDasharray="4 4"
+              strokeOpacity={0.22}
+              isAnimationActive={false}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      </div>
+
+      {/* Right slot: optional secondary chart (e.g. AEO visibility line) */}
+      {extraChart}
+      </div>
+
+      {/* Right accent stripe */}
+      <div
+        style={{
+          position: 'absolute',
+          right: -1,
+          top: -1,
+          width: 8,
+          height: 36,
+          background: data.accentColor,
+          border: `1px solid ${C.black}`,
+        }}
+      />
+    </section>
+  );
+}
