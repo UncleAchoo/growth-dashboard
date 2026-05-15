@@ -45,7 +45,10 @@ jobs:
         run: npm ci
 
       - name: Build dashboard
-        run: npm run build
+        # Use build:nodata (just `vite build`) — NOT `npm run build`, which
+        # also runs pull-data. CI has no API keys, so pull-data would wipe
+        # the committed src/data.json with empty fallbacks.
+        run: npm run build:nodata
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
