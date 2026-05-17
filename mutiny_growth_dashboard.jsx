@@ -117,10 +117,12 @@ const LIVE_ENGAGED_BY_DATE = Object.fromEntries(
 // week containing LIVE_END (today) — extends into the future if today
 // isn't Sunday yet.
 //
-// `partial` only flags the *current* week (its Sunday is > today). The
-// first bucket is never marked partial, even if it pre-dates the strict
-// 30-day start, per the design call: "if the earliest week is partial,
-// treat it as full."
+// Two flavors of "partial":
+//   - `trailingPartial` — current week, Sunday hasn't happened yet
+//   - `leadingPartial`  — first week, its Monday pre-dates the strict 30d
+// `partial` is the OR of the two (used for hatching). The current-week vs
+// leading-week distinction surfaces in tooltips so we can label them
+// differently — both are visually hatched.
 function buildWeeks() {
   const weeks = [];
   const weeklyStart = mondayOfUTC(LIVE_START_DATE);
@@ -132,11 +134,19 @@ function buildWeeks() {
     for (let d = new Date(wkStart); d <= wkEnd; d = addUTCDays(d, 1)) {
       dates.push(fmtYYYYMMDD(d));
     }
+    const trailingPartial = wkEnd > LIVE_END_DATE;
+    const leadingPartial  = wkStart < LIVE_START_DATE;
+    // Per design call: only the trailing (current, in-progress) week is
+    // visually hatched. The leading week is displayed as a normal bar even
+    // if its Monday slightly pre-dates the strict 30-day start — that
+    // information is captured in the "How to read" banner instead.
     weeks.push({
       weekStartLabel: fmtMonDay(wkStart),
       weekStart: fmtYYYYMMDD(wkStart),
       dateRange: `${fmtMonDay(wkStart)} – ${fmtMonDay(wkEnd)}`,
-      partial: wkEnd > LIVE_END_DATE,
+      partial: trailingPartial,
+      trailingPartial,
+      leadingPartial,
       dates,
     });
     wkStart = addUTCDays(wkEnd, 1);
@@ -177,6 +187,174 @@ const DATA = {
 };
 
 const ratioWindow = (DATA.signups.window / DATA.engagedSessions.window) * 100;
+
+// ---------------------------------------------------------------------------
+// Sparkline daily series — strict-30d daily values for the KPI tile trends.
+// All four series share the same date axis (LIVE_START..LIVE_END inclusive).
+// Ratio is 7-day rolling to smooth out daily 0/0 noise.
+// ---------------------------------------------------------------------------
+const STRICT_WINDOW_DATES = (() => {
+  const out = [];
+  for (let d = new Date(LIVE_START_DATE); d <= LIVE_END_DATE; d = addUTCDays(d, 1)) {
+    out.push(fmtYYYYMMDD(d));
+  }
+  return out;
+})();
+function rolling7(arr) {
+  return arr.map((_, i) => {
+    const start = Math.max(0, i - 6);
+    const win = arr.slice(start, i + 1);
+    return win.reduce((s, v) => s + v, 0) / win.length;
+  });
+}
+const SPARK_SIGNUPS  = STRICT_WINDOW_DATES.map((d) => LIVE_SIGNUPS_BY_DATE[d]  || 0);
+const SPARK_SESSIONS = STRICT_WINDOW_DATES.map((d) => LIVE_ENGAGED_BY_DATE[d]  || 0);
+const SPARK_MEETINGS = STRICT_WINDOW_DATES.map((d) => LIVE_MEETINGS_BY_DATE[d] || 0);
+const SPARK_RATIO    = rolling7(
+  STRICT_WINDOW_DATES.map((d) => {
+    const s = LIVE_SIGNUPS_BY_DATE[d]  || 0;
+    const e = LIVE_ENGAGED_BY_DATE[d]  || 0;
+    return e > 0 ? (s / e) * 100 : 0;
+  }),
+);
+
+// ---------------------------------------------------------------------------
+// Last-4-weeks window (used by the "Last 4 weeks" view mode).
+// Matches Amplitude's preset: 4 most recent complete Mon-Sun weeks PLUS the
+// current in-progress week (5 weeks total). Window = Monday of (current
+// week - 4) → today. The current week bar is rendered hatched in charts.
+// ---------------------------------------------------------------------------
+const _thisWeekMonday      = mondayOfUTC(LIVE_END_DATE);
+const FOURWEEKS_START_DATE = addUTCDays(_thisWeekMonday, -28);  // Mon of 4 weeks ago
+const FOURWEEKS_END_DATE   = LIVE_END_DATE;                     // today (inclusive)
+const FOURWEEKS_END_YYYYMMDD   = fmtYYYYMMDD(FOURWEEKS_END_DATE);
+const FOURWEEKS_START_YYYYMMDD = fmtYYYYMMDD(FOURWEEKS_START_DATE);
+const FOURWEEKS_DATES_ARRAY = [];
+for (let d = new Date(FOURWEEKS_START_DATE); d <= FOURWEEKS_END_DATE; d = addUTCDays(d, 1)) {
+  FOURWEEKS_DATES_ARRAY.push(fmtYYYYMMDD(d));
+}
+const FOURWEEKS_DATES_SET = new Set(FOURWEEKS_DATES_ARRAY);
+function inFourWeeksWindow(dateStr) { return FOURWEEKS_DATES_SET.has(dateStr); }
+const FOURWEEKS_RANGE_LABEL = `${fmtMonDay(FOURWEEKS_START_DATE)} – ${fmtMonDay(FOURWEEKS_END_DATE)}, ${FOURWEEKS_END_DATE.getUTCFullYear()}`;
+
+// ---------------------------------------------------------------------------
+// Prior 30 days — for "vs prior 30d" delta on KPI cards in Last 30 days mode.
+// PRIOR_DATA_AVAILABLE is false if pull-data hasn't been re-run with the new
+// 60-day window — in that case the delta is suppressed cleanly.
+// ---------------------------------------------------------------------------
+const PRIOR30_END_DATE   = addUTCDays(LIVE_START_DATE, -1);
+const PRIOR30_START_DATE = addUTCDays(PRIOR30_END_DATE, -29);
+const PRIOR30_END_YYYYMMDD   = fmtYYYYMMDD(PRIOR30_END_DATE);
+const PRIOR30_START_YYYYMMDD = fmtYYYYMMDD(PRIOR30_START_DATE);
+function inPrior30Window(dateStr) {
+  return dateStr >= PRIOR30_START_YYYYMMDD && dateStr <= PRIOR30_END_YYYYMMDD;
+}
+const _dataWindowStartCompact = (dataJson.window?.start || '').replaceAll('-', '');
+const PRIOR_DATA_AVAILABLE =
+  Boolean(_dataWindowStartCompact) && _dataWindowStartCompact <= PRIOR30_START_YYYYMMDD;
+
+// ---------------------------------------------------------------------------
+// KPI totals — 4-week + prior-30d for the toggle + delta rendering
+// ---------------------------------------------------------------------------
+function sumByMapFilter(map, predicate) {
+  let t = 0;
+  for (const [d, n] of Object.entries(map)) if (predicate(d)) t += Number(n) || 0;
+  return t;
+}
+function countMeetingsByFilter(predicate) {
+  return (dataJson.hubspot?.meetings || []).filter((m) => predicate(m.date)).length;
+}
+const SIGNUPS_4W   = sumByMapFilter(LIVE_SIGNUPS_BY_DATE,  inFourWeeksWindow);
+const SESSIONS_4W  = sumByMapFilter(LIVE_ENGAGED_BY_DATE,  inFourWeeksWindow);
+const MEETINGS_4W  = countMeetingsByFilter(inFourWeeksWindow);
+const RATIO_4W     = SESSIONS_4W > 0 ? (SIGNUPS_4W  / SESSIONS_4W)  * 100 : 0;
+const SIGNUPS_PRIOR30  = sumByMapFilter(LIVE_SIGNUPS_BY_DATE,  inPrior30Window);
+const SESSIONS_PRIOR30 = sumByMapFilter(LIVE_ENGAGED_BY_DATE,  inPrior30Window);
+const MEETINGS_PRIOR30 = countMeetingsByFilter(inPrior30Window);
+const RATIO_PRIOR30    = SESSIONS_PRIOR30 > 0 ? (SIGNUPS_PRIOR30 / SESSIONS_PRIOR30) * 100 : 0;
+
+// Returns { raw, pct } or null when prior period isn't available
+function delta30d(curr, prev, available) {
+  if (!available || prev === undefined || prev === null) return null;
+  return {
+    raw: curr - prev,
+    pct: prev !== 0 ? ((curr - prev) / prev) * 100 : null,
+  };
+}
+const DELTA_30D = {
+  signups:         delta30d(SIGNUPS_30D,  SIGNUPS_PRIOR30,  PRIOR_DATA_AVAILABLE),
+  engagedSessions: delta30d(ENGAGED_30D,  SESSIONS_PRIOR30, PRIOR_DATA_AVAILABLE),
+  salesMeetings:   delta30d(MEETINGS_30D, MEETINGS_PRIOR30, PRIOR_DATA_AVAILABLE),
+  ratio:           delta30d(ratioWindow,  RATIO_PRIOR30,    PRIOR_DATA_AVAILABLE),
+};
+
+// ---------------------------------------------------------------------------
+// Top-of-funnel chart data for both modes. Same record shape; TopOfFunnelTrend
+// just renders whichever array it's handed. Daily entries have partial=false.
+// ---------------------------------------------------------------------------
+const TOP_OF_FUNNEL_DAILY_30D = STRICT_WINDOW_DATES.map((d) => {
+  const y = Number(d.slice(0, 4));
+  const m = Number(d.slice(4, 6)) - 1;
+  const day = Number(d.slice(6, 8));
+  const dt = new Date(Date.UTC(y, m, day));
+  const lbl = fmtMonDay(dt);
+  return {
+    week:      lbl,        // x-axis tick (renamed-in-context — daily here)
+    dateRange: lbl,
+    partial:   false,
+    sessions:  LIVE_ENGAGED_BY_DATE[d]  || 0,
+    signups:   LIVE_SIGNUPS_BY_DATE[d]  || 0,
+    meetings:  LIVE_MEETINGS_BY_DATE[d] || 0,
+  };
+});
+// 5 weeks: 4 complete Mon-Sun + current in-progress (Mon → today).
+// The current week's Sunday is in the future → partial=true → hatched bar.
+const LAST_FOUR_WEEKS_LIST = (() => {
+  const list = [];
+  for (let i = 4; i >= 0; i--) {
+    const wkStart = addUTCDays(_thisWeekMonday, -7 * i);
+    const wkEnd   = addUTCDays(wkStart, 6);
+    const dates = [];
+    for (let d = new Date(wkStart); d <= wkEnd; d = addUTCDays(d, 1)) {
+      dates.push(fmtYYYYMMDD(d));
+    }
+    list.push({
+      weekStartLabel: fmtMonDay(wkStart),
+      dateRange: `${fmtMonDay(wkStart)} – ${fmtMonDay(wkEnd)}`,
+      dates,
+      partial: wkEnd > LIVE_END_DATE,  // current week = true; complete weeks = false
+    });
+  }
+  return list;
+})();
+const TOP_OF_FUNNEL_WEEKLY_4W = LAST_FOUR_WEEKS_LIST.map((w) => {
+  const sumIn = (m) => w.dates.reduce((s, d) => s + (m[d] || 0), 0);
+  return {
+    week:      w.weekStartLabel,
+    dateRange: w.dateRange,
+    partial:   w.partial,
+    trailingPartial: w.partial,
+    sessions:  sumIn(LIVE_ENGAGED_BY_DATE),
+    signups:   sumIn(LIVE_SIGNUPS_BY_DATE),
+    meetings:  sumIn(LIVE_MEETINGS_BY_DATE),
+  };
+});
+
+// ---------------------------------------------------------------------------
+// Helper: per-source count over an arbitrary date set. Handles both the OLD
+// pre-aggregated referralSources shape ({source, count}) and the NEW shape
+// that includes a per-day breakdown ({source, count, daily:{ 'YYYYMMDD':n }}).
+// Old shape can't slice — it returns the full window total, which falls back
+// gracefully for the pie until src/data.json is refreshed with new pull-data.
+// ---------------------------------------------------------------------------
+function sourceWindowCount(sourceEntry, dateSet) {
+  if (sourceEntry?.daily) {
+    let t = 0;
+    for (const d of dateSet) t += sourceEntry.daily[d] || 0;
+    return t;
+  }
+  return sourceEntry?.count || 0;
+}
 
 // ---------------------------------------------------------------------------
 // Week-over-Week — same-days-of-week cumulative (option B).
@@ -240,9 +418,11 @@ const WOW = {
 const WEEKLY_TOP_OF_FUNNEL = LIVE_WEEKS.map((w) => {
   const sumIn = (m) => w.dates.reduce((s, d) => s + (m[d] || 0), 0);
   return {
-    week:      w.weekStartLabel,
-    dateRange: w.dateRange,
-    partial:   w.partial,
+    week:             w.weekStartLabel,
+    dateRange:        w.dateRange,
+    partial:          w.partial,
+    trailingPartial:  w.trailingPartial,
+    leadingPartial:   w.leadingPartial,
     sessions:  sumIn(LIVE_ENGAGED_BY_DATE),
     signups:   sumIn(LIVE_SIGNUPS_BY_DATE),
     meetings:  sumIn(LIVE_MEETINGS_BY_DATE),
@@ -322,19 +502,35 @@ const BUCKET_DEFINITIONS = [
   { name: 'Other / Unparseable',     color: C.black },
 ];
 
-const SHARE_OF_SIGNUPS = BUCKET_DEFINITIONS.map((def) => {
-  let value = 0;
-  const sources = [];
-  for (const { source, count } of (dataJson.amplitude?.referralSources || [])) {
-    if (categorizeReferralSource(source) === def.name) {
-      value += count;
-      sources.push(source);
+// Pie data is now a function of the active date set so the toggle (Last 30
+// days vs Last 4 weeks) can re-slice on the fly. Both shapes of
+// referralSources are supported: NEW shape (per-source `daily` map) slices
+// to the requested window; OLD shape falls back to the full pre-aggregated
+// count (no date attribution available until pull-data is re-run).
+function computeShareOfSignups(dateSet) {
+  return BUCKET_DEFINITIONS.map((def) => {
+    let value = 0;
+    const sources = [];
+    for (const entry of (dataJson.amplitude?.referralSources || [])) {
+      if (categorizeReferralSource(entry.source) === def.name) {
+        const n = sourceWindowCount(entry, dateSet);
+        if (n > 0) {
+          value += n;
+          sources.push(entry.source);
+        }
+      }
     }
-  }
-  return { ...def, value, sources };
-});
-
+    return { ...def, value, sources };
+  });
+}
+// Backwards-compatible default exports — pre-computed for the strict 30-day
+// window. Used as the default when no mode-specific window is in play.
+const STRICT_WINDOW_DATES_SET = new Set(STRICT_WINDOW_DATES);
+const SHARE_OF_SIGNUPS = computeShareOfSignups(STRICT_WINDOW_DATES_SET);
 const TOTAL_SIGNUPS_CATEGORIZED = SHARE_OF_SIGNUPS.reduce((s, x) => s + x.value, 0);
+// 4-week variant for the toggle.
+const SHARE_OF_SIGNUPS_4W = computeShareOfSignups(FOURWEEKS_DATES_SET);
+const TOTAL_SIGNUPS_CATEGORIZED_4W = SHARE_OF_SIGNUPS_4W.reduce((s, x) => s + x.value, 0);
 
 // ---------------------------------------------------------------------------
 // Sales Meeting Discovery — self-reported "how did you discover Mutiny"
@@ -358,18 +554,21 @@ const TOTAL_SIGNUPS_CATEGORIZED = SHARE_OF_SIGNUPS.reduce((s, x) => s + x.value,
 // the corrected first_conversion_date rule — see CONTEXT.md).
 // Filter HubSpot meetings to the strict 30-day window so the pie matches
 // the KPI tile rather than the weekly chart's expanded Mon-Sun range.
-const SALES_FORM_RAW_RESPONSES = (dataJson.hubspot?.meetings || [])
-  .filter((m) => inStrictWindow(m.date))
-  .map((m) => m.referralSource);
-
-const SHARE_OF_SALES_MEETINGS = BUCKET_DEFINITIONS.map((def) => {
-  const sources = SALES_FORM_RAW_RESPONSES.filter(
-    (raw) => categorizeReferralSource(raw) === def.name
-  );
-  return { ...def, value: sources.length, sources };
-});
-
+function computeShareOfSalesMeetings(datePredicate) {
+  const responses = (dataJson.hubspot?.meetings || [])
+    .filter((m) => datePredicate(m.date))
+    .map((m) => m.referralSource);
+  return BUCKET_DEFINITIONS.map((def) => {
+    const sources = responses.filter(
+      (raw) => categorizeReferralSource(raw) === def.name
+    );
+    return { ...def, value: sources.length, sources };
+  });
+}
+const SHARE_OF_SALES_MEETINGS = computeShareOfSalesMeetings(inStrictWindow);
 const TOTAL_SALES_MEETINGS_CATEGORIZED = SHARE_OF_SALES_MEETINGS.reduce((s, x) => s + x.value, 0);
+const SHARE_OF_SALES_MEETINGS_4W = computeShareOfSalesMeetings(inFourWeeksWindow);
+const TOTAL_SALES_MEETINGS_CATEGORIZED_4W = SHARE_OF_SALES_MEETINGS_4W.reduce((s, x) => s + x.value, 0);
 
 // Bucketing rules — tightened regexes so that e.g. "mail.google.com" doesn't
 // get caught by the Search rule. Rules applied in order; first match wins.
@@ -454,6 +653,13 @@ function bucketRowFromGA(row) {
   });
 }
 const SIGNUPS_BY_CHANNEL_KEYS = ['Direct','Search','Referral','Social','LinkedIn','Email','Unassigned','AEO'];
+// plg_signup_click became reliable on 2026-05-13 (Wednesday). Before that
+// the GA4 event was under setup and only intermittently active, so every
+// signup-side view (weekly bars, Channel Funnel table, drill-down modal,
+// deep-dive cards) only sums events on or after that date.
+const ATTRIBUTION_START_YYYYMMDD = '20260513';
+const ATTRIBUTION_START_LABEL    = 'May 13, 2026';
+
 const SIGNUPS_BY_CHANNEL_WEEKLY = LIVE_WEEKS.map((w) => {
   const blank = () => Object.fromEntries(SIGNUPS_BY_CHANNEL_KEYS.map((k) => [k, 0]));
   const signups  = blank();
@@ -461,10 +667,15 @@ const SIGNUPS_BY_CHANNEL_WEEKLY = LIVE_WEEKS.map((w) => {
   const weekDates = new Set(w.dates);
   for (const r of dataJson.ga4.file2) {
     if (!weekDates.has(r.date)) continue;
+    // Skip pre-attribution dates — plg_signup_click was unreliable before then.
+    if (r.date < ATTRIBUTION_START_YYYYMMDD) continue;
     const b = bucketRowFromGA(r);
     signups[b] = (signups[b] || 0) + (r.eventCount || 0);
   }
   for (const r of dataJson.ga4.file3) {
+    // Sessions (file3 engagedSessions) come from GA4's normal session-tracking
+    // and are reliable across the full window — NOT filtered by attribution
+    // start. This keeps Website Visitors and other session-side views intact.
     if (!weekDates.has(r.date)) continue;
     const b = bucketRowFromGA(r);
     sessions[b] = (sessions[b] || 0) + (r.engagedSessions || 0);
@@ -481,8 +692,8 @@ const SIGNUPS_BY_CHANNEL_WEEKLY = LIVE_WEEKS.map((w) => {
 
 // Compute chart-shaped weekly data for the signups stacked column chart.
 // Each row has the channel keys flattened (so Recharts can stack them) plus
-// metadata for tooltip/labels. `_ghost` field unused now but kept for shape
-// compatibility with the chart's existing Bar/dataKey definitions.
+// metadata for tooltip/labels. Pre-attribution weeks are kept (as empty bars)
+// so the X-axis stays consistent with the other weekly charts on the page.
 function computeWeeklyData() {
   return SIGNUPS_BY_CHANNEL_WEEKLY.map((w) => ({
     week: w.weekStartLabel,
@@ -500,14 +711,6 @@ function computeWeeklyData() {
     _ghost: 0,
   }));
 }
-
-// plg_signup_click events were first reliably captured on 2026-05-07 — before
-// that, GA4's File 2 has no per-channel signup data, only the overall daily
-// totals from Amplitude. So the channel-funnel table (Web Conv = signups ÷
-// website visitors per channel) must use the same start date on BOTH numerator
-// and denominator, otherwise the ratio is meaningless.
-const ATTRIBUTION_START_YYYYMMDD = '20260507';
-const ATTRIBUTION_START_LABEL    = 'May 7, 2026';
 
 // Compute Sessions → Signups channel table for the conversion window
 // (2026-05-07 → end of Last 30 Days). Aggregates raw GA4 rows directly so we
@@ -536,11 +739,46 @@ function computeChannelTable() {
   }));
 }
 
+// Compute per-source/medium breakdown WITHIN a single channel bucket — used by
+// the row-click drill-down on the Channel Funnel table. Same window rule as
+// computeChannelTable (from 2026-05-07, when signup attribution began).
+function computeChannelDrillDown(channelName) {
+  const inAttribWindow = (d) =>
+    d >= ATTRIBUTION_START_YYYYMMDD && d <= LIVE_END_YYYYMMDD;
+  // Group by SOURCE only (the part before " / " in GA4's sourceMedium).
+  // E.g. "google / organic" + "google / cpc" both roll up to "google".
+  const sourceOf = (sourceMedium) => {
+    const s = String(sourceMedium || '').split('/')[0].trim();
+    return s || '(unknown)';
+  };
+  const bySrc = new Map();
+  const ensure = (k) => {
+    if (!bySrc.has(k)) {
+      bySrc.set(k, { source: k, signups: 0, engagedSessions: 0 });
+    }
+    return bySrc.get(k);
+  };
+  for (const r of dataJson.ga4.file2) {
+    if (!inAttribWindow(r.date)) continue;
+    if (bucketRowFromGA(r) !== channelName) continue;
+    ensure(sourceOf(r.sourceMedium)).signups += (r.eventCount || 0);
+  }
+  for (const r of dataJson.ga4.file3) {
+    if (!inAttribWindow(r.date)) continue;
+    if (bucketRowFromGA(r) !== channelName) continue;
+    ensure(sourceOf(r.sourceMedium)).engagedSessions += (r.engagedSessions || 0);
+  }
+  return Array.from(bySrc.values()).sort(
+    (a, b) => b.signups - a.signups || b.engagedSessions - a.engagedSessions,
+  );
+}
+
 // Compute a deep-dive weekly array for one or more channel keys.
 // Each row has the channel keys flattened on it (so Recharts can render
 // either a single bar or a stacked column without code changes), plus the
 // usual week metadata. Pass a string for a single channel or an array of
-// strings for multiple.
+// strings for multiple. Pre-attribution weeks are kept as empty bars for
+// X-axis consistency with the other weekly charts.
 function computeChannelDeepDive(channelKeys) {
   const keys = Array.isArray(channelKeys) ? channelKeys : [channelKeys];
   return SIGNUPS_BY_CHANNEL_WEEKLY.map((w) => {
@@ -714,12 +952,53 @@ const Delta = ({ value, suffix = '%', precision = 1, secondary, secondarySuffix 
   );
 };
 
+// Inline SVG sparkline for KPI cards — minimal, axis-less daily trend.
+// Renders a polyline + soft fill underneath + a dot on "today" so the eye
+// finds the end of the series quickly. Designed to be ~180×32px so it
+// tucks under the big value without dominating the card.
+function Sparkline({ values, color, height = 32, width = 180 }) {
+  if (!values || values.length === 0) return null;
+  const maxV = Math.max(...values, 0.0001);
+  const minV = Math.min(...values, 0);
+  const range = (maxV - minV) || 1;
+  const stepX = width / Math.max(values.length - 1, 1);
+  const coords = values.map((v, i) => {
+    const x = i * stepX;
+    const y = height - ((v - minV) / range) * (height - 4) - 2;
+    return [x, y];
+  });
+  const linePath = coords
+    .map(([x, y], i) => `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`)
+    .join(' ');
+  const lastIdx = coords.length - 1;
+  const areaPath =
+    `${linePath} L ${coords[lastIdx][0].toFixed(1)} ${height} L 0 ${height} Z`;
+  const [lastX, lastY] = coords[lastIdx];
+  return (
+    <svg width={width} height={height} style={{ display: 'block' }} aria-hidden="true">
+      <path d={areaPath} fill={color} opacity={0.18} />
+      <path
+        d={linePath}
+        fill="none"
+        stroke={color}
+        strokeWidth={1.5}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      <circle cx={lastX} cy={lastY} r={2.5} fill={color} stroke={C.white} strokeWidth={1} />
+    </svg>
+  );
+}
+
 const KpiCard = ({
   label,
   value,
   sublabel,
   momNode,
   momLabel = 'MoM',
+  sparkline,
+  deltaNode,
+  deltaLabel,
   footnote,
   bgColor,
   accentColor,
@@ -799,7 +1078,39 @@ const KpiCard = ({
       {value}
     </div>
 
-    {momNode && (
+    {deltaNode ? (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}>
+        {deltaNode}
+        <span
+          style={{
+            fontFamily: FONT_BODY,
+            fontSize: 11,
+            color: C.black,
+            opacity: 0.6,
+            letterSpacing: '0.04em',
+          }}
+        >
+          {deltaLabel || 'vs prior'}
+        </span>
+      </div>
+    ) : sparkline ? (
+      <div style={{ marginTop: 14 }}>
+        {sparkline}
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontSize: 10,
+            color: C.black,
+            opacity: 0.55,
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            marginTop: 5,
+          }}
+        >
+          30-day trend
+        </div>
+      </div>
+    ) : momNode ? (
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}>
         {momNode}
         <span
@@ -814,7 +1125,7 @@ const KpiCard = ({
           {momLabel}
         </span>
       </div>
-    )}
+    ) : null}
 
     <div
       style={{
@@ -956,13 +1267,14 @@ const PieHoverPanel = ({ slice, total, unit = 'signup' }) => {
 // hatch pattern in all three charts. A footnote spells out the partial-week
 // caveat so Wk 3 isn't mis-read as a step-down.
 // ---------------------------------------------------------------------------
-function TopOfFunnelTrend({ data }) {
+function TopOfFunnelTrend({ data, mode = 'weekly' }) {
+  const isDaily = mode === 'daily';
   // Recharts custom Bar shape that swaps in a hatched fill for partial weeks.
   const HatchedBar = (color) => (props) => {
     const { x, y, width, height, payload } = props;
     if (!payload || height <= 0) return null;
     const isPartial = payload.partial;
-    const patternId = `hatch-${color.replace('#','')}-${payload.week.replace(' ','')}`;
+    const patternId = `hatch-${color.replace('#','')}-${(payload.week || '').replace(/[^a-zA-Z0-9]/g,'')}`;
     return (
       <g>
         {isPartial && (
@@ -1000,7 +1312,10 @@ function TopOfFunnelTrend({ data }) {
           fontSize: 12,
         }}
       >
-        <div style={{ fontWeight: 700, marginBottom: 2 }}>{d.dateRange}{d.partial ? ' · partial' : ''}</div>
+        <div style={{ fontWeight: 700, marginBottom: 2 }}>
+          {d.dateRange}
+          {d.trailingPartial ? ' · current week, in progress' : ''}
+        </div>
         <div>{metricLabel}: <strong>{formatter(d)}</strong></div>
       </div>
     );
@@ -1020,7 +1335,7 @@ function TopOfFunnelTrend({ data }) {
         {title}
       </h3>
       <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6, marginTop: 4 }}>
-        {source} · weekly
+        {source} · {isDaily ? 'daily' : 'weekly'}
       </div>
       <div style={{ height: 280, marginTop: 16 }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -1030,7 +1345,9 @@ function TopOfFunnelTrend({ data }) {
               dataKey="week"
               axisLine={{ stroke: C.black, strokeWidth: 1 }}
               tickLine={false}
-              tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }}
+              tick={{ fontFamily: FONT_BODY, fontSize: isDaily ? 9 : 11, fill: C.black }}
+              interval={isDaily ? 'preserveStartEnd' : 0}
+              minTickGap={isDaily ? 12 : 5}
             />
             {(() => {
               const max = Math.max(...data.map((d) => d[dataKey] || 0), 1);
@@ -1076,7 +1393,7 @@ function TopOfFunnelTrend({ data }) {
           gap: 10,
         }}
       >
-        <span>Top of funnel · weekly trend</span>
+        <span>Top of funnel · {isDaily ? 'daily trend' : 'weekly trend'}</span>
         <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
       </div>
 
@@ -1102,7 +1419,7 @@ function TopOfFunnelTrend({ data }) {
         />
       </div>
 
-      {/* Footnote — hatched bar is the current week in progress */}
+      {/* Footnote — adapts to mode */}
       <div
         style={{
           fontFamily: FONT_CAPTION,
@@ -1113,9 +1430,18 @@ function TopOfFunnelTrend({ data }) {
           lineHeight: 1.5,
         }}
       >
-        * The hatched bar is the current week in progress. The first bar is the full Mon-Sun
-        week containing the start of the Last 30 Days range, displayed as a complete week even
-        if its Monday slightly pre-dates 30 days ago.
+        {isDaily ? (
+          <>
+            * Daily bars cover the strict <strong>Last 30 days</strong> window. Sum of bars equals
+            the KPI total above. Today's bar reflects events received so far — late-arriving
+            events may nudge it as the day progresses.
+          </>
+        ) : (
+          <>
+            * Bars are 4 complete <strong>Mon–Sun</strong> weeks plus the <strong>current
+            in-progress week</strong> (hatched). Sum of all 5 bars equals the KPI total above.
+          </>
+        )}
       </div>
     </section>
   );
@@ -1137,6 +1463,7 @@ function SelfReportedPieCard({
   unit,
   infoTooltip,
   dataStartNote,
+  alertBanner,
 }) {
   const [activeSlice, setActiveSlice] = useState(null);
   const populated = data.filter((s) => s.value > 0);
@@ -1149,6 +1476,29 @@ function SelfReportedPieCard({
         padding: '28px 32px',
       }}
     >
+      {/* Optional data-availability ribbon (e.g. "data starts May 4") */}
+      {alertBanner && (
+        <div
+          style={{
+            margin: '-28px -32px 22px',
+            padding: '12px 22px',
+            background: '#FFF6D6',
+            borderBottom: `1px solid ${C.black}`,
+            borderTopLeftRadius: 4,
+            borderTopRightRadius: 4,
+            fontFamily: FONT_BODY,
+            fontSize: 12.5,
+            lineHeight: 1.55,
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 10,
+          }}
+        >
+          <span style={{ fontSize: 14, lineHeight: 1, marginTop: 1 }}>⚠️</span>
+          <div>{alertBanner}</div>
+        </div>
+      )}
+
       {/* Header */}
       <div
         style={{
@@ -1363,12 +1713,33 @@ function SelfReportedPieCard({
 // ---------------------------------------------------------------------------
 export default function MutinyGrowthDashboard() {
   const [definitionsOpen, setDefinitionsOpen] = useState(false);
+  const [drillChannel, setDrillChannel]       = useState(null); // channel name or null
+  // Top-of-page view mode: "30d" = strict Last 30 days w/ daily trend +
+  // prior-30d delta; "4w" = sum of 4 most recent complete Mon-Sun weeks w/
+  // weekly bars. Affects KPI tiles, top-of-funnel charts, and the two pies.
+  // Everything below "Programmatic Channel Analytics" divider is always
+  // last-4-weeks regardless of this toggle.
+  const [viewMode, setViewMode] = useState('30d');
 
   // Single window: Apr 27 – May 13, 2026. Where source data doesn't extend
   // that far back (e.g. plg_signup_click only captures from May 7), the chart
   // shows what's available within the window.
   const weeklyChartData = computeWeeklyData();
   const channelTable = computeChannelTable();
+
+  // View-mode-driven derived values
+  const is30d = viewMode === '30d';
+  const kpiSignups   = is30d ? DATA.signups.window         : SIGNUPS_4W;
+  const kpiSessions  = is30d ? DATA.engagedSessions.window : SESSIONS_4W;
+  const kpiMeetings  = is30d ? DATA.salesMeetings.window   : MEETINGS_4W;
+  const kpiRatio     = is30d ? ratioWindow                 : RATIO_4W;
+  const pieSignups   = is30d ? SHARE_OF_SIGNUPS         : SHARE_OF_SIGNUPS_4W;
+  const pieSignupsTotal   = is30d ? TOTAL_SIGNUPS_CATEGORIZED       : TOTAL_SIGNUPS_CATEGORIZED_4W;
+  const pieMeetings  = is30d ? SHARE_OF_SALES_MEETINGS  : SHARE_OF_SALES_MEETINGS_4W;
+  const pieMeetingsTotal  = is30d ? TOTAL_SALES_MEETINGS_CATEGORIZED : TOTAL_SALES_MEETINGS_CATEGORIZED_4W;
+  const topOfFunnelData   = is30d ? TOP_OF_FUNNEL_DAILY_30D : TOP_OF_FUNNEL_WEEKLY_4W;
+  const topOfFunnelMode   = is30d ? 'daily' : 'weekly';
+  const activeWindowLabel = is30d ? 'Last 30 days' : `Last 4 weeks · ${FOURWEEKS_RANGE_LABEL}`;
   const webSessionsWeekly = computeWebSessionsWeekly();
   const linkedinKeys = LINKEDIN_DEEP_DIVE.series.map((s) => s.key);
   const aeoKeys      = AEO_DEEP_DIVE.series.map((s) => s.key);
@@ -1446,15 +1817,54 @@ export default function MutinyGrowthDashboard() {
           <div style={{ fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Reporting window
           </div>
-          <div style={{ opacity: 0.7 }}>{WINDOW.label}</div>
-          <div style={{ opacity: 0.6, marginTop: 4, fontFamily: FONT_MONO, fontSize: 11 }}>
-            Last updated on: {new Date(LIVE_DATA_PULLED_AT).toLocaleString('en-US', {
+          {/* Toggle: Last 30 days / Last 4 weeks */}
+          <div
+            style={{
+              display: 'inline-flex',
+              marginTop: 6,
+              border: `1px solid ${C.black}`,
+              borderRadius: 999,
+              overflow: 'hidden',
+              fontFamily: FONT_BODY,
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
+            {[
+              { id: '30d', label: 'Last 30 days' },
+              { id: '4w',  label: 'Last 4 weeks' },
+            ].map((opt) => {
+              const active = viewMode === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  onClick={() => setViewMode(opt.id)}
+                  style={{
+                    padding: '5px 14px',
+                    background: active ? C.black : 'transparent',
+                    color: active ? C.white : C.black,
+                    border: 'none',
+                    cursor: active ? 'default' : 'pointer',
+                    fontFamily: FONT_BODY,
+                    fontSize: 12,
+                    fontWeight: 600,
+                  }}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+          {!is30d && (
+            <div style={{ opacity: 0.6, marginTop: 4, fontSize: 11 }}>
+              {FOURWEEKS_RANGE_LABEL}
+            </div>
+          )}
+          <div style={{ opacity: 0.6, marginTop: 6, fontFamily: FONT_MONO, fontSize: 11 }}>
+            Last updated: {new Date(LIVE_DATA_PULLED_AT).toLocaleString('en-US', {
               dateStyle: 'medium',
               timeStyle: 'short',
             })}
-          </div>
-          <div style={{ opacity: 0.5, fontStyle: 'italic', marginTop: 2 }}>
-            * {WINDOW.asteriskNote}
           </div>
         </div>
       </header>
@@ -1469,52 +1879,59 @@ export default function MutinyGrowthDashboard() {
         }}
       >
         <KpiCard
-          label="Signups"
-          value={DATA.signups.window.toLocaleString()}
+          label="Signups (Completed)"
+          value={kpiSignups.toLocaleString()}
           sublabel="Company Setup Complete · Amplitude"
-          footnote={`${WINDOW.label}. WoW: this-week-to-date vs same days of last week. Primary number is raw count delta; (%) is relative.`}
+          footnote={`Successful onboarding completions (Amplitude event). Distinct from "Signup Clicks" in the Channel Funnel below, which counts the upstream click on the signup CTA from GA4.`}
           bgColor={C.lightPurple}
           accentColor={C.purple}
-          momLabel="WoW"
-          momNode={WOW.signups ? <Delta value={WOW.signups.raw} suffix="" precision={0} secondary={WOW.signups.pct} /> : null}
+          deltaNode={is30d && DELTA_30D.signups
+            ? <Delta value={DELTA_30D.signups.raw} suffix="" precision={0} secondary={DELTA_30D.signups.pct} />
+            : null}
+          deltaLabel="vs prior 30d"
         />
         <KpiCard
           label="Website Visitors"
-          value={DATA.engagedSessions.window.toLocaleString()}
+          value={kpiSessions.toLocaleString()}
           sublabel="Engaged Sessions · GA4"
-          footnote="Engaged Sessions used as bot-resistant proxy (LLM crawlers inflated Total Users in March). WoW: this-week-to-date vs same days of last week. Primary is raw count delta."
+          footnote="Engaged Sessions used as bot-resistant proxy (LLM crawlers inflated Total Users in March)."
           bgColor={C.lightBlue}
           accentColor={C.blue}
-          momLabel="WoW"
-          momNode={WOW.engagedSessions ? <Delta value={WOW.engagedSessions.raw} suffix="" precision={0} secondary={WOW.engagedSessions.pct} /> : null}
+          deltaNode={is30d && DELTA_30D.engagedSessions
+            ? <Delta value={DELTA_30D.engagedSessions.raw} suffix="" precision={0} secondary={DELTA_30D.engagedSessions.pct} />
+            : null}
+          deltaLabel="vs prior 30d"
         />
         <KpiCard
           label="Visitor → Signup"
-          value={ratioWindow.toFixed(2) + '%'}
+          value={kpiRatio.toFixed(2) + '%'}
           sublabel="Signups ÷ Engaged Sessions"
-          footnote="Cross-system ratio: Amplitude ÷ GA4, directional only. WoW: this week's ratio vs last week's same-days ratio. Primary is percentage-point change (pp); (%) is relative."
+          footnote="Cross-system ratio: Amplitude ÷ GA4, directional only."
           bgColor={C.lightGreen}
           accentColor={C.green}
-          momLabel="WoW"
-          momNode={WOW.ratio ? <Delta value={WOW.ratio.raw} suffix="pp" precision={2} secondary={WOW.ratio.pct} /> : null}
+          deltaNode={is30d && DELTA_30D.ratio
+            ? <Delta value={DELTA_30D.ratio.raw} suffix="pp" precision={2} secondary={DELTA_30D.ratio.pct} />
+            : null}
+          deltaLabel="vs prior 30d"
         />
         <KpiCard
           label="Sales Meetings Requested"
-          value={DATA.salesMeetings.window.toLocaleString()}
+          value={kpiMeetings.toLocaleString()}
           sublabel="Talk to Sales form fills · HubSpot"
-          footnote="HubSpot contacts where Talk to Sales form-submission date is within the window. Test-filtered. WoW: this-week-to-date vs same days of last week. Primary is raw count delta."
+          footnote="HubSpot contacts where Talk to Sales form-submission date is within the window. Test-filtered."
           bgColor={C.lightRed}
           accentColor={C.red}
-          momLabel="WoW"
-          momNode={WOW.salesMeetings ? <Delta value={WOW.salesMeetings.raw} suffix="" precision={0} secondary={WOW.salesMeetings.pct} /> : null}
+          deltaNode={is30d && DELTA_30D.salesMeetings
+            ? <Delta value={DELTA_30D.salesMeetings.raw} suffix="" precision={0} secondary={DELTA_30D.salesMeetings.pct} />
+            : null}
+          deltaLabel="vs prior 30d"
         />
       </div>
 
-      {/* Top-of-funnel weekly trend — two bar charts + line chart underneath.
-          Answers "how is the top of the funnel trending week-over-week?"
-          without resorting to dual-axis charts. See component for the partial-
-          week handling and a footnote about the 3-week-baseline limitation. */}
-      <TopOfFunnelTrend data={WEEKLY_TOP_OF_FUNNEL} />
+      {/* Top-of-funnel trend — daily bars (Last 30 days mode) or weekly bars
+          (Last 4 weeks mode). Bars match the KPI total exactly in both modes
+          since the KPI uses the same date math. */}
+      <TopOfFunnelTrend data={topOfFunnelData} mode={topOfFunnelMode} />
 
       {/* Self-reported channel mix — two cards side-by-side.
           Customer signups by channel (Amplitude, L4w window) and Sales
@@ -1532,34 +1949,89 @@ export default function MutinyGrowthDashboard() {
           eyebrow="Share of Signups"
           title="Customer signups by channel"
           source="Amplitude"
-          dataStartNote="* data captured from May 4 onward (form populated)"
-          data={SHARE_OF_SIGNUPS}
-          total={TOTAL_SIGNUPS_CATEGORIZED}
+          data={pieSignups}
+          total={pieSignupsTotal}
           totalLabel="total signups"
           unit="signup"
-          infoTooltip={`Self-reported referral_source at Company Setup. ${TOTAL_SIGNUPS_CATEGORIZED} signups categorized in window (${WINDOW.label}). 11 mutinyhq.com test accounts excluded at the Amplitude query layer. Bucketing is rule-based — see the Definitions panel at the bottom for the full rule set.`}
+          infoTooltip={`Self-reported referral_source at Company Setup. ${pieSignupsTotal} signups categorized in window (${activeWindowLabel}). 11 mutinyhq.com test accounts excluded at the Amplitude query layer. Bucketing is rule-based — see the Definitions panel at the bottom for the full rule set.`}
+          alertBanner={
+            <>
+              Reliable data begins <strong>Monday, May 4, 2026</strong>. The
+              {' '}<code style={{ fontFamily: "'Geist Mono', monospace", fontSize: 11, background: 'rgba(0,0,0,0.06)', padding: '0 4px', borderRadius: 2 }}>referral_source</code>{' '}
+              property on the onboarding form wasn't populated before then — earlier signups
+              are missing source attribution and are excluded from this pie.
+            </>
+          }
         />
         <SelfReportedPieCard
           eyebrow="Share of Sales Meetings"
           title="Sales meeting requests by channel"
           source="HubSpot"
           dataStartNote=""
-          data={SHARE_OF_SALES_MEETINGS}
-          total={TOTAL_SALES_MEETINGS_CATEGORIZED}
+          data={pieMeetings}
+          total={pieMeetingsTotal}
           totalLabel="meeting requests"
           unit="request"
-          infoTooltip={`Self-reported "how did you discover Mutiny" on the Talk to Sales form (HubSpot contacts). ${TOTAL_SALES_MEETINGS_CATEGORIZED} valid submissions in window (${WINDOW.label}) — by actual form-submission date. 4 internal/test accounts excluded (3× matt.ratchford+*@mutinyhq.com, kedwardsfake@1mind.com). Same bucketing rules as Customer signups.`}
+          infoTooltip={`Self-reported "how did you discover Mutiny" on the Talk to Sales form (HubSpot contacts). ${pieMeetingsTotal} valid submissions in window (${activeWindowLabel}) — by actual form-submission date. 4 internal/test accounts excluded (3× matt.ratchford+*@mutinyhq.com, kedwardsfake@1mind.com). Same bucketing rules as Customer signups.`}
         />
       </div>
 
       {/* ─────────────────────────────────────────────────────────────────────
-          Signups by channel · weekly trend (left) + channel comparison table (right).
-          3-week Mon-Sun stacked column chart anchored at Apr 27, 2026.
-          plg_signup_click events were first reliably captured May 7, 2026, so
-          Week 1 (Apr 27–May 3) has session data but zero signups — annotated
-          inline. Cross-domain attribution between mutinyhq.com and
-          app.mutinyhq.com shipped May 11 (Wk 3).
+          PROGRAMMATIC CHANNEL ANALYTICS — divider header.
+          Everything below this line uses GA4 plg_signup_click attribution +
+          per-channel session data + Peec visibility. These sections do NOT
+          respect the top-of-page Last 30 days / Last 4 weeks toggle — they
+          always show data over a fixed 4-week trailing window, since the
+          plg_signup_click attribution event itself only became reliable
+          mid-May and a 30-day daily view would be mostly empty.
           ───────────────────────────────────────────────────────────────────── */}
+      <div
+        style={{
+          margin: '12px 0 28px',
+          padding: '20px 0 16px',
+          borderTop: `2px solid ${C.black}`,
+          borderBottom: `1px solid ${C.black}`,
+        }}
+      >
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontWeight: 700,
+            fontSize: 11,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            opacity: 0.7,
+            marginBottom: 4,
+          }}
+        >
+          Section
+        </div>
+        <div
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontSize: 38,
+            fontWeight: 400,
+            letterSpacing: '-0.02em',
+            lineHeight: 1.05,
+          }}
+        >
+          Programmatic Channel Analytics
+        </div>
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontSize: 12.5,
+            opacity: 0.7,
+            marginTop: 6,
+            maxWidth: 720,
+            lineHeight: 1.5,
+          }}
+        >
+          Per-channel attribution from GA4 + Peec AI visibility. The charts below
+          only support a <strong>last 4 weeks + current week</strong> view and
+          do not respond to the toggle above.
+        </div>
+      </div>
 
       {/* Eyebrow */}
       <div
@@ -1576,7 +2048,7 @@ export default function MutinyGrowthDashboard() {
           gap: 10,
         }}
       >
-        <span>Signups by Channel · GA4 plg_signup_click (* from May 7)</span>
+        <span>Signup Form Clicks by Channel</span>
         <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
       </div>
 
@@ -1590,6 +2062,35 @@ export default function MutinyGrowthDashboard() {
           position: 'relative',
         }}
       >
+        {/* Data-availability ribbon — the plg_signup_click event was being
+            troubleshot prior to May 14, so the prior period is missing data
+            and shouldn't be compared. Concise and professional. */}
+        <div
+          style={{
+            margin: '-28px -32px 24px',
+            padding: '12px 22px',
+            background: '#FFF6D6',
+            borderBottom: `1px solid ${C.black}`,
+            borderTopLeftRadius: 4,
+            borderTopRightRadius: 4,
+            fontFamily: FONT_BODY,
+            fontSize: 12.5,
+            lineHeight: 1.55,
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 10,
+          }}
+        >
+          <span style={{ fontSize: 14, lineHeight: 1, marginTop: 1 }}>⚠️</span>
+          <div>
+            Reliable data begins <strong>Wednesday, {ATTRIBUTION_START_LABEL}</strong>. The
+            <code style={{ fontFamily: "'Geist Mono', monospace", fontSize: 11, background: 'rgba(0,0,0,0.06)', padding: '0 4px', borderRadius: 2, margin: '0 3px' }}>plg_signup_click</code>
+            event was under setup and only intermittently active prior to that date. Earlier
+            weeks appear as empty bars for X-axis consistency — they represent missing data, not
+            zero activity, and shouldn't be used for comparison.
+          </div>
+        </div>
+
         {/* Header row: icon + name + subtitle (left), KPI tile (right) */}
         <div
           style={{
@@ -1634,7 +2135,7 @@ export default function MutinyGrowthDashboard() {
                   gap: 10,
                 }}
               >
-                Signups by Channel
+                Signup Form Clicks by Channel
                 <ProgrammaticTag />
               </h2>
               <div
@@ -1646,7 +2147,7 @@ export default function MutinyGrowthDashboard() {
                   lineHeight: 1.4,
                 }}
               >
-                Where new signups attribute from (GA4 plg_signup_click)
+                Signup form clicks attributed by source — a proxy for top-of-funnel intent. Not equivalent to a completed onboarding.
               </div>
             </div>
           </div>
@@ -1696,9 +2197,9 @@ export default function MutinyGrowthDashboard() {
                 gap: 10,
               }}
             >
-              Signups · weekly
+              Signup clicks · weekly
               <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
-                Stacked · events captured from May 7 (Wk 1 = 0)
+                Stacked by channel
               </span>
             </div>
           </div>
@@ -1940,7 +2441,19 @@ export default function MutinyGrowthDashboard() {
               >
                 <div></div>
                 <div>Channel</div>
-                <div style={{ textAlign: 'right' }}>Signups</div>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    gap: 0,
+                  }}
+                >
+                  Signup Clicks
+                  <InfoTooltip width={260}>
+                    GA4 <code style={{ fontFamily: "'Geist Mono', monospace", fontSize: 11, background: 'rgba(0,0,0,0.05)', padding: '0 4px', borderRadius: 2 }}>plg_signup_click</code> events — the upstream click on the signup CTA, attributed by GA4 source/medium. Distinct from the "Signups (Completed)" KPI above, which counts successful onboarding completions in Amplitude. Numbers will not match.
+                  </InfoTooltip>
+                </div>
                 <div
                   style={{
                     display: 'flex',
@@ -1951,14 +2464,15 @@ export default function MutinyGrowthDashboard() {
                 >
                   Web Conv.
                   <InfoTooltip width={240}>
-                    <strong>Signups ÷ Website Visitors</strong>, per channel. Calculated from {ATTRIBUTION_START_LABEL} onward — when per-channel signup attribution began.
+                    <strong>Signup Clicks ÷ Website Visitors</strong>, per channel. Calculated from {ATTRIBUTION_START_LABEL} onward — when per-channel attribution on plg_signup_click began.
                   </InfoTooltip>
                 </div>
                 <div style={{ textAlign: 'right' }}>% of total</div>
               </div>
 
               {/* Rows — sorted by signup volume desc (= % of total desc since
-                  they share the same denominator). */}
+                  they share the same denominator). Click a row to open a
+                  per-source/medium breakdown modal. */}
               {[...channelTable].sort((a, b) => b.signups - a.signups).map((row, i) => {
                 const rate = row.engagedSessions > 0
                   ? (row.signups / row.engagedSessions) * 100
@@ -1967,9 +2481,13 @@ export default function MutinyGrowthDashboard() {
                   ? (row.signups / totalChannelSignups) * 100
                   : 0;
                 const isHighlight = row.signups > 0;
+                const isHovered = drillChannel === '__hover_' + row.channel;
                 return (
                   <div
                     key={row.channel}
+                    onClick={() => setDrillChannel(row.channel)}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = C.paper)}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = C.white)}
                     style={{
                       display: 'grid',
                       gridTemplateColumns: '14px 1fr 60px 96px 80px',
@@ -1980,6 +2498,8 @@ export default function MutinyGrowthDashboard() {
                       fontSize: 13,
                       alignItems: 'center',
                       background: C.white,
+                      cursor: 'pointer',
+                      transition: 'background 0.1s',
                     }}
                   >
                     <div
@@ -2081,6 +2601,17 @@ export default function MutinyGrowthDashboard() {
             </div>
             );
           })()}
+          <div
+            style={{
+              marginTop: 8,
+              fontFamily: FONT_CAPTION,
+              fontStyle: 'italic',
+              fontSize: 10.5,
+              opacity: 0.55,
+            }}
+          >
+            Click a row for source breakdown
+          </div>
 
           {/* Footnote / what this tells us */}
           <div
@@ -2725,11 +3256,23 @@ export default function MutinyGrowthDashboard() {
           }}
         >
           <Def
-            term="Signups"
+            term="Signups (Completed)"
             body={
               <>
                 Unique users who fired the <code style={codeStyle}>[Onboarding] Company Setup Complete</code> event
-                in Amplitude. This is the source of truth for new account creation.
+                in Amplitude — i.e. completed onboarding. This is the source of truth for new account creation
+                and powers the KPI tile up top.
+              </>
+            }
+          />
+          <Def
+            term="Signup Clicks"
+            body={
+              <>
+                GA4 <code style={codeStyle}>plg_signup_click</code> events — the upstream click on the signup CTA, attributed by source/medium.
+                Used by the per-channel weekly chart and the Channel Funnel table. <strong>Distinct from
+                "Signups (Completed)"</strong>: many users click without completing, and event setup means
+                this only captures cleanly from {ATTRIBUTION_START_LABEL} (Wednesday) onward.
               </>
             }
           />
@@ -2809,7 +3352,7 @@ export default function MutinyGrowthDashboard() {
             }
           />
           <Def
-            term="Signups by Channel · methodology"
+            term="Signup Form Clicks by Channel · methodology"
             body={
               <>
                 Count of <code style={codeStyle}>plg_signup_click</code> events on
@@ -2823,7 +3366,7 @@ export default function MutinyGrowthDashboard() {
             }
           />
           <Def
-            term="Signups by Channel · tracking start"
+            term="Signup Form Clicks · tracking start"
             body={
               <>
                 <code style={codeStyle}>plg_signup_click</code> events were first reliably
@@ -2911,6 +3454,233 @@ export default function MutinyGrowthDashboard() {
       >
         Last refreshed May 13, 2026 · v2 (Apr 27 anchor, Mon–Sun weeks)
       </div>
+
+      {/* Channel drill-down modal — opens when a row in the Channel Funnel
+          table is clicked. Shows per-source/medium breakdown for that
+          channel within the same May-7-onward window. */}
+      {drillChannel && (() => {
+        const breakdown = computeChannelDrillDown(drillChannel);
+        const totalSignups  = breakdown.reduce((s, r) => s + r.signups, 0);
+        const totalSessions = breakdown.reduce((s, r) => s + r.engagedSessions, 0);
+        const overallRate   = totalSessions > 0 ? (totalSignups / totalSessions) * 100 : 0;
+        const swatchColor   = SIGNUPS_CHANNEL_COLORS[drillChannel] || C.lightGrey;
+        return (
+          <div
+            onClick={() => setDrillChannel(null)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.45)',
+              zIndex: 100,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 24,
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: C.white,
+                border: `1px solid ${C.black}`,
+                borderRadius: 4,
+                maxWidth: 760,
+                width: '100%',
+                maxHeight: '85vh',
+                overflow: 'auto',
+                padding: '24px 28px 22px',
+                boxShadow: '4px 4px 0 rgba(0,0,0,0.12)',
+              }}
+            >
+              {/* Header */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  justifyContent: 'space-between',
+                  gap: 12,
+                  marginBottom: 18,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div
+                    style={{
+                      width: 18,
+                      height: 18,
+                      background: swatchColor,
+                      border: `1px solid ${C.black}`,
+                      borderRadius: 2,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <div>
+                    <div
+                      style={{
+                        fontFamily: FONT_BODY,
+                        fontWeight: 700,
+                        fontSize: 10.5,
+                        letterSpacing: '0.14em',
+                        textTransform: 'uppercase',
+                        opacity: 0.7,
+                      }}
+                    >
+                      Source breakdown
+                    </div>
+                    <h3
+                      style={{
+                        fontFamily: FONT_DISPLAY,
+                        fontWeight: 400,
+                        fontSize: 26,
+                        letterSpacing: '-0.02em',
+                        margin: '4px 0 0',
+                      }}
+                    >
+                      {drillChannel}
+                    </h3>
+                    <div
+                      style={{
+                        fontFamily: FONT_CAPTION,
+                        fontStyle: 'italic',
+                        fontSize: 11,
+                        opacity: 0.65,
+                        marginTop: 4,
+                      }}
+                    >
+                      {totalSignups} signups · {totalSessions.toLocaleString()} visitors ·{' '}
+                      {overallRate.toFixed(2)}% conv · since {ATTRIBUTION_START_LABEL}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setDrillChannel(null)}
+                  aria-label="Close"
+                  style={{
+                    background: 'transparent',
+                    border: `1px solid ${C.black}`,
+                    borderRadius: 4,
+                    width: 28,
+                    height: 28,
+                    fontFamily: FONT_BODY,
+                    fontSize: 14,
+                    cursor: 'pointer',
+                    color: C.black,
+                    flexShrink: 0,
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {breakdown.length === 0 ? (
+                <div
+                  style={{
+                    padding: '32px 0',
+                    opacity: 0.55,
+                    fontStyle: 'italic',
+                    fontFamily: FONT_BODY,
+                    fontSize: 13,
+                    textAlign: 'center',
+                  }}
+                >
+                  No source data captured for this channel since {ATTRIBUTION_START_LABEL}.
+                </div>
+              ) : (
+                <div style={{ border: `1px solid ${C.black}`, borderRadius: 4, overflow: 'hidden' }}>
+                  {/* Modal table header */}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 80px 110px 90px',
+                      gap: 12,
+                      padding: '10px 14px',
+                      background: C.paper,
+                      borderBottom: `1px solid ${C.black}`,
+                      fontFamily: FONT_BODY,
+                      fontWeight: 700,
+                      fontSize: 10,
+                      letterSpacing: '0.1em',
+                      textTransform: 'uppercase',
+                      opacity: 0.75,
+                    }}
+                  >
+                    <div>Source</div>
+                    <div style={{ textAlign: 'right' }}>Signup Clicks</div>
+                    <div style={{ textAlign: 'right' }}>Visitors</div>
+                    <div style={{ textAlign: 'right' }}>Web Conv.</div>
+                  </div>
+                  {/* Modal rows */}
+                  {breakdown.map((r, i) => {
+                    const rate = r.engagedSessions > 0
+                      ? (r.signups / r.engagedSessions) * 100
+                      : 0;
+                    return (
+                      <div
+                        key={r.source}
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 80px 110px 90px',
+                          gap: 12,
+                          padding: '10px 14px',
+                          borderTop: i > 0 ? '1px solid rgba(0,0,0,0.08)' : 'none',
+                          fontFamily: FONT_BODY,
+                          fontSize: 13,
+                          background: C.white,
+                          alignItems: 'center',
+                        }}
+                      >
+                        <div style={{ wordBreak: 'break-word' }}>{r.source}</div>
+                        <div
+                          style={{
+                            textAlign: 'right',
+                            fontVariantNumeric: 'tabular-nums',
+                            opacity: r.signups === 0 ? 0.4 : 1,
+                            fontWeight: r.signups > 0 ? 600 : 400,
+                          }}
+                        >
+                          {r.signups || '—'}
+                        </div>
+                        <div
+                          style={{
+                            textAlign: 'right',
+                            fontVariantNumeric: 'tabular-nums',
+                            opacity: r.engagedSessions === 0 ? 0.4 : 1,
+                          }}
+                        >
+                          {r.engagedSessions
+                            ? r.engagedSessions.toLocaleString()
+                            : '—'}
+                        </div>
+                        <div
+                          style={{
+                            textAlign: 'right',
+                            fontVariantNumeric: 'tabular-nums',
+                            opacity: rate === 0 ? 0.4 : 1,
+                          }}
+                        >
+                          {rate === 0 ? '—' : rate.toFixed(2) + '%'}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div
+                style={{
+                  marginTop: 12,
+                  fontFamily: FONT_CAPTION,
+                  fontStyle: 'italic',
+                  fontSize: 10.5,
+                  opacity: 0.55,
+                }}
+              >
+                Click outside or press ✕ to close. Sources are GA4's raw
+                attribution values, aggregated across mediums.
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -3503,6 +4273,31 @@ function ChannelDeepDive({ data, weekly, signupsWindow, windowLabel, extraChart 
         position: 'relative',
       }}
     >
+      {/* Data-availability ribbon — same plg_signup_click setup story as the
+          parent Signup Form Clicks by Channel section. */}
+      <div
+        style={{
+          margin: '-28px -32px 24px',
+          padding: '12px 22px',
+          background: '#FFF6D6',
+          borderBottom: `1px solid ${C.black}`,
+          borderTopLeftRadius: 4,
+          borderTopRightRadius: 4,
+          fontFamily: FONT_BODY,
+          fontSize: 12.5,
+          lineHeight: 1.55,
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 10,
+        }}
+      >
+        <span style={{ fontSize: 14, lineHeight: 1, marginTop: 1 }}>⚠️</span>
+        <div>
+          Data shown starts <strong>Wednesday, {ATTRIBUTION_START_LABEL}</strong> — see the
+          Signup Form Clicks by Channel section above for context.
+        </div>
+      </div>
+
       {/* Header row: icon + name + subtitle (left), KPI (right) */}
       <div
         style={{
@@ -3615,9 +4410,9 @@ function ChannelDeepDive({ data, weekly, signupsWindow, windowLabel, extraChart 
             gap: 10,
           }}
         >
-          Signups · weekly
+          Signup clicks · weekly
           <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
-            Self-serve signups{data.series.length > 1 ? ' · stacked by channel' : ''}
+            Self-serve signup clicks{data.series.length > 1 ? ' · stacked by channel' : ''}
           </span>
         </div>
       </div>

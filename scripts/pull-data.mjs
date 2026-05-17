@@ -35,16 +35,30 @@ const PEEC_API_KEY   = process.env.PEEC_API_KEY;
 const PEEC_API_BASE  = process.env.PEEC_API_BASE || 'https://app.peec.ai/api/v1';
 const PEEC_PROJECT_ID = process.env.PEEC_PROJECT_ID || 'or_0887d1ed-129a-4dcd-a14c-d5fd9905d06c';
 const PEEC_MUTINY_BRAND_ID = process.env.PEEC_MUTINY_BRAND_ID || 'kw_7af93fc0-d981-4f63-86d5-0fc3348809b3';
-// Last-30-days canonical window. Computed at script start so all fetchers
-// see the same dates. Override via WINDOW_START / WINDOW_END for backfill or
-// QA. (Peec keeps its own window — its data doesn't go back as far.)
-function isoMinus30() {
+// Last-60-days canonical window, expanded backwards to the Monday of the
+// week containing (today - 60 days). The 60-day reach enables "Last 30 days
+// vs prior 30 days" deltas on the KPI cards. The dashboard's KPI cards and
+// most charts still filter to the strict 30-day window via inStrictWindow()
+// in the JSX, so KPIs don't drift; only the prior-period comparisons use
+// the older slice.
+//
+// Override via WINDOW_START / WINDOW_END for backfill or QA.
+// (Peec keeps its own window — its data doesn't go back as far.)
+function isoMinus60() {
   const d = new Date();
-  d.setUTCDate(d.getUTCDate() - 30);
+  d.setUTCDate(d.getUTCDate() - 60);
+  return d.toISOString().slice(0, 10);
+}
+function mondayOfISO(isoDate) {
+  // isoDate: 'YYYY-MM-DD'. Returns the Mon of the Mon-Sun week containing it.
+  const d = new Date(isoDate + 'T00:00:00Z');
+  const dow = d.getUTCDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+  const delta = dow === 0 ? -6 : 1 - dow;
+  d.setUTCDate(d.getUTCDate() + delta);
   return d.toISOString().slice(0, 10);
 }
 const PEEC_WINDOW_START = process.env.PEEC_WINDOW_START || '2026-04-23';
-const WINDOW_START   = process.env.WINDOW_START || isoMinus30();
+const WINDOW_START   = process.env.WINDOW_START || mondayOfISO(isoMinus60());
 const WINDOW_END     = process.env.WINDOW_END   || new Date().toISOString().slice(0, 10);
 const OUT_PATH       = 'src/data.json';
 
@@ -97,8 +111,11 @@ function sniffGA4Report(filepath) {
 
   const hasChannel =
     headerCells.includes('session default channel group') ||
-    headerCells.includes('session mutiny - with ai referrals');
-  const hasEngaged = headerCells.includes('engaged sessions');
+    headerCells.includes('session mutiny - with ai referrals') ||
+    headerCells.includes('sessionprimarychannelgroup');  // GA4 Data API field name (Apps Script export)
+  const hasEngaged =
+    headerCells.includes('engaged sessions') ||
+    headerCells.includes('engagedsessions');
 
   if (!hasChannel) return 'file1';      // Date + metrics only, no channel
   if (!hasEngaged) return 'file2';      // Date + channel, eventCount only
@@ -298,8 +315,9 @@ async function fetchAmplitude() {
   });
 
   // Per-group totals live in data.seriesLabels (the referral_source values)
-  // and data.series (parallel arrays of per-interval counts). Sum each series
-  // to get the per-referral_source count.
+  // and data.series (parallel arrays of per-interval counts). data.xValues
+  // is the date axis. We now keep the per-day breakdown so the JSX can slice
+  // the pie by an arbitrary window (Last 30 days vs Last 4 complete weeks).
   //
   // Label shape from Amplitude's REST API: `[event_index, group_value]` —
   // e.g. [0, "google"]. The `event_index` is 0 for our single-event query.
@@ -307,6 +325,7 @@ async function fetchAmplitude() {
   // non-"referral_source" element wrongly catches the numeric 0.
   const refLabels = ref?.data?.seriesLabels ?? [];
   const refSeries = ref?.data?.series ?? [];
+  const refXValues = ref?.data?.xValues ?? [];
   const extractLabel = (label) => {
     if (typeof label === 'string') return label;
     if (Array.isArray(label)) {
@@ -315,10 +334,21 @@ async function fetchAmplitude() {
     }
     return String(label);
   };
+  // Output shape: [{ source, count (total over window), daily: { 'YYYYMMDD': n } }]
+  // The total `count` is kept for backward compatibility and convenience;
+  // the JSX can use `daily` to recompute totals over any sub-window.
   const referralSources = refLabels.map((label, i) => {
     const src = extractLabel(label);
-    const count = (refSeries[i] || []).reduce((s, n) => s + (Number(n) || 0), 0);
-    return { source: src, count };
+    const series = refSeries[i] || [];
+    const daily = {};
+    let count = 0;
+    for (let j = 0; j < refXValues.length; j++) {
+      const n = Number(series[j]) || 0;
+      const dateKey = ymdCompact(refXValues[j]);
+      daily[dateKey] = n;
+      count += n;
+    }
+    return { source: src, count, daily };
   }).filter((r) => r.count > 0);
 
   log(`  Amplitude ok: ${Object.values(dailySignups).reduce((a,b)=>a+b,0)} daily-signups across ${Object.keys(dailySignups).length} days, ${referralSources.length} unique referral_source values.`);
