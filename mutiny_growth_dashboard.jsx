@@ -61,6 +61,11 @@ function fmtYYYYMMDD(d) {
 }
 const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function fmtMonDay(d)   { return `${MONTH_ABBR[d.getUTCMonth()]} ${d.getUTCDate()}`; }
+function fmtMMDD(d)     {
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${m}/${day}`;
+}
 function addUTCDays(d, n) {
   const r = new Date(d);
   r.setUTCDate(r.getUTCDate() + n);
@@ -396,7 +401,8 @@ const YTD_WEEKS_LIST = (() => {
       dates.push(fmtYYYYMMDD(d));
     }
     list.push({
-      weekStartLabel: fmtMonDay(wkStart),
+      // X-axis label: MM/DD (e.g. "05/02") — compact for the ~20-bar YTD chart.
+      weekStartLabel: fmtMMDD(wkStart),
       dateRange: `${fmtMonDay(wkStart)} – ${fmtMonDay(wkEnd)}`,
       dates,
       partial: wkEnd > LIVE_END_DATE,
@@ -1498,8 +1504,15 @@ function TopOfFunnelTrend({ data, weeklyData, mode = 'weekly', footnoteOverride 
                 axisLine={{ stroke: C.black, strokeWidth: 1 }}
                 tickLine={false}
                 tick={{ fontFamily: FONT_BODY, fontSize: panelIsDaily ? 9 : 11, fill: C.black }}
-                interval={panelIsDaily ? 'preserveStartEnd' : 0}
-                minTickGap={panelIsDaily ? 12 : 5}
+                // Auto-thin tick labels when the dataset is dense (YTD weekly
+                // = ~20 bars; daily = ~30 bars). For shorter weekly series
+                // (4w, 30d-bucketed = 5 bars) show every tick.
+                interval={
+                  panelIsDaily || panelData.length > 8 ? 'preserveStartEnd' : 0
+                }
+                minTickGap={
+                  panelIsDaily ? 12 : panelData.length > 8 ? 28 : 5
+                }
               />
               {(() => {
                 const max = Math.max(...panelData.map((d) => d[dataKey] || 0), 1);
