@@ -263,6 +263,26 @@ function inYtdWindow(dateStr) { return YTD_DATES_SET.has(dateStr); }
 const YTD_RANGE_LABEL = `${fmtMonDay(YTD_START_DATE)} – ${fmtMonDay(YTD_END_DATE)}, ${_ytdYear}`;
 
 // ---------------------------------------------------------------------------
+// Month-to-Date window (used by the "MTD" view mode).
+// 1st of current month → today, inclusive.
+// ---------------------------------------------------------------------------
+const MTD_START_DATE     = new Date(Date.UTC(
+  LIVE_END_DATE.getUTCFullYear(),
+  LIVE_END_DATE.getUTCMonth(),
+  1,
+));
+const MTD_END_DATE       = LIVE_END_DATE;
+const MTD_START_YYYYMMDD = fmtYYYYMMDD(MTD_START_DATE);
+const MTD_END_YYYYMMDD   = fmtYYYYMMDD(MTD_END_DATE);
+const MTD_DATES_ARRAY = [];
+for (let d = new Date(MTD_START_DATE); d <= MTD_END_DATE; d = addUTCDays(d, 1)) {
+  MTD_DATES_ARRAY.push(fmtYYYYMMDD(d));
+}
+const MTD_DATES_SET = new Set(MTD_DATES_ARRAY);
+function inMtdWindow(dateStr) { return MTD_DATES_SET.has(dateStr); }
+const MTD_RANGE_LABEL = `${fmtMonDay(MTD_START_DATE)} – ${fmtMonDay(MTD_END_DATE)}, ${MTD_END_DATE.getUTCFullYear()}`;
+
+// ---------------------------------------------------------------------------
 // Prior 30 days — for "vs prior 30d" delta on KPI cards in Last 30 days mode.
 // PRIOR_DATA_AVAILABLE is false if pull-data hasn't been re-run with the new
 // 60-day window — in that case the delta is suppressed cleanly.
@@ -297,6 +317,10 @@ const SIGNUPS_YTD  = sumByMapFilter(LIVE_SIGNUPS_BY_DATE,  inYtdWindow);
 const SESSIONS_YTD = sumByMapFilter(LIVE_ENGAGED_BY_DATE,  inYtdWindow);
 const MEETINGS_YTD = countMeetingsByFilter(inYtdWindow);
 const RATIO_YTD    = SESSIONS_YTD > 0 ? (SIGNUPS_YTD / SESSIONS_YTD) * 100 : 0;
+const SIGNUPS_MTD  = sumByMapFilter(LIVE_SIGNUPS_BY_DATE,  inMtdWindow);
+const SESSIONS_MTD = sumByMapFilter(LIVE_ENGAGED_BY_DATE,  inMtdWindow);
+const MEETINGS_MTD = countMeetingsByFilter(inMtdWindow);
+const RATIO_MTD    = SESSIONS_MTD > 0 ? (SIGNUPS_MTD / SESSIONS_MTD) * 100 : 0;
 const SIGNUPS_PRIOR30  = sumByMapFilter(LIVE_SIGNUPS_BY_DATE,  inPrior30Window);
 const SESSIONS_PRIOR30 = sumByMapFilter(LIVE_ENGAGED_BY_DATE,  inPrior30Window);
 const MEETINGS_PRIOR30 = countMeetingsByFilter(inPrior30Window);
@@ -389,6 +413,28 @@ const TOP_OF_FUNNEL_WEEKLY_4W = LAST_FOUR_WEEKS_LIST.map((w) => {
   };
 });
 
+// 30d weekly bars — every Mon-Sun week that overlaps the strict 30-day
+// window, including the full week that CONTAINS the 30-day start (so the
+// leading bar isn't clipped). Uses LIVE_WEEKS which is anchored to
+// mondayOf(today-30) → Sunday of current week. Each bar shows the FULL
+// week's data; sums do NOT match the strict-30d KPI total.
+const TOP_OF_FUNNEL_WEEKLY_30D_FULL = LIVE_WEEKS.map((w) => {
+  const sumIn = (m) => w.dates.reduce((s, d) => s + (m[d] || 0), 0);
+  return {
+    week:      w.weekStartLabel,
+    dateRange: w.dateRange,
+    partial:   w.trailingPartial,
+    trailingPartial: w.trailingPartial,
+    sessions:  sumIn(LIVE_ENGAGED_BY_DATE),
+    signups:   sumIn(LIVE_SIGNUPS_BY_DATE),
+    meetings:  sumIn(LIVE_MEETINGS_BY_DATE),
+  };
+});
+// Effective chart range label: first week's Monday → today.
+const WEEKLY_30D_FULL_RANGE_LABEL = LIVE_WEEKS.length
+  ? `${LIVE_WEEKS[0].weekStartLabel} – ${fmtMonDay(LIVE_END_DATE)}, ${LIVE_END_DATE.getUTCFullYear()}`
+  : WINDOW.label;
+
 // YTD weekly bars — Monday of the week containing Jan 1 → end of week containing today.
 // First bar may include a few pre-Jan-1 days (zero data); current week is hatched.
 const YTD_WEEKS_LIST = (() => {
@@ -418,6 +464,99 @@ const TOP_OF_FUNNEL_WEEKLY_YTD = YTD_WEEKS_LIST.map((w) => {
     dateRange: w.dateRange,
     partial:   w.partial,
     trailingPartial: w.partial,
+    sessions:  sumIn(LIVE_ENGAGED_BY_DATE),
+    signups:   sumIn(LIVE_SIGNUPS_BY_DATE),
+    meetings:  sumIn(LIVE_MEETINGS_BY_DATE),
+  };
+});
+
+// MTD daily — strict MTD window, day-by-day bars.
+const TOP_OF_FUNNEL_DAILY_MTD = MTD_DATES_ARRAY.map((d) => {
+  const y = Number(d.slice(0, 4));
+  const m = Number(d.slice(4, 6)) - 1;
+  const day = Number(d.slice(6, 8));
+  const dt = new Date(Date.UTC(y, m, day));
+  const lbl = fmtMonDay(dt);
+  return {
+    week:      lbl,
+    dateRange: lbl,
+    partial:   false,
+    sessions:  LIVE_ENGAGED_BY_DATE[d]  || 0,
+    signups:   LIVE_SIGNUPS_BY_DATE[d]  || 0,
+    meetings:  LIVE_MEETINGS_BY_DATE[d] || 0,
+  };
+});
+// MTD weekly — Mon-Sun weeks that overlap MTD, FULL week data per bar
+// (matches the 30d "show full weeks" framework). First bar may include
+// pre-MTD days; current week is hatched. Bars do not sum to MTD KPI.
+const MTD_WEEKS_LIST = (() => {
+  const list = [];
+  let wkStart = mondayOfUTC(MTD_START_DATE);
+  while (wkStart <= LIVE_END_DATE) {
+    const wkEnd = addUTCDays(wkStart, 6);
+    const dates = [];
+    for (let d = new Date(wkStart); d <= wkEnd; d = addUTCDays(d, 1)) {
+      dates.push(fmtYYYYMMDD(d));
+    }
+    list.push({
+      weekStartLabel: fmtMonDay(wkStart),
+      dateRange: `${fmtMonDay(wkStart)} – ${fmtMonDay(wkEnd)}`,
+      dates,
+      partial: wkEnd > LIVE_END_DATE,
+    });
+    wkStart = addUTCDays(wkStart, 7);
+  }
+  return list;
+})();
+// MTD weekly date range covers the first Mon-Sun week overlapping MTD
+// through today. Used as the chart's effective date range label.
+const MTD_WEEKLY_RANGE_LABEL = (() => {
+  if (MTD_WEEKS_LIST.length === 0) return MTD_RANGE_LABEL;
+  const firstWeekStart = MTD_WEEKS_LIST[0].dateRange.split('–')[0].trim();
+  return `${firstWeekStart} – ${fmtMonDay(LIVE_END_DATE)}, ${LIVE_END_DATE.getUTCFullYear()}`;
+})();
+const TOP_OF_FUNNEL_WEEKLY_MTD = MTD_WEEKS_LIST.map((w) => {
+  const sumIn = (m) => w.dates.reduce((s, d) => s + (m[d] || 0), 0);
+  return {
+    week:      w.weekStartLabel,
+    dateRange: w.dateRange,
+    partial:   w.partial,
+    trailingPartial: w.partial,
+    sessions:  sumIn(LIVE_ENGAGED_BY_DATE),
+    signups:   sumIn(LIVE_SIGNUPS_BY_DATE),
+    meetings:  sumIn(LIVE_MEETINGS_BY_DATE),
+  };
+});
+
+// YTD monthly — one bar per month from Jan to current month.
+// Current month is hatched as in-progress (partial: true).
+const YTD_MONTHS_LIST = (() => {
+  const list = [];
+  const year = LIVE_END_DATE.getUTCFullYear();
+  const currentMonth = LIVE_END_DATE.getUTCMonth();
+  for (let m = 0; m <= currentMonth; m++) {
+    const mStart = new Date(Date.UTC(year, m, 1));
+    const mEnd   = new Date(Date.UTC(year, m + 1, 0));  // last day of month
+    const dates = [];
+    for (let d = new Date(mStart); d <= mEnd; d = addUTCDays(d, 1)) {
+      dates.push(fmtYYYYMMDD(d));
+    }
+    list.push({
+      label: MONTH_ABBR[m],
+      dateRange: `${MONTH_ABBR[m]} ${year}`,
+      dates,
+      partial: m === currentMonth,  // current month = in-progress = hatched
+    });
+  }
+  return list;
+})();
+const TOP_OF_FUNNEL_MONTHLY_YTD = YTD_MONTHS_LIST.map((mo) => {
+  const sumIn = (map) => mo.dates.reduce((s, d) => s + (map[d] || 0), 0);
+  return {
+    week:      mo.label,           // re-uses 'week' xKey for BarPanel compatibility
+    dateRange: mo.dateRange,
+    partial:   mo.partial,
+    trailingPartial: mo.partial,
     sessions:  sumIn(LIVE_ENGAGED_BY_DATE),
     signups:   sumIn(LIVE_SIGNUPS_BY_DATE),
     meetings:  sumIn(LIVE_MEETINGS_BY_DATE),
@@ -617,6 +756,8 @@ const SHARE_OF_SIGNUPS_4W = computeShareOfSignups(FOURWEEKS_DATES_SET);
 const TOTAL_SIGNUPS_CATEGORIZED_4W = SHARE_OF_SIGNUPS_4W.reduce((s, x) => s + x.value, 0);
 const SHARE_OF_SIGNUPS_YTD = computeShareOfSignups(YTD_DATES_SET);
 const TOTAL_SIGNUPS_CATEGORIZED_YTD = SHARE_OF_SIGNUPS_YTD.reduce((s, x) => s + x.value, 0);
+const SHARE_OF_SIGNUPS_MTD = computeShareOfSignups(MTD_DATES_SET);
+const TOTAL_SIGNUPS_CATEGORIZED_MTD = SHARE_OF_SIGNUPS_MTD.reduce((s, x) => s + x.value, 0);
 
 // ---------------------------------------------------------------------------
 // Sales Meeting Discovery — self-reported "how did you discover Mutiny"
@@ -657,6 +798,8 @@ const SHARE_OF_SALES_MEETINGS_4W = computeShareOfSalesMeetings(inFourWeeksWindow
 const TOTAL_SALES_MEETINGS_CATEGORIZED_4W = SHARE_OF_SALES_MEETINGS_4W.reduce((s, x) => s + x.value, 0);
 const SHARE_OF_SALES_MEETINGS_YTD = computeShareOfSalesMeetings(inYtdWindow);
 const TOTAL_SALES_MEETINGS_CATEGORIZED_YTD = SHARE_OF_SALES_MEETINGS_YTD.reduce((s, x) => s + x.value, 0);
+const SHARE_OF_SALES_MEETINGS_MTD = computeShareOfSalesMeetings(inMtdWindow);
+const TOTAL_SALES_MEETINGS_CATEGORIZED_MTD = SHARE_OF_SALES_MEETINGS_MTD.reduce((s, x) => s + x.value, 0);
 
 // Bucketing rules — tightened regexes so that e.g. "mail.google.com" doesn't
 // get caught by the Search rule. Rules applied in order; first match wins.
@@ -1087,6 +1230,7 @@ const KpiCard = ({
   sparkline,
   deltaNode,
   deltaLabel,
+  dateRangeLabel,
   footnote,
   bgColor,
   accentColor,
@@ -1169,6 +1313,21 @@ const KpiCard = ({
     >
       {value}
     </div>
+    {dateRangeLabel && (
+      <div
+        style={{
+          fontFamily: FONT_CAPTION,
+          fontStyle: 'italic',
+          fontSize: 10.5,
+          color: C.black,
+          opacity: 0.55,
+          marginTop: 4,
+          letterSpacing: '0.02em',
+        }}
+      >
+        {dateRangeLabel}
+      </div>
+    )}
 
     {deltaNode ? (
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}>
@@ -1360,15 +1519,17 @@ const PieHoverPanel = ({ slice, total, unit = 'signup' }) => {
 // hatch pattern in all three charts. A footnote spells out the partial-week
 // caveat so Wk 3 isn't mis-read as a step-down.
 // ---------------------------------------------------------------------------
-function TopOfFunnelTrend({ data, weeklyData, mode = 'weekly', footnoteOverride }) {
+function TopOfFunnelTrend({ data, weeklyData, mode = 'weekly', footnoteOverride, dateRangeLabel, weeklyDateRangeLabel }) {
   // When `weeklyData` is provided alongside `data`, each chart gets its own
   // Daily/Weekly toggle in the card header. Used by the Last 30 days view
   // mode so users can flip Signups and Sales Meetings between granularities
   // independently. When omitted, the section is single-granularity (4w/YTD).
   const hasPerChartToggle = Boolean(weeklyData);
+  // When per-chart toggle is on, default both charts to whatever `mode` is
+  // passed in (parent picks 'weekly' for 30d/MTD per design call).
   const [granularity, setGranularity] = useState({
-    signups:  mode,
-    meetings: mode,
+    signups:  hasPerChartToggle ? mode : mode,
+    meetings: hasPerChartToggle ? mode : mode,
   });
   const resolveData = (key) =>
     hasPerChartToggle && granularity[key] === 'weekly' ? weeklyData : data;
@@ -1453,6 +1614,25 @@ function TopOfFunnelTrend({ data, weeklyData, mode = 'weekly', footnoteOverride 
             <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6, marginTop: 4 }}>
               {source} · {panelIsDaily ? 'daily' : 'weekly'}
             </div>
+            {(() => {
+              const lbl = !panelIsDaily && weeklyDateRangeLabel
+                ? weeklyDateRangeLabel
+                : dateRangeLabel;
+              return lbl ? (
+                <div
+                  style={{
+                    fontFamily: FONT_CAPTION,
+                    fontStyle: 'italic',
+                    fontSize: 10.5,
+                    opacity: 0.55,
+                    marginTop: 3,
+                    letterSpacing: '0.02em',
+                  }}
+                >
+                  {lbl}
+                </div>
+              ) : null;
+            })()}
           </div>
           {hasPerChartToggle && (
             <div
@@ -1534,7 +1714,12 @@ function TopOfFunnelTrend({ data, weeklyData, mode = 'weekly', footnoteOverride 
                 content={BarTooltip(title, (d) => format ? format(d[dataKey]) : d[dataKey].toLocaleString())}
                 cursor={{ fill: 'rgba(0,0,0,0.04)' }}
               />
-              <Bar dataKey={dataKey} shape={HatchedBar(color)} maxBarSize={60} />
+              <Bar
+                dataKey={dataKey}
+                shape={HatchedBar(color)}
+                maxBarSize={60}
+                isAnimationActive={false}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -1642,6 +1827,7 @@ function SelfReportedPieCard({
   infoTooltip,
   dataStartNote,
   alertBanner,
+  dateRangeLabel,
 }) {
   const [activeSlice, setActiveSlice] = useState(null);
   const populated = data.filter((s) => s.value > 0);
@@ -1728,6 +1914,11 @@ function SelfReportedPieCard({
           }}
         >
           Source: {source}
+          {dateRangeLabel && (
+            <div style={{ marginTop: 4, fontStyle: 'italic', fontSize: 10.5, opacity: 0.6 }}>
+              {dateRangeLabel}
+            </div>
+          )}
           {dataStartNote ? (
             <div style={{ marginTop: 4, fontStyle: 'italic', fontSize: 10, opacity: 0.7 }}>
               {dataStartNote}
@@ -1893,9 +2084,11 @@ export default function MutinyGrowthDashboard() {
   const [definitionsOpen, setDefinitionsOpen] = useState(false);
   const [drillChannel, setDrillChannel]       = useState(null); // channel name or null
   // Top-of-page view mode:
-  //   "30d" = strict Last 30 days, daily + duplicate weekly + prior-30d delta
-  //   "4w"  = 4 complete Mon-Sun weeks + current in-progress week (Amplitude pattern)
-  //   "ytd" = Year to Date, weekly bars
+  //   "30d" = strict Last 30 days; per-chart Daily/Weekly toggle (weekly uses
+  //           the 4-complete + current-in-progress 5-bar Amplitude pattern)
+  //   "mtd" = Month-to-Date; same per-chart toggle (weekly = Mon-Sun weeks
+  //           overlapping MTD with full week data, bars may exceed MTD KPI)
+  //   "ytd" = Year to Date; monthly bars (Jan…current, current hatched)
   // Affects KPI tiles, top-of-funnel charts, and the two pies above the
   // "Programmatic Channel Analytics" divider. Sections below are unaffected.
   const [viewMode, setViewMode] = useState('30d');
@@ -1906,23 +2099,30 @@ export default function MutinyGrowthDashboard() {
   const weeklyChartData = computeWeeklyData();
   const channelTable = computeChannelTable();
 
-  // View-mode-driven derived values. KPI totals match each mode's chart sum.
+  // View-mode-driven derived values. KPI totals match the window-strict total
+  // (chart bars may exceed when "full weeks" weekly view is selected for 30d/MTD).
   const is30d = viewMode === '30d';
-  const is4w  = viewMode === '4w';
+  const isMtd = viewMode === 'mtd';
   const isYtd = viewMode === 'ytd';
-  const kpiSignups   = is30d ? DATA.signups.window         : is4w ? SIGNUPS_4W   : SIGNUPS_YTD;
-  const kpiSessions  = is30d ? DATA.engagedSessions.window : is4w ? SESSIONS_4W  : SESSIONS_YTD;
-  const kpiMeetings  = is30d ? DATA.salesMeetings.window   : is4w ? MEETINGS_4W  : MEETINGS_YTD;
-  const kpiRatio     = is30d ? ratioWindow                 : is4w ? RATIO_4W     : RATIO_YTD;
-  const pieSignups        = is30d ? SHARE_OF_SIGNUPS              : is4w ? SHARE_OF_SIGNUPS_4W              : SHARE_OF_SIGNUPS_YTD;
-  const pieSignupsTotal   = is30d ? TOTAL_SIGNUPS_CATEGORIZED     : is4w ? TOTAL_SIGNUPS_CATEGORIZED_4W     : TOTAL_SIGNUPS_CATEGORIZED_YTD;
-  const pieMeetings       = is30d ? SHARE_OF_SALES_MEETINGS       : is4w ? SHARE_OF_SALES_MEETINGS_4W       : SHARE_OF_SALES_MEETINGS_YTD;
-  const pieMeetingsTotal  = is30d ? TOTAL_SALES_MEETINGS_CATEGORIZED : is4w ? TOTAL_SALES_MEETINGS_CATEGORIZED_4W : TOTAL_SALES_MEETINGS_CATEGORIZED_YTD;
+  const kpiSignups   = is30d ? DATA.signups.window         : isMtd ? SIGNUPS_MTD  : SIGNUPS_YTD;
+  const kpiSessions  = is30d ? DATA.engagedSessions.window : isMtd ? SESSIONS_MTD : SESSIONS_YTD;
+  const kpiMeetings  = is30d ? DATA.salesMeetings.window   : isMtd ? MEETINGS_MTD : MEETINGS_YTD;
+  const kpiRatio     = is30d ? ratioWindow                 : isMtd ? RATIO_MTD    : RATIO_YTD;
+  const pieSignups        = is30d ? SHARE_OF_SIGNUPS              : isMtd ? SHARE_OF_SIGNUPS_MTD             : SHARE_OF_SIGNUPS_YTD;
+  const pieSignupsTotal   = is30d ? TOTAL_SIGNUPS_CATEGORIZED     : isMtd ? TOTAL_SIGNUPS_CATEGORIZED_MTD    : TOTAL_SIGNUPS_CATEGORIZED_YTD;
+  const pieMeetings       = is30d ? SHARE_OF_SALES_MEETINGS       : isMtd ? SHARE_OF_SALES_MEETINGS_MTD      : SHARE_OF_SALES_MEETINGS_YTD;
+  const pieMeetingsTotal  = is30d ? TOTAL_SALES_MEETINGS_CATEGORIZED : isMtd ? TOTAL_SALES_MEETINGS_CATEGORIZED_MTD : TOTAL_SALES_MEETINGS_CATEGORIZED_YTD;
   const activeWindowLabel = is30d
     ? 'Last 30 days'
-    : is4w
-      ? `Last 4 weeks · ${FOURWEEKS_RANGE_LABEL}`
+    : isMtd
+      ? `MTD · ${MTD_RANGE_LABEL}`
       : `Year to Date · ${YTD_RANGE_LABEL}`;
+  // Compact date-range label for inside each KPI card (no prefix).
+  const kpiDateRangeLabel = is30d
+    ? WINDOW.label
+    : isMtd
+      ? MTD_RANGE_LABEL
+      : YTD_RANGE_LABEL;
   const webSessionsWeekly = computeWebSessionsWeekly();
   const linkedinKeys = LINKEDIN_DEEP_DIVE.series.map((s) => s.key);
   const aeoKeys      = AEO_DEEP_DIVE.series.map((s) => s.key);
@@ -2015,8 +2215,8 @@ export default function MutinyGrowthDashboard() {
           >
             {[
               { id: '30d', label: 'Last 30 days' },
-              { id: '4w',  label: 'Last 4 weeks' },
-              { id: 'ytd', label: 'Year to Date' },
+              { id: 'mtd', label: 'MTD' },
+              { id: 'ytd', label: 'YTD' },
             ].map((opt) => {
               const active = viewMode === opt.id;
               return (
@@ -2042,8 +2242,8 @@ export default function MutinyGrowthDashboard() {
           <div style={{ opacity: 0.6, marginTop: 4, fontSize: 11 }}>
             {is30d
               ? WINDOW.label
-              : is4w
-                ? FOURWEEKS_RANGE_LABEL
+              : isMtd
+                ? MTD_RANGE_LABEL
                 : YTD_RANGE_LABEL}
           </div>
           <div style={{ opacity: 0.6, marginTop: 6, fontFamily: FONT_MONO, fontSize: 11 }}>
@@ -2071,6 +2271,7 @@ export default function MutinyGrowthDashboard() {
           footnote={`Successful onboarding completions (Amplitude event). Distinct from "Signup Clicks" in the Channel Funnel below, which counts the upstream click on the signup CTA from GA4.`}
           bgColor={C.lightPurple}
           accentColor={C.purple}
+          dateRangeLabel={kpiDateRangeLabel}
           deltaNode={is30d && DELTA_30D.signups
             ? <Delta value={DELTA_30D.signups.raw} suffix="" precision={0} secondary={DELTA_30D.signups.pct} />
             : null}
@@ -2083,6 +2284,7 @@ export default function MutinyGrowthDashboard() {
           footnote="Engaged Sessions used as bot-resistant proxy (LLM crawlers inflated Total Users in March)."
           bgColor={C.lightBlue}
           accentColor={C.blue}
+          dateRangeLabel={kpiDateRangeLabel}
           deltaNode={is30d && DELTA_30D.engagedSessions
             ? <Delta value={DELTA_30D.engagedSessions.raw} suffix="" precision={0} secondary={DELTA_30D.engagedSessions.pct} />
             : null}
@@ -2095,6 +2297,7 @@ export default function MutinyGrowthDashboard() {
           footnote="Cross-system ratio: Amplitude ÷ GA4, directional only."
           bgColor={C.lightGreen}
           accentColor={C.green}
+          dateRangeLabel={kpiDateRangeLabel}
           deltaNode={is30d && DELTA_30D.ratio
             ? <Delta value={DELTA_30D.ratio.raw} suffix="pp" precision={2} secondary={DELTA_30D.ratio.pct} />
             : null}
@@ -2107,6 +2310,7 @@ export default function MutinyGrowthDashboard() {
           footnote="HubSpot contacts where Talk to Sales form-submission date is within the window. Test-filtered."
           bgColor={C.lightRed}
           accentColor={C.red}
+          dateRangeLabel={kpiDateRangeLabel}
           deltaNode={is30d && DELTA_30D.salesMeetings
             ? <Delta value={DELTA_30D.salesMeetings.raw} suffix="" precision={0} secondary={DELTA_30D.salesMeetings.pct} />
             : null}
@@ -2115,38 +2319,59 @@ export default function MutinyGrowthDashboard() {
       </div>
 
       {/* Top-of-funnel trend.
-          - Last 30 days: daily (matches KPI) + duplicate weekly (same strict
-            30 days, Mon-Sun bucketed; partial leading/trailing bars).
-          - Last 4 weeks: 4 complete Mon-Sun + current in-progress week (5 bars).
-          - YTD: Mon-Sun weeks from Jan 1 through current week.
-          Sum of bars always equals the KPI total for the active mode. */}
+          - Last 30 days: per-chart Daily / Weekly toggle. Daily = 30 daily
+            bars (sum = KPI). Weekly = 4 complete + current in-progress
+            (5 bars, "full weeks" — bars may exceed strict KPI by the leading
+            week's pre-window days).
+          - MTD: per-chart toggle. Daily = MTD daily bars (sum = KPI). Weekly
+            = Mon-Sun weeks overlapping MTD with full-week data (similar
+            "full weeks" behavior as 30d).
+          - YTD: monthly bars Jan → current month (hatched). */}
       {is30d && (
         <TopOfFunnelTrend
           data={TOP_OF_FUNNEL_DAILY_30D}
-          weeklyData={TOP_OF_FUNNEL_WEEKLY_30D}
-          mode="daily"
-        />
-      )}
-      {is4w && (
-        <TopOfFunnelTrend
-          data={TOP_OF_FUNNEL_WEEKLY_4W}
+          weeklyData={TOP_OF_FUNNEL_WEEKLY_30D_FULL}
           mode="weekly"
+          dateRangeLabel={WINDOW.label}
+          weeklyDateRangeLabel={WEEKLY_30D_FULL_RANGE_LABEL}
           footnoteOverride={
             <>
-              * Bars are 4 complete <strong>Mon–Sun</strong> weeks plus the <strong>current
-              in-progress week</strong> (hatched). Sum of all 5 bars equals the KPI total above.
+              * <strong>Daily</strong> = strict <strong>Last 30 days</strong>; bars sum to the
+              30-day KPI total. <strong>Weekly</strong> = every Mon–Sun week that overlaps the
+              30-day window (including the full week containing the start date) — bars use
+              full week data, so the leading bar may include a few pre-window days and the
+              current week is hatched. Toggle each chart independently.
+            </>
+          }
+        />
+      )}
+      {isMtd && (
+        <TopOfFunnelTrend
+          data={TOP_OF_FUNNEL_DAILY_MTD}
+          weeklyData={TOP_OF_FUNNEL_WEEKLY_MTD}
+          mode="weekly"
+          dateRangeLabel={MTD_RANGE_LABEL}
+          weeklyDateRangeLabel={MTD_WEEKLY_RANGE_LABEL}
+          footnoteOverride={
+            <>
+              * <strong>Daily</strong> = strict <strong>Month-to-Date</strong> ({MTD_RANGE_LABEL});
+              bars sum to the MTD KPI total. <strong>Weekly</strong> = Mon–Sun weeks that
+              overlap MTD with full week data — the leading bar may include pre-month days,
+              the current week is hatched.
             </>
           }
         />
       )}
       {isYtd && (
         <TopOfFunnelTrend
-          data={TOP_OF_FUNNEL_WEEKLY_YTD}
+          data={TOP_OF_FUNNEL_MONTHLY_YTD}
           mode="weekly"
+          dateRangeLabel={kpiDateRangeLabel}
           footnoteOverride={
             <>
-              * Bars are <strong>Mon–Sun weeks</strong> from {YTD_RANGE_LABEL}. The
-              current in-progress week is hatched. Sum of bars equals the YTD KPI total above.
+              * Bars are <strong>monthly</strong> totals from January to today. The current
+              month ({MONTH_ABBR[LIVE_END_DATE.getUTCMonth()]}) is in progress (hatched). Sum
+              of complete months + current MTD equals the YTD KPI total above.
             </>
           }
         />
@@ -2168,6 +2393,7 @@ export default function MutinyGrowthDashboard() {
           eyebrow="Share of Signups"
           title="Customer signups by channel"
           source="Amplitude"
+          dateRangeLabel={kpiDateRangeLabel}
           data={pieSignups}
           total={pieSignupsTotal}
           totalLabel="total signups"
@@ -2187,6 +2413,7 @@ export default function MutinyGrowthDashboard() {
           title="Sales meeting requests by channel"
           source="HubSpot"
           dataStartNote=""
+          dateRangeLabel={kpiDateRangeLabel}
           data={pieMeetings}
           total={pieMeetingsTotal}
           totalLabel="meeting requests"
