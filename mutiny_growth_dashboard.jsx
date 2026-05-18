@@ -238,6 +238,26 @@ function inFourWeeksWindow(dateStr) { return FOURWEEKS_DATES_SET.has(dateStr); }
 const FOURWEEKS_RANGE_LABEL = `${fmtMonDay(FOURWEEKS_START_DATE)} – ${fmtMonDay(FOURWEEKS_END_DATE)}, ${FOURWEEKS_END_DATE.getUTCFullYear()}`;
 
 // ---------------------------------------------------------------------------
+// Year-to-Date window (used by the "Year to Date" view mode).
+// Jan 1 of LIVE_END_DATE's year → today, inclusive. Weekly bars start on the
+// Monday of the week containing Jan 1 (so the first bar may include a few
+// December days from the prior year, which always sum to 0 since we don't
+// pull pre-Jan data).
+// ---------------------------------------------------------------------------
+const _ytdYear = LIVE_END_DATE.getUTCFullYear();
+const YTD_START_DATE     = new Date(Date.UTC(_ytdYear, 0, 1));   // Jan 1
+const YTD_END_DATE       = LIVE_END_DATE;                        // today
+const YTD_START_YYYYMMDD = fmtYYYYMMDD(YTD_START_DATE);
+const YTD_END_YYYYMMDD   = fmtYYYYMMDD(YTD_END_DATE);
+const YTD_DATES_ARRAY = [];
+for (let d = new Date(YTD_START_DATE); d <= YTD_END_DATE; d = addUTCDays(d, 1)) {
+  YTD_DATES_ARRAY.push(fmtYYYYMMDD(d));
+}
+const YTD_DATES_SET = new Set(YTD_DATES_ARRAY);
+function inYtdWindow(dateStr) { return YTD_DATES_SET.has(dateStr); }
+const YTD_RANGE_LABEL = `${fmtMonDay(YTD_START_DATE)} – ${fmtMonDay(YTD_END_DATE)}, ${_ytdYear}`;
+
+// ---------------------------------------------------------------------------
 // Prior 30 days — for "vs prior 30d" delta on KPI cards in Last 30 days mode.
 // PRIOR_DATA_AVAILABLE is false if pull-data hasn't been re-run with the new
 // 60-day window — in that case the delta is suppressed cleanly.
@@ -268,6 +288,10 @@ const SIGNUPS_4W   = sumByMapFilter(LIVE_SIGNUPS_BY_DATE,  inFourWeeksWindow);
 const SESSIONS_4W  = sumByMapFilter(LIVE_ENGAGED_BY_DATE,  inFourWeeksWindow);
 const MEETINGS_4W  = countMeetingsByFilter(inFourWeeksWindow);
 const RATIO_4W     = SESSIONS_4W > 0 ? (SIGNUPS_4W  / SESSIONS_4W)  * 100 : 0;
+const SIGNUPS_YTD  = sumByMapFilter(LIVE_SIGNUPS_BY_DATE,  inYtdWindow);
+const SESSIONS_YTD = sumByMapFilter(LIVE_ENGAGED_BY_DATE,  inYtdWindow);
+const MEETINGS_YTD = countMeetingsByFilter(inYtdWindow);
+const RATIO_YTD    = SESSIONS_YTD > 0 ? (SIGNUPS_YTD / SESSIONS_YTD) * 100 : 0;
 const SIGNUPS_PRIOR30  = sumByMapFilter(LIVE_SIGNUPS_BY_DATE,  inPrior30Window);
 const SESSIONS_PRIOR30 = sumByMapFilter(LIVE_ENGAGED_BY_DATE,  inPrior30Window);
 const MEETINGS_PRIOR30 = countMeetingsByFilter(inPrior30Window);
@@ -307,8 +331,28 @@ const TOP_OF_FUNNEL_DAILY_30D = STRICT_WINDOW_DATES.map((d) => {
     meetings:  LIVE_MEETINGS_BY_DATE[d] || 0,
   };
 });
-// 5 weeks: 4 complete Mon-Sun + current in-progress (Mon → today).
-// The current week's Sunday is in the future → partial=true → hatched bar.
+// Weekly bars for "Last 30 days" mode — strict 30-day data bucketed Mon-Sun.
+// Leading/trailing weeks may be window-clipped (the 30-day cutoff slices the
+// first/last week mid-week). Only the current in-progress week is hatched.
+// Sum of bars = 30-day KPI total exactly.
+const TOP_OF_FUNNEL_WEEKLY_30D = LIVE_WEEKS.map((w) => {
+  const dates30 = w.dates.filter(inStrictWindow);
+  const sumIn = (m) => dates30.reduce((s, d) => s + (m[d] || 0), 0);
+  return {
+    week:      w.weekStartLabel,
+    dateRange: w.dateRange,
+    partial:   w.trailingPartial,
+    trailingPartial: w.trailingPartial,
+    sessions:  sumIn(LIVE_ENGAGED_BY_DATE),
+    signups:   sumIn(LIVE_SIGNUPS_BY_DATE),
+    meetings:  sumIn(LIVE_MEETINGS_BY_DATE),
+  };
+});
+
+// Weekly bars for "Last 4 weeks" mode — 4 complete Mon-Sun weeks plus the
+// current in-progress week (5 bars total). Matches Amplitude's "Last 4
+// weeks" preset. Sum of bars = SIGNUPS_4W / SESSIONS_4W / MEETINGS_4W totals
+// (which is what the KPI tiles display in 4w mode).
 const LAST_FOUR_WEEKS_LIST = (() => {
   const list = [];
   for (let i = 4; i >= 0; i--) {
@@ -322,12 +366,46 @@ const LAST_FOUR_WEEKS_LIST = (() => {
       weekStartLabel: fmtMonDay(wkStart),
       dateRange: `${fmtMonDay(wkStart)} – ${fmtMonDay(wkEnd)}`,
       dates,
-      partial: wkEnd > LIVE_END_DATE,  // current week = true; complete weeks = false
+      partial: wkEnd > LIVE_END_DATE,
     });
   }
   return list;
 })();
 const TOP_OF_FUNNEL_WEEKLY_4W = LAST_FOUR_WEEKS_LIST.map((w) => {
+  const sumIn = (m) => w.dates.reduce((s, d) => s + (m[d] || 0), 0);
+  return {
+    week:      w.weekStartLabel,
+    dateRange: w.dateRange,
+    partial:   w.partial,
+    trailingPartial: w.partial,
+    sessions:  sumIn(LIVE_ENGAGED_BY_DATE),
+    signups:   sumIn(LIVE_SIGNUPS_BY_DATE),
+    meetings:  sumIn(LIVE_MEETINGS_BY_DATE),
+  };
+});
+
+// YTD weekly bars — Monday of the week containing Jan 1 → end of week containing today.
+// First bar may include a few pre-Jan-1 days (zero data); current week is hatched.
+const YTD_WEEKS_LIST = (() => {
+  const list = [];
+  let wkStart = mondayOfUTC(YTD_START_DATE);
+  while (wkStart <= LIVE_END_DATE) {
+    const wkEnd = addUTCDays(wkStart, 6);
+    const dates = [];
+    for (let d = new Date(wkStart); d <= wkEnd; d = addUTCDays(d, 1)) {
+      dates.push(fmtYYYYMMDD(d));
+    }
+    list.push({
+      weekStartLabel: fmtMonDay(wkStart),
+      dateRange: `${fmtMonDay(wkStart)} – ${fmtMonDay(wkEnd)}`,
+      dates,
+      partial: wkEnd > LIVE_END_DATE,
+    });
+    wkStart = addUTCDays(wkStart, 7);
+  }
+  return list;
+})();
+const TOP_OF_FUNNEL_WEEKLY_YTD = YTD_WEEKS_LIST.map((w) => {
   const sumIn = (m) => w.dates.reduce((s, d) => s + (m[d] || 0), 0);
   return {
     week:      w.weekStartLabel,
@@ -531,6 +609,8 @@ const TOTAL_SIGNUPS_CATEGORIZED = SHARE_OF_SIGNUPS.reduce((s, x) => s + x.value,
 // 4-week variant for the toggle.
 const SHARE_OF_SIGNUPS_4W = computeShareOfSignups(FOURWEEKS_DATES_SET);
 const TOTAL_SIGNUPS_CATEGORIZED_4W = SHARE_OF_SIGNUPS_4W.reduce((s, x) => s + x.value, 0);
+const SHARE_OF_SIGNUPS_YTD = computeShareOfSignups(YTD_DATES_SET);
+const TOTAL_SIGNUPS_CATEGORIZED_YTD = SHARE_OF_SIGNUPS_YTD.reduce((s, x) => s + x.value, 0);
 
 // ---------------------------------------------------------------------------
 // Sales Meeting Discovery — self-reported "how did you discover Mutiny"
@@ -569,6 +649,8 @@ const SHARE_OF_SALES_MEETINGS = computeShareOfSalesMeetings(inStrictWindow);
 const TOTAL_SALES_MEETINGS_CATEGORIZED = SHARE_OF_SALES_MEETINGS.reduce((s, x) => s + x.value, 0);
 const SHARE_OF_SALES_MEETINGS_4W = computeShareOfSalesMeetings(inFourWeeksWindow);
 const TOTAL_SALES_MEETINGS_CATEGORIZED_4W = SHARE_OF_SALES_MEETINGS_4W.reduce((s, x) => s + x.value, 0);
+const SHARE_OF_SALES_MEETINGS_YTD = computeShareOfSalesMeetings(inYtdWindow);
+const TOTAL_SALES_MEETINGS_CATEGORIZED_YTD = SHARE_OF_SALES_MEETINGS_YTD.reduce((s, x) => s + x.value, 0);
 
 // Bucketing rules — tightened regexes so that e.g. "mail.google.com" doesn't
 // get caught by the Search rule. Rules applied in order; first match wins.
@@ -1003,17 +1085,21 @@ const KpiCard = ({
   bgColor,
   accentColor,
   placeholder = false,
-}) => (
+}) => {
+  // Compact when there's no bottom slot (delta, sparkline, momNode). With a
+  // bottom element the card needs more vertical room; otherwise tighten.
+  const hasBottomSlot = Boolean(deltaNode || sparkline || momNode);
+  return (
   <div
     style={{
       background: bgColor,
       border: `1px solid ${C.black}`,
       borderRadius: 4,
-      padding: '14px 18px 14px',
+      padding: '12px 16px',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',
-      minHeight: 168,
+      minHeight: hasBottomSlot ? 152 : 112,
       position: 'relative',
       opacity: placeholder ? 0.55 : 1,
     }}
@@ -1067,12 +1153,12 @@ const KpiCard = ({
       style={{
         fontFamily: FONT_DISPLAY,
         fontWeight: 400,
-        fontSize: 64,
+        fontSize: 52,
         lineHeight: 1,
         color: C.black,
         letterSpacing: '-0.03em',
         fontVariantNumeric: 'tabular-nums',
-        marginTop: 8,
+        marginTop: 6,
       }}
     >
       {value}
@@ -1139,7 +1225,8 @@ const KpiCard = ({
       }}
     />
   </div>
-);
+  );
+};
 
 // ---------------------------------------------------------------------------
 // Custom hover tooltip for the pie — shows raw referral_source values
@@ -1267,8 +1354,26 @@ const PieHoverPanel = ({ slice, total, unit = 'signup' }) => {
 // hatch pattern in all three charts. A footnote spells out the partial-week
 // caveat so Wk 3 isn't mis-read as a step-down.
 // ---------------------------------------------------------------------------
-function TopOfFunnelTrend({ data, mode = 'weekly' }) {
+function TopOfFunnelTrend({ data, weeklyData, mode = 'weekly', footnoteOverride }) {
+  // When `weeklyData` is provided alongside `data`, each chart gets its own
+  // Daily/Weekly toggle in the card header. Used by the Last 30 days view
+  // mode so users can flip Signups and Sales Meetings between granularities
+  // independently. When omitted, the section is single-granularity (4w/YTD).
+  const hasPerChartToggle = Boolean(weeklyData);
+  const [granularity, setGranularity] = useState({
+    signups:  mode,
+    meetings: mode,
+  });
+  const resolveData = (key) =>
+    hasPerChartToggle && granularity[key] === 'weekly' ? weeklyData : data;
+  const resolveIsDaily = (key) =>
+    hasPerChartToggle ? granularity[key] === 'daily' : mode === 'daily';
+  const setGranularityFor = (key, value) =>
+    setGranularity((g) => ({ ...g, [key]: value }));
+
+  // For the eyebrow + footnote when there's no per-chart toggle.
   const isDaily = mode === 'daily';
+
   // Recharts custom Bar shape that swaps in a hatched fill for partial weeks.
   const HatchedBar = (color) => (props) => {
     const { x, y, width, height, payload } = props;
@@ -1322,59 +1427,107 @@ function TopOfFunnelTrend({ data, mode = 'weekly' }) {
   };
 
   // Reusable card-shaped bar chart panel
-  const BarPanel = ({ title, source, dataKey, color, format }) => (
-    <div
-      style={{
-        background: C.white,
-        border: `1px solid ${C.black}`,
-        borderRadius: 4,
-        padding: '24px 28px 20px',
-      }}
-    >
-      <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 22, letterSpacing: '-0.02em', margin: 0 }}>
-        {title}
-      </h3>
-      <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6, marginTop: 4 }}>
-        {source} · {isDaily ? 'daily' : 'weekly'}
+  const BarPanel = ({ title, source, dataKey, color, format, chartKey }) => {
+    const panelData   = resolveData(chartKey);
+    const panelIsDaily = resolveIsDaily(chartKey);
+    return (
+      <div
+        style={{
+          background: C.white,
+          border: `1px solid ${C.black}`,
+          borderRadius: 4,
+          padding: '24px 28px 20px',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+          <div>
+            <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 22, letterSpacing: '-0.02em', margin: 0 }}>
+              {title}
+            </h3>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6, marginTop: 4 }}>
+              {source} · {panelIsDaily ? 'daily' : 'weekly'}
+            </div>
+          </div>
+          {hasPerChartToggle && (
+            <div
+              style={{
+                display: 'inline-flex',
+                border: `1px solid ${C.black}`,
+                borderRadius: 999,
+                overflow: 'hidden',
+                fontFamily: FONT_BODY,
+                fontSize: 10.5,
+                fontWeight: 600,
+                flexShrink: 0,
+              }}
+            >
+              {[
+                { id: 'daily',  label: 'Daily'  },
+                { id: 'weekly', label: 'Weekly' },
+              ].map((opt) => {
+                const active = granularity[chartKey] === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => setGranularityFor(chartKey, opt.id)}
+                    style={{
+                      padding: '3px 10px',
+                      background: active ? C.black : 'transparent',
+                      color: active ? C.white : C.black,
+                      border: 'none',
+                      cursor: active ? 'default' : 'pointer',
+                      fontFamily: FONT_BODY,
+                      fontSize: 10.5,
+                      fontWeight: 600,
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+        <div style={{ height: 280, marginTop: 16 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={panelData} margin={{ top: 12, right: 8, bottom: 8, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" vertical={false} />
+              <XAxis
+                dataKey="week"
+                axisLine={{ stroke: C.black, strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fontFamily: FONT_BODY, fontSize: panelIsDaily ? 9 : 11, fill: C.black }}
+                interval={panelIsDaily ? 'preserveStartEnd' : 0}
+                minTickGap={panelIsDaily ? 12 : 5}
+              />
+              {(() => {
+                const max = Math.max(...panelData.map((d) => d[dataKey] || 0), 1);
+                const { ticks, max: yMax } = niceTicks(max, 5);
+                return (
+                  <YAxis
+                    tickFormatter={format}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontFamily: FONT_BODY, fontSize: 10, fill: C.black, opacity: 0.6 }}
+                    width={40}
+                    domain={[0, yMax]}
+                    ticks={ticks}
+                    allowDecimals={false}
+                  />
+                );
+              })()}
+              <Tooltip
+                content={BarTooltip(title, (d) => format ? format(d[dataKey]) : d[dataKey].toLocaleString())}
+                cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+              />
+              <Bar dataKey={dataKey} shape={HatchedBar(color)} maxBarSize={60} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
-      <div style={{ height: 280, marginTop: 16 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 12, right: 8, bottom: 8, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" vertical={false} />
-            <XAxis
-              dataKey="week"
-              axisLine={{ stroke: C.black, strokeWidth: 1 }}
-              tickLine={false}
-              tick={{ fontFamily: FONT_BODY, fontSize: isDaily ? 9 : 11, fill: C.black }}
-              interval={isDaily ? 'preserveStartEnd' : 0}
-              minTickGap={isDaily ? 12 : 5}
-            />
-            {(() => {
-              const max = Math.max(...data.map((d) => d[dataKey] || 0), 1);
-              const { ticks, max: yMax } = niceTicks(max, 5);
-              return (
-                <YAxis
-                  tickFormatter={format}
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontFamily: FONT_BODY, fontSize: 10, fill: C.black, opacity: 0.6 }}
-                  width={40}
-                  domain={[0, yMax]}
-                  ticks={ticks}
-                  allowDecimals={false}
-                />
-              );
-            })()}
-            <Tooltip
-              content={BarTooltip(title, (d) => format ? format(d[dataKey]) : d[dataKey].toLocaleString())}
-              cursor={{ fill: 'rgba(0,0,0,0.04)' }}
-            />
-            <Bar dataKey={dataKey} shape={HatchedBar(color)} maxBarSize={60} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <section style={{ marginBottom: 40 }}>
@@ -1393,7 +1546,9 @@ function TopOfFunnelTrend({ data, mode = 'weekly' }) {
           gap: 10,
         }}
       >
-        <span>Top of funnel · {isDaily ? 'daily trend' : 'weekly trend'}</span>
+        <span>
+          Top of funnel{hasPerChartToggle ? '' : isDaily ? ' · daily trend' : ' · weekly trend'}
+        </span>
         <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
       </div>
 
@@ -1406,12 +1561,14 @@ function TopOfFunnelTrend({ data, mode = 'weekly' }) {
         }}
       >
         <BarPanel
+          chartKey="signups"
           title="Signups"
           source="Amplitude"
           dataKey="signups"
           color={C.purple}
         />
         <BarPanel
+          chartKey="meetings"
           title="Sales Meetings Requested"
           source="HubSpot"
           dataKey="meetings"
@@ -1430,7 +1587,16 @@ function TopOfFunnelTrend({ data, mode = 'weekly' }) {
           lineHeight: 1.5,
         }}
       >
-        {isDaily ? (
+        {footnoteOverride ? (
+          footnoteOverride
+        ) : hasPerChartToggle ? (
+          <>
+            * Each chart covers the strict <strong>Last 30 days</strong>. Toggle each between
+            Daily and Weekly to compare granularities — bars sum to the same KPI total either
+            way. In weekly, leading/trailing bars may be partial where the 30-day window
+            clips a week; the current in-progress week is hatched.
+          </>
+        ) : isDaily ? (
           <>
             * Daily bars cover the strict <strong>Last 30 days</strong> window. Sum of bars equals
             the KPI total above. Today's bar reflects events received so far — late-arriving
@@ -1438,8 +1604,7 @@ function TopOfFunnelTrend({ data, mode = 'weekly' }) {
           </>
         ) : (
           <>
-            * Bars are 4 complete <strong>Mon–Sun</strong> weeks plus the <strong>current
-            in-progress week</strong> (hatched). Sum of all 5 bars equals the KPI total above.
+            * Bars are <strong>Mon–Sun</strong> weeks. Sum of bars equals the KPI total above.
           </>
         )}
       </div>
@@ -1714,11 +1879,12 @@ function SelfReportedPieCard({
 export default function MutinyGrowthDashboard() {
   const [definitionsOpen, setDefinitionsOpen] = useState(false);
   const [drillChannel, setDrillChannel]       = useState(null); // channel name or null
-  // Top-of-page view mode: "30d" = strict Last 30 days w/ daily trend +
-  // prior-30d delta; "4w" = sum of 4 most recent complete Mon-Sun weeks w/
-  // weekly bars. Affects KPI tiles, top-of-funnel charts, and the two pies.
-  // Everything below "Programmatic Channel Analytics" divider is always
-  // last-4-weeks regardless of this toggle.
+  // Top-of-page view mode:
+  //   "30d" = strict Last 30 days, daily + duplicate weekly + prior-30d delta
+  //   "4w"  = 4 complete Mon-Sun weeks + current in-progress week (Amplitude pattern)
+  //   "ytd" = Year to Date, weekly bars
+  // Affects KPI tiles, top-of-funnel charts, and the two pies above the
+  // "Programmatic Channel Analytics" divider. Sections below are unaffected.
   const [viewMode, setViewMode] = useState('30d');
 
   // Single window: Apr 27 – May 13, 2026. Where source data doesn't extend
@@ -1727,19 +1893,23 @@ export default function MutinyGrowthDashboard() {
   const weeklyChartData = computeWeeklyData();
   const channelTable = computeChannelTable();
 
-  // View-mode-driven derived values
+  // View-mode-driven derived values. KPI totals match each mode's chart sum.
   const is30d = viewMode === '30d';
-  const kpiSignups   = is30d ? DATA.signups.window         : SIGNUPS_4W;
-  const kpiSessions  = is30d ? DATA.engagedSessions.window : SESSIONS_4W;
-  const kpiMeetings  = is30d ? DATA.salesMeetings.window   : MEETINGS_4W;
-  const kpiRatio     = is30d ? ratioWindow                 : RATIO_4W;
-  const pieSignups   = is30d ? SHARE_OF_SIGNUPS         : SHARE_OF_SIGNUPS_4W;
-  const pieSignupsTotal   = is30d ? TOTAL_SIGNUPS_CATEGORIZED       : TOTAL_SIGNUPS_CATEGORIZED_4W;
-  const pieMeetings  = is30d ? SHARE_OF_SALES_MEETINGS  : SHARE_OF_SALES_MEETINGS_4W;
-  const pieMeetingsTotal  = is30d ? TOTAL_SALES_MEETINGS_CATEGORIZED : TOTAL_SALES_MEETINGS_CATEGORIZED_4W;
-  const topOfFunnelData   = is30d ? TOP_OF_FUNNEL_DAILY_30D : TOP_OF_FUNNEL_WEEKLY_4W;
-  const topOfFunnelMode   = is30d ? 'daily' : 'weekly';
-  const activeWindowLabel = is30d ? 'Last 30 days' : `Last 4 weeks · ${FOURWEEKS_RANGE_LABEL}`;
+  const is4w  = viewMode === '4w';
+  const isYtd = viewMode === 'ytd';
+  const kpiSignups   = is30d ? DATA.signups.window         : is4w ? SIGNUPS_4W   : SIGNUPS_YTD;
+  const kpiSessions  = is30d ? DATA.engagedSessions.window : is4w ? SESSIONS_4W  : SESSIONS_YTD;
+  const kpiMeetings  = is30d ? DATA.salesMeetings.window   : is4w ? MEETINGS_4W  : MEETINGS_YTD;
+  const kpiRatio     = is30d ? ratioWindow                 : is4w ? RATIO_4W     : RATIO_YTD;
+  const pieSignups        = is30d ? SHARE_OF_SIGNUPS              : is4w ? SHARE_OF_SIGNUPS_4W              : SHARE_OF_SIGNUPS_YTD;
+  const pieSignupsTotal   = is30d ? TOTAL_SIGNUPS_CATEGORIZED     : is4w ? TOTAL_SIGNUPS_CATEGORIZED_4W     : TOTAL_SIGNUPS_CATEGORIZED_YTD;
+  const pieMeetings       = is30d ? SHARE_OF_SALES_MEETINGS       : is4w ? SHARE_OF_SALES_MEETINGS_4W       : SHARE_OF_SALES_MEETINGS_YTD;
+  const pieMeetingsTotal  = is30d ? TOTAL_SALES_MEETINGS_CATEGORIZED : is4w ? TOTAL_SALES_MEETINGS_CATEGORIZED_4W : TOTAL_SALES_MEETINGS_CATEGORIZED_YTD;
+  const activeWindowLabel = is30d
+    ? 'Last 30 days'
+    : is4w
+      ? `Last 4 weeks · ${FOURWEEKS_RANGE_LABEL}`
+      : `Year to Date · ${YTD_RANGE_LABEL}`;
   const webSessionsWeekly = computeWebSessionsWeekly();
   const linkedinKeys = LINKEDIN_DEEP_DIVE.series.map((s) => s.key);
   const aeoKeys      = AEO_DEEP_DIVE.series.map((s) => s.key);
@@ -1833,6 +2003,7 @@ export default function MutinyGrowthDashboard() {
             {[
               { id: '30d', label: 'Last 30 days' },
               { id: '4w',  label: 'Last 4 weeks' },
+              { id: 'ytd', label: 'Year to Date' },
             ].map((opt) => {
               const active = viewMode === opt.id;
               return (
@@ -1855,11 +2026,13 @@ export default function MutinyGrowthDashboard() {
               );
             })}
           </div>
-          {!is30d && (
-            <div style={{ opacity: 0.6, marginTop: 4, fontSize: 11 }}>
-              {FOURWEEKS_RANGE_LABEL}
-            </div>
-          )}
+          <div style={{ opacity: 0.6, marginTop: 4, fontSize: 11 }}>
+            {is30d
+              ? WINDOW.label
+              : is4w
+                ? FOURWEEKS_RANGE_LABEL
+                : YTD_RANGE_LABEL}
+          </div>
           <div style={{ opacity: 0.6, marginTop: 6, fontFamily: FONT_MONO, fontSize: 11 }}>
             Last updated: {new Date(LIVE_DATA_PULLED_AT).toLocaleString('en-US', {
               dateStyle: 'medium',
@@ -1928,10 +2101,43 @@ export default function MutinyGrowthDashboard() {
         />
       </div>
 
-      {/* Top-of-funnel trend — daily bars (Last 30 days mode) or weekly bars
-          (Last 4 weeks mode). Bars match the KPI total exactly in both modes
-          since the KPI uses the same date math. */}
-      <TopOfFunnelTrend data={topOfFunnelData} mode={topOfFunnelMode} />
+      {/* Top-of-funnel trend.
+          - Last 30 days: daily (matches KPI) + duplicate weekly (same strict
+            30 days, Mon-Sun bucketed; partial leading/trailing bars).
+          - Last 4 weeks: 4 complete Mon-Sun + current in-progress week (5 bars).
+          - YTD: Mon-Sun weeks from Jan 1 through current week.
+          Sum of bars always equals the KPI total for the active mode. */}
+      {is30d && (
+        <TopOfFunnelTrend
+          data={TOP_OF_FUNNEL_DAILY_30D}
+          weeklyData={TOP_OF_FUNNEL_WEEKLY_30D}
+          mode="daily"
+        />
+      )}
+      {is4w && (
+        <TopOfFunnelTrend
+          data={TOP_OF_FUNNEL_WEEKLY_4W}
+          mode="weekly"
+          footnoteOverride={
+            <>
+              * Bars are 4 complete <strong>Mon–Sun</strong> weeks plus the <strong>current
+              in-progress week</strong> (hatched). Sum of all 5 bars equals the KPI total above.
+            </>
+          }
+        />
+      )}
+      {isYtd && (
+        <TopOfFunnelTrend
+          data={TOP_OF_FUNNEL_WEEKLY_YTD}
+          mode="weekly"
+          footnoteOverride={
+            <>
+              * Bars are <strong>Mon–Sun weeks</strong> from {YTD_RANGE_LABEL}. The
+              current in-progress week is hatched. Sum of bars equals the YTD KPI total above.
+            </>
+          }
+        />
+      )}
 
       {/* Self-reported channel mix — two cards side-by-side.
           Customer signups by channel (Amplitude, L4w window) and Sales

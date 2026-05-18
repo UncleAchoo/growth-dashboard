@@ -35,12 +35,10 @@ const PEEC_API_KEY   = process.env.PEEC_API_KEY;
 const PEEC_API_BASE  = process.env.PEEC_API_BASE || 'https://app.peec.ai/api/v1';
 const PEEC_PROJECT_ID = process.env.PEEC_PROJECT_ID || 'or_0887d1ed-129a-4dcd-a14c-d5fd9905d06c';
 const PEEC_MUTINY_BRAND_ID = process.env.PEEC_MUTINY_BRAND_ID || 'kw_7af93fc0-d981-4f63-86d5-0fc3348809b3';
-// Last-60-days canonical window, expanded backwards to the Monday of the
-// week containing (today - 60 days). The 60-day reach enables "Last 30 days
-// vs prior 30 days" deltas on the KPI cards. The dashboard's KPI cards and
-// most charts still filter to the strict 30-day window via inStrictWindow()
-// in the JSX, so KPIs don't drift; only the prior-period comparisons use
-// the older slice.
+// Window covers BOTH the YTD-view need (Jan 1 of the current year → today)
+// AND the "vs prior 30d" delta need (60 days back, Monday-aligned). Pulls
+// whichever is earlier so both views have data. In practice, after a couple
+// months into the year, Jan 1 is always earlier than the 60-day floor.
 //
 // Override via WINDOW_START / WINDOW_END for backfill or QA.
 // (Peec keeps its own window — its data doesn't go back as far.)
@@ -48,6 +46,10 @@ function isoMinus60() {
   const d = new Date();
   d.setUTCDate(d.getUTCDate() - 60);
   return d.toISOString().slice(0, 10);
+}
+function isoYearStart() {
+  const d = new Date();
+  return new Date(Date.UTC(d.getUTCFullYear(), 0, 1)).toISOString().slice(0, 10);
 }
 function mondayOfISO(isoDate) {
   // isoDate: 'YYYY-MM-DD'. Returns the Mon of the Mon-Sun week containing it.
@@ -58,7 +60,12 @@ function mondayOfISO(isoDate) {
   return d.toISOString().slice(0, 10);
 }
 const PEEC_WINDOW_START = process.env.PEEC_WINDOW_START || '2026-04-23';
-const WINDOW_START   = process.env.WINDOW_START || mondayOfISO(isoMinus60());
+const _defaultWindowStart = (() => {
+  const minus60Mon = mondayOfISO(isoMinus60());
+  const yearStart  = isoYearStart();
+  return minus60Mon < yearStart ? minus60Mon : yearStart;
+})();
+const WINDOW_START   = process.env.WINDOW_START || _defaultWindowStart;
 const WINDOW_END     = process.env.WINDOW_END   || new Date().toISOString().slice(0, 10);
 const OUT_PATH       = 'src/data.json';
 
