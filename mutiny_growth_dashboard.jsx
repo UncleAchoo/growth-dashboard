@@ -529,7 +529,7 @@ const KNOWN_EMPLOYER_MENTIONS = /^(BMC|Homebase|Slack|calm|sequoia|Team|SWI)$|we
 
 const CATEGORIZATION_RULES = [
   // Specific brand/community names first, before generic keywords might catch them
-  { match: /linkedin/i,                                                  bucket: 'LinkedIn' },
+  { match: /linked[\s-]?in/i,                                            bucket: 'LinkedIn' },
   { match: /chatgpt|chat gpt|claude|perplexity|gemini|copilot|\bai\b/i,  bucket: 'LLM' },
   { match: /y\s?combinator|\byc\b/i,                                     bucket: 'YC' },
   { match: /mkt1|hbs|alumni|community|30\s?mpc/i,                        bucket: 'Influencer / Community' },
