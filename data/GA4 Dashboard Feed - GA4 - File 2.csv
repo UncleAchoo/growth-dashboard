@@ -13,7 +13,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260515,Organic Search,google / organic,3
 20260516,Direct,(direct) / (none),3
 20260517,Direct,(direct) / (none),3
-20260511,Organic Social,linkedin / social,2
+20260511,Organic Social,linkedin / social,linkedin / social
 20260514,Referral,chatgpt.com / referral,2
 20260515,Direct,(direct) / (none),2
 20260507,Organic Social,linkedin.com / referral,1
@@ -29,3 +29,4 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260517,Email,hs_automation / email,1
 20260517,Organic Search,google / organic,1
 20260517,Referral,ycombinator.com / referral,1
+20260518,Organic Search,google / organic,1
