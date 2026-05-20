@@ -3076,21 +3076,6 @@ export default function MutinyGrowthDashboard() {
             Click a row for source breakdown
           </div>
 
-          {/* Footnote / what this tells us */}
-          <div
-            style={{
-              marginTop: 16,
-              fontFamily: FONT_BODY,
-              fontSize: 11.5,
-              lineHeight: 1.5,
-              opacity: 0.7,
-            }}
-          >
-            LinkedIn and Search are the highest-converting channels (13% and 3%
-            respectively). Direct dominates volume but converts at 0.14% — consistent
-            with bots and dark social. Sample sizes are tiny; rates will stabilize
-            as data accumulates.
-          </div>
           </div>{/* end marginTop:auto wrapper */}
 
         </div>
