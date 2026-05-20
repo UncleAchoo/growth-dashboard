@@ -671,25 +671,30 @@ const CATEGORIZATION_RULES = [
   { match: /linked[\s-]?in/i,                                            bucket: 'LinkedIn' },
   { match: /chatgpt|chat gpt|claude|perplexity|gemini|copilot|\bai\b/i,  bucket: 'LLM' },
   { match: /y\s?combinator|\byc\b/i,                                     bucket: 'YC' },
-  { match: /mkt1|hbs|alumni|community|30\s?mpc/i,                        bucket: 'Influencer / Community' },
+  // Influencer / Community — broadened to include known names (Emily Kramer,
+  // Jaleh) that came up in real responses. Add new names here as they appear.
+  { match: /mkt1|hbs|alumni|community|30\s?mpc|emily\s?kramer|\bjaleh\b/i, bucket: 'Influencer / Community' },
   { match: /podcast/i,                                                   bucket: 'Influencer / Community' }, // collapsed bucket
   // Word-of-mouth signals — anything indicating "heard about Mutiny from a real
   // person." Covers people the user knows (friend/colleague/coworker/manager/
   // teacher/CEO/VP/boss/buddy), the abbreviation WOM, "(someone) is a fan"
-  // phrasings, and known employer mentions ("heard about it at BMC/Slack/etc.").
+  // phrasings, "previous customer" / standalone "referral" responses, and
+  // known employer mentions ("heard about it at BMC/Slack/etc.").
   // `colleag` stem catches both "colleague" and the typo "collegaue".
   // `\bfan\b` is safe here — in a "how did you hear" field, "fan" almost
   // always means a third party is enthusiastic about Mutiny.
   { match: new RegExp(
-      /friend|colleagu|collegau|co[-\s]?worker|referred|recommendation|word of mouth|\bWOM\b|\bmanager\b|\bteacher\b|\bceo\b|\bVP\b|\bboss\b|\bfan\b|\bbuddy\b|\bhubby\b|\bwife\b|\bhusband\b|\bspouse\b|\binvestor\b|\bruben\b/.source
+      /friend|colleagu|collegau|co[-\s]?worker|referred|recommendation|word of mouth|\bWOM\b|\bmanager\b|\bteacher\b|\bceo\b|\bVP\b|\bboss\b|\bfan\b|\bbuddy\b|\bhubby\b|\bwife\b|\bhusband\b|\bspouse\b|\binvestor\b|\bruben\b|previous\s?customer|\breferral\b/.source
       + '|' + KNOWN_EMPLOYER_MENTIONS.source, 'i'),
     bucket: 'Word of Mouth' },
-  // Search-related — add 'organic' for "organic search" shorthand
-  { match: /google|googl|search|^web$|^organic$/i,                       bucket: 'Search' },
+  // Search-related — add 'organic' for "organic search" shorthand, and
+  // 'online' for vague "found you online" responses.
+  { match: /google|googl|search|^web$|^organic$|^online$/i,              bucket: 'Search' },
   // Social — X/Twitter, Reddit, Facebook (incl. FB shorthand), Instagram.
-  // FB-as-shorthand-for-Facebook added May 14, 2026 after it appeared in
-  // the Amplitude referral_source pull.
-  { match: /\bx post\b|twitter|reddit|facebook|^fb$|^fb\b|instagram/i,    bucket: 'Social' },
+  // FB-as-shorthand-for-Facebook added May 14, 2026. Plain "Email" responses
+  // (per design call, treated as a social/outbound channel rather than its
+  // own bucket) added May 20, 2026.
+  { match: /\bx post\b|twitter|reddit|facebook|^fb$|^fb\b|instagram|^email$/i, bucket: 'Social' },
   // Joke / Invalid — fate/destiny, test/demo, empty/punctuation, joke phrases.
   // Captured as a distinct bucket (vs Other) so the pie's "Other" stays small
   // and represents genuinely unclear-but-real responses rather than noise.
