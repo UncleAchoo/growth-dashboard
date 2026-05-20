@@ -25,6 +25,7 @@ const C = {
   lightGrey: '#EFEFEF',
   white: '#FFFFFF',
   paper: '#FAF8F4', // off-white editorial background
+  linkedinBlue: '#0A66C2', // LinkedIn brand blue (for LinkedIn-specific viz)
 };
 
 const FONT_DISPLAY = "'Fraunces', 'Reckless Condensed S', Georgia, serif";
@@ -669,7 +670,7 @@ const KNOWN_EMPLOYER_MENTIONS = /^(BMC|Homebase|Slack|calm|sequoia|Team|SWI)$|we
 const CATEGORIZATION_RULES = [
   // Specific brand/community names first, before generic keywords might catch them
   { match: /linked[\s-]?in/i,                                            bucket: 'LinkedIn' },
-  { match: /chatgpt|chat gpt|claude|perplexity|gemini|copilot|\bai\b/i,  bucket: 'LLM' },
+  { match: /chatgpt|chat gpt|claude|perplexity|gemini|copilot|\bai\b/i,  bucket: 'AEO' },
   { match: /y\s?combinator|\byc\b/i,                                     bucket: 'YC' },
   // Influencer / Community — broadened to include known names (Emily Kramer,
   // Jaleh) that came up in real responses. Add new names here as they appear.
@@ -721,10 +722,10 @@ function categorizeReferralSource(raw) {
 const BUCKET_DEFINITIONS = [
   { name: 'Word of Mouth',          color: C.purple },
   { name: 'Search',                 color: C.lightBlue },
-  { name: 'LLM',                    color: C.green },
+  { name: 'AEO',                    color: C.green },
   { name: 'Influencer / Community', color: C.lightPurple },
   { name: 'YC',                     color: C.red },
-  { name: 'LinkedIn',                color: C.blue },
+  { name: 'LinkedIn',                color: C.linkedinBlue },
   { name: 'Social',                  color: C.lightRed },
   { name: 'Joke / Invalid',          color: '#9D9D9D' },
   { name: 'Other / Unparseable',     color: C.black },
@@ -852,7 +853,7 @@ const SIGNUPS_CHANNEL_COLORS = {
   'Search':     C.blue,
   'Referral':   C.purple,
   'Social':     C.lightPurple,
-  'LinkedIn':   C.lightBlue,
+  'LinkedIn':   C.linkedinBlue,
   'Email':      C.red,
   'Unassigned': '#D5D5D5',
   'AEO':        C.green,
@@ -1051,16 +1052,16 @@ function computeWebSessionsWeekly() {
 // `accentColor` is used for the right-edge stripe and KPI tile accent.
 // ---------------------------------------------------------------------------
 const LINKEDIN_DEEP_DIVE = {
-  name: 'LinkedIn',
+  name: 'LinkedIn Signup Attribution',
   subtitle: 'Organic posts and thought leadership',
   iconLabel: 'in',
-  iconBg: C.lightBlue,
-  accentColor: C.lightBlue,
-  series: [{ key: 'LinkedIn', label: 'LinkedIn', color: C.lightBlue }],
+  iconBg: C.linkedinBlue,
+  accentColor: C.linkedinBlue,
+  series: [{ key: 'LinkedIn', label: 'LinkedIn', color: C.linkedinBlue }],
 };
 
 const AEO_DEEP_DIVE = {
-  name: 'AEO + Search',
+  name: 'AEO + Search Signup Attribution',
   subtitle: 'Signups attributed to AI engines (ChatGPT, Claude, Perplexity, Gemini) and search engines (Google, Bing, DuckDuckGo)',
   iconLabel: 'A',
   iconBg: C.green,
@@ -2321,7 +2322,7 @@ export default function MutinyGrowthDashboard() {
           label="Website Visitors"
           value={kpiSessions.toLocaleString()}
           sublabel="Engaged Sessions · GA4"
-          footnote="Engaged Sessions used as bot-resistant proxy (LLM crawlers inflated Total Users in March)."
+          footnote="Engaged Sessions used as bot-resistant proxy (AEO crawlers inflated Total Users in March)."
           bgColor={C.lightBlue}
           accentColor={C.blue}
           dateRangeLabel={kpiDateRangeLabel}
@@ -2441,10 +2442,7 @@ export default function MutinyGrowthDashboard() {
           infoTooltip={`Self-reported referral_source at Company Setup. ${pieSignupsTotal} signups categorized in window (${activeWindowLabel}). 11 mutinyhq.com test accounts excluded at the Amplitude query layer. Bucketing is rule-based — see the Definitions panel at the bottom for the full rule set.`}
           alertBanner={
             <>
-              Reliable data begins <strong>Monday, May 4, 2026</strong>. The
-              {' '}<code style={{ fontFamily: "'Geist Mono', monospace", fontSize: 11, background: 'rgba(0,0,0,0.06)', padding: '0 4px', borderRadius: 2 }}>referral_source</code>{' '}
-              property on the onboarding form wasn't populated before then — earlier signups
-              are missing source attribution and are excluded from this pie.
+              Reliable data begins <strong>Monday, May 4, 2026</strong>.
             </>
           }
         />
@@ -2519,25 +2517,6 @@ export default function MutinyGrowthDashboard() {
         </div>
       </div>
 
-      {/* Eyebrow */}
-      <div
-        style={{
-          fontFamily: FONT_BODY,
-          fontWeight: 700,
-          fontSize: 11,
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          opacity: 0.7,
-          marginBottom: 8,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-        }}
-      >
-        <span>Signup Form Clicks by Channel</span>
-        <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
-      </div>
-
       <section
         style={{
           background: C.white,
@@ -2569,11 +2548,7 @@ export default function MutinyGrowthDashboard() {
         >
           <span style={{ fontSize: 14, lineHeight: 1, marginTop: 1 }}>⚠️</span>
           <div>
-            Reliable data begins <strong>Wednesday, {ATTRIBUTION_START_LABEL}</strong>. The
-            <code style={{ fontFamily: "'Geist Mono', monospace", fontSize: 11, background: 'rgba(0,0,0,0.06)', padding: '0 4px', borderRadius: 2, margin: '0 3px' }}>plg_signup_click</code>
-            event was under setup and only intermittently active prior to that date. Earlier
-            weeks appear as empty bars for X-axis consistency — they represent missing data, not
-            zero activity, and shouldn't be used for comparison.
+            Reliable programmatic GA4 data begins <strong>Wednesday, {ATTRIBUTION_START_LABEL}</strong>.
           </div>
         </div>
 
@@ -3135,23 +3110,6 @@ export default function MutinyGrowthDashboard() {
       </section>
 
       {/* ── Website Visitors ── */}
-      <div
-        style={{
-          fontFamily: FONT_BODY,
-          fontWeight: 700,
-          fontSize: 11,
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          opacity: 0.7,
-          marginBottom: 8,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-        }}
-      >
-        <span>Website Visitors · GA4 engaged sessions by channel</span>
-        <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
-      </div>
       <section
         style={{
           background: C.white,
@@ -3220,32 +3178,6 @@ export default function MutinyGrowthDashboard() {
               >
                 All website visitors by attribution channel
               </div>
-            </div>
-          </div>
-          <div style={{ textAlign: 'right', flexShrink: 0 }}>
-            <div
-              style={{
-                fontFamily: FONT_BODY,
-                fontWeight: 700,
-                fontSize: 10,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                opacity: 0.7,
-                marginBottom: 4,
-              }}
-            >
-              Engaged Sessions · {windowLabel}
-            </div>
-            <div
-              style={{
-                fontFamily: FONT_DISPLAY,
-                fontSize: 38,
-                lineHeight: 1,
-                letterSpacing: '-0.02em',
-                fontVariantNumeric: 'tabular-nums',
-              }}
-            >
-              {DATA.engagedSessions.window.toLocaleString()}
             </div>
           </div>
         </div>
@@ -3435,24 +3367,6 @@ export default function MutinyGrowthDashboard() {
             Flex column + marginTop:auto wrapper pushes the table to the
             bottom so its last row aligns with the chart's x-axis. */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ marginBottom: 12 }}>
-            <div
-              style={{
-                fontFamily: FONT_BODY,
-                fontWeight: 600,
-                fontSize: 14,
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: 10,
-              }}
-            >
-              Sources · {windowLabel}
-              <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
-                Engaged sessions by channel
-              </span>
-            </div>
-          </div>
-
           <div style={{ marginTop: 'auto' }}>
           {(() => {
             // Aggregate per-channel sessions across all weekly buckets.
@@ -3604,23 +3518,6 @@ export default function MutinyGrowthDashboard() {
       </section>
 
       {/* ── LinkedIn deep-dive ── */}
-      <div
-        style={{
-          fontFamily: FONT_BODY,
-          fontWeight: 700,
-          fontSize: 11,
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          opacity: 0.7,
-          marginBottom: 8,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-        }}
-      >
-        <span>LinkedIn · GA4 plg_signup_click (* from May 7)</span>
-        <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
-      </div>
       <ChannelDeepDive
         data={LINKEDIN_DEEP_DIVE}
         weekly={linkedinWeekly}
@@ -3629,29 +3526,12 @@ export default function MutinyGrowthDashboard() {
         extraChart={
           <SelfReportedSourcesChart
             title="LinkedIn"
-            targets={[{ name: 'LinkedIn', color: C.blue }]}
+            targets={[{ name: 'LinkedIn', color: C.linkedinBlue }]}
           />
         }
       />
 
       {/* ── AEO deep-dive ── */}
-      <div
-        style={{
-          fontFamily: FONT_BODY,
-          fontWeight: 700,
-          fontSize: 11,
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          opacity: 0.7,
-          marginBottom: 8,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-        }}
-      >
-        <span>AEO + Search · Signup attribution</span>
-        <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
-      </div>
       <ChannelDeepDive
         data={AEO_DEEP_DIVE}
         weekly={aeoChannelWeekly}
@@ -3659,9 +3539,9 @@ export default function MutinyGrowthDashboard() {
         windowLabel={windowLabel}
         extraChart={
           <SelfReportedSourcesChart
-            title="LLM + Search"
+            title="AEO + Search"
             targets={[
-              { name: 'LLM',    color: C.green },
+              { name: 'AEO',    color: C.green },
               { name: 'Search', color: C.lightBlue },
             ]}
           />
@@ -3806,7 +3686,7 @@ export default function MutinyGrowthDashboard() {
             body={
               <>
                 Sum of daily <em>Engaged Sessions</em> from GA4, not Total Users. An Engaged Session = &gt;10s
-                duration, a conversion event, or 2+ pageviews. We use this because LLM crawlers (GPTBot,
+                duration, a conversion event, or 2+ pageviews. We use this because AEO crawlers (GPTBot,
                 ClaudeBot, PerplexityBot, etc.) materially inflated Total Users in March 2026 — engagement
                 rate on the spike days dropped to 0.5–7% vs. a 40–60% baseline. Engaged Sessions filter
                 that out implicitly.
@@ -3829,7 +3709,7 @@ export default function MutinyGrowthDashboard() {
               <>
                 Self-reported <code style={codeStyle}>referral_source</code> from the onboarding
                 form (Amplitude event <code style={codeStyle}>[Onboarding] Company Setup Complete</code>),
-                bucketed into 9 categories: Word of Mouth, Search, LLM, Influencer /
+                bucketed into 9 categories: Word of Mouth, Search, AEO, Influencer /
                 Community, YC, LinkedIn, Social, Joke / Invalid, and Other / Unparseable.
                 Bucketing is rule-based (regex patterns) — see <em>Share of Signups · how
                 buckets are assigned</em> below. Hover any slice to see the raw responses
@@ -3846,7 +3726,7 @@ export default function MutinyGrowthDashboard() {
                 rules pipeline. Order matters; first match wins.
                 <ul style={{ margin: '6px 0 0 0', paddingLeft: 18 }}>
                   <li><strong>LinkedIn</strong> — contains "linkedin"</li>
-                  <li><strong>LLM</strong> — contains chatgpt, claude, perplexity, gemini, copilot, or "ai" as a whole word</li>
+                  <li><strong>AEO</strong> — contains chatgpt, claude, perplexity, gemini, copilot, or "ai" as a whole word</li>
                   <li><strong>YC</strong> — matches "y combinator" or "yc" as a whole word (catches "YC Video" too)</li>
                   <li><strong>Influencer / Community</strong> — mkt1, hbs, alumni, community, 30mpc, podcast</li>
                   <li><strong>Word of Mouth</strong> — friend, colleague (incl. typo "collegaue"), coworker, manager, teacher, CEO, VP, boss, buddy, referred, recommendation, "word of mouth", "WOM", anyone described as a fan ("Our Group CEO is a huge fan"), AND single-token employer mentions (BMC, Homebase, Slack, calm, sequoia, Team, "we use it at X") read as "heard from coworkers there." The signal is "heard from a real person."</li>
@@ -4755,7 +4635,7 @@ function AEOVisibilityChart({ visible, dailySlice = AEO.daily }) {
 // ---------------------------------------------------------------------------
 // SelfReportedSourcesChart — weekly stacked column chart for one or more
 // self-reported referral_source buckets from the Customer signups by channel
-// pie. Reused in the AEO+Search section (LLM+Search) and the LinkedIn section
+// pie. Reused in the AEO+Search section (AEO+Search) and the LinkedIn section
 // (LinkedIn). Chart-area height matches the parent ChannelDeepDive's main
 // chart so the two sit at the same visual weight side-by-side.
 // ---------------------------------------------------------------------------
@@ -4838,9 +4718,9 @@ function SelfReportedSourcesChart({ title, targets }) {
             gap: 10,
           }}
         >
-          {title}
+          <SelfReportedTag />
           <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
-            self-reported · weekly
+            weekly
           </span>
         </div>
       </div>
@@ -5446,8 +5326,7 @@ function ChannelDeepDive({ data, weekly, signupsWindow, windowLabel, extraChart 
       >
         <span style={{ fontSize: 14, lineHeight: 1, marginTop: 1 }}>⚠️</span>
         <div>
-          Data shown starts <strong>Wednesday, {ATTRIBUTION_START_LABEL}</strong> — see the
-          Signup Form Clicks by Channel section above for context.
+          Reliable programmatic GA4 data begins <strong>Wednesday, {ATTRIBUTION_START_LABEL}</strong>.
         </div>
       </div>
 
@@ -5497,7 +5376,6 @@ function ChannelDeepDive({ data, weekly, signupsWindow, windowLabel, extraChart 
               }}
             >
               {data.name}
-              <ProgrammaticTag />
             </h2>
             <div
               style={{
@@ -5538,7 +5416,7 @@ function ChannelDeepDive({ data, weekly, signupsWindow, windowLabel, extraChart 
             gap: 10,
           }}
         >
-          Signup clicks · weekly
+          <ProgrammaticTag />
           <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
             Self-serve signup clicks{data.series.length > 1 ? ' · stacked by channel' : ''}
           </span>
