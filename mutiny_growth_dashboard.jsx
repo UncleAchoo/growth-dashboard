@@ -5513,33 +5513,8 @@ function ChannelDeepDive({ data, weekly, signupsWindow, windowLabel, extraChart 
           </div>
         </div>
 
-        {/* KPI tile */}
-        <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div
-            style={{
-              fontFamily: FONT_BODY,
-              fontWeight: 700,
-              fontSize: 10,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              opacity: 0.7,
-              marginBottom: 4,
-            }}
-          >
-            Signups · {windowLabel}
-          </div>
-          <div
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontSize: 38,
-              lineHeight: 1,
-              letterSpacing: '-0.02em',
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            {signupsWindow}
-          </div>
-        </div>
+        {/* (KPI tile removed — section totals now surface in the chart
+            cards below instead of the deep-dive header.) */}
       </div>
 
       {/* Chart area — single column or 2-col grid based on extraChart prop */}
