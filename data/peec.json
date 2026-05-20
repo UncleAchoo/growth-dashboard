@@ -1,5 +1,5 @@
 {
-  "pulledAt": "2026-05-21T00:00:00Z",
+  "pulledAt": "2026-05-20T23:27:40.638Z",
   "windowStart": "2026-04-23",
   "windowEnd": "2026-05-20",
   "visibility": 0.1696,
@@ -51,12 +51,12 @@
   "daily": [
     {
       "date": "2026-04-23",
-      "visibility": 0.0573,
+      "visibility": 0.1735,
       "Competitor Comparisons": null,
       "ABM": 0.2099,
       "Modern GTM tech stack": 0.0505,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-04-24",
@@ -64,8 +64,8 @@
       "Competitor Comparisons": null,
       "ABM": 0.2222,
       "Modern GTM tech stack": 0.0909,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-04-25",
@@ -73,17 +73,17 @@
       "Competitor Comparisons": null,
       "ABM": 0.2593,
       "Modern GTM tech stack": 0.0938,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-04-26",
       "visibility": 0.0435,
       "Competitor Comparisons": null,
       "ABM": 0.16,
-      "Modern GTM tech stack": 0.0312,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "Modern GTM tech stack": 0.0313,
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-04-27",
@@ -91,8 +91,8 @@
       "Competitor Comparisons": null,
       "ABM": 0.1111,
       "Modern GTM tech stack": 0.0625,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-04-28",
@@ -100,8 +100,8 @@
       "Competitor Comparisons": null,
       "ABM": 0.2593,
       "Modern GTM tech stack": 0.0303,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-04-29",
@@ -109,8 +109,8 @@
       "Competitor Comparisons": null,
       "ABM": 0.1923,
       "Modern GTM tech stack": 0.0303,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-04-30",
@@ -118,8 +118,8 @@
       "Competitor Comparisons": null,
       "ABM": 0.2593,
       "Modern GTM tech stack": 0.0909,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-05-01",
@@ -127,8 +127,8 @@
       "Competitor Comparisons": null,
       "ABM": 0.3333,
       "Modern GTM tech stack": 0.0909,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-05-02",
@@ -136,8 +136,8 @@
       "Competitor Comparisons": null,
       "ABM": 0.3333,
       "Modern GTM tech stack": 0.0909,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-05-03",
@@ -145,17 +145,17 @@
       "Competitor Comparisons": null,
       "ABM": 0.1923,
       "Modern GTM tech stack": 0.0645,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-05-04",
       "visibility": 0.075,
       "Competitor Comparisons": null,
       "ABM": 0.3077,
-      "Modern GTM tech stack": 0.0312,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "Modern GTM tech stack": 0.0313,
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-05-05",
@@ -173,7 +173,7 @@
       "ABM": 0.1707,
       "Modern GTM tech stack": 0.0556,
       "AI Sales Tools": 0.0256,
-      "AI Sales Enablement": 0.0
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-05-07",
@@ -190,8 +190,8 @@
       "Competitor Comparisons": 0.6481,
       "ABM": 0.1489,
       "Modern GTM tech stack": 0.0513,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-05-09",
@@ -199,8 +199,8 @@
       "Competitor Comparisons": 0.6296,
       "ABM": 0.1667,
       "Modern GTM tech stack": 0.0256,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-05-10",
@@ -208,8 +208,8 @@
       "Competitor Comparisons": 0.6545,
       "ABM": 0.125,
       "Modern GTM tech stack": 0.0513,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-05-11",
@@ -217,8 +217,8 @@
       "Competitor Comparisons": 0.6296,
       "ABM": 0.0638,
       "Modern GTM tech stack": 0.0513,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-05-12",
@@ -226,7 +226,7 @@
       "Competitor Comparisons": 0.6481,
       "ABM": 0.1458,
       "Modern GTM tech stack": 0.0256,
-      "AI Sales Tools": 0.0,
+      "AI Sales Tools": 0,
       "AI Sales Enablement": 0.0196
     },
     {
@@ -235,8 +235,8 @@
       "Competitor Comparisons": 0.6481,
       "ABM": 0.1875,
       "Modern GTM tech stack": 0.0256,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-05-14",
@@ -244,8 +244,8 @@
       "Competitor Comparisons": 0.6792,
       "ABM": 0.1667,
       "Modern GTM tech stack": 0.0513,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-05-15",
@@ -253,7 +253,7 @@
       "Competitor Comparisons": 0.6604,
       "ABM": 0.1702,
       "Modern GTM tech stack": 0.0513,
-      "AI Sales Tools": 0.0,
+      "AI Sales Tools": 0,
       "AI Sales Enablement": 0.0196
     },
     {
@@ -262,8 +262,8 @@
       "Competitor Comparisons": 0.6154,
       "ABM": 0.234,
       "Modern GTM tech stack": 0.0769,
-      "AI Sales Tools": 0.0,
-      "AI Sales Enablement": 0.0
+      "AI Sales Tools": 0,
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-05-17",
@@ -272,7 +272,7 @@
       "ABM": 0.2917,
       "Modern GTM tech stack": 0.0256,
       "AI Sales Tools": 0.1053,
-      "AI Sales Enablement": 0.0
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-05-18",
@@ -281,7 +281,7 @@
       "ABM": 0.1667,
       "Modern GTM tech stack": 0.0638,
       "AI Sales Tools": 0.0435,
-      "AI Sales Enablement": 0.0
+      "AI Sales Enablement": 0
     },
     {
       "date": "2026-05-19",
@@ -299,7 +299,7 @@
       "ABM": 0.3137,
       "Modern GTM tech stack": 0.0714,
       "AI Sales Tools": 0.0702,
-      "AI Sales Enablement": 0.0
+      "AI Sales Enablement": 0
     }
   ],
   "sources": {
@@ -308,137 +308,89 @@
         {
           "date": "2026-04-23",
           "Total": 114,
-          "Competitor Comparisons": null,
-          "ABM": 12,
-          "Modern GTM tech stack": null,
-          "AI Sales Tools": null,
-          "AI Sales Enablement": null
+          "ABM": 12
         },
         {
           "date": "2026-04-24",
           "Total": 3,
-          "Competitor Comparisons": null,
-          "ABM": 3,
-          "Modern GTM tech stack": null,
-          "AI Sales Tools": null,
-          "AI Sales Enablement": null
+          "ABM": 3
         },
         {
           "date": "2026-04-25",
           "Total": 8,
-          "Competitor Comparisons": null,
           "ABM": 6,
-          "Modern GTM tech stack": null,
-          "AI Sales Tools": null,
           "AI Sales Enablement": 1
         },
         {
           "date": "2026-04-26",
           "Total": 4,
-          "Competitor Comparisons": null,
-          "ABM": 4,
-          "Modern GTM tech stack": null,
-          "AI Sales Tools": null,
-          "AI Sales Enablement": 0
+          "ABM": 4
         },
         {
           "date": "2026-04-27",
           "Total": 5,
-          "Competitor Comparisons": null,
-          "ABM": 5,
-          "Modern GTM tech stack": null,
-          "AI Sales Tools": null,
-          "AI Sales Enablement": 0
+          "ABM": 5
         },
         {
           "date": "2026-04-28",
           "Total": 5,
-          "Competitor Comparisons": null,
-          "ABM": 5,
-          "Modern GTM tech stack": null,
-          "AI Sales Tools": null,
-          "AI Sales Enablement": 0
+          "ABM": 5
         },
         {
           "date": "2026-04-29",
           "Total": 5,
-          "Competitor Comparisons": null,
           "ABM": 4,
-          "Modern GTM tech stack": 1,
-          "AI Sales Tools": null,
-          "AI Sales Enablement": 0
+          "Modern GTM tech stack": 1
         },
         {
           "date": "2026-04-30",
           "Total": 5,
-          "Competitor Comparisons": null,
-          "ABM": 5,
-          "Modern GTM tech stack": 0,
-          "AI Sales Tools": null,
-          "AI Sales Enablement": 0
+          "ABM": 5
         },
         {
           "date": "2026-05-01",
           "Total": 7,
-          "Competitor Comparisons": null,
-          "ABM": 7,
-          "Modern GTM tech stack": 0,
-          "AI Sales Tools": null,
-          "AI Sales Enablement": 0
+          "ABM": 7
         },
         {
           "date": "2026-05-02",
           "Total": 5,
-          "Competitor Comparisons": null,
           "ABM": 4,
-          "Modern GTM tech stack": 1,
-          "AI Sales Tools": null,
-          "AI Sales Enablement": 0
+          "Modern GTM tech stack": 1
         },
         {
           "date": "2026-05-03",
           "Total": 4,
-          "Competitor Comparisons": null,
-          "ABM": 4,
-          "Modern GTM tech stack": 0,
-          "AI Sales Tools": null,
-          "AI Sales Enablement": 0
+          "ABM": 4
         },
         {
           "date": "2026-05-04",
           "Total": 5,
-          "Competitor Comparisons": null,
-          "ABM": 5,
-          "Modern GTM tech stack": 0,
-          "AI Sales Tools": null,
-          "AI Sales Enablement": 0
+          "ABM": 5
         },
         {
           "date": "2026-05-05",
           "Total": 52,
           "Competitor Comparisons": 31,
           "ABM": 18,
-          "Modern GTM tech stack": 1,
           "AI Sales Tools": 5,
-          "AI Sales Enablement": 0
+          "Modern GTM tech stack": 1
         },
         {
           "date": "2026-05-06",
           "Total": 15,
           "Competitor Comparisons": 8,
           "ABM": 4,
-          "Modern GTM tech stack": 1,
           "AI Sales Tools": 3,
-          "AI Sales Enablement": 0
+          "Modern GTM tech stack": 1
         },
         {
           "date": "2026-05-07",
           "Total": 27,
           "Competitor Comparisons": 17,
           "ABM": 6,
-          "Modern GTM tech stack": 2,
           "AI Sales Tools": 2,
-          "AI Sales Enablement": 0
+          "Modern GTM tech stack": 2
         },
         {
           "date": "2026-05-08",
@@ -446,16 +398,15 @@
           "Competitor Comparisons": 18,
           "ABM": 9,
           "Modern GTM tech stack": 1,
-          "AI Sales Tools": 1,
-          "AI Sales Enablement": 0
+          "AI Sales Tools": 1
         },
         {
           "date": "2026-05-09",
           "Total": 33,
           "Competitor Comparisons": 19,
           "ABM": 7,
-          "Modern GTM tech stack": 2,
           "AI Sales Tools": 3,
+          "Modern GTM tech stack": 2,
           "AI Sales Enablement": 1
         },
         {
@@ -463,27 +414,25 @@
           "Total": 29,
           "Competitor Comparisons": 17,
           "ABM": 6,
-          "Modern GTM tech stack": 2,
           "AI Sales Tools": 2,
-          "AI Sales Enablement": 2
+          "AI Sales Enablement": 2,
+          "Modern GTM tech stack": 2
         },
         {
           "date": "2026-05-11",
           "Total": 28,
           "Competitor Comparisons": 20,
-          "ABM": 3,
-          "Modern GTM tech stack": 2,
           "AI Sales Tools": 3,
-          "AI Sales Enablement": 0
+          "ABM": 3,
+          "Modern GTM tech stack": 2
         },
         {
           "date": "2026-05-12",
           "Total": 27,
           "Competitor Comparisons": 19,
           "ABM": 5,
-          "Modern GTM tech stack": 1,
           "AI Sales Tools": 2,
-          "AI Sales Enablement": 0
+          "Modern GTM tech stack": 1
         },
         {
           "date": "2026-05-13",
@@ -491,26 +440,22 @@
           "Competitor Comparisons": 21,
           "ABM": 6,
           "Modern GTM tech stack": 3,
-          "AI Sales Tools": 2,
-          "AI Sales Enablement": 0
+          "AI Sales Tools": 2
         },
         {
           "date": "2026-05-14",
           "Total": 26,
           "Competitor Comparisons": 18,
           "ABM": 7,
-          "Modern GTM tech stack": 0,
-          "AI Sales Tools": 1,
-          "AI Sales Enablement": 0
+          "AI Sales Tools": 1
         },
         {
           "date": "2026-05-15",
           "Total": 29,
           "Competitor Comparisons": 19,
           "ABM": 6,
-          "Modern GTM tech stack": 2,
           "AI Sales Tools": 2,
-          "AI Sales Enablement": 0
+          "Modern GTM tech stack": 2
         },
         {
           "date": "2026-05-16",
@@ -518,25 +463,24 @@
           "Competitor Comparisons": 19,
           "ABM": 7,
           "Modern GTM tech stack": 4,
-          "AI Sales Tools": 1,
-          "AI Sales Enablement": 0
+          "AI Sales Tools": 1
         },
         {
           "date": "2026-05-17",
           "Total": 50,
           "Competitor Comparisons": 28,
           "ABM": 11,
-          "Modern GTM tech stack": 2,
           "AI Sales Tools": 9,
+          "Modern GTM tech stack": 2,
           "AI Sales Enablement": 1
         },
         {
           "date": "2026-05-18",
           "Total": 62,
           "Competitor Comparisons": 30,
+          "AI Sales Tools": 14,
           "ABM": 9,
           "Modern GTM tech stack": 6,
-          "AI Sales Tools": 14,
           "AI Sales Enablement": 4
         },
         {
@@ -544,8 +488,8 @@
           "Total": 54,
           "Competitor Comparisons": 30,
           "ABM": 12,
-          "Modern GTM tech stack": 2,
           "AI Sales Tools": 9,
+          "Modern GTM tech stack": 2,
           "AI Sales Enablement": 1
         },
         {
@@ -554,11 +498,17 @@
           "Competitor Comparisons": 31,
           "ABM": 14,
           "AI Sales Tools": 11,
-          "Modern GTM tech stack": 5,
-          "AI Sales Enablement": 4
+          "AI Sales Enablement": 4,
+          "Modern GTM tech stack": 5
         }
       ],
-      "metric": "chats_with_domain",
+      "metric": {
+        "retrievedPct": 0.11,
+        "retrievalRate": 0.18,
+        "citationRate": 1.76,
+        "retrievalCount": 1317,
+        "citationCount": 1336
+      },
       "dailyStats": [
         {
           "date": "2026-04-23",
@@ -596,7 +546,7 @@
           "date": "2026-04-27",
           "retrievedPct": 0.04,
           "retrievalRate": 0.05,
-          "citationRate": 0.0,
+          "citationRate": 0,
           "retrievalCount": 6,
           "citationCount": 0
         },
@@ -620,7 +570,7 @@
           "date": "2026-04-30",
           "retrievedPct": 0.04,
           "retrievalRate": 0.04,
-          "citationRate": 0.0,
+          "citationRate": 0,
           "retrievalCount": 5,
           "citationCount": 0
         },
@@ -636,7 +586,7 @@
           "date": "2026-05-02",
           "retrievedPct": 0.04,
           "retrievalRate": 0.04,
-          "citationRate": 1.0,
+          "citationRate": 1,
           "retrievalCount": 5,
           "citationCount": 5
         },

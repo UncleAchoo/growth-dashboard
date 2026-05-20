@@ -5000,16 +5000,26 @@ function AEOSection() {
   // Slice helper — keep only the last N entries of an array, in their
   // existing order (data is already chronological).
   const sliceLast = (arr, n) => (n == null ? arr : arr.slice(Math.max(0, arr.length - n)));
+  // Slice the N entries IMMEDIATELY BEFORE the trailing N (the prior
+  // equivalent window). Returns [] when there isn't a full prior window.
+  const slicePrev = (arr, n) => {
+    if (n == null) return [];
+    const start = Math.max(0, arr.length - 2 * n);
+    const end = Math.max(0, arr.length - n);
+    return arr.slice(start, end);
+  };
 
   // Filtered slices used by the charts + stats blocks
   const visDaily   = sliceLast(AEO.daily,          activeRange.days);
   const srcDaily   = sliceLast(AEO.sourcesDaily,   activeRange.days);
   const brandStats = sliceLast(AEO.brandDailyStats || [], activeRange.days);
   const srcStats   = sliceLast(AEO.sourcesDailyStats || [], activeRange.days);
+  // Prior-window equivalents — same N days immediately preceding the active window.
+  const brandStatsPrev = slicePrev(AEO.brandDailyStats   || [], activeRange.days);
+  const srcStatsPrev   = slicePrev(AEO.sourcesDailyStats || [], activeRange.days);
 
-  // Window aggregates — sum raw counts so percentages reflect the window,
-  // not an average of per-day ratios.
-  const brandWin = brandStats.reduce(
+  // Reducers — extracted so we can compute current + prior windows with one fn.
+  const reduceBrand = (rows) => rows.reduce(
     (a, r) => ({
       visCount: a.visCount + r.visCount,
       visTotal: a.visTotal + r.visTotal,
@@ -5017,11 +5027,7 @@ function AEOSection() {
     }),
     { visCount: 0, visTotal: 0, mentions: 0 },
   );
-  const brandVisPct = brandWin.visTotal > 0
-    ? (brandWin.visCount / brandWin.visTotal) * 100
-    : 0;
-
-  const srcWin = srcStats.reduce(
+  const reduceSrc = (rows) => rows.reduce(
     (a, r) => {
       const totalChats = r.retrievalRate > 0 ? r.retrievalCount / r.retrievalRate : 0;
       const chatsWithDomain = r.retrievedPct * totalChats;
@@ -5034,12 +5040,46 @@ function AEOSection() {
     },
     { totalChats: 0, chatsWithDomain: 0, retrievalCount: 0, citationCount: 0 },
   );
+
+  // Window aggregates — sum raw counts so percentages reflect the window,
+  // not an average of per-day ratios.
+  const brandWin     = reduceBrand(brandStats);
+  const brandWinPrev = reduceBrand(brandStatsPrev);
+  const brandVisPct  = brandWin.visTotal > 0
+    ? (brandWin.visCount / brandWin.visTotal) * 100
+    : 0;
+  const brandVisPctPrev = brandWinPrev.visTotal > 0
+    ? (brandWinPrev.visCount / brandWinPrev.visTotal) * 100
+    : 0;
+
+  const srcWin     = reduceSrc(srcStats);
+  const srcWinPrev = reduceSrc(srcStatsPrev);
   const srcRetrievedPct = srcWin.totalChats > 0
     ? (srcWin.chatsWithDomain / srcWin.totalChats) * 100
+    : 0;
+  const srcRetrievedPctPrev = srcWinPrev.totalChats > 0
+    ? (srcWinPrev.chatsWithDomain / srcWinPrev.totalChats) * 100
     : 0;
   const srcCitationRate = srcWin.retrievalCount > 0
     ? srcWin.citationCount / srcWin.retrievalCount
     : 0;
+
+  // Helper — relative % change for COUNTS (e.g. # of retrievals).
+  const pctChange = (curr, prev) => {
+    if (!Number.isFinite(prev) || prev === 0) return null;
+    return ((curr - prev) / prev) * 100;
+  };
+  // Helper — absolute percentage-POINT change for PERCENTAGE metrics
+  // (Visibility%, Retrieved%). Matches Peec UI semantics: 21% vs 18.3% = +2.7pp.
+  const ppChange = (curr, prev) => {
+    if (!Number.isFinite(prev)) return null;
+    return curr - prev;
+  };
+  // Deltas for the three stat tiles. null when prior window is empty.
+  const hasPrev          = brandStatsPrev.length > 0 || srcStatsPrev.length > 0;
+  const visPctDelta      = hasPrev ? ppChange(brandVisPct, brandVisPctPrev) : null;
+  const retrievedDelta   = hasPrev ? ppChange(srcRetrievedPct, srcRetrievedPctPrev) : null;
+  const retrievalsDelta  = hasPrev ? pctChange(srcWin.chatsWithDomain, srcWinPrev.chatsWithDomain) : null;
 
   // Compact stat-row used above each chart.
   const StatRow = ({ title, items }) => (
@@ -5080,14 +5120,25 @@ function AEOSection() {
           </div>
           <div
             style={{
-              fontFamily: FONT_DISPLAY,
-              fontSize: 22,
-              lineHeight: 1.1,
-              fontVariantNumeric: 'tabular-nums',
+              display: 'flex',
+              alignItems: 'baseline',
+              gap: 8,
               marginTop: 2,
             }}
           >
-            {it.value}
+            <div
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontSize: 22,
+                lineHeight: 1.1,
+                fontVariantNumeric: 'tabular-nums',
+              }}
+            >
+              {it.value}
+            </div>
+            {it.delta !== undefined && it.delta !== null && Number.isFinite(it.delta) && (
+              <Delta value={it.delta} suffix={it.deltaSuffix || '%'} precision={1} />
+            )}
           </div>
         </div>
       ))}
@@ -5243,7 +5294,7 @@ function AEOSection() {
           <StatRow
             title="Mutiny"
             items={[
-              { label: 'Visibility',  value: `${brandVisPct.toFixed(1)}%` },
+              { label: 'Visibility', value: `${brandVisPct.toFixed(1)}%`, delta: visPctDelta, deltaSuffix: 'pp' },
             ]}
           />
           <AEOVisibilityChart visible={visible} dailySlice={visDaily} />
@@ -5252,12 +5303,13 @@ function AEOSection() {
           <StatRow
             title="mutinyhq.com"
             items={[
-              { label: 'Retrieved',      value: `${srcRetrievedPct.toFixed(1)}%` },
+              { label: 'Retrieved', value: `${srcRetrievedPct.toFixed(1)}%`, delta: retrievedDelta, deltaSuffix: 'pp' },
               {
                 label: '# of retrievals',
                 // Matches Peec UI: counts CHATS where mutinyhq.com appeared
                 // as a citation source (not URL-level retrievals).
                 value: Math.round(srcWin.chatsWithDomain).toLocaleString(),
+                delta: retrievalsDelta,
               },
             ]}
           />
