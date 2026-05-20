@@ -2,7 +2,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260513,Direct,(direct) / (none),21
 20260514,Direct,(direct) / (none),11
 20260514,Organic Search,google / organic,9
-20260519,Direct,(direct) / (none),7
+20260519,Direct,(direct) / (none),8
 20260510,Organic Search,google / organic,6
 20260511,Organic Search,google / organic,5
 20260518,AI Referrals,chatgpt.com / (not set),5
@@ -18,6 +18,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260516,Direct,(direct) / (none),3
 20260517,Direct,(direct) / (none),3
 20260518,Direct,(direct) / (none),3
+20260520,Organic Search,google / organic,3
 20260511,Organic Social,linkedin / social,2
 20260514,Referral,chatgpt.com / referral,2
 20260515,Direct,(direct) / (none),2

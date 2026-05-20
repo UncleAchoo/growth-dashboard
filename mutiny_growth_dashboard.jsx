@@ -1129,12 +1129,44 @@ function buildAEOFromPeec(peec) {
 
   // Daily rows — reformat dates, keep per-topic columns as-is.
   const daily = (peec.daily || []).map((r) => {
-    const out = { date: fmtPeecDate(r.date), visibility: r.visibility };
+    const out = { date: fmtPeecDate(r.date), rawDate: r.date, visibility: r.visibility };
     for (const t of topics) {
       out[t.name] = r[t.name];
     }
     return out;
   });
+
+  // Sources — daily mutinyhq.com retrieval counts broken down by topic.
+  // Shape mirrors the visibility `daily` array so the chart can reuse the
+  // same topic-line + legend convention as AEOVisibilityChart.
+  const sourcesDaily = (peec.sources?.mutinyhq?.daily || []).map((r) => {
+    const out = { date: fmtPeecDate(r.date), rawDate: r.date, Total: r.Total ?? 0 };
+    for (const t of topics) {
+      out[t.name] = r[t.name];  // null | 0 | number
+    }
+    return out;
+  });
+
+  // Raw daily counts for window-aggregated stats above each chart.
+  // brandDailyStats: { date, visCount, visTotal, mentions }
+  // sourcesDailyStats: { date, retrievedPct, retrievalRate, citationRate,
+  //                      retrievalCount, citationCount }
+  const brandDailyStats = (peec.brandDailyStats || []).map((r) => ({
+    date: r.date,
+    label: fmtPeecDate(r.date),
+    visCount: r.visCount,
+    visTotal: r.visTotal,
+    mentions: r.mentions,
+  }));
+  const sourcesDailyStats = (peec.sources?.mutinyhq?.dailyStats || []).map((r) => ({
+    date: r.date,
+    label: fmtPeecDate(r.date),
+    retrievedPct:   r.retrievedPct,
+    retrievalRate:  r.retrievalRate,
+    citationRate:   r.citationRate,
+    retrievalCount: r.retrievalCount,
+    citationCount:  r.citationCount,
+  }));
 
   return {
     windowLabel:     `${startLabel} – ${endLabel}, ${year}`,
@@ -1147,6 +1179,9 @@ function buildAEOFromPeec(peec) {
     topCompetitor:   peec.topCompetitor,
     topics,
     daily,
+    sourcesDaily,
+    brandDailyStats,
+    sourcesDailyStats,
   };
 }
 
@@ -2807,15 +2842,17 @@ export default function MutinyGrowthDashboard() {
                     );
                   }}
                 />
-                {/* Real channel bars, stacked bottom→top */}
+                {/* Real channel bars, stacked bottom→top. Hatched on the
+                    in-progress current week via makeHatchedBarShape. */}
                 {SIGNUPS_STACK_ORDER.map((s) => (
                   <Bar
                     key={s.key}
                     dataKey={s.key}
                     stackId="signups"
-                    fill={s.color}
-                    stroke={C.black}
-                    strokeWidth={s.hero ? 1.2 : 0.5}
+                    shape={makeHatchedBarShape(s.color, {
+                      strokeWidth: s.hero ? 1.2 : 0.5,
+                      idPrefix: 'sufc',
+                    })}
                     isAnimationActive={false}
                   />
                 ))}
@@ -3382,9 +3419,10 @@ export default function MutinyGrowthDashboard() {
                   key={s.key}
                   dataKey={s.key}
                   stackId="web"
-                  fill={s.color}
-                  stroke={C.black}
-                  strokeWidth={s.hero ? 1.2 : 0.5}
+                  shape={makeHatchedBarShape(s.color, {
+                    strokeWidth: s.hero ? 1.2 : 0.5,
+                    idPrefix: 'web',
+                  })}
                   isAnimationActive={false}
                 />
               ))}
@@ -3588,7 +3626,12 @@ export default function MutinyGrowthDashboard() {
         weekly={linkedinWeekly}
         signupsWindow={linkedinWindowSignups}
         windowLabel={windowLabel}
-        extraChart={<LinkedInPlaceholderChart />}
+        extraChart={
+          <SelfReportedSourcesChart
+            title="LinkedIn"
+            targets={[{ name: 'LinkedIn', color: C.blue }]}
+          />
+        }
       />
 
       {/* ── AEO deep-dive ── */}
@@ -3606,7 +3649,7 @@ export default function MutinyGrowthDashboard() {
           gap: 10,
         }}
       >
-        <span>AEO + Search · Signups attribution (* signups from May 7; visibility Apr 23+)</span>
+        <span>AEO + Search · Signup attribution</span>
         <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
       </div>
       <ChannelDeepDive
@@ -3614,8 +3657,39 @@ export default function MutinyGrowthDashboard() {
         weekly={aeoChannelWeekly}
         signupsWindow={aeoChannelWindowSignups}
         windowLabel={windowLabel}
-        extraChart={<AEOVisibilityChart />}
+        extraChart={
+          <SelfReportedSourcesChart
+            title="LLM + Search"
+            targets={[
+              { name: 'LLM',    color: C.green },
+              { name: 'Search', color: C.lightBlue },
+            ]}
+          />
+        }
       />
+
+      {/* AEO Visibility + Source Retrievals — dedicated Peec AI section
+          below the AEO+Search signup-attribution card. Two side-by-side
+          line charts: brand visibility across topics, and the top source
+          domains retrieved by AI engines answering Mutiny-related prompts. */}
+      <div
+        style={{
+          fontFamily: FONT_BODY,
+          fontWeight: 700,
+          fontSize: 11,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          opacity: 0.7,
+          marginBottom: 8,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}
+      >
+        <span>AEO Visibility · Peec AI</span>
+        <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
+      </div>
+      <AEOSection />
 
       {/* Definitions — collapsible */}
       <section
@@ -4204,6 +4278,43 @@ function niceTicks(maxValue, preferredCount = 5) {
   return { ticks, max };
 }
 
+// Shared Recharts shape factory for stacked/single bars that should hatch
+// in-progress weeks. Returns a custom shape function for Recharts <Bar>:
+//   <Bar shape={makeHatchedBarShape('#A37FD9', { strokeWidth: 0.5, idPrefix: 'foo' })} />
+// Each datum is hatched whenever `payload.partial` or `payload.trailingPartial`
+// is truthy — matches the convention used by the data builders.
+function makeHatchedBarShape(color, opts = {}) {
+  const { strokeWidth = 1, idPrefix = 'hatch' } = opts;
+  return (props) => {
+    const { x, y, width, height, payload, dataKey } = props;
+    if (!payload || height <= 0) return null;
+    const isPartial = !!(payload.partial || payload.trailingPartial);
+    const safeKey = (s) => String(s || '').replace(/[^a-zA-Z0-9]/g, '');
+    const patternId = `${idPrefix}-${safeKey(dataKey)}-${safeKey(payload.week)}`;
+    return (
+      <g>
+        {isPartial && (
+          <defs>
+            <pattern id={patternId} patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+              <rect width="6" height="6" fill={color} fillOpacity="0.25" />
+              <line x1="0" y1="0" x2="0" y2="6" stroke={color} strokeWidth="2" />
+            </pattern>
+          </defs>
+        )}
+        <rect
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          fill={isPartial ? `url(#${patternId})` : color}
+          stroke={C.black}
+          strokeWidth={strokeWidth}
+        />
+      </g>
+    );
+  };
+}
+
 function makeWeekTick(lookup) {
   return function WeekTick({ x, y, payload }) {
     const dateRange = lookup[payload.value] || '';
@@ -4476,29 +4587,25 @@ function LinkedInPlaceholderChart() {
   );
 }
 
-function AEOVisibilityChart() {
-  // All chart lines in render order (later items render on top).
-  // Total at end so it sits on top when visible.
-  const allLines = [
-    ...AEO.topics.map((t) => ({
-      key: t.name,
-      label: t.name,
-      color: t.color,
-      strokeWidth: 1.75,
-      isTotal: false,
-    })),
-    { key: 'Total', label: 'Total (all topics)', color: C.black, strokeWidth: 2.5, isTotal: true },
-  ];
+// Shared set of lines for both AEO charts (topics + Total). Module-level so
+// AEOVisibilityChart, SourceRetrievalsChart, and AEOSection share the same
+// keys and colors without re-declaring.
+const AEO_LINES = [
+  ...AEO.topics.map((t) => ({
+    key: t.name,
+    label: t.name,
+    color: t.color,
+    strokeWidth: 1.75,
+    isTotal: false,
+  })),
+  { key: 'Total', label: 'Total (all topics)', color: C.black, strokeWidth: 2.5, isTotal: true },
+];
 
-  // Visibility toggle state. Default: only the Total line is visible.
-  // Individual topic toggles render in their muted/greyed legend state and
-  // can be clicked on to reveal one (or many) topic lines on demand.
-  const [visible, setVisible] = useState(
-    Object.fromEntries(allLines.map((l) => [l.key, l.isTotal]))
-  );
+function AEOVisibilityChart({ visible, dailySlice = AEO.daily }) {
+  const allLines = AEO_LINES;
 
   // Build chart dataset (0-1 ratios → 0-100 percentages; nulls flow through).
-  const data = AEO.daily.map((d) => {
+  const data = dailySlice.map((d) => {
     const row = { date: d.date, Total: +(d.visibility * 100).toFixed(2) };
     for (const t of AEO.topics) {
       const v = d[t.name];
@@ -4535,65 +4642,9 @@ function AEOVisibilityChart() {
         >
           Visibility · daily
           <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
-            % of tracked queries · click legend to toggle
+            % of tracked queries
           </span>
         </div>
-      </div>
-
-      {/* Interactive legend — click to toggle */}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '4px 6px',
-          marginBottom: 14,
-        }}
-      >
-        {/* Render in display-friendly order: Total first */}
-        {[allLines[allLines.length - 1], ...allLines.slice(0, -1)].map((line) => {
-          const isOn = visible[line.key];
-          return (
-            <button
-              key={line.key}
-              onClick={() =>
-                setVisible((v) => ({ ...v, [line.key]: !v[line.key] }))
-              }
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 5,
-                background: isOn ? 'rgba(0,0,0,0.04)' : 'transparent',
-                border: `1px solid ${isOn ? C.black : 'rgba(0,0,0,0.2)'}`,
-                borderRadius: 999,
-                padding: '3px 8px 3px 6px',
-                cursor: 'pointer',
-                fontFamily: FONT_BODY,
-                fontSize: 11,
-                color: C.black,
-                opacity: isOn ? 1 : 0.45,
-                transition: 'opacity 80ms, background 80ms, border-color 80ms',
-              }}
-              type="button"
-            >
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: 16,
-                  height: 0,
-                  borderTop: `${line.isTotal ? '2.5px' : '2px'} solid ${line.color}`,
-                }}
-              />
-              <span
-                style={{
-                  fontWeight: line.isTotal ? 700 : 400,
-                  textDecoration: isOn ? 'none' : 'line-through',
-                }}
-              >
-                {line.label}
-              </span>
-            </button>
-          );
-        })}
       </div>
 
       {/* Chart */}
@@ -4698,6 +4749,657 @@ function AEOVisibilityChart() {
         monitoring May 5 (line starts then).
       </div>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// SelfReportedSourcesChart — weekly stacked column chart for one or more
+// self-reported referral_source buckets from the Customer signups by channel
+// pie. Reused in the AEO+Search section (LLM+Search) and the LinkedIn section
+// (LinkedIn). Chart-area height matches the parent ChannelDeepDive's main
+// chart so the two sit at the same visual weight side-by-side.
+// ---------------------------------------------------------------------------
+function SelfReportedSourcesChart({ title, targets }) {
+  // Build per-day per-bucket counts from amplitude.referralSources entries
+  // (skips entries that don't carry a daily map — old shape fallback).
+  const bucketDaily = Object.fromEntries(targets.map((t) => [t.name, {}]));
+  for (const entry of (dataJson.amplitude?.referralSources || [])) {
+    const bucket = categorizeReferralSource(entry.source);
+    if (!targets.some((t) => t.name === bucket)) continue;
+    if (!entry.daily) continue;
+    for (const [d, n] of Object.entries(entry.daily)) {
+      bucketDaily[bucket][d] = (bucketDaily[bucket][d] || 0) + (n || 0);
+    }
+  }
+
+  const data = LIVE_WEEKS.map((w) => {
+    const row = {
+      week:            w.weekStartLabel,
+      dateRange:       w.dateRange,
+      partial:         w.trailingPartial,
+      trailingPartial: w.trailingPartial,
+    };
+    for (const t of targets) {
+      row[t.name] = w.dates.reduce((s, d) => s + (bucketDaily[t.name][d] || 0), 0);
+    }
+    return row;
+  });
+  const totalByBucket = Object.fromEntries(
+    targets.map((t) => [t.name, data.reduce((s, r) => s + (r[t.name] || 0), 0)])
+  );
+  const totalAll = Object.values(totalByBucket).reduce((s, v) => s + v, 0);
+
+  const maxValue = Math.max(
+    ...data.map((r) => targets.reduce((s, t) => s + (r[t.name] || 0), 0)),
+    1
+  );
+  const { ticks: yTicks, max: yMax } = niceTicks(maxValue, 5);
+
+  const HatchedStack = (color) => (props) => {
+    const { x, y, width, height, payload, dataKey } = props;
+    if (!payload || height <= 0) return null;
+    const isPartial = payload.partial;
+    const patternId =
+      `hatchsrc-${dataKey}-${(payload.week || '').replace(/[^a-zA-Z0-9]/g, '')}`;
+    return (
+      <g>
+        {isPartial && (
+          <defs>
+            <pattern id={patternId} patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+              <rect width="6" height="6" fill={color} fillOpacity="0.25" />
+              <line x1="0" y1="0" x2="0" y2="6" stroke={color} strokeWidth="2" />
+            </pattern>
+          </defs>
+        )}
+        <rect
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          fill={isPartial ? `url(#${patternId})` : color}
+          stroke={C.black}
+          strokeWidth={1}
+        />
+      </g>
+    );
+  };
+
+  return (
+    <div>
+      {/* Heading */}
+      <div style={{ marginBottom: 12 }}>
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontWeight: 600,
+            fontSize: 14,
+            display: 'flex',
+            alignItems: 'baseline',
+            gap: 10,
+          }}
+        >
+          {title}
+          <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
+            self-reported · weekly
+          </span>
+        </div>
+      </div>
+
+      {/* Window totals as a small summary row */}
+      <div
+        style={{
+          display: 'flex',
+          gap: 18,
+          marginBottom: 14,
+          fontFamily: FONT_BODY,
+          fontSize: 11,
+          opacity: 0.75,
+          flexWrap: 'wrap',
+        }}
+      >
+        {targets.map((t) => (
+          <span key={t.name}>
+            <span style={{
+              display: 'inline-block', width: 10, height: 10, background: t.color,
+              border: `1px solid ${C.black}`, marginRight: 6, verticalAlign: '-1px',
+            }} />
+            {t.name} <strong>{totalByBucket[t.name]}</strong>
+          </span>
+        ))}
+        {targets.length > 1 && (
+          <span style={{ opacity: 0.7 }}>· Total <strong>{totalAll}</strong></span>
+        )}
+      </div>
+
+      {/* Stacked column chart — height matches ChannelDeepDive's main chart */}
+      <div style={{ width: '100%', height: 390 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 12, right: 8, bottom: 8, left: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" vertical={false} />
+            <XAxis
+              dataKey="week"
+              axisLine={{ stroke: C.black, strokeWidth: 1 }}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }}
+              interval={0}
+            />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 10, fill: C.black, opacity: 0.6 }}
+              width={40}
+              domain={[0, yMax]}
+              ticks={yTicks}
+              allowDecimals={false}
+            />
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload || !payload.length) return null;
+                const d = payload[0].payload;
+                const tot = targets.reduce((s, t) => s + (d[t.name] || 0), 0);
+                return (
+                  <div
+                    style={{
+                      background: C.white,
+                      border: `1px solid ${C.black}`,
+                      padding: '8px 10px',
+                      fontFamily: FONT_BODY,
+                      fontSize: 12,
+                      minWidth: 170,
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, marginBottom: 4 }}>
+                      {d.dateRange}{d.partial ? ' · in progress' : ''}
+                    </div>
+                    {targets.map((t) => (
+                      <div
+                        key={t.name}
+                        style={{ display: 'flex', justifyContent: 'space-between' }}
+                      >
+                        <span>{t.name}</span>
+                        <strong>{d[t.name] ?? 0}</strong>
+                      </div>
+                    ))}
+                    {targets.length > 1 && (
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          borderTop: '1px solid rgba(0,0,0,0.1)',
+                          marginTop: 4,
+                          paddingTop: 4,
+                        }}
+                      >
+                        <span>Total</span>
+                        <strong>{tot}</strong>
+                      </div>
+                    )}
+                  </div>
+                );
+              }}
+              cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+            />
+            {targets.map((t) => (
+              <Bar
+                key={t.name}
+                dataKey={t.name}
+                stackId="a"
+                shape={HatchedStack(t.color)}
+                maxBarSize={48}
+                isAnimationActive={false}
+              />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Footnote */}
+      <div
+        style={{
+          fontFamily: FONT_BODY,
+          fontSize: 10.5,
+          opacity: 0.55,
+          marginTop: 10,
+          lineHeight: 1.5,
+        }}
+      >
+        From the Customer signups by channel chart, broken down by week.
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// SourceRetrievalsChart — daily count of how often mutinyhq.com is retrieved
+// as a citation source by AI search engines, broken down by topic. Uses the
+// same topic-line + Total convention as AEOVisibilityChart, and reads
+// `visible` from a shared parent so both charts toggle in lockstep.
+// ---------------------------------------------------------------------------
+function SourceRetrievalsChart({ visible, dailySlice = AEO.sourcesDaily }) {
+  const allLines = AEO_LINES;
+  const data = dailySlice;
+
+  const visibleKeys = allLines.filter((l) => visible[l.key]).map((l) => l.key);
+  const visibleValues = data.flatMap((row) =>
+    visibleKeys.map((k) => row[k]).filter((v) => v !== null && v !== undefined)
+  );
+  const maxVisible = visibleValues.length > 0 ? Math.max(...visibleValues) : 10;
+  const { ticks: yTicks, max: yMax } = niceTicks(maxVisible, 5);
+
+  return (
+    <div>
+      <div style={{ marginBottom: 12 }}>
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontWeight: 600,
+            fontSize: 14,
+            display: 'flex',
+            alignItems: 'baseline',
+            gap: 10,
+          }}
+        >
+          mutinyhq.com retrievals · daily
+          <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
+            chats per day that retrieved mutinyhq.com
+          </span>
+        </div>
+      </div>
+
+      <div style={{ width: '100%', height: 390 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data} margin={{ top: 10, right: 16, bottom: 0, left: 0 }}>
+            <CartesianGrid vertical={false} stroke={C.black} strokeOpacity={0.08} />
+            <XAxis
+              dataKey="date"
+              axisLine={{ stroke: C.black }}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 10, fill: C.black }}
+              interval="preserveStartEnd"
+              minTickGap={20}
+              height={28}
+            />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }}
+              domain={[0, yMax]}
+              ticks={yTicks}
+              width={44}
+              allowDecimals={false}
+            />
+            <Tooltip
+              cursor={{ stroke: C.black, strokeOpacity: 0.2, strokeWidth: 1 }}
+              content={({ active, payload, label }) => {
+                if (!active || !payload || !payload.length) return null;
+                const visiblePayload = payload.filter(
+                  (p) => p.value !== null && p.value !== undefined
+                );
+                if (!visiblePayload.length) return null;
+                return (
+                  <div
+                    style={{
+                      background: C.white,
+                      border: `1px solid ${C.black}`,
+                      borderRadius: 4,
+                      padding: '10px 12px',
+                      fontFamily: FONT_BODY,
+                      fontSize: 11,
+                      minWidth: 220,
+                      boxShadow: '4px 4px 0 rgba(0,0,0,0.08)',
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, marginBottom: 6 }}>{label}</div>
+                    {[...visiblePayload]
+                      .sort((a, b) => b.value - a.value)
+                      .map((p) => (
+                        <div
+                          key={p.dataKey}
+                          style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}
+                        >
+                          <span
+                            style={{
+                              width: 12,
+                              height: 0,
+                              borderTop: `${p.dataKey === 'Total' ? '2.5px' : '2px'} solid ${p.color || p.stroke}`,
+                            }}
+                          />
+                          <span style={{ flex: 1 }}>{p.dataKey}</span>
+                          <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
+                            {p.value}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                );
+              }}
+            />
+            {allLines.map((line) =>
+              visible[line.key] ? (
+                <Line
+                  key={line.key}
+                  type="monotone"
+                  dataKey={line.key}
+                  stroke={line.color}
+                  strokeWidth={line.strokeWidth}
+                  dot={line.isTotal ? { r: 2.5, fill: line.color } : false}
+                  activeDot={{ r: line.isTotal ? 5 : 4, stroke: C.black, strokeWidth: 1 }}
+                  connectNulls={false}
+                  isAnimationActive={false}
+                />
+              ) : null
+            )}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div
+        style={{
+          fontFamily: FONT_BODY,
+          fontSize: 10.5,
+          opacity: 0.55,
+          marginTop: 10,
+          lineHeight: 1.5,
+        }}
+      >
+        Source: Peec AI · {AEO.windowLabel}. Counts chats per day where
+        mutinyhq.com appeared as a citation source, broken down by topic
+        (matches Peec UI's Sources view).
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// AEOSection — wrapper that owns the shared topic-legend state and renders
+// both AEO charts (Visibility + Source Retrievals for mutinyhq.com) side by
+// side. Toggling a topic pill applies to BOTH charts simultaneously.
+// ---------------------------------------------------------------------------
+function AEOSection() {
+  const allLines = AEO_LINES;
+  const [visible, setVisible] = useState(
+    Object.fromEntries(allLines.map((l) => [l.key, l.isTotal]))
+  );
+
+  // Date-range filter — applies to both charts + the stats summaries above
+  // each chart. "all" = the full Peec window (whatever days are present).
+  const RANGES = [
+    { id: '7d',  label: 'Last 7 days',  days: 7 },
+    { id: '14d', label: 'Last 14 days', days: 14 },
+    { id: '28d', label: 'Last 28 days', days: 28 },
+    { id: 'all', label: 'All',          days: null },
+  ];
+  const [rangeId, setRangeId] = useState('14d');
+  const activeRange = RANGES.find((r) => r.id === rangeId);
+
+  // Slice helper — keep only the last N entries of an array, in their
+  // existing order (data is already chronological).
+  const sliceLast = (arr, n) => (n == null ? arr : arr.slice(Math.max(0, arr.length - n)));
+
+  // Filtered slices used by the charts + stats blocks
+  const visDaily   = sliceLast(AEO.daily,          activeRange.days);
+  const srcDaily   = sliceLast(AEO.sourcesDaily,   activeRange.days);
+  const brandStats = sliceLast(AEO.brandDailyStats || [], activeRange.days);
+  const srcStats   = sliceLast(AEO.sourcesDailyStats || [], activeRange.days);
+
+  // Window aggregates — sum raw counts so percentages reflect the window,
+  // not an average of per-day ratios.
+  const brandWin = brandStats.reduce(
+    (a, r) => ({
+      visCount: a.visCount + r.visCount,
+      visTotal: a.visTotal + r.visTotal,
+      mentions: a.mentions + r.mentions,
+    }),
+    { visCount: 0, visTotal: 0, mentions: 0 },
+  );
+  const brandVisPct = brandWin.visTotal > 0
+    ? (brandWin.visCount / brandWin.visTotal) * 100
+    : 0;
+
+  const srcWin = srcStats.reduce(
+    (a, r) => {
+      const totalChats = r.retrievalRate > 0 ? r.retrievalCount / r.retrievalRate : 0;
+      const chatsWithDomain = r.retrievedPct * totalChats;
+      return {
+        totalChats:        a.totalChats + totalChats,
+        chatsWithDomain:   a.chatsWithDomain + chatsWithDomain,
+        retrievalCount:    a.retrievalCount + r.retrievalCount,
+        citationCount:     a.citationCount + r.citationCount,
+      };
+    },
+    { totalChats: 0, chatsWithDomain: 0, retrievalCount: 0, citationCount: 0 },
+  );
+  const srcRetrievedPct = srcWin.totalChats > 0
+    ? (srcWin.chatsWithDomain / srcWin.totalChats) * 100
+    : 0;
+  const srcCitationRate = srcWin.retrievalCount > 0
+    ? srcWin.citationCount / srcWin.retrievalCount
+    : 0;
+
+  // Compact stat-row used above each chart.
+  const StatRow = ({ title, items }) => (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'baseline',
+        gap: 18,
+        marginBottom: 14,
+        paddingBottom: 12,
+        borderBottom: `1px solid rgba(0,0,0,0.1)`,
+        flexWrap: 'wrap',
+      }}
+    >
+      <div
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontSize: 18,
+          letterSpacing: '-0.02em',
+          fontWeight: 400,
+        }}
+      >
+        {title}
+      </div>
+      {items.map((it) => (
+        <div key={it.label}>
+          <div
+            style={{
+              fontFamily: FONT_BODY,
+              fontWeight: 700,
+              fontSize: 9.5,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              opacity: 0.55,
+            }}
+          >
+            {it.label}
+          </div>
+          <div
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontSize: 22,
+              lineHeight: 1.1,
+              fontVariantNumeric: 'tabular-nums',
+              marginTop: 2,
+            }}
+          >
+            {it.value}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <section
+      style={{
+        background: C.white,
+        border: `1px solid ${C.black}`,
+        borderRadius: 4,
+        padding: '28px 32px 24px',
+        marginBottom: 40,
+        position: 'relative',
+      }}
+    >
+      {/* Header row: date range toggle on right, topic legend below */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: 16,
+          marginBottom: 14,
+        }}
+      >
+        <div>
+          <div
+            style={{
+              fontFamily: FONT_BODY,
+              fontWeight: 700,
+              fontSize: 10,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              opacity: 0.6,
+              marginBottom: 8,
+            }}
+          >
+            Filter topics — applies to both charts
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 6px' }}>
+            {[allLines[allLines.length - 1], ...allLines.slice(0, -1)].map((line) => {
+              const isOn = visible[line.key];
+              return (
+                <button
+                  key={line.key}
+                  onClick={() =>
+                    setVisible((v) => ({ ...v, [line.key]: !v[line.key] }))
+                  }
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    background: isOn ? 'rgba(0,0,0,0.04)' : 'transparent',
+                    border: `1px solid ${isOn ? C.black : 'rgba(0,0,0,0.2)'}`,
+                    borderRadius: 999,
+                    padding: '4px 10px 4px 7px',
+                    cursor: 'pointer',
+                    fontFamily: FONT_BODY,
+                    fontSize: 12,
+                    color: C.black,
+                    opacity: isOn ? 1 : 0.45,
+                    transition: 'opacity 80ms, background 80ms, border-color 80ms',
+                  }}
+                  type="button"
+                >
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 16,
+                      height: 0,
+                      borderTop: `${line.isTotal ? '2.5px' : '2px'} solid ${line.color}`,
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontWeight: line.isTotal ? 700 : 400,
+                      textDecoration: isOn ? 'none' : 'line-through',
+                    }}
+                  >
+                    {line.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Date range toggle */}
+        <div style={{ flexShrink: 0 }}>
+          <div
+            style={{
+              fontFamily: FONT_BODY,
+              fontWeight: 700,
+              fontSize: 10,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              opacity: 0.6,
+              marginBottom: 8,
+              textAlign: 'right',
+            }}
+          >
+            Range
+          </div>
+          <div
+            style={{
+              display: 'inline-flex',
+              border: `1px solid ${C.black}`,
+              borderRadius: 999,
+              overflow: 'hidden',
+              fontFamily: FONT_BODY,
+              fontSize: 11,
+              fontWeight: 600,
+            }}
+          >
+            {RANGES.map((r) => {
+              const active = rangeId === r.id;
+              return (
+                <button
+                  key={r.id}
+                  onClick={() => setRangeId(r.id)}
+                  style={{
+                    padding: '4px 10px',
+                    background: active ? C.black : 'transparent',
+                    color: active ? C.white : C.black,
+                    border: 'none',
+                    cursor: active ? 'default' : 'pointer',
+                    fontFamily: FONT_BODY,
+                    fontSize: 11,
+                    fontWeight: 600,
+                  }}
+                >
+                  {r.label.replace('Last ', '')}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Two charts side-by-side, each with a stat-row header */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: 28,
+          alignItems: 'flex-start',
+          marginTop: 18,
+        }}
+      >
+        <div>
+          <StatRow
+            title="Mutiny"
+            items={[
+              { label: 'Visibility',  value: `${brandVisPct.toFixed(1)}%` },
+            ]}
+          />
+          <AEOVisibilityChart visible={visible} dailySlice={visDaily} />
+        </div>
+        <div>
+          <StatRow
+            title="mutinyhq.com"
+            items={[
+              { label: 'Retrieved',      value: `${srcRetrievedPct.toFixed(1)}%` },
+              {
+                label: '# of retrievals',
+                // Matches Peec UI: counts CHATS where mutinyhq.com appeared
+                // as a citation source (not URL-level retrievals).
+                value: Math.round(srcWin.chatsWithDomain).toLocaleString(),
+              },
+            ]}
+          />
+          <SourceRetrievalsChart visible={visible} dailySlice={srcDaily} />
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -5011,9 +5713,10 @@ function ChannelDeepDive({ data, weekly, signupsWindow, windowLabel, extraChart 
                 key={s.key}
                 dataKey={s.key}
                 stackId="deepdive"
-                fill={s.color}
-                stroke={C.black}
-                strokeWidth={0.6}
+                shape={makeHatchedBarShape(s.color, {
+                  strokeWidth: 0.6,
+                  idPrefix: 'cd',
+                })}
                 isAnimationActive={false}
               />
             ))}

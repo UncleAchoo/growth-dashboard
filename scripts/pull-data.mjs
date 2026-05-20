@@ -450,7 +450,9 @@ async function fetchHubspot() {
 //
 // Shape that data/peec.json must produce — same as the live fetcher returned:
 //   { pulledAt, windowStart, windowEnd, visibility, mentionCount, avgPosition,
-//     competitorRank, competitorTotal, topCompetitor, topics: [...], daily: [...] }
+//     competitorRank, competitorTotal, topCompetitor, topics: [...], daily: [...],
+//     sources?: { topDomains: [...], daily: [...] } }  ← optional, feeds the
+//   Source Retrievals chart in the AEO Visibility section.
 // ===========================================================================
 const PEEC_JSON_PATH = process.env.PEEC_JSON_PATH || 'data/peec.json';
 
@@ -461,7 +463,8 @@ async function fetchPeec() {
   }
   log(`Reading Peec snapshot from ${PEEC_JSON_PATH}...`);
   const raw = JSON.parse(readFileSync(PEEC_JSON_PATH, 'utf8'));
-  log(`  Peec ok (snapshot): visibility=${raw.visibility}, rank=${raw.competitorRank}/${raw.competitorTotal}, topics=${(raw.topics || []).length}, daily=${(raw.daily || []).length} days, pulledAt=${raw.pulledAt}.`);
+  const sourceDomCount = raw.sources?.topDomains?.length || 0;
+  log(`  Peec ok (snapshot): visibility=${raw.visibility}, rank=${raw.competitorRank}/${raw.competitorTotal}, topics=${(raw.topics || []).length}, daily=${(raw.daily || []).length} days, sources=${sourceDomCount} domains, pulledAt=${raw.pulledAt}.`);
   return raw;
 }
 
