@@ -1085,6 +1085,7 @@ const AEO_TOPIC_COLORS = {
   'Modern GTM tech stack':  C.blue,
   'AI Sales Tools':         C.red,
   'AI Sales Enablement':    C.lightRed,
+  'Outbound tools':         C.lightPurple,
 };
 
 function buildAEOFromPeec(peec) {
