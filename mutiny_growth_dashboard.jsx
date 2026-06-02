@@ -665,50 +665,85 @@ const WEEKLY_TOP_OF_FUNNEL = LIVE_WEEKS.map((w) => {
 // Known employer/customer mentions that indicate "heard from coworkers at
 // this company" — bucketed as Word of Mouth. Grows over time as new
 // employer-mention patterns appear in raw data.
-const KNOWN_EMPLOYER_MENTIONS = /^(BMC|Homebase|Slack|calm|sequoia|Team|SWI)$|we use it at/i;
+const KNOWN_EMPLOYER_MENTIONS = /^(BMC|Homebase|Slack|calm|sequoia|Team|SWI|Airwallex|Apollo\s?IO?|Builtwith|Exadel|Octave|tennr|Samsara)$|we use it at|use(d)?\s?(it)?\s?at|previous\s?role|previous\s?company|usage\s?in|worked?\s?with|evaluated\s?in/i;
 
+// Smart inference rules for self-reported referral_source. Each rule's pattern
+// runs against the response after lightweight normalization (lowercase + URL
+// host extraction + punctuation strip). Order matters: more specific patterns
+// must come before generic ones so they win. Patterns are designed to handle
+// typos, casing, multi-language responses, and full-phrase variants — e.g.
+// "from a coworker", "Co-Worker", "my colleagues", and "collegaue" all hit the
+// same Word of Mouth rule.
 const CATEGORIZATION_RULES = [
-  // Specific brand/community names first, before generic keywords might catch them
-  { match: /linked[\s-]?in/i,                                            bucket: 'LinkedIn' },
-  { match: /chatgpt|chat gpt|claude|perplexity|gemini|copilot|\bai\b/i,  bucket: 'AEO' },
-  { match: /y\s?combinator|\byc\b/i,                                     bucket: 'YC' },
-  // Influencer / Community — broadened to include known names (Emily Kramer,
-  // Jaleh) that came up in real responses. Add new names here as they appear.
-  { match: /mkt1|hbs|alumni|community|30\s?mpc|emily\s?kramer|\bjaleh\b/i, bucket: 'Influencer / Community' },
-  { match: /podcast/i,                                                   bucket: 'Influencer / Community' }, // collapsed bucket
-  // Word-of-mouth signals — anything indicating "heard about Mutiny from a real
-  // person." Covers people the user knows (friend/colleague/coworker/manager/
-  // teacher/CEO/VP/boss/buddy), the abbreviation WOM, "(someone) is a fan"
-  // phrasings, "previous customer" / standalone "referral" responses, and
-  // known employer mentions ("heard about it at BMC/Slack/etc.").
-  // `colleag` stem catches both "colleague" and the typo "collegaue".
-  // `\bfan\b` is safe here — in a "how did you hear" field, "fan" almost
-  // always means a third party is enthusiastic about Mutiny.
+  // ── 1. LinkedIn — name OR linkedin.com domain (any casing/spacing). ──
+  { match: /linked[\s-]?in|linkedin\.com/i, bucket: 'LinkedIn' },
+
+  // ── 2. AEO — AI search/chat engines & their URLs. ──
+  // Catches: chatgpt, chat gpt, claude (incl. claude.ai/claude.com), gpt,
+  // perplexity, gemini, copilot (incl. co-pilot, co pilot), bare "ai".
+  { match: /chat\s?gpt|\bgpt\b|claude(\.ai|\.com)?|perplexity|gemini|co[-\s]?pilot|\bai\b/i, bucket: 'AEO' },
+
+  // ── 3. YC — Y Combinator and its internal community (Bookface). ──
+  { match: /y\s?combinator|\byc\b|bookface/i, bucket: 'YC' },
+
+  // ── 4. Influencer / Community — known names, podcasts, conferences,
+  //       courses/academies, content channels. ──
+  { match: /\bmkt1\b|\bhbs\b|alumni|community|30\s?mpc|30\s?mins?\s?to|emily\s?kramer|\bjaleh\b|wes\s?bush|joel\s?klettke|patrick\s?collins|inbound\s?conference|substack|\bacademy\b|long\s?time\s?listener|^content$|par\s?une\s?formation/i,
+    bucket: 'Influencer / Community' },
+  { match: /podcast/i, bucket: 'Influencer / Community' },
+
+  // ── 5. Word of Mouth — peer/colleague/client recommendations, employer
+  //       mentions, family/personal references, multi-language equivalents,
+  //       and "someone mentioned it" phrasings. Order this AFTER LinkedIn
+  //       so "LinkedIn post from someone" stays in LinkedIn. ──
+  // Typos: `colleg` stem catches colleague/colleagues/collegues/collegaue;
+  //        `refer` stem catches referred/referral/referal/refferal/recc/refers.
+  // Multi-language: passaparola (it), indicação (pt).
+  // `\bfan\b` is safe — in a "how did you hear" field, "fan" almost always
+  // means a third party is enthusiastic about Mutiny.
+  // "work"/"working with" handles bare-word "work" / "at work" / "Working
+  // with Mutiny on rebrand" type responses (colleague-adjacent context).
   { match: new RegExp(
-      /friend|colleagu|collegau|co[-\s]?worker|referred|recommendation|word of mouth|\bWOM\b|\bmanager\b|\bteacher\b|\bceo\b|\bVP\b|\bboss\b|\bfan\b|\bbuddy\b|\bhubby\b|\bwife\b|\bhusband\b|\bspouse\b|\binvestor\b|\bruben\b|previous\s?customer|\breferral\b/.source
+      /friend|colleagu|colleg(au|ue|e)|co[-\s]?worker|\bclients?\b|\bteammate\b|\bcousin\b|\bre[fF]+er|\brecc\b|recommen|word.?of.?mouth|\bwom\b|\bmanager\b|\bteacher\b|\bceo\b|\bvp\b|\bboss\b|\bfan\b|\bbuddy\b|\bhubby\b|\bwife\b|\bhusband\b|\bspouse\b|\binvestor\b|\bruben\b|\bnikhil\b|\belijah\b|\bawoke\b|\blexi\b|sam\s?gong|previous\s?customer|consultant|advisor|\bfounder\b|\bboard\b|cowboy\s?ventures|newsletter|passaparola|indicaç|mention(ed|ing|s)?\b|my\s?(ae|coworker|boss|hubby|manager|wife|husband|teammate|bosses)|^work$|^at\s?work$|work(ing|ed)?\s?with|^company$|^company\s?profile$|^business$|^marketing(\s?lead)?$|^another\s?competitor$|^other\s?company$|from\s?job\s?boards?|^job\s?boards?$|interview|peer|industry/.source
       + '|' + KNOWN_EMPLOYER_MENTIONS.source, 'i'),
     bucket: 'Word of Mouth' },
-  // Search-related — add 'organic' for "organic search" shorthand, and
-  // 'online' for vague "found you online" responses.
-  { match: /google|googl|search|^web$|^organic$|^online$/i,              bucket: 'Search' },
-  // Social — X/Twitter, Reddit, Facebook (incl. FB shorthand), Instagram.
-  // FB-as-shorthand-for-Facebook added May 14, 2026. Plain "Email" responses
-  // (per design call, treated as a social/outbound channel rather than its
-  // own bucket) added May 20, 2026.
-  { match: /\bx post\b|twitter|reddit|facebook|^fb$|^fb\b|instagram|^email$/i, bucket: 'Social' },
-  // Joke / Invalid — fate/destiny, test/demo, empty/punctuation, joke phrases.
-  // Captured as a distinct bucket (vs Other) so the pie's "Other" stays small
-  // and represents genuinely unclear-but-real responses rather than noise.
-  { match: /\bfate\b|\bdestiny\b|^test$|^demo$|^trining$|^idk$|^jk$|^it$|^omar$|^dj\s?khaled$|^sfasf$|^company$|^hello$|^\.+$|^-+$|^\d{1,2}$|i didn't|i was so excited|don't remember|pressured me into|its blowing up|my neighbors|home\s?boy|20 year marketing|\bloved it\b/i,
+
+  // ── 6. Search — Google/web/internet/organic + generic "looking for"
+  //       intent + SEO/research-style phrasings. ──
+  { match: /google|googl|\bsearch\b|^web$|web\s?search|^organic$|online|internet|^www$|\bseo\b|looking\s?for|\bresearch\b|^website$/i,
+    bucket: 'Search' },
+
+  // ── 7. Social — all major platforms + bare "social"/"social media" +
+  //       email/mail (outbound, not its own bucket). ──
+  { match: /\bx post\b|^x$|twitter|reddit|facebook|^fb$|^fb\b|instagram|\binsta\b|youtube|^yt$|\byt\b|tiktok|tik\s?tok|snapchat|pinterest|threads|bluesky|mastodon|social\s?media|^social$|^email$|^mail$/i,
+    bucket: 'Social' },
+
+  // ── 8. Joke / Invalid — fate/destiny variants, test entries, blanks,
+  //       short random strings, obvious joke phrases, "I don't know"
+  //       equivalents. Keeps the Other bucket meaningful. Vague-but-real
+  //       responses ("Marketing", "business", "company profile") fall through
+  //       to Other rather than getting buried in Joke. ──
+  { match: /\bfate\b|\bdestiny\b|\bluck\b|^test|\btesting\b|^demo$|^trining$|\bidk\b|^jk$|^it$|^try$|^omar$|^dj\s?khaled$|^sfasf$|^hello$|^\.+$|^-+$|^\d{1,2}$|^n\/?a$|^na$|^tbd$|^dunno$|^date$|^spam$|^myself$|^my\s?meta\s?data$|i didn'?t|i was so excited|don'?t remember|pressured me into|its blowing up|my neighbors|home\s?boy|20 year marketing|\bloved it\b|wizard.*alley|raccoon|^(aa+|gg+|ff+|das|sds|ifif|f)$/i,
     bucket: 'Joke / Invalid' },
 ];
 
+// Normalize a raw referral_source for matching: lowercase, trim, extract URL
+// hosts (so "https://www.linkedin.com/in/..." matches the LinkedIn rule),
+// collapse whitespace.
+function normalizeReferralSource(raw) {
+  if (!raw) return '';
+  let s = String(raw).toLowerCase().trim();
+  const urlMatch = s.match(/https?:\/\/(?:www\.)?([^\s/]+)/);
+  if (urlMatch) s = urlMatch[1] + ' ' + s; // prepend host so rules still see context
+  return s.replace(/\s+/g, ' ');
+}
+
 function categorizeReferralSource(raw) {
   if (!raw) return 'Other / Unparseable';
-  const trimmed = raw.trim();
-  if (!trimmed) return 'Other / Unparseable';
+  const normalized = normalizeReferralSource(raw);
+  if (!normalized) return 'Other / Unparseable';
   for (const rule of CATEGORIZATION_RULES) {
-    if (rule.match.test(trimmed)) return rule.bucket;
+    if (rule.match.test(normalized)) return rule.bucket;
   }
   return 'Other / Unparseable';
 }
@@ -3715,9 +3750,9 @@ export default function MutinyGrowthDashboard() {
                   <li><strong>AEO</strong> — contains chatgpt, claude, perplexity, gemini, copilot, or "ai" as a whole word</li>
                   <li><strong>YC</strong> — matches "y combinator" or "yc" as a whole word (catches "YC Video" too)</li>
                   <li><strong>Influencer / Community</strong> — mkt1, hbs, alumni, community, 30mpc, podcast</li>
-                  <li><strong>Word of Mouth</strong> — friend, colleague (incl. typo "collegaue"), coworker, manager, teacher, CEO, VP, boss, buddy, referred, recommendation, "word of mouth", "WOM", anyone described as a fan ("Our Group CEO is a huge fan"), AND single-token employer mentions (BMC, Homebase, Slack, calm, sequoia, Team, "we use it at X") read as "heard from coworkers there." The signal is "heard from a real person."</li>
+                  <li><strong>Word of Mouth</strong> — friend, colleague (incl. typo "collegaue"), coworker, client, manager, teacher, CEO, VP, boss, buddy, referred, referral, recommended, recommendation, "word of mouth", "WOM", anyone described as a fan ("Our Group CEO is a huge fan"), AND single-token employer mentions (BMC, Homebase, Slack, calm, sequoia, Team, "we use it at X") read as "heard from coworkers there." The signal is "heard from a real person."</li>
                   <li><strong>Search</strong> — google, search, organic, "web"</li>
-                  <li><strong>Social</strong> — X post, twitter, reddit, facebook, instagram</li>
+                  <li><strong>Social</strong> — all major social platforms: X / X post / twitter, reddit, facebook (incl. "FB"), instagram (incl. "insta"), youtube (incl. "YT"), tiktok, snapchat, pinterest, threads, bluesky, mastodon, plus generic "social media" / "social" mentions. Plain "email" also bucketed here as an outbound channel.</li>
                   <li><strong>Joke / Invalid</strong> — fate/destiny, test/demo, empty entries (".", "-", single digits), one-off joke responses ("dj khaled", "I was so excited about spirit 2.0…", "Jason Liu my homeboy", "20 year marketing veteran"). Separated from Other so the Other bucket stays meaningful.</li>
                   <li><strong>Other / Unparseable</strong> — legit-looking but ambiguous: external products mentioned without context (Online, Newsletter, "Ruben email"), unclear intent ("Looking for ABM Strategy help").</li>
                 </ul>
