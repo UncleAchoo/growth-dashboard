@@ -27,6 +27,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260520,Organic Search,google / organic,3
 20260528,Organic Search,google / organic,3
 20260529,Direct,(direct) / (none),3
+20260601,Organic Search,google / organic,3
 20260511,Organic Social,linkedin / social,2
 20260514,Referral,chatgpt.com / referral,2
 20260515,Direct,(direct) / (none),2
@@ -34,6 +35,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260524,Direct,(direct) / (none),2
 20260525,Organic Search,google / organic,2
 20260527,Organic Search,google / organic,2
+20260601,Direct,(direct) / (none),2
+20260601,Unassigned,the-ai-marketing-newsletter.beehiiv.com / newsletter,2
 20260507,Organic Social,linkedin.com / referral,1
 20260508,Referral,mkt1-website / referral,1
 20260509,Direct,(direct) / (none),1
@@ -65,5 +68,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260529,Email,hs_email / email,1
 20260530,Direct,(direct) / (none),1
 20260531,Organic Search,google / organic,1
-20260601,Direct,(direct) / (none),1
-20260601,Organic Search,google / organic,1
+20260601,Referral,30mpc.com / referral,1
+20260601,Referral,statics.teams.cdn.office.net / referral,1
+20260601,Referral,track.pstmrk.it / referral,1
+20260602,Organic Search,google / organic,1
