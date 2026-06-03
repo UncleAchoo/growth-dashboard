@@ -2478,7 +2478,7 @@ export default function MutinyGrowthDashboard() {
           infoTooltip={`Self-reported referral_source at Company Setup. ${pieSignupsTotal} signups categorized in window (${activeWindowLabel}). 11 mutinyhq.com test accounts excluded at the Amplitude query layer. Bucketing is rule-based — see the Definitions panel at the bottom for the full rule set.`}
           alertBanner={
             <>
-              Reliable data begins <strong>Monday, May 4, 2026</strong>.
+              Reliable data begins after <strong>May 7, 2026</strong> (made required field).
             </>
           }
         />
