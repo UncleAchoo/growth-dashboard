@@ -284,10 +284,14 @@ async function fetchAmplitude() {
   log('Fetching Amplitude (daily signups + referral_source breakdown)...');
 
   // Both queries share the same event spec + email filter.
+  // Filter mirrors the Amplitude chart `vu1dvirn` (Sign Up complete event
+  // [Growth Dashboard]): `email does not contain "mutinyhq" or "mutiny"`.
+  // "mutinyhq" is redundant with "mutiny" as a substring match, but listing
+  // both keeps our pull a literal mirror of the chart's filter config.
   const eventSpec = {
     event_type: '[Onboarding] Company Setup Complete',
     filters: [
-      { group_type: 'User', subprop_op: 'does not contain', subprop_key: 'email', subprop_type: 'event', subprop_value: ['mutiny'] },
+      { group_type: 'User', subprop_op: 'does not contain', subprop_key: 'email', subprop_type: 'event', subprop_value: ['mutinyhq', 'mutiny'] },
     ],
   };
 
@@ -310,7 +314,7 @@ async function fetchAmplitude() {
   const eventWithRefFilter = {
     event_type: '[Onboarding] Company Setup Complete',
     filters: [
-      { subprop_op: 'does not contain', subprop_key: 'email',           subprop_type: 'event', subprop_value: ['mutiny'] },
+      { subprop_op: 'does not contain', subprop_key: 'email',           subprop_type: 'event', subprop_value: ['mutinyhq', 'mutiny'] },
       { subprop_op: 'is not',           subprop_key: 'referral_source', subprop_type: 'event', subprop_value: ['(none)'] },
     ],
     group_by: [{ type: 'event', value: 'referral_source' }],

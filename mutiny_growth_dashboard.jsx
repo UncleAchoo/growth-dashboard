@@ -60,6 +60,13 @@ function fmtYYYYMMDD(d) {
     `${String(d.getUTCMonth() + 1).padStart(2, '0')}` +
     `${String(d.getUTCDate()).padStart(2, '0')}`;
 }
+// Same as fmtYYYYMMDD but with dashes — matches HTML `<input type="date">`'s
+// value format. Used by Reporting Mode's date pickers.
+function fmtYYYYMMDDDash(d) {
+  return `${d.getUTCFullYear()}-` +
+    `${String(d.getUTCMonth() + 1).padStart(2, '0')}-` +
+    `${String(d.getUTCDate()).padStart(2, '0')}`;
+}
 const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function fmtMonDay(d)   { return `${MONTH_ABBR[d.getUTCMonth()]} ${d.getUTCDate()}`; }
 function fmtMMDD(d)     {
@@ -801,6 +808,75 @@ const SHARE_OF_SIGNUPS_MTD = computeShareOfSignups(MTD_DATES_SET);
 const TOTAL_SIGNUPS_CATEGORIZED_MTD = SHARE_OF_SIGNUPS_MTD.reduce((s, x) => s + x.value, 0);
 
 // ---------------------------------------------------------------------------
+// Per-period stacked-bar data for the Customer signups by channel weekly
+// chart (replaces the pie). Each row = one period (week or month) with the
+// 9 BUCKET_DEFINITIONS bucket counts + a `Not Specified` residual = total
+// signups in the period minus sum of categorized buckets. This surfaces the
+// pre-May-8 signups (when referral_source was optional/empty) instead of
+// silently hiding them.
+//
+// Period shape supported: { weekStartLabel | label, dateRange, dates,
+// partial, trailingPartial? }. Returns one row per period with keys:
+//   - week:           x-axis tick label
+//   - dateRange, partial, trailingPartial: passthrough for tooltip + hatch
+//   - <bucketName>:   count per bucket (one key per BUCKET_DEFINITIONS entry)
+//   - 'Not Specified': residual (max 0)
+//   - total:          full unique signups in the period
+// ---------------------------------------------------------------------------
+const NOT_SPECIFIED_BUCKET = { name: 'Not Specified', color: '#C8C8C8' };
+const SIGNUPS_CHANNEL_BUCKETS = [...BUCKET_DEFINITIONS, NOT_SPECIFIED_BUCKET];
+// Stack order (bottom → top): Not Specified at the base so the "no-signal"
+// residual grounds the bar, then categorized buckets in the same order they
+// appear in the pie legend.
+const SIGNUPS_CHANNEL_STACK = [NOT_SPECIFIED_BUCKET, ...BUCKET_DEFINITIONS];
+
+function computeSignupsByChannelPeriodic(periods) {
+  // Per-day per-bucket counts from referralSources (skip entries without daily).
+  const perDay = {};
+  for (const entry of (dataJson.amplitude?.referralSources || [])) {
+    const bucket = categorizeReferralSource(entry.source);
+    if (!entry.daily) continue;
+    for (const [d, n] of Object.entries(entry.daily)) {
+      perDay[d] = perDay[d] || {};
+      perDay[d][bucket] = (perDay[d][bucket] || 0) + (n || 0);
+    }
+  }
+  return periods.map((p) => {
+    const row = {
+      week:            p.weekStartLabel ?? p.label,
+      dateRange:       p.dateRange,
+      partial:         p.trailingPartial ?? p.partial,
+      trailingPartial: p.trailingPartial ?? p.partial,
+      dates:           p.dates,
+    };
+    let categorized = 0;
+    for (const def of BUCKET_DEFINITIONS) {
+      let v = 0;
+      for (const d of p.dates) v += perDay[d]?.[def.name] || 0;
+      row[def.name] = v;
+      categorized += v;
+    }
+    const total = p.dates.reduce((s, d) => s + (LIVE_SIGNUPS_BY_DATE[d] || 0), 0);
+    // Bucket counts are raw integers from amplitude.referralSources (one
+    // user = one count in their bucket). Not Specified = the residual gap
+    // between daily-uniques and the sum of per-source uniques. Clamped to
+    // 0 in weeks where the per-source breakdown sums above daily-uniques
+    // (happens when a user records multiple referral_source values in the
+    // window — Amplitude counts them in each entry they touched). The
+    // resulting cross-window discrepancy (sum-of-buckets > daily-uniques
+    // by a handful of users) is surfaced honestly in the footnote rather
+    // than papered over with fractional signups.
+    row['Not Specified'] = Math.max(0, total - categorized);
+    row.total = total;
+    return row;
+  });
+}
+
+const SIGNUPS_BY_CHANNEL_WEEKLY_30D = computeSignupsByChannelPeriodic(LIVE_WEEKS);
+const SIGNUPS_BY_CHANNEL_WEEKLY_MTD = computeSignupsByChannelPeriodic(MTD_WEEKS_LIST);
+const SIGNUPS_BY_CHANNEL_MONTHLY_YTD = computeSignupsByChannelPeriodic(YTD_MONTHS_LIST);
+
+// ---------------------------------------------------------------------------
 // Sales Meeting Discovery — self-reported "how did you discover Mutiny"
 // from the Talk to Sales form (HubSpot contacts, property
 // `how_did_you_discover_mutiny`). Same bucketing rules as Share of Signups.
@@ -932,42 +1008,52 @@ const SIGNUPS_BY_CHANNEL_KEYS = ['Direct','Search','Referral','Social','LinkedIn
 const ATTRIBUTION_START_YYYYMMDD = '20260513';
 const ATTRIBUTION_START_LABEL    = 'May 13, 2026';
 
-const SIGNUPS_BY_CHANNEL_WEEKLY = LIVE_WEEKS.map((w) => {
-  const blank = () => Object.fromEntries(SIGNUPS_BY_CHANNEL_KEYS.map((k) => [k, 0]));
-  const signups  = blank();
-  const sessions = blank();
-  const weekDates = new Set(w.dates);
-  for (const r of dataJson.ga4.file2) {
-    if (!weekDates.has(r.date)) continue;
-    // Skip pre-attribution dates — plg_signup_click was unreliable before then.
-    if (r.date < ATTRIBUTION_START_YYYYMMDD) continue;
-    const b = bucketRowFromGA(r);
-    signups[b] = (signups[b] || 0) + (r.eventCount || 0);
-  }
-  for (const r of dataJson.ga4.file3) {
-    // Sessions (file3 engagedSessions) come from GA4's normal session-tracking
-    // and are reliable across the full window — NOT filtered by attribution
-    // start. This keeps Website Visitors and other session-side views intact.
-    if (!weekDates.has(r.date)) continue;
-    const b = bucketRowFromGA(r);
-    sessions[b] = (sessions[b] || 0) + (r.engagedSessions || 0);
-  }
-  return {
-    weekStartLabel: w.weekStartLabel,
-    dateRange:      w.dateRange,
-    weekStart:      w.weekStart,
-    partial:        w.partial,
-    signups,
-    sessions,
-  };
-});
+// Compute per-week GA channel breakdown for any list of Mon-Sun week objects
+// (LIVE_WEEKS for 30d, MTD_WEEKS_LIST for MTD, reportingWeeks for Reporting
+// Mode, etc.). Each week needs `dates` (the days summed into bar values)
+// plus passthrough labels.
+function computeSignupsByChannelGAWeekly(weeks) {
+  return weeks.map((w) => {
+    const blank = () => Object.fromEntries(SIGNUPS_BY_CHANNEL_KEYS.map((k) => [k, 0]));
+    const signups  = blank();
+    const sessions = blank();
+    // For Reporting Mode the week's `dates` is the clipped (cohort ∩ range)
+    // set, falling back to the full Mon-Sun set when datesInRange is absent.
+    const dateBag = w.datesInRange || w.dates;
+    const weekDates = new Set(dateBag);
+    for (const r of dataJson.ga4.file2) {
+      if (!weekDates.has(r.date)) continue;
+      // Skip pre-attribution dates — plg_signup_click was unreliable before then.
+      if (r.date < ATTRIBUTION_START_YYYYMMDD) continue;
+      const b = bucketRowFromGA(r);
+      signups[b] = (signups[b] || 0) + (r.eventCount || 0);
+    }
+    for (const r of dataJson.ga4.file3) {
+      // Sessions (file3 engagedSessions) come from GA4's normal session-tracking
+      // and are reliable across the full window — NOT filtered by attribution
+      // start. This keeps Website Visitors and other session-side views intact.
+      if (!weekDates.has(r.date)) continue;
+      const b = bucketRowFromGA(r);
+      sessions[b] = (sessions[b] || 0) + (r.engagedSessions || 0);
+    }
+    return {
+      weekStartLabel: w.weekStartLabel,
+      dateRange:      w.dateRange,
+      weekStart:      w.weekStart,
+      partial:        w.partial,
+      signups,
+      sessions,
+    };
+  });
+}
+const SIGNUPS_BY_CHANNEL_WEEKLY = computeSignupsByChannelGAWeekly(LIVE_WEEKS);
 
 // Compute chart-shaped weekly data for the signups stacked column chart.
 // Each row has the channel keys flattened (so Recharts can stack them) plus
 // metadata for tooltip/labels. Pre-attribution weeks are kept (as empty bars)
 // so the X-axis stays consistent with the other weekly charts on the page.
-function computeWeeklyData() {
-  return SIGNUPS_BY_CHANNEL_WEEKLY.map((w) => ({
+function computeWeeklyData(source = SIGNUPS_BY_CHANNEL_WEEKLY) {
+  return source.map((w) => ({
     week: w.weekStartLabel,
     dateRange: w.dateRange,
     populated: true,
@@ -987,12 +1073,18 @@ function computeWeeklyData() {
 // Compute Sessions → Signups channel table for the conversion window
 // (2026-05-07 → end of Last 30 Days). Aggregates raw GA4 rows directly so we
 // can slice mid-week without re-bucketing the weekly summary.
-function computeChannelTable() {
+function computeChannelTable(startCompact, endCompact) {
+  // Default window: from plg_signup_click attribution start through today.
+  // Reporting Mode passes (rangeStartCompact, rangeEndCompact) explicitly,
+  // intersected with the attribution window below.
   const channels = ['Direct','Search','Referral','LinkedIn','Social','Unassigned','AEO','Email'];
   const sessions = Object.fromEntries(channels.map((c) => [c, 0]));
   const signups  = Object.fromEntries(channels.map((c) => [c, 0]));
-  const inAttribWindow = (d) =>
-    d >= ATTRIBUTION_START_YYYYMMDD && d <= LIVE_END_YYYYMMDD;
+  const effectiveStart = startCompact
+    ? (startCompact > ATTRIBUTION_START_YYYYMMDD ? startCompact : ATTRIBUTION_START_YYYYMMDD)
+    : ATTRIBUTION_START_YYYYMMDD;
+  const effectiveEnd = endCompact || LIVE_END_YYYYMMDD;
+  const inAttribWindow = (d) => d >= effectiveStart && d <= effectiveEnd;
 
   for (const r of dataJson.ga4.file2) {
     if (!inAttribWindow(r.date)) continue;
@@ -1014,9 +1106,14 @@ function computeChannelTable() {
 // Compute per-source/medium breakdown WITHIN a single channel bucket — used by
 // the row-click drill-down on the Channel Funnel table. Same window rule as
 // computeChannelTable (from 2026-05-07, when signup attribution began).
-function computeChannelDrillDown(channelName) {
-  const inAttribWindow = (d) =>
-    d >= ATTRIBUTION_START_YYYYMMDD && d <= LIVE_END_YYYYMMDD;
+function computeChannelDrillDown(channelName, startCompact, endCompact) {
+  // Window matches computeChannelTable: from plg_signup_click attribution
+  // start through end; in Reporting Mode the caller passes range bounds.
+  const effectiveStart = startCompact
+    ? (startCompact > ATTRIBUTION_START_YYYYMMDD ? startCompact : ATTRIBUTION_START_YYYYMMDD)
+    : ATTRIBUTION_START_YYYYMMDD;
+  const effectiveEnd = endCompact || LIVE_END_YYYYMMDD;
+  const inAttribWindow = (d) => d >= effectiveStart && d <= effectiveEnd;
   // Group by SOURCE only (the part before " / " in GA4's sourceMedium).
   // E.g. "google / organic" + "google / cpc" both roll up to "google".
   const sourceOf = (sourceMedium) => {
@@ -1051,9 +1148,9 @@ function computeChannelDrillDown(channelName) {
 // usual week metadata. Pass a string for a single channel or an array of
 // strings for multiple. Pre-attribution weeks are kept as empty bars for
 // X-axis consistency with the other weekly charts.
-function computeChannelDeepDive(channelKeys) {
+function computeChannelDeepDive(channelKeys, source = SIGNUPS_BY_CHANNEL_WEEKLY) {
   const keys = Array.isArray(channelKeys) ? channelKeys : [channelKeys];
-  return SIGNUPS_BY_CHANNEL_WEEKLY.map((w) => {
+  return source.map((w) => {
     const row = {
       week: w.weekStartLabel,
       dateRange: w.dateRange,
@@ -1067,8 +1164,8 @@ function computeChannelDeepDive(channelKeys) {
 }
 
 // Equivalent for engaged sessions — used by the Web stacked column section.
-function computeWebSessionsWeekly() {
-  return SIGNUPS_BY_CHANNEL_WEEKLY.map((w) => {
+function computeWebSessionsWeekly(source = SIGNUPS_BY_CHANNEL_WEEKLY) {
+  return source.map((w) => {
     const row = {
       week: w.weekStartLabel,
       dateRange: w.dateRange,
@@ -1596,7 +1693,26 @@ const PieHoverPanel = ({ slice, total, unit = 'signup' }) => {
 // hatch pattern in all three charts. A footnote spells out the partial-week
 // caveat so Wk 3 isn't mis-read as a step-down.
 // ---------------------------------------------------------------------------
-function TopOfFunnelTrend({ data, weeklyData, mode = 'weekly', footnoteOverride, dateRangeLabel, weeklyDateRangeLabel }) {
+function TopOfFunnelTrend({
+  data,
+  weeklyData,
+  mode = 'weekly',
+  footnoteOverride,
+  dateRangeLabel,
+  weeklyDateRangeLabel,
+  // Controls which BarPanels to render. Default is the original two
+  // (Signups + Sales Meetings Requested). Passing `['meetings']` renders
+  // only the Sales Meetings chart — used when relocating it below the
+  // Signups by Channel card.
+  chartKeys = ['signups', 'meetings'],
+  // When this is the only chart in a non-"Top of funnel" context, hide
+  // the section eyebrow.
+  showEyebrow = true,
+  // In Reporting Mode partial bars are edge-clipped, not in-progress.
+  isReporting = false,
+  // Suppress the trailing footnote entirely (and the surrounding margin).
+  hideFootnote = false,
+}) {
   // When `weeklyData` is provided alongside `data`, each chart gets its own
   // Daily/Weekly toggle in the card header. Used by the Last 30 days view
   // mode so users can flip Signups and Sales Meetings between granularities
@@ -1663,7 +1779,7 @@ function TopOfFunnelTrend({ data, weeklyData, mode = 'weekly', footnoteOverride,
       >
         <div style={{ fontWeight: 700, marginBottom: 2 }}>
           {d.dateRange}
-          {d.trailingPartial ? ' · current week, in progress' : ''}
+          {d.trailingPartial ? (isReporting ? ' · clipped to range' : ' · current week, in progress') : ''}
         </div>
         <div>{metricLabel}: <strong>{formatter(d)}</strong></div>
       </div>
@@ -1680,7 +1796,7 @@ function TopOfFunnelTrend({ data, weeklyData, mode = 'weekly', footnoteOverride,
           background: C.white,
           border: `1px solid ${C.black}`,
           borderRadius: 4,
-          padding: '24px 28px 20px',
+          padding: '28px 32px 24px',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
@@ -1752,7 +1868,7 @@ function TopOfFunnelTrend({ data, weeklyData, mode = 'weekly', footnoteOverride,
             </div>
           )}
         </div>
-        <div style={{ height: 280, marginTop: 16 }}>
+        <div style={{ height: 320, marginTop: 16 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={panelData} margin={{ top: 12, right: 8, bottom: 8, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" vertical={false} />
@@ -1804,85 +1920,99 @@ function TopOfFunnelTrend({ data, weeklyData, mode = 'weekly', footnoteOverride,
     );
   };
 
+  // Available panel specs keyed by chartKey. Only the ones in `chartKeys`
+  // are rendered. When only one is rendered, the grid collapses to a
+  // single column (full width of the wrapping container).
+  const PANEL_SPECS = {
+    signups: {
+      chartKey: 'signups',
+      title:    'Signups',
+      source:   'Amplitude',
+      dataKey:  'signups',
+      color:    C.purple,
+    },
+    meetings: {
+      chartKey: 'meetings',
+      title:    'Sales Meetings Requested',
+      source:   'HubSpot',
+      dataKey:  'meetings',
+      color:    C.red,
+    },
+  };
+  const panelsToRender = chartKeys.map((k) => PANEL_SPECS[k]).filter(Boolean);
+
   return (
     <section style={{ marginBottom: 40 }}>
       {/* Eyebrow */}
-      <div
-        style={{
-          fontFamily: FONT_BODY,
-          fontWeight: 700,
-          fontSize: 11,
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          opacity: 0.7,
-          marginBottom: 8,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-        }}
-      >
-        <span>
-          Top of funnel{hasPerChartToggle ? '' : isDaily ? ' · daily trend' : ' · weekly trend'}
-        </span>
-        <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
-      </div>
+      {showEyebrow && (
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontWeight: 700,
+            fontSize: 11,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            opacity: 0.7,
+            marginBottom: 8,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+          }}
+        >
+          <span>
+            Top of funnel{hasPerChartToggle ? '' : isDaily ? ' · daily trend' : ' · weekly trend'}
+          </span>
+          <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
+        </div>
+      )}
 
-      {/* Two side-by-side bar charts */}
+      {/* Side-by-side bar charts (or single, depending on chartKeys) */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
+          gridTemplateColumns: `repeat(${panelsToRender.length}, 1fr)`,
           gap: 20,
         }}
       >
-        <BarPanel
-          chartKey="signups"
-          title="Signups"
-          source="Amplitude"
-          dataKey="signups"
-          color={C.purple}
-        />
-        <BarPanel
-          chartKey="meetings"
-          title="Sales Meetings Requested"
-          source="HubSpot"
-          dataKey="meetings"
-          color={C.red}
-        />
+        {panelsToRender.map((spec) => (
+          <BarPanel key={spec.chartKey} {...spec} />
+        ))}
       </div>
 
-      {/* Footnote — adapts to mode */}
-      <div
-        style={{
-          fontFamily: FONT_CAPTION,
-          fontStyle: 'italic',
-          fontSize: 11,
-          opacity: 0.6,
-          marginTop: 10,
-          lineHeight: 1.5,
-        }}
-      >
-        {footnoteOverride ? (
-          footnoteOverride
-        ) : hasPerChartToggle ? (
-          <>
-            * Each chart covers the strict <strong>Last 30 days</strong>. Toggle each between
-            Daily and Weekly to compare granularities — bars sum to the same KPI total either
-            way. In weekly, leading/trailing bars may be partial where the 30-day window
-            clips a week; the current in-progress week is hatched.
-          </>
-        ) : isDaily ? (
-          <>
-            * Daily bars cover the strict <strong>Last 30 days</strong> window. Sum of bars equals
-            the KPI total above. Today's bar reflects events received so far — late-arriving
-            events may nudge it as the day progresses.
-          </>
-        ) : (
-          <>
-            * Bars are <strong>Mon–Sun</strong> weeks. Sum of bars equals the KPI total above.
-          </>
-        )}
-      </div>
+      {/* Footnote — adapts to mode. Omitted entirely when hideFootnote. */}
+      {!hideFootnote && (
+        <div
+          style={{
+            fontFamily: FONT_CAPTION,
+            fontStyle: 'italic',
+            fontSize: 11,
+            opacity: 0.6,
+            marginTop: 10,
+            lineHeight: 1.5,
+          }}
+        >
+          {footnoteOverride ? (
+            footnoteOverride
+          ) : hasPerChartToggle ? (
+            <>
+              * Each chart covers the strict <strong>Last 30 days</strong>. Toggle each between
+              Daily and Weekly to compare granularities — bars sum to the same KPI total either
+              way. In weekly, leading/trailing bars may be partial where the 30-day window
+              clips a week; the current in-progress week is hatched.
+            </>
+          ) : isDaily ? (
+            <>
+              * Daily bars cover the strict <strong>Last 30 days</strong> window. Sum of bars equals
+              the KPI total above. Today's bar reflects events received so far — late-arriving
+              events may nudge it as the day progresses.
+            </>
+          ) : (
+            <>
+              * Bars are <strong>Mon–Sun</strong> weeks. Sum of bars equals the KPI total above.
+            </>
+          )}
+        </div>
+      )}
     </section>
   );
 }
@@ -1915,6 +2045,7 @@ function SelfReportedPieCard({
         border: `1px solid ${C.black}`,
         borderRadius: 4,
         padding: '28px 32px',
+        position: 'relative',
       }}
     >
       {/* Optional data-availability ribbon (e.g. "data starts May 4") */}
@@ -2015,7 +2146,7 @@ function SelfReportedPieCard({
         }}
       >
         {/* Pie */}
-        <div style={{ height: 260, position: 'relative' }}>
+        <div style={{ height: 320, position: 'relative' }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -2137,19 +2268,1046 @@ function SelfReportedPieCard({
         </div>
       </div>
 
-      {/* Responses (hover panel) */}
+      {/* Floating hover overlay — appears only while a slice/legend row is
+          hovered. Sits inside the card's relative-positioned shell so it
+          doesn't blow out of the layout. Replaces the prior fixed-height
+          panel below the pie. */}
+      {activeSlice && (
+        <div
+          style={{
+            position: 'absolute',
+            left: 16,
+            right: 16,
+            bottom: 16,
+            background: C.white,
+            border: `1px solid ${C.black}`,
+            borderRadius: 4,
+            padding: '14px 16px',
+            boxShadow: '2px 2px 0 rgba(0,0,0,0.08)',
+            pointerEvents: 'none',
+            zIndex: 5,
+          }}
+        >
+          <PieHoverPanel slice={activeSlice} total={total} unit={unit} />
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// SelfReportedWeeklyCard — replaces the Customer signups pie with a weekly
+// stacked column chart broken out by referral_source bucket. Uses the same
+// outer chrome (eyebrow + title + Self-reported tag + Source pill + alert
+// banner) as SelfReportedPieCard so the two cards sit visually balanced
+// side-by-side. Mirrors the Top-of-Funnel Signups bar's weekly logic:
+//   30d  → LIVE_WEEKS (full Mon-Sun weeks, trailing partial hatched)
+//   MTD  → MTD_WEEKS_LIST
+//   YTD  → YTD_MONTHS_LIST (monthly bars)
+//
+// Includes a "Not Specified" bucket at the base of the stack equal to
+// (total signups in period − sum of categorized buckets). This is mainly
+// the pre-May-8 instrumentation gap (when referral_source was optional)
+// and shrinks to ~0 after the field became required.
+// ---------------------------------------------------------------------------
+function SelfReportedWeeklyCard({
+  eyebrow,
+  title,
+  source,
+  data,
+  total,
+  unit,
+  infoTooltip,
+  alertBanner,
+  dateRangeLabel,
+  dateSet,
+  // When true, partial bars are edge-clipped to a custom range rather than
+  // current-week in-progress; tooltip wording adapts.
+  isReporting = false,
+}) {
+  // ── State ──────────────────────────────────────────────────────────────
+  //   visible        — { bucketName: bool }, all on by default
+  //   detailsOpen    — modal open/closed
+  //   hoveredBucket  — modal hover state (toggle/legend chip → show responses)
+  //   selectedWeek   — modal click state (clicking a column scopes responses
+  //                    to just that week's dates)
+  const [visible, setVisible] = useState(
+    () => Object.fromEntries(SIGNUPS_CHANNEL_BUCKETS.map((b) => [b.name, true]))
+  );
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [hoveredBucket, setHoveredBucket] = useState(null);
+  const [selectedWeek, setSelectedWeek] = useState(null);
+  // Modal-only: set of bucket names whose raw responses are "pinned" into
+  // the responses panel. Clicking a chip in the modal toggles its bucket in
+  // this set (multi-select). Does NOT affect chart bar visibility — for
+  // that, see `visible` (controlled only by the card's chip clicks).
+  const [selectedResponseBuckets, setSelectedResponseBuckets] = useState(() => new Set());
+  // Summary mode collapses the stacked breakdown to a single bar per week.
+  // Defaults to ON — most-frequent view is plain weekly signups; users can
+  // flip to Stacked when they want the channel breakdown.
+  const [summary, setSummary] = useState(true);
+
+  // Per-bucket sources scoped to an arbitrary dateSet (returns
+  // [{source, count}] sorted by count desc, plus a notSpecCount for the
+  // residual bucket). Used for both window-wide and per-week response lookup.
+  function buildBucketSources(dateScope) {
+    const byBucket = Object.fromEntries(BUCKET_DEFINITIONS.map((b) => [b.name, []]));
+    for (const entry of (dataJson.amplitude?.referralSources || [])) {
+      const bucket = categorizeReferralSource(entry.source);
+      if (!byBucket[bucket]) continue;
+      const count = dateScope ? sourceWindowCount(entry, dateScope) : (entry.count || 0);
+      if (count > 0) byBucket[bucket].push({ source: entry.source, count });
+    }
+    for (const k of Object.keys(byBucket)) {
+      byBucket[k].sort((a, b) => b.count - a.count);
+    }
+    // Not Specified residual = total signups − sum of categorized per date.
+    let nsCount = 0;
+    if (dateScope) {
+      const dateArr = Array.isArray(dateScope) ? dateScope : Array.from(dateScope);
+      for (const d of dateArr) {
+        const tot = LIVE_SIGNUPS_BY_DATE[d] || 0;
+        let cat = 0;
+        for (const entry of (dataJson.amplitude?.referralSources || [])) {
+          if (entry.daily?.[d]) cat += entry.daily[d];
+        }
+        nsCount += Math.max(0, tot - cat);
+      }
+    }
+    return { byBucket, nsCount };
+  }
+
+  // Window-wide detailed buckets (used when no week is selected in the modal).
+  const detailedBuckets = buildBucketSources(dateSet).byBucket;
+
+  // Per-selected-week detailed buckets (computed only when a week is selected
+  // to keep the no-selection path light).
+  const selectedRow = selectedWeek
+    ? data.find((r) => r.week === selectedWeek)
+    : null;
+  const selectedWeekSources = selectedRow
+    ? buildBucketSources(selectedRow.dates || [])
+    : null;
+
+  // Per-bucket window totals (raw integer sums from the bucket counts).
+  const totals = Object.fromEntries(
+    SIGNUPS_CHANNEL_BUCKETS.map((b) => [
+      b.name,
+      data.reduce((s, r) => s + (r[b.name] || 0), 0),
+    ])
+  );
+  // Y-axis scales to the *visible* stack (in breakdown) or row.total (in
+  // summary) so toggling off big buckets lets the smaller ones fill the chart.
+  const visibleBuckets = SIGNUPS_CHANNEL_BUCKETS.filter((b) => visible[b.name]);
+  const maxValue = summary
+    ? Math.max(...data.map((r) => r.total || 0), 1)
+    : Math.max(
+        ...data.map((r) =>
+          visibleBuckets.reduce((s, b) => s + (r[b.name] || 0), 0)
+        ),
+        1
+      );
+  const { ticks: yTicks, max: yMax } = niceTicks(maxValue, 5);
+  // Two distinct, both-valid window totals:
+  //   summaryTotal = Σ daily-uniques (matches the Signups KPI / Top of Funnel)
+  //   bucketsTotal = Σ per-source-uniques + Not Specified residual
+  // They can differ when a user touches multiple referral_source values in
+  // the window (Amplitude counts them in each bucket they appeared in).
+  const summaryTotal = data.reduce((s, r) => s + (r.total || 0), 0);
+  const bucketsTotal = SIGNUPS_CHANNEL_BUCKETS.reduce((s, b) => s + (totals[b.name] || 0), 0);
+  const visibleTotal = visibleBuckets.reduce((s, b) => s + (totals[b.name] || 0), 0);
+  // Number shown in the card header — the sum the user reads off the chart.
+  const displayedTotal = summary ? summaryTotal : visibleTotal;
+
+  function toggleBucket(name) {
+    setVisible((v) => ({ ...v, [name]: !v[name] }));
+  }
+  function allOn()  { setVisible(Object.fromEntries(SIGNUPS_CHANNEL_BUCKETS.map((b) => [b.name, true]))); }
+  function allOff() { setVisible(Object.fromEntries(SIGNUPS_CHANNEL_BUCKETS.map((b) => [b.name, false]))); }
+  function closeModal() {
+    setDetailsOpen(false);
+    setHoveredBucket(null);
+    setSelectedWeek(null);
+    setSelectedResponseBuckets(new Set());
+  }
+  function togglePinnedBucket(name) {
+    setSelectedResponseBuckets((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  }
+
+  // Hatched fill helper. In the modal, dims any non-selected week when
+  // `selectedWeek` is set, so the clicked column visually pops.
+  const HatchedStack = (color, opts = {}) => (props) => {
+    const { x, y, width, height, payload, dataKey } = props;
+    if (!payload || height <= 0) return null;
+    const isPartial = payload.partial;
+    const dimmed = opts.selectedWeek && payload.week !== opts.selectedWeek;
+    const patternId =
+      `hatchpie-${String(dataKey).replace(/[^a-zA-Z0-9]/g, '')}-${(payload.week || '').replace(/[^a-zA-Z0-9]/g, '')}-${opts.scope || 'card'}`;
+    return (
+      <g style={{ opacity: dimmed ? 0.3 : 1, transition: 'opacity 0.15s' }}>
+        {isPartial && (
+          <defs>
+            <pattern id={patternId} patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+              <rect width="6" height="6" fill={color} fillOpacity="0.25" />
+              <line x1="0" y1="0" x2="0" y2="6" stroke={color} strokeWidth="2" />
+            </pattern>
+          </defs>
+        )}
+        <rect
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          fill={isPartial ? `url(#${patternId})` : color}
+          stroke={C.black}
+          strokeWidth={1}
+        />
+      </g>
+    );
+  };
+
+  // ── Chart helper. Renders the same stacked column chart for both the
+  //    card and the modal, parameterized by height + click behavior.
+  function renderChart({ height, interactive, scope }) {
+    const onBarClick = interactive
+      ? (payload) => {
+          if (!payload) return;
+          const wk = payload.activeLabel ?? payload.week;
+          if (!wk) return;
+          setSelectedWeek((cur) => (cur === wk ? null : wk));
+        }
+      : undefined;
+    return (
+      <div>
+        <div style={{ width: '100%', height }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 8, right: 8, bottom: 8, left: 0 }}
+              onClick={onBarClick}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" vertical={false} />
+              <XAxis
+                dataKey="week"
+                axisLine={{ stroke: C.black, strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }}
+                interval={0}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontFamily: FONT_BODY, fontSize: 10, fill: C.black, opacity: 0.6 }}
+                width={40}
+                domain={[0, yMax]}
+                ticks={yTicks}
+                allowDecimals={false}
+              />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (!active || !payload || !payload.length) return null;
+                  const d = payload[0].payload;
+                  // Summary mode: just show the total signups for the period.
+                  if (summary) {
+                    return (
+                      <div
+                        style={{
+                          background: C.white,
+                          border: `1px solid ${C.black}`,
+                          padding: '10px 12px',
+                          fontFamily: FONT_BODY,
+                          fontSize: 12,
+                          minWidth: 170,
+                        }}
+                      >
+                        <div style={{ fontWeight: 700, marginBottom: 4 }}>
+                          {d.dateRange}{d.partial ? (isReporting ? ' · clipped to range' : ' · in progress') : ''}
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14 }}>
+                          <span>Signups</span>
+                          <strong style={{ fontVariantNumeric: 'tabular-nums' }}>
+                            {Math.round(d.total || 0)}
+                          </strong>
+                        </div>
+                      </div>
+                    );
+                  }
+                  // Breakdown mode: per-bucket rows, sorted desc, with %s.
+                  const rows = visibleBuckets
+                    .map((b) => ({ ...b, v: d[b.name] || 0 }))
+                    .filter((r) => r.v > 0)
+                    .sort((a, b) => b.v - a.v);
+                  const tot = rows.reduce((s, r) => s + r.v, 0);
+                  return (
+                    <div
+                      style={{
+                        background: C.white,
+                        border: `1px solid ${C.black}`,
+                        padding: '10px 12px',
+                        fontFamily: FONT_BODY,
+                        fontSize: 12,
+                        minWidth: 240,
+                      }}
+                    >
+                      <div style={{ fontWeight: 700, marginBottom: 6 }}>
+                        {d.dateRange}{d.partial ? (isReporting ? ' · clipped to range' : ' · in progress') : ''}
+                        {interactive && (
+                          <span style={{ fontWeight: 400, opacity: 0.6, marginLeft: 6 }}>
+                            (click to select)
+                          </span>
+                        )}
+                      </div>
+                      {rows.map((r) => {
+                        const pct = tot > 0 ? (r.v / tot) * 100 : 0;
+                        return (
+                          <div
+                            key={r.name}
+                            style={{ display: 'flex', justifyContent: 'space-between', gap: 14 }}
+                          >
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{
+                                display: 'inline-block', width: 8, height: 8, background: r.color,
+                                border: `1px solid ${C.black}`,
+                              }} />
+                              {r.name}
+                            </span>
+                            <strong style={{ fontVariantNumeric: 'tabular-nums' }}>
+                              {r.v} · {pct.toFixed(1)}%
+                            </strong>
+                          </div>
+                        );
+                      })}
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          borderTop: '1px solid rgba(0,0,0,0.1)',
+                          marginTop: 6,
+                          paddingTop: 6,
+                        }}
+                      >
+                        <span>Total{visibleBuckets.length < SIGNUPS_CHANNEL_BUCKETS.length ? ' (shown)' : ''}</span>
+                        <strong style={{ fontVariantNumeric: 'tabular-nums' }}>{tot}</strong>
+                      </div>
+                    </div>
+                  );
+                }}
+                cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+              />
+              {summary ? (
+                <Bar
+                  dataKey="total"
+                  shape={HatchedStack(C.purple, {
+                    selectedWeek: interactive ? selectedWeek : null,
+                    scope,
+                  })}
+                  maxBarSize={interactive ? 140 : 130}
+                  isAnimationActive={false}
+                  style={interactive ? { cursor: 'pointer' } : undefined}
+                />
+              ) : (
+                SIGNUPS_CHANNEL_STACK.filter((b) => visible[b.name]).map((b) => (
+                  <Bar
+                    key={b.name}
+                    dataKey={b.name}
+                    stackId="a"
+                    shape={HatchedStack(b.color, {
+                      selectedWeek: interactive ? selectedWeek : null,
+                      scope,
+                    })}
+                    maxBarSize={interactive ? 140 : 130}
+                    isAnimationActive={false}
+                    style={interactive ? { cursor: 'pointer' } : undefined}
+                  />
+                ))
+              )}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Combined toggles+legend row. Click to toggle on/off. Optionally
+  //    accepts onHover for the modal's response-panel behavior.
+  function renderToggleLegend({ onHover, hovered, layout = 'horizontal', useWeekScope = false, mode = 'toggle' } = {}) {
+    // Two modes:
+    //   'toggle' (card): click → hide/show bucket in the stacked chart
+    //                    (controls `visible` state).
+    //   'select' (modal): click → add/remove bucket from the pinned
+    //                    response-selection set; chart is NOT affected.
+    const isSelectMode = mode === 'select';
+    // When a week is selected in the modal AND useWeekScope is true, the
+    // legend chip values reflect that week's data; otherwise window-wide.
+    const inWeek = useWeekScope && Boolean(selectedRow);
+    const valueFor   = (b) => inWeek ? (selectedRow[b.name] || 0) : (totals[b.name] || 0);
+    const scopeTotal = inWeek
+      ? SIGNUPS_CHANNEL_BUCKETS.reduce((s, b) => s + (selectedRow[b.name] || 0), 0)
+      : total;
+    const gridCols = layout === 'vertical'
+      ? '1fr'
+      : 'repeat(auto-fill, minmax(190px, 1fr))';
+    return (
       <div
         style={{
-          background: C.paper,
-          border: `1px solid ${C.black}`,
-          borderRadius: 4,
-          padding: '14px 16px',
-          minHeight: 110,
-          marginTop: 20,
+          display: 'grid',
+          gridTemplateColumns: gridCols,
+          gap: 6,
+          fontFamily: FONT_BODY,
+          fontSize: 12,
+        }}
+        onMouseLeave={onHover ? () => onHover(null) : undefined}
+      >
+        {[...SIGNUPS_CHANNEL_STACK].reverse().map((b) => {
+          const v = valueFor(b);
+          const pct = scopeTotal > 0 ? Math.round((v / scopeTotal) * 100) : 0;
+          const on = isSelectMode
+            ? selectedResponseBuckets.has(b.name)
+            : visible[b.name];
+          const isHovered = hovered === b.name;
+          const onClick = isSelectMode
+            ? () => togglePinnedBucket(b.name)
+            : () => toggleBucket(b.name);
+          const titleAttr = isSelectMode
+            ? (on ? 'Click to unpin responses' : 'Click to pin responses')
+            : (on ? 'Click to hide' : 'Click to show');
+          return (
+            <button
+              key={b.name}
+              type="button"
+              onClick={onClick}
+              onMouseEnter={onHover ? () => onHover(b.name) : undefined}
+              aria-pressed={on}
+              title={titleAttr}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '5px 10px',
+                background: isSelectMode
+                  ? (on ? b.color + '22' : (isHovered ? C.paper : C.white))
+                  : (isHovered ? C.paper : C.white),
+                border: `${isSelectMode && on ? 2 : 1}px solid ${C.black}`,
+                borderRadius: 4,
+                cursor: 'pointer',
+                color: C.black,
+                fontFamily: FONT_BODY,
+                fontSize: 12,
+                // In select mode all chips stay fully readable (we're not
+                // hiding anything from the chart); in toggle mode off-chips
+                // strike through to communicate "hidden in chart".
+                opacity: isSelectMode ? 1 : (on ? 1 : 0.45),
+                textDecoration: !isSelectMode && !on ? 'line-through' : 'none',
+                textAlign: 'left',
+                lineHeight: 1.3,
+                fontWeight: isSelectMode && on ? 700 : 400,
+              }}
+            >
+              <span style={{
+                display: 'inline-block', width: 10, height: 10, background: b.color,
+                border: `1px solid ${C.black}`, flexShrink: 0,
+                opacity: !isSelectMode && !on ? 0.4 : 1,
+              }} />
+              <span style={{ fontWeight: isSelectMode && on ? 700 : 600, flex: 1 }}>{b.name}</span>
+              <span style={{
+                opacity: 0.65, fontVariantNumeric: 'tabular-nums',
+              }}>
+                {v} · {pct}%
+              </span>
+            </button>
+          );
+        })}
+        {isSelectMode ? (
+          selectedResponseBuckets.size > 0 && (
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <button
+                type="button"
+                onClick={() => setSelectedResponseBuckets(new Set())}
+                style={{
+                  padding: '4px 10px',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontFamily: FONT_BODY,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: C.black,
+                  opacity: 0.55,
+                  textDecoration: 'underline',
+                }}
+              >
+                clear pinned
+              </button>
+            </div>
+          )
+        ) : (
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <button
+              type="button"
+              onClick={allOn}
+              style={{
+                padding: '4px 10px',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: FONT_BODY,
+                fontSize: 11,
+                fontWeight: 600,
+                color: C.black,
+                opacity: 0.55,
+                textDecoration: 'underline',
+              }}
+            >
+              all
+            </button>
+            <button
+              type="button"
+              onClick={allOff}
+              style={{
+                padding: '4px 10px',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: FONT_BODY,
+                fontSize: 11,
+                fontWeight: 600,
+                color: C.black,
+                opacity: 0.55,
+                textDecoration: 'underline',
+              }}
+            >
+              none
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Responses panel — renders one section per *pinned* bucket in the
+  //    modal's response selection. Scope: per-selected-week if a week is
+  //    clicked on the chart, otherwise window-wide. Multi-select: pin
+  //    several buckets to compare side-by-side.
+  function renderResponsesPanel() {
+    const inWeek      = Boolean(selectedRow);
+    const scopeLabel  = inWeek
+      ? `${selectedRow.dateRange}${selectedRow.partial ? (isReporting ? ' · clipped to range' : ' · in progress') : ''}`
+      : `Window: ${dateRangeLabel}`;
+    const scopeData   = inWeek ? selectedWeekSources : { byBucket: detailedBuckets, nsCount: totals['Not Specified'] || 0 };
+    const headerNote  = inWeek
+      ? <>Showing responses for <strong>{selectedRow.dateRange}</strong>. <button onClick={() => setSelectedWeek(null)} style={{ background: 'none', border: 'none', textDecoration: 'underline', cursor: 'pointer', fontFamily: FONT_BODY, fontSize: 12, color: C.black, padding: 0 }}>Clear selection</button> to see the full window.</>
+      : <>Click a column above to scope responses to a single week.</>;
+
+    const pinned = [...SIGNUPS_CHANNEL_STACK]
+      .reverse()
+      .filter((b) => selectedResponseBuckets.has(b.name));
+
+    let body;
+    if (pinned.length === 0) {
+      body = (
+        <div style={{
+          fontFamily: FONT_CAPTION,
+          fontStyle: 'italic',
+          fontSize: 13,
+          opacity: 0.55,
+          padding: '8px 0',
+        }}>
+          Click a category chip above to pin its responses here. Multiple categories can be pinned at once.
+        </div>
+      );
+    } else {
+      body = (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+          {pinned.map((b) => {
+            if (b.name === 'Not Specified') {
+              const nsCount = inWeek
+                ? Math.max(0, (selectedRow.total || 0) - SIGNUPS_CHANNEL_BUCKETS
+                    .filter((x) => x.name !== 'Not Specified')
+                    .reduce((s, x) => s + (selectedRow[x.name] || 0), 0))
+                : (scopeData.nsCount || 0);
+              return (
+                <section
+                  key={b.name}
+                  style={{
+                    border: `1px solid ${C.black}`,
+                    borderLeft: `4px solid ${b.color}`,
+                    borderRadius: 4,
+                    padding: '12px 16px',
+                    background: C.white,
+                  }}
+                >
+                  <div style={{
+                    fontFamily: FONT_DISPLAY, fontSize: 18, letterSpacing: '-0.02em',
+                    marginBottom: 4, display: 'flex', alignItems: 'center', gap: 10,
+                  }}>
+                    <span style={{
+                      display: 'inline-block', width: 12, height: 12, background: b.color,
+                      border: `1px solid ${C.black}`,
+                    }} />
+                    {b.name} — {nsCount} signup{nsCount === 1 ? '' : 's'}
+                  </div>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 12, opacity: 0.7, lineHeight: 1.5 }}>
+                    These signups completed Company Setup but did not have a{' '}
+                    <code style={{ fontFamily: FONT_MONO, fontSize: 11 }}>referral_source</code>{' '}
+                    value. Mostly pre-May-8 (before the field became required). Raw response
+                    text is unavailable.
+                  </div>
+                </section>
+              );
+            }
+            const sources = scopeData.byBucket[b.name] || [];
+            const bTotal  = sources.reduce((s, x) => s + x.count, 0);
+            return (
+              <section
+                key={b.name}
+                style={{
+                  border: `1px solid ${C.black}`,
+                  borderLeft: `4px solid ${b.color}`,
+                  borderRadius: 4,
+                  padding: '12px 16px',
+                  background: C.white,
+                }}
+              >
+                <div style={{
+                  fontFamily: FONT_DISPLAY, fontSize: 18, letterSpacing: '-0.02em',
+                  marginBottom: 4, display: 'flex', alignItems: 'center', gap: 10,
+                }}>
+                  <span style={{
+                    display: 'inline-block', width: 12, height: 12, background: b.color,
+                    border: `1px solid ${C.black}`,
+                  }} />
+                  {b.name} — {bTotal} signup{bTotal === 1 ? '' : 's'}
+                </div>
+                <div style={{
+                  fontFamily: FONT_BODY, fontSize: 10, fontWeight: 700,
+                  letterSpacing: '0.12em', textTransform: 'uppercase',
+                  opacity: 0.55, marginTop: 6, marginBottom: 8,
+                }}>
+                  Raw responses ({sources.length} unique value{sources.length === 1 ? '' : 's'})
+                </div>
+                {sources.length === 0 ? (
+                  <div style={{
+                    fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 12, opacity: 0.6,
+                  }}>
+                    No raw responses for {b.name} in {inWeek ? 'this week' : 'this window'}.
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {sources.map((s, i) => (
+                      <span
+                        key={i}
+                        title={s.source}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          fontFamily: FONT_BODY,
+                          fontSize: 12,
+                          background: C.paper,
+                          border: `1px solid ${C.black}`,
+                          borderRadius: 999,
+                          padding: '3px 10px',
+                          lineHeight: 1.4,
+                          maxWidth: 360,
+                        }}
+                      >
+                        <span style={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          maxWidth: 300,
+                        }}>
+                          "{s.source}"
+                        </span>
+                        <span style={{
+                          fontVariantNumeric: 'tabular-nums',
+                          fontWeight: 700,
+                          opacity: 0.7,
+                        }}>
+                          ×{s.count}
+                        </span>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </section>
+            );
+          })}
+        </div>
+      );
+    }
+    return (
+      <div>
+        <div style={{
+          fontFamily: FONT_BODY,
+          fontSize: 11,
+          opacity: 0.65,
+          marginBottom: 14,
+          lineHeight: 1.5,
+        }}>
+          {headerNote}
+          {' · '}
+          <span style={{ fontStyle: 'italic' }}>Scope: {scopeLabel}</span>
+        </div>
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <section
+      style={{
+        background: C.white,
+        border: `1px solid ${C.black}`,
+        borderRadius: 4,
+        padding: '28px 32px',
+      }}
+    >
+      {alertBanner && (
+        <div
+          style={{
+            margin: '-28px -32px 22px',
+            padding: '12px 22px',
+            background: '#FFF6D6',
+            borderBottom: `1px solid ${C.black}`,
+            borderTopLeftRadius: 4,
+            borderTopRightRadius: 4,
+            fontFamily: FONT_BODY,
+            fontSize: 12.5,
+            lineHeight: 1.55,
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 10,
+          }}
+        >
+          <span style={{ fontSize: 14, lineHeight: 1, marginTop: 1 }}>⚠️</span>
+          <div>{alertBanner}</div>
+        </div>
+      )}
+
+      {/* Header (same shape as SelfReportedPieCard) */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'baseline',
+          marginBottom: 6,
+          gap: 12,
         }}
       >
-        <PieHoverPanel slice={activeSlice} total={total} unit={unit} />
+        <div>
+          {eyebrow && (
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontWeight: 700,
+                fontSize: 11,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+              }}
+            >
+              {eyebrow}
+            </div>
+          )}
+          <h2
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 400,
+              fontSize: 28,
+              lineHeight: 1.05,
+              letterSpacing: '-0.03em',
+              margin: eyebrow ? '6px 0 0' : 0,
+              display: 'flex',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 10,
+            }}
+          >
+            {title}
+            <SelfReportedTag />
+            <InfoTooltip>{infoTooltip}</InfoTooltip>
+          </h2>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            gap: 8,
+            flexShrink: 0,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {/* Stacked / Summary segmented toggle — sized to match the
+                Details button on the right. */}
+            <div
+              role="group"
+              aria-label="Chart mode"
+              style={{
+                display: 'inline-flex',
+                border: `1px solid ${C.black}`,
+                borderRadius: 4,
+                overflow: 'hidden',
+                fontFamily: FONT_BODY,
+                fontSize: 10.5,
+                fontWeight: 600,
+                letterSpacing: '0.04em',
+                lineHeight: 1.2,
+              }}
+            >
+              {[
+                { key: 'stacked', label: 'Stacked', isOn: !summary },
+                { key: 'summary', label: 'Summary', isOn: summary  },
+              ].map((opt, i) => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => setSummary(opt.key === 'summary')}
+                  aria-pressed={opt.isOn}
+                  style={{
+                    padding: '4px 9px',
+                    background: opt.isOn ? C.black : C.white,
+                    color: opt.isOn ? C.white : C.black,
+                    border: 'none',
+                    borderLeft: i > 0 ? `1px solid ${C.black}` : 'none',
+                    cursor: 'pointer',
+                    lineHeight: 1.2,
+                    fontFamily: FONT_BODY,
+                    fontSize: 10.5,
+                    fontWeight: 600,
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setDetailsOpen(true)}
+              style={{
+                background: C.white,
+                border: `1px solid ${C.black}`,
+                borderRadius: 4,
+                padding: '4px 10px',
+                fontFamily: FONT_BODY,
+                fontWeight: 600,
+                fontSize: 11,
+                letterSpacing: '0.04em',
+                cursor: 'pointer',
+                color: C.black,
+                lineHeight: 1.2,
+              }}
+            >
+              Details →
+            </button>
+          </div>
+          <div
+            style={{
+              fontFamily: FONT_BODY,
+              fontSize: 11,
+              opacity: 0.6,
+              letterSpacing: '0.04em',
+              textAlign: 'right',
+            }}
+          >
+            Source: {source}
+            {dateRangeLabel && (
+              <div style={{ marginTop: 4, fontStyle: 'italic', fontSize: 10.5, opacity: 0.6 }}>
+                {dateRangeLabel}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* Chart area. In Summary mode the chart takes the full card width.
+          In Stacked mode it sits in a 2-col grid with the combined toggle +
+          legend on the right (vertical list) — chart ~85%, toggles ~15%. */}
+      <div style={{ marginTop: 14 }}>
+        {summary ? (
+          renderChart({ height: 440, interactive: false, scope: 'card' })
+        ) : (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '5fr 1fr',
+              gap: 20,
+              alignItems: 'start',
+            }}
+          >
+            <div>
+              {renderChart({ height: 440, interactive: false, scope: 'card' })}
+            </div>
+            <div>
+              {renderToggleLegend({ layout: 'vertical' })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Details modal ──────────────────────────────────────────────── */}
+      {detailsOpen && (
+        <div
+          onClick={closeModal}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.45)',
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 24,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: C.white,
+              border: `1px solid ${C.black}`,
+              borderRadius: 4,
+              maxWidth: 1100,
+              width: '100%',
+              maxHeight: '92vh',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '4px 4px 0 rgba(0,0,0,0.12)',
+            }}
+          >
+            {/* Modal header */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'space-between',
+                gap: 12,
+                padding: '22px 28px 16px',
+                borderBottom: `1px solid ${C.black}`,
+                flexShrink: 0,
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    fontFamily: FONT_BODY,
+                    fontWeight: 700,
+                    fontSize: 10.5,
+                    letterSpacing: '0.14em',
+                    textTransform: 'uppercase',
+                    opacity: 0.7,
+                  }}
+                >
+                  {eyebrow} — Responses
+                </div>
+                <h3
+                  style={{
+                    fontFamily: FONT_DISPLAY,
+                    fontWeight: 400,
+                    fontSize: 26,
+                    letterSpacing: '-0.02em',
+                    margin: '4px 0 0',
+                  }}
+                >
+                  {title}
+                </h3>
+                <div
+                  style={{
+                    fontFamily: FONT_CAPTION,
+                    fontStyle: 'italic',
+                    fontSize: 11,
+                    opacity: 0.65,
+                    marginTop: 4,
+                  }}
+                >
+                  {total} {unit}s in window{dateRangeLabel ? ` · ${dateRangeLabel}` : ''}{' '}
+                  · click a column to scope, hover a category to see raw responses
+                </div>
+              </div>
+              <button
+                onClick={closeModal}
+                aria-label="Close"
+                style={{
+                  background: 'transparent',
+                  border: `1px solid ${C.black}`,
+                  borderRadius: 4,
+                  width: 28,
+                  height: 28,
+                  fontFamily: FONT_BODY,
+                  fontSize: 14,
+                  cursor: 'pointer',
+                  color: C.black,
+                  flexShrink: 0,
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal body — chart on top, combined toggle+legend, then responses panel */}
+            <div
+              style={{
+                overflow: 'auto',
+                padding: '22px 28px 24px',
+                flex: 1,
+              }}
+            >
+              {renderChart({ height: 460, interactive: !summary, scope: 'modal' })}
+
+              {!summary && (
+                <>
+                  <div style={{ marginTop: 20, marginBottom: 18 }}>
+                    {renderToggleLegend({ useWeekScope: true, mode: 'select' })}
+                  </div>
+
+                  <div
+                    style={{
+                      borderTop: `1px solid ${C.black}`,
+                      paddingTop: 18,
+                      background: C.paper,
+                      margin: '0 -28px -24px',
+                      padding: '18px 28px 24px',
+                      minHeight: 200,
+                    }}
+                  >
+                    {renderResponsesPanel()}
+                  </div>
+                </>
+              )}
+
+              {summary && (
+                <div
+                  style={{
+                    fontFamily: FONT_BODY,
+                    fontSize: 12,
+                    opacity: 0.6,
+                    marginTop: 18,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  Summary view — single bar per week using daily-uniques total. Switch to{' '}
+                  <button
+                    onClick={() => setSummary(false)}
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      fontFamily: FONT_BODY, fontSize: 12, color: C.black,
+                      textDecoration: 'underline', padding: 0,
+                    }}
+                  >
+                    Stacked
+                  </button>{' '}
+                  to see channel breakdown and explore raw responses.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -2170,47 +3328,251 @@ export default function MutinyGrowthDashboard() {
   // "Programmatic Channel Analytics" divider. Sections below are unaffected.
   const [viewMode, setViewMode] = useState('30d');
 
-  // Single window: Apr 27 – May 13, 2026. Where source data doesn't extend
-  // that far back (e.g. plg_signup_click only captures from May 7), the chart
-  // shows what's available within the window.
-  const weeklyChartData = computeWeeklyData();
-  const channelTable = computeChannelTable();
+  // Reporting Mode — user-pickable date range. Defaults to last 7 days
+  // (today-6 → today, inclusive). When active, weekly charts keep their
+  // Mon-Sun cohorts but bar values are clipped to (cohort ∩ range); edge
+  // bars get hatched.
+  //
+  // Floor: 2026-05-07. Pre-May-8 our self-reported referral_source field
+  // wasn't required and per-channel attribution (plg_signup_click) wasn't
+  // wired yet — so we don't let users pick ranges that extend further back.
+  const REPORTING_FLOOR_DASH = '2026-05-07';
+  const REPORTING_FLOOR_COMPACT = '20260507';
+  const _today = LIVE_END_DATE;
+  const _last7Start = addUTCDays(_today, -6);
+  const [reportingRange, setReportingRange] = useState({
+    start: fmtYYYYMMDDDash(_last7Start),
+    end:   fmtYYYYMMDDDash(_today),
+  });
 
-  // View-mode-driven derived values. KPI totals match the window-strict total
-  // (chart bars may exceed when "full weeks" weekly view is selected for 30d/MTD).
   const is30d = viewMode === '30d';
   const isMtd = viewMode === 'mtd';
   const isYtd = viewMode === 'ytd';
-  const kpiSignups   = is30d ? DATA.signups.window         : isMtd ? SIGNUPS_MTD  : SIGNUPS_YTD;
-  const kpiSessions  = is30d ? DATA.engagedSessions.window : isMtd ? SESSIONS_MTD : SESSIONS_YTD;
-  const kpiMeetings  = is30d ? DATA.salesMeetings.window   : isMtd ? MEETINGS_MTD : MEETINGS_YTD;
-  const kpiRatio     = is30d ? ratioWindow                 : isMtd ? RATIO_MTD    : RATIO_YTD;
-  const pieSignups        = is30d ? SHARE_OF_SIGNUPS              : isMtd ? SHARE_OF_SIGNUPS_MTD             : SHARE_OF_SIGNUPS_YTD;
-  const pieSignupsTotal   = is30d ? TOTAL_SIGNUPS_CATEGORIZED     : isMtd ? TOTAL_SIGNUPS_CATEGORIZED_MTD    : TOTAL_SIGNUPS_CATEGORIZED_YTD;
-  const pieMeetings       = is30d ? SHARE_OF_SALES_MEETINGS       : isMtd ? SHARE_OF_SALES_MEETINGS_MTD      : SHARE_OF_SALES_MEETINGS_YTD;
-  const pieMeetingsTotal  = is30d ? TOTAL_SALES_MEETINGS_CATEGORIZED : isMtd ? TOTAL_SALES_MEETINGS_CATEGORIZED_MTD : TOTAL_SALES_MEETINGS_CATEGORIZED_YTD;
+  const isReporting = viewMode === 'reporting';
+
+  // ── Reporting Mode helpers ────────────────────────────────────────────
+  // Parse "YYYY-MM-DD" date input into a UTC Date. Returns null if invalid.
+  function parseISODate(s) {
+    if (!s || typeof s !== 'string') return null;
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return null;
+    return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+  }
+  const reportingStartDate = parseISODate(reportingRange.start) || _last7Start;
+  const reportingEndDate   = parseISODate(reportingRange.end)   || _today;
+  // Compact (YYYYMMDD) form for date-string comparisons against the data
+  // pulls (which use compact form).
+  const reportingStartCompact = fmtYYYYMMDD(reportingStartDate);
+  const reportingEndCompact   = fmtYYYYMMDD(reportingEndDate);
+  // Inclusive-on-both-ends date predicate (range-set).
+  const reportingDatesArray = (() => {
+    const out = [];
+    if (reportingStartDate <= reportingEndDate) {
+      for (let d = new Date(reportingStartDate); d <= reportingEndDate; d = addUTCDays(d, 1)) {
+        out.push(fmtYYYYMMDD(d));
+      }
+    }
+    return out;
+  })();
+  const reportingDatesSet = new Set(reportingDatesArray);
+  function inReportingWindow(dateStr) { return reportingDatesSet.has(dateStr); }
+  const reportingDays = reportingDatesArray.length;
+  const reportingRangeLabel = reportingStartDate <= reportingEndDate
+    ? `${fmtMonDay(reportingStartDate)} – ${fmtMonDay(reportingEndDate)}, ${reportingEndDate.getUTCFullYear()}`
+    : 'Invalid range';
+
+  // Build Mon-Sun weekly cohorts that overlap the reporting range. Each
+  // cohort exposes both `dates` (full Mon-Sun, 7 days) and `datesInRange`
+  // (clipped to the user's start/end). Weeks where dates !== datesInRange
+  // are marked partial → hatched in the chart.
+  const reportingWeeks = (() => {
+    if (!reportingDatesArray.length) return [];
+    const wkStart = mondayOfUTC(reportingStartDate);
+    const wkEnd   = addUTCDays(mondayOfUTC(reportingEndDate), 6);
+    const out = [];
+    let cur = wkStart;
+    while (cur <= wkEnd) {
+      const ce = addUTCDays(cur, 6);
+      const dates = [];
+      const datesInRange = [];
+      for (let d = new Date(cur); d <= ce; d = addUTCDays(d, 1)) {
+        const ds = fmtYYYYMMDD(d);
+        dates.push(ds);
+        if (d >= reportingStartDate && d <= reportingEndDate) datesInRange.push(ds);
+      }
+      out.push({
+        weekStartLabel: fmtMonDay(cur),
+        weekStart:      fmtYYYYMMDD(cur),
+        dateRange:      `${fmtMonDay(cur)} – ${fmtMonDay(ce)}`,
+        dates,
+        datesInRange,
+        partial:        datesInRange.length < dates.length,
+        // For HatchedStack compatibility: partial doubles as the
+        // "in-progress/clipped" indicator. Tooltip wording is conditional.
+        trailingPartial: datesInRange.length < dates.length,
+        leadingPartial:  false,
+        reportingClipped: datesInRange.length < dates.length,
+      });
+      cur = addUTCDays(ce, 1);
+    }
+    return out;
+  })();
+  const reportingWeeksRangeLabel = reportingWeeks.length
+    ? (() => {
+        const lastWeekStartCompact = reportingWeeks[reportingWeeks.length - 1].weekStart;
+        // Parse YYYYMMDD → Date → +6 days → fmtMonDay
+        const lastMon = new Date(Date.UTC(
+          +lastWeekStartCompact.slice(0, 4),
+          +lastWeekStartCompact.slice(4, 6) - 1,
+          +lastWeekStartCompact.slice(6, 8),
+        ));
+        return `${reportingWeeks[0].weekStartLabel} – ${fmtMonDay(addUTCDays(lastMon, 6))}`;
+      })()
+    : reportingRangeLabel;
+
+  // Reporting-mode KPI sums (range-strict, like 30d KPI uses STRICT_WINDOW).
+  const SIGNUPS_REPORTING = reportingDatesArray.reduce(
+    (s, d) => s + (LIVE_SIGNUPS_BY_DATE[d] || 0), 0,
+  );
+  const SESSIONS_REPORTING = reportingDatesArray.reduce(
+    (s, d) => s + (LIVE_ENGAGED_BY_DATE[d] || 0), 0,
+  );
+  const MEETINGS_REPORTING = (dataJson.hubspot?.meetings || [])
+    .filter((m) => inReportingWindow(m.date)).length;
+  const RATIO_REPORTING = SESSIONS_REPORTING > 0
+    ? (SIGNUPS_REPORTING / SESSIONS_REPORTING) * 100 : 0;
+
+  // ── Prior period (same length, immediately preceding the reporting range)
+  // Used for the KPI delta tiles in Reporting Mode.
+  const reportingPriorEnd   = reportingDays > 0 ? addUTCDays(reportingStartDate, -1) : null;
+  const reportingPriorStart = reportingDays > 0
+    ? addUTCDays(reportingPriorEnd, -(reportingDays - 1))
+    : null;
+  const reportingPriorDatesArray = [];
+  if (reportingPriorStart && reportingPriorEnd) {
+    for (let d = new Date(reportingPriorStart); d <= reportingPriorEnd; d = addUTCDays(d, 1)) {
+      reportingPriorDatesArray.push(fmtYYYYMMDD(d));
+    }
+  }
+  const reportingPriorDatesSet = new Set(reportingPriorDatesArray);
+  const reportingPriorStartCompact = reportingPriorStart ? fmtYYYYMMDD(reportingPriorStart) : null;
+  // Suppress the delta when the prior period extends past the data-quality
+  // floor (2026-05-07) or past our pulled-data window start.
+  const _pulledWindowStartCompact = (dataJson.window?.start || '').replaceAll('-', '');
+  const REPORTING_PRIOR_AVAILABLE = Boolean(
+    reportingPriorStartCompact &&
+    reportingPriorStartCompact >= REPORTING_FLOOR_COMPACT &&
+    (!_pulledWindowStartCompact || _pulledWindowStartCompact <= reportingPriorStartCompact)
+  );
+  const SIGNUPS_PRIOR_REPORTING = reportingPriorDatesArray.reduce(
+    (s, d) => s + (LIVE_SIGNUPS_BY_DATE[d] || 0), 0,
+  );
+  const SESSIONS_PRIOR_REPORTING = reportingPriorDatesArray.reduce(
+    (s, d) => s + (LIVE_ENGAGED_BY_DATE[d] || 0), 0,
+  );
+  const MEETINGS_PRIOR_REPORTING = (dataJson.hubspot?.meetings || [])
+    .filter((m) => reportingPriorDatesSet.has(m.date)).length;
+  const RATIO_PRIOR_REPORTING = SESSIONS_PRIOR_REPORTING > 0
+    ? (SIGNUPS_PRIOR_REPORTING / SESSIONS_PRIOR_REPORTING) * 100 : 0;
+  const DELTA_REPORTING = {
+    signups:         REPORTING_PRIOR_AVAILABLE ? wow(SIGNUPS_REPORTING,  SIGNUPS_PRIOR_REPORTING)  : null,
+    engagedSessions: REPORTING_PRIOR_AVAILABLE ? wow(SESSIONS_REPORTING, SESSIONS_PRIOR_REPORTING) : null,
+    salesMeetings:   REPORTING_PRIOR_AVAILABLE ? wow(MEETINGS_REPORTING, MEETINGS_PRIOR_REPORTING) : null,
+    ratio:           REPORTING_PRIOR_AVAILABLE ? wow(RATIO_REPORTING,    RATIO_PRIOR_REPORTING)    : null,
+  };
+  const reportingPriorRangeLabel = REPORTING_PRIOR_AVAILABLE && reportingPriorStart && reportingPriorEnd
+    ? `${fmtMonDay(reportingPriorStart)} – ${fmtMonDay(reportingPriorEnd)}`
+    : null;
+
+  // Reporting-mode pies + signups-by-channel reuse the existing computers
+  // with the active date set / weeks list.
+  const SHARE_OF_SIGNUPS_REPORTING = computeShareOfSignups(reportingDatesSet);
+  const TOTAL_SIGNUPS_CATEGORIZED_REPORTING = SHARE_OF_SIGNUPS_REPORTING.reduce((s, x) => s + x.value, 0);
+  const SHARE_OF_SALES_MEETINGS_REPORTING = computeShareOfSalesMeetings(inReportingWindow);
+  const TOTAL_SALES_MEETINGS_CATEGORIZED_REPORTING = SHARE_OF_SALES_MEETINGS_REPORTING.reduce((s, x) => s + x.value, 0);
+
+  // For computeSignupsByChannelPeriodic: feed weeks where `dates` is the
+  // CLIPPED set (so bar values = sum over cohort ∩ range), but keep the
+  // dateRange label as the full Mon-Sun for the tooltip.
+  const SIGNUPS_BY_CHANNEL_WEEKLY_REPORTING = computeSignupsByChannelPeriodic(
+    reportingWeeks.map((w) => ({
+      weekStartLabel:  w.weekStartLabel,
+      dateRange:       w.dateRange,
+      trailingPartial: w.trailingPartial,
+      partial:         w.partial,
+      dates:           w.datesInRange,
+    })),
+  );
+
+  // Top-of-funnel weekly data shape (Sales Meetings column chart). Same
+  // clipping rule: bar values use datesInRange.
+  const TOP_OF_FUNNEL_WEEKLY_REPORTING = reportingWeeks.map((w) => {
+    const sumIn = (m) => w.datesInRange.reduce((s, d) => s + (m[d] || 0), 0);
+    return {
+      week:      w.weekStartLabel,
+      dateRange: w.dateRange,
+      partial:   w.partial,
+      trailingPartial: w.partial,
+      sessions:  sumIn(LIVE_ENGAGED_BY_DATE),
+      signups:   sumIn(LIVE_SIGNUPS_BY_DATE),
+      meetings:  sumIn(LIVE_MEETINGS_BY_DATE),
+    };
+  });
+  // Channel funnel / weekly data — for the PCA section. Mode-aware so
+  // reporting mode reaches in too.
+  const channelTable = isReporting
+    ? computeChannelTable(reportingStartCompact, reportingEndCompact)
+    : computeChannelTable();
+  const channelWeeklyCohorts = isReporting ? reportingWeeks : LIVE_WEEKS;
+  const channelWeeklySource  = computeSignupsByChannelGAWeekly(channelWeeklyCohorts);
+  const weeklyChartData      = computeWeeklyData(channelWeeklySource);
+  const kpiSignups   = is30d ? DATA.signups.window         : isMtd ? SIGNUPS_MTD  : isReporting ? SIGNUPS_REPORTING  : SIGNUPS_YTD;
+  const kpiSessions  = is30d ? DATA.engagedSessions.window : isMtd ? SESSIONS_MTD : isReporting ? SESSIONS_REPORTING : SESSIONS_YTD;
+  const kpiMeetings  = is30d ? DATA.salesMeetings.window   : isMtd ? MEETINGS_MTD : isReporting ? MEETINGS_REPORTING : MEETINGS_YTD;
+  const kpiRatio     = is30d ? ratioWindow                 : isMtd ? RATIO_MTD    : isReporting ? RATIO_REPORTING    : RATIO_YTD;
+  const pieSignups        = is30d ? SHARE_OF_SIGNUPS              : isMtd ? SHARE_OF_SIGNUPS_MTD             : isReporting ? SHARE_OF_SIGNUPS_REPORTING             : SHARE_OF_SIGNUPS_YTD;
+  const pieSignupsTotal   = is30d ? TOTAL_SIGNUPS_CATEGORIZED     : isMtd ? TOTAL_SIGNUPS_CATEGORIZED_MTD    : isReporting ? TOTAL_SIGNUPS_CATEGORIZED_REPORTING    : TOTAL_SIGNUPS_CATEGORIZED_YTD;
+  // Weekly stacked-column data for Customer signups by channel (replaces the pie).
+  // Total = sum of all bars (includes Not Specified) — matches what's plotted.
+  const signupsByChannelData = is30d
+    ? SIGNUPS_BY_CHANNEL_WEEKLY_30D
+    : isMtd
+      ? SIGNUPS_BY_CHANNEL_WEEKLY_MTD
+      : isReporting
+        ? SIGNUPS_BY_CHANNEL_WEEKLY_REPORTING
+        : SIGNUPS_BY_CHANNEL_MONTHLY_YTD;
+  const signupsByChannelTotal = signupsByChannelData.reduce((s, r) => s + (r.total || 0), 0);
+  const pieMeetings       = is30d ? SHARE_OF_SALES_MEETINGS       : isMtd ? SHARE_OF_SALES_MEETINGS_MTD      : isReporting ? SHARE_OF_SALES_MEETINGS_REPORTING      : SHARE_OF_SALES_MEETINGS_YTD;
+  const pieMeetingsTotal  = is30d ? TOTAL_SALES_MEETINGS_CATEGORIZED : isMtd ? TOTAL_SALES_MEETINGS_CATEGORIZED_MTD : isReporting ? TOTAL_SALES_MEETINGS_CATEGORIZED_REPORTING : TOTAL_SALES_MEETINGS_CATEGORIZED_YTD;
   const activeWindowLabel = is30d
     ? 'Last 30 days'
     : isMtd
       ? `MTD · ${MTD_RANGE_LABEL}`
-      : `Year to Date · ${YTD_RANGE_LABEL}`;
+      : isReporting
+        ? `Reporting · ${reportingRangeLabel}`
+        : `Year to Date · ${YTD_RANGE_LABEL}`;
   // Compact date-range label for inside each KPI card (no prefix).
   const kpiDateRangeLabel = is30d
     ? WINDOW.label
     : isMtd
       ? MTD_RANGE_LABEL
-      : YTD_RANGE_LABEL;
-  const webSessionsWeekly = computeWebSessionsWeekly();
+      : isReporting
+        ? reportingRangeLabel
+        : YTD_RANGE_LABEL;
+  // PCA deep-dive sources — use Reporting Mode weeks when active so the
+  // LinkedIn / AEO+Search weekly columns honor the user-picked range.
+  const webSessionsWeekly = computeWebSessionsWeekly(channelWeeklySource);
   const linkedinKeys = LINKEDIN_DEEP_DIVE.series.map((s) => s.key);
   const aeoKeys      = AEO_DEEP_DIVE.series.map((s) => s.key);
-  const linkedinWeekly = computeChannelDeepDive(linkedinKeys);
-  const aeoChannelWeekly = computeChannelDeepDive(aeoKeys);
+  const linkedinWeekly = computeChannelDeepDive(linkedinKeys, channelWeeklySource);
+  const aeoChannelWeekly = computeChannelDeepDive(aeoKeys, channelWeeklySource);
   // Window totals = sum of all series for that deep-dive.
   const sumRow = (row, keys) => keys.reduce((s, k) => s + (row[k] || 0), 0);
   const linkedinWindowSignups   = linkedinWeekly.reduce((s, w) => s + sumRow(w, linkedinKeys), 0);
   const aeoChannelWindowSignups = aeoChannelWeekly.reduce((s, w) => s + sumRow(w, aeoKeys), 0);
-  const windowLabel = WINDOW.label;
-  const windowDateRange = WINDOW.label;
+  // PCA window label — fixed (Apr 27 → today) by default, custom range in Reporting Mode.
+  const windowLabel = isReporting ? reportingRangeLabel : WINDOW.label;
+  const windowDateRange = windowLabel;
 
   return (
     <div
@@ -2291,9 +3653,10 @@ export default function MutinyGrowthDashboard() {
             }}
           >
             {[
-              { id: '30d', label: 'Last 30 days' },
-              { id: 'mtd', label: 'MTD' },
-              { id: 'ytd', label: 'YTD' },
+              { id: '30d',       label: 'Last 30 days' },
+              { id: 'mtd',       label: 'MTD' },
+              { id: 'ytd',       label: 'YTD' },
+              { id: 'reporting', label: 'Reporting' },
             ].map((opt) => {
               const active = viewMode === opt.id;
               return (
@@ -2316,12 +3679,117 @@ export default function MutinyGrowthDashboard() {
               );
             })}
           </div>
+          {isReporting && (
+            <div
+              style={{
+                display: 'flex',
+                gap: 10,
+                alignItems: 'center',
+                marginTop: 8,
+                flexWrap: 'wrap',
+              }}
+            >
+              <label style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                fontFamily: FONT_BODY, fontSize: 11, fontWeight: 600, opacity: 0.75,
+              }}>
+                From
+                <input
+                  type="date"
+                  value={reportingRange.start}
+                  min={REPORTING_FLOOR_DASH}
+                  max={reportingRange.end}
+                  onChange={(e) => setReportingRange((r) => ({ ...r, start: e.target.value }))}
+                  style={{
+                    border: `1px solid ${C.black}`,
+                    borderRadius: 4,
+                    padding: '3px 6px',
+                    fontFamily: FONT_BODY,
+                    fontSize: 12,
+                    background: C.white,
+                    color: C.black,
+                  }}
+                />
+              </label>
+              <label style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                fontFamily: FONT_BODY, fontSize: 11, fontWeight: 600, opacity: 0.75,
+              }}>
+                To
+                <input
+                  type="date"
+                  value={reportingRange.end}
+                  min={reportingRange.start > REPORTING_FLOOR_DASH ? reportingRange.start : REPORTING_FLOOR_DASH}
+                  onChange={(e) => setReportingRange((r) => ({ ...r, end: e.target.value }))}
+                  style={{
+                    border: `1px solid ${C.black}`,
+                    borderRadius: 4,
+                    padding: '3px 6px',
+                    fontFamily: FONT_BODY,
+                    fontSize: 12,
+                    background: C.white,
+                    color: C.black,
+                  }}
+                />
+              </label>
+              <span style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.65 }}>
+                {reportingDays} day{reportingDays === 1 ? '' : 's'}
+              </span>
+              {/* Quick presets */}
+              <div
+                style={{
+                  display: 'inline-flex',
+                  border: `1px solid ${C.black}`,
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                  fontFamily: FONT_BODY,
+                  fontSize: 10.5,
+                  fontWeight: 600,
+                  marginLeft: 4,
+                }}
+              >
+                {[
+                  { id: 'last7',  label: 'Last 7d',  days: 7  },
+                  { id: 'last14', label: 'Last 14d', days: 14 },
+                  { id: 'last30', label: 'Last 30d', days: 30 },
+                ].map((preset, i) => {
+                  const presetStart = addUTCDays(_today, -(preset.days - 1));
+                  const startDash = fmtYYYYMMDDDash(presetStart);
+                  const endDash   = fmtYYYYMMDDDash(_today);
+                  const isActive  = reportingRange.start === startDash
+                                  && reportingRange.end   === endDash;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => setReportingRange({ start: startDash, end: endDash })}
+                      style={{
+                        padding: '3px 8px',
+                        background: isActive ? C.black : C.white,
+                        color: isActive ? C.white : C.black,
+                        border: 'none',
+                        borderLeft: i > 0 ? `1px solid ${C.black}` : 'none',
+                        cursor: 'pointer',
+                        fontFamily: FONT_BODY,
+                        fontSize: 10.5,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {preset.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <div style={{ opacity: 0.6, marginTop: 4, fontSize: 11 }}>
             {is30d
               ? WINDOW.label
               : isMtd
                 ? MTD_RANGE_LABEL
-                : YTD_RANGE_LABEL}
+                : isReporting
+                  ? reportingRangeLabel
+                  : YTD_RANGE_LABEL}
           </div>
           <div style={{ opacity: 0.6, marginTop: 6, fontFamily: FONT_MONO, fontSize: 11 }}>
             Last updated: {new Date(LIVE_DATA_PULLED_AT).toLocaleString('en-US', {
@@ -2349,10 +3817,14 @@ export default function MutinyGrowthDashboard() {
           bgColor={C.lightPurple}
           accentColor={C.purple}
           dateRangeLabel={kpiDateRangeLabel}
-          deltaNode={is30d && DELTA_30D.signups
-            ? <Delta value={DELTA_30D.signups.raw} suffix="" precision={0} secondary={DELTA_30D.signups.pct} />
-            : null}
-          deltaLabel="vs prior 30d"
+          deltaNode={
+            is30d && DELTA_30D.signups
+              ? <Delta value={DELTA_30D.signups.raw} suffix="" precision={0} secondary={DELTA_30D.signups.pct} />
+              : isReporting && DELTA_REPORTING.signups
+                ? <Delta value={DELTA_REPORTING.signups.raw} suffix="" precision={0} secondary={DELTA_REPORTING.signups.pct} />
+                : null
+          }
+          deltaLabel={isReporting ? `vs prior ${reportingDays}d${reportingPriorRangeLabel ? ` · ${reportingPriorRangeLabel}` : ''}` : 'vs prior 30d'}
         />
         <KpiCard
           label="Website Visitors"
@@ -2362,10 +3834,14 @@ export default function MutinyGrowthDashboard() {
           bgColor={C.lightBlue}
           accentColor={C.blue}
           dateRangeLabel={kpiDateRangeLabel}
-          deltaNode={is30d && DELTA_30D.engagedSessions
-            ? <Delta value={DELTA_30D.engagedSessions.raw} suffix="" precision={0} secondary={DELTA_30D.engagedSessions.pct} />
-            : null}
-          deltaLabel="vs prior 30d"
+          deltaNode={
+            is30d && DELTA_30D.engagedSessions
+              ? <Delta value={DELTA_30D.engagedSessions.raw} suffix="" precision={0} secondary={DELTA_30D.engagedSessions.pct} />
+              : isReporting && DELTA_REPORTING.engagedSessions
+                ? <Delta value={DELTA_REPORTING.engagedSessions.raw} suffix="" precision={0} secondary={DELTA_REPORTING.engagedSessions.pct} />
+                : null
+          }
+          deltaLabel={isReporting ? `vs prior ${reportingDays}d${reportingPriorRangeLabel ? ` · ${reportingPriorRangeLabel}` : ''}` : 'vs prior 30d'}
         />
         <KpiCard
           label="Visitor → Signup"
@@ -2375,10 +3851,14 @@ export default function MutinyGrowthDashboard() {
           bgColor={C.lightGreen}
           accentColor={C.green}
           dateRangeLabel={kpiDateRangeLabel}
-          deltaNode={is30d && DELTA_30D.ratio
-            ? <Delta value={DELTA_30D.ratio.raw} suffix="pp" precision={2} secondary={DELTA_30D.ratio.pct} />
-            : null}
-          deltaLabel="vs prior 30d"
+          deltaNode={
+            is30d && DELTA_30D.ratio
+              ? <Delta value={DELTA_30D.ratio.raw} suffix="pp" precision={2} secondary={DELTA_30D.ratio.pct} />
+              : isReporting && DELTA_REPORTING.ratio
+                ? <Delta value={DELTA_REPORTING.ratio.raw} suffix="pp" precision={2} secondary={DELTA_REPORTING.ratio.pct} />
+                : null
+          }
+          deltaLabel={isReporting ? `vs prior ${reportingDays}d${reportingPriorRangeLabel ? ` · ${reportingPriorRangeLabel}` : ''}` : 'vs prior 30d'}
         />
         <KpiCard
           label="Sales Meetings Requested"
@@ -2388,76 +3868,44 @@ export default function MutinyGrowthDashboard() {
           bgColor={C.lightRed}
           accentColor={C.red}
           dateRangeLabel={kpiDateRangeLabel}
-          deltaNode={is30d && DELTA_30D.salesMeetings
-            ? <Delta value={DELTA_30D.salesMeetings.raw} suffix="" precision={0} secondary={DELTA_30D.salesMeetings.pct} />
-            : null}
-          deltaLabel="vs prior 30d"
+          deltaNode={
+            is30d && DELTA_30D.salesMeetings
+              ? <Delta value={DELTA_30D.salesMeetings.raw} suffix="" precision={0} secondary={DELTA_30D.salesMeetings.pct} />
+              : isReporting && DELTA_REPORTING.salesMeetings
+                ? <Delta value={DELTA_REPORTING.salesMeetings.raw} suffix="" precision={0} secondary={DELTA_REPORTING.salesMeetings.pct} />
+                : null
+          }
+          deltaLabel={isReporting ? `vs prior ${reportingDays}d${reportingPriorRangeLabel ? ` · ${reportingPriorRangeLabel}` : ''}` : 'vs prior 30d'}
         />
       </div>
 
-      {/* Top-of-funnel trend.
-          - Last 30 days: per-chart Daily / Weekly toggle. Daily = 30 daily
-            bars (sum = KPI). Weekly = 4 complete + current in-progress
-            (5 bars, "full weeks" — bars may exceed strict KPI by the leading
-            week's pre-window days).
-          - MTD: per-chart toggle. Daily = MTD daily bars (sum = KPI). Weekly
-            = Mon-Sun weeks overlapping MTD with full-week data (similar
-            "full weeks" behavior as 30d).
-          - YTD: monthly bars Jan → current month (hatched). */}
-      {is30d && (
-        <TopOfFunnelTrend
-          data={TOP_OF_FUNNEL_DAILY_30D}
-          weeklyData={TOP_OF_FUNNEL_WEEKLY_30D_FULL}
-          mode="weekly"
-          dateRangeLabel={WINDOW.label}
-          weeklyDateRangeLabel={WEEKLY_30D_FULL_RANGE_LABEL}
-          footnoteOverride={
-            <>
-              * <strong>Daily</strong> = strict <strong>Last 30 days</strong>; bars sum to the
-              30-day KPI total. <strong>Weekly</strong> = every Mon–Sun week that overlaps the
-              30-day window (including the full week containing the start date) — bars use
-              full week data, so the leading bar may include a few pre-window days and the
-              current week is hatched. Toggle each chart independently.
-            </>
-          }
-        />
-      )}
-      {isMtd && (
-        <TopOfFunnelTrend
-          data={TOP_OF_FUNNEL_DAILY_MTD}
-          weeklyData={TOP_OF_FUNNEL_WEEKLY_MTD}
-          mode="weekly"
-          dateRangeLabel={MTD_RANGE_LABEL}
-          weeklyDateRangeLabel={MTD_WEEKLY_RANGE_LABEL}
-          footnoteOverride={
-            <>
-              * <strong>Daily</strong> = strict <strong>Month-to-Date</strong> ({MTD_RANGE_LABEL});
-              bars sum to the MTD KPI total. <strong>Weekly</strong> = Mon–Sun weeks that
-              overlap MTD with full week data — the leading bar may include pre-month days,
-              the current week is hatched.
-            </>
-          }
-        />
-      )}
-      {isYtd && (
-        <TopOfFunnelTrend
-          data={TOP_OF_FUNNEL_MONTHLY_YTD}
-          mode="weekly"
+      {/* ── Signups by Channel — full-width.
+          Replaces the prior Top-of-funnel Signups column + the Customer
+          signups by channel pie. Defaults to Summary mode (single weekly
+          bar that mirrors the old Signups column); flip to Stacked for
+          the per-channel breakdown. */}
+      <div style={{ marginBottom: 24 }}>
+        <SelfReportedWeeklyCard
+          title="Signups by Channel"
+          source="Amplitude"
           dateRangeLabel={kpiDateRangeLabel}
-          footnoteOverride={
+          data={signupsByChannelData}
+          total={signupsByChannelTotal}
+          unit="signup"
+          isReporting={isReporting}
+          dateSet={is30d ? STRICT_WINDOW_DATES_SET : isMtd ? MTD_DATES_SET : isReporting ? reportingDatesSet : YTD_DATES_SET}
+          infoTooltip={`Self-reported referral_source at Company Setup, weekly. ${signupsByChannelTotal} total signups in window (${activeWindowLabel}). In Stacked mode, bars include a Not Specified residual for signups without a referral_source value — almost all pre-May-8 (before the field became required). 11 mutinyhq.com test accounts excluded at the Amplitude query layer. Bucketing rules: see the Definitions panel.`}
+          alertBanner={
             <>
-              * Bars are <strong>monthly</strong> totals from January to today. The current
-              month ({MONTH_ABBR[LIVE_END_DATE.getUTCMonth()]}) is in progress (hatched). Sum
-              of complete months + current MTD equals the YTD KPI total above.
+              Source field became required <strong>May 7, 2026</strong> — earlier
+              signups land in <strong>Not Specified</strong>.
             </>
           }
         />
-      )}
+      </div>
 
-      {/* Self-reported channel mix — two cards side-by-side.
-          Customer signups by channel (Amplitude, L4w window) and Sales
-          meeting requests by channel (HubSpot Talk to Sales form, same
-          window). Same bucketing rules applied to both. */}
+      {/* ── Sales Meetings — column chart + self-reported channel pie,
+          2-col grid below the full-width Signups by Channel. */}
       <div
         style={{
           display: 'grid',
@@ -2466,22 +3914,51 @@ export default function MutinyGrowthDashboard() {
           marginBottom: 40,
         }}
       >
-        <SelfReportedPieCard
-          eyebrow="Share of Signups"
-          title="Customer signups by channel"
-          source="Amplitude"
-          dateRangeLabel={kpiDateRangeLabel}
-          data={pieSignups}
-          total={pieSignupsTotal}
-          totalLabel="total signups"
-          unit="signup"
-          infoTooltip={`Self-reported referral_source at Company Setup. ${pieSignupsTotal} signups categorized in window (${activeWindowLabel}). 11 mutinyhq.com test accounts excluded at the Amplitude query layer. Bucketing is rule-based — see the Definitions panel at the bottom for the full rule set.`}
-          alertBanner={
-            <>
-              Reliable data begins after <strong>May 7, 2026</strong> (made required field).
-            </>
-          }
-        />
+        {is30d && (
+          <TopOfFunnelTrend
+            data={TOP_OF_FUNNEL_DAILY_30D}
+            weeklyData={TOP_OF_FUNNEL_WEEKLY_30D_FULL}
+            mode="weekly"
+            dateRangeLabel={WINDOW.label}
+            weeklyDateRangeLabel={WEEKLY_30D_FULL_RANGE_LABEL}
+            chartKeys={['meetings']}
+            showEyebrow={false}
+            hideFootnote={true}
+          />
+        )}
+        {isMtd && (
+          <TopOfFunnelTrend
+            data={TOP_OF_FUNNEL_DAILY_MTD}
+            weeklyData={TOP_OF_FUNNEL_WEEKLY_MTD}
+            mode="weekly"
+            dateRangeLabel={MTD_RANGE_LABEL}
+            weeklyDateRangeLabel={MTD_WEEKLY_RANGE_LABEL}
+            chartKeys={['meetings']}
+            showEyebrow={false}
+            hideFootnote={true}
+          />
+        )}
+        {isYtd && (
+          <TopOfFunnelTrend
+            data={TOP_OF_FUNNEL_MONTHLY_YTD}
+            mode="weekly"
+            dateRangeLabel={kpiDateRangeLabel}
+            chartKeys={['meetings']}
+            showEyebrow={false}
+            hideFootnote={true}
+          />
+        )}
+        {isReporting && (
+          <TopOfFunnelTrend
+            data={TOP_OF_FUNNEL_WEEKLY_REPORTING}
+            mode="weekly"
+            dateRangeLabel={reportingRangeLabel}
+            chartKeys={['meetings']}
+            showEyebrow={false}
+            isReporting={true}
+            hideFootnote={true}
+          />
+        )}
         <SelfReportedPieCard
           eyebrow="Share of Sales Meetings"
           title="Sales meeting requests by channel"
@@ -2499,11 +3976,12 @@ export default function MutinyGrowthDashboard() {
       {/* ─────────────────────────────────────────────────────────────────────
           PROGRAMMATIC CHANNEL ANALYTICS — divider header.
           Everything below this line uses GA4 plg_signup_click attribution +
-          per-channel session data + Peec visibility. These sections do NOT
-          respect the top-of-page Last 30 days / Last 4 weeks toggle — they
-          always show data over a fixed 4-week trailing window, since the
-          plg_signup_click attribution event itself only became reliable
-          mid-May and a 30-day daily view would be mostly empty.
+          per-channel session data + Peec visibility. As of the Reporting
+          Mode rollout, these sections also respect the top-of-page mode
+          toggle (Last 30 days / MTD / YTD / Reporting). Note that
+          plg_signup_click only became reliable May 13, 2026 — picking a
+          range that pre-dates that will show empty/sparse per-channel bars
+          (the existing alert banners explain why).
           ───────────────────────────────────────────────────────────────────── */}
       <div
         style={{
@@ -2535,7 +4013,7 @@ export default function MutinyGrowthDashboard() {
             lineHeight: 1.05,
           }}
         >
-          Programmatic Channel Analytics
+          Channel Analytics
         </div>
         <div
           style={{
@@ -2547,588 +4025,10 @@ export default function MutinyGrowthDashboard() {
             lineHeight: 1.5,
           }}
         >
-          Per-channel attribution from GA4 + Peec AI visibility. The charts below
-          only support a <strong>last 4 weeks + current week</strong> view and
-          do not respond to the toggle above.
+          Website visitors, self-reported signup attribution, and AI-search
+          visibility. Charts honor the top-of-page mode toggle.
         </div>
       </div>
-
-      <section
-        style={{
-          background: C.white,
-          border: `1px solid ${C.black}`,
-          borderRadius: 4,
-          padding: '28px 32px 24px',
-          marginBottom: 40,
-          position: 'relative',
-        }}
-      >
-        {/* Data-availability ribbon — the plg_signup_click event was being
-            troubleshot prior to May 14, so the prior period is missing data
-            and shouldn't be compared. Concise and professional. */}
-        <div
-          style={{
-            margin: '-28px -32px 24px',
-            padding: '12px 22px',
-            background: '#FFF6D6',
-            borderBottom: `1px solid ${C.black}`,
-            borderTopLeftRadius: 4,
-            borderTopRightRadius: 4,
-            fontFamily: FONT_BODY,
-            fontSize: 12.5,
-            lineHeight: 1.55,
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: 10,
-          }}
-        >
-          <span style={{ fontSize: 14, lineHeight: 1, marginTop: 1 }}>⚠️</span>
-          <div>
-            Reliable programmatic GA4 data begins <strong>Wednesday, {ATTRIBUTION_START_LABEL}</strong>.
-          </div>
-        </div>
-
-        {/* Header row: icon + name + subtitle (left), KPI tile (right) */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            gap: 24,
-            marginBottom: 26,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div
-              style={{
-                width: 44,
-                height: 44,
-                background: C.green,
-                border: `1px solid ${C.black}`,
-                borderRadius: 6,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontFamily: FONT_DISPLAY,
-                fontSize: 22,
-                fontWeight: 400,
-                lineHeight: 1,
-                flexShrink: 0,
-              }}
-            >
-              S
-            </div>
-            <div>
-              <h2
-                style={{
-                  fontFamily: FONT_DISPLAY,
-                  fontWeight: 400,
-                  fontSize: 32,
-                  lineHeight: 1,
-                  letterSpacing: '-0.03em',
-                  margin: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                }}
-              >
-                Signup Form Clicks by Channel
-                <ProgrammaticTag />
-              </h2>
-              <div
-                style={{
-                  fontFamily: FONT_BODY,
-                  fontSize: 13,
-                  opacity: 0.65,
-                  marginTop: 6,
-                  lineHeight: 1.4,
-                }}
-              >
-                Signup form clicks attributed by source — a proxy for top-of-funnel intent. Not equivalent to a completed onboarding.
-              </div>
-            </div>
-          </div>
-          <div style={{ textAlign: 'right', flexShrink: 0 }}>
-            <div
-              style={{
-                fontFamily: FONT_BODY,
-                fontWeight: 700,
-                fontSize: 10,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                opacity: 0.7,
-                marginBottom: 4,
-              }}
-            >
-              Signups · {windowLabel}
-            </div>
-            <div
-              style={{
-                fontFamily: FONT_DISPLAY,
-                fontSize: 38,
-                lineHeight: 1,
-                letterSpacing: '-0.02em',
-                fontVariantNumeric: 'tabular-nums',
-              }}
-            >
-              {channelTable.reduce((s, r) => s + r.signups, 0)}
-            </div>
-          </div>
-        </div>
-
-        {/* 2-col content: chart left, funnel table right.
-            alignItems: stretch keeps both columns the same height; marginTop: auto
-            on the right-side table wrapper pushes the table to the bottom so its
-            last row aligns with the chart's x-axis line. */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 28, alignItems: 'stretch' }}>
-        <div>
-          {/* Chart heading */}
-          <div style={{ marginBottom: 12 }}>
-            <div
-              style={{
-                fontFamily: FONT_BODY,
-                fontWeight: 600,
-                fontSize: 14,
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: 10,
-              }}
-            >
-              Signup clicks · weekly
-              <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
-                Stacked by channel
-              </span>
-            </div>
-          </div>
-
-          {/* Legend */}
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '6px 14px',
-              marginBottom: 14,
-              fontFamily: FONT_BODY,
-              fontSize: 11,
-            }}
-          >
-            {SIGNUPS_STACK_ORDER.slice().reverse().map((s) => (
-              <div key={s.key} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <span
-                  style={{
-                    width: 10,
-                    height: 10,
-                    background: s.color,
-                    border: `1px solid ${C.black}`,
-                    borderRadius: 1,
-                    display: 'inline-block',
-                  }}
-                />
-                <span>{s.key}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Chart */}
-          <div style={{ width: '100%', height: 480 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={weeklyChartData}
-                barCategoryGap="22%"
-                margin={{ top: 10, right: 8, bottom: 0, left: -10 }}
-              >
-                <CartesianGrid vertical={false} stroke={C.black} strokeOpacity={0.08} />
-                <XAxis
-                  dataKey="week"
-                  axisLine={{ stroke: C.black }}
-                  tickLine={false}
-                  interval={0}
-                  height={48}
-                  tick={makeWeekTick(
-                    weeklyChartData.reduce(
-                      (acc, r) => ({ ...acc, [r.week]: r.dateRange }),
-                      {}
-                    )
-                  )}
-                />
-                {(() => {
-                  // Clean uniform tick spacing for Signups by Channel.
-                  const max = Math.max(
-                    ...weeklyChartData.map((r) =>
-                      (r.Direct||0) + (r.Search||0) + (r.Referral||0) + (r.Social||0) +
-                      (r.LinkedIn||0) + (r.Email||0) + (r.Unassigned||0) + (r.AEO||0) +
-                      (r._ghost||0)
-                    ),
-                    1
-                  );
-                  const { ticks, max: yMax } = niceTicks(max, 5);
-                  return (
-                    <YAxis
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }}
-                      domain={[0, yMax]}
-                      ticks={ticks}
-                      allowDecimals={false}
-                      width={32}
-                    />
-                  );
-                })()}
-                <Tooltip
-                  cursor={{ fill: 'rgba(0,0,0,0.04)' }}
-                  content={({ active, payload, label }) => {
-                    if (!active || !payload || !payload.length) return null;
-                    const row = weeklyChartData.find((r) => r.week === label);
-                    if (!row) return null;
-                    const total =
-                      row.Direct + row.Search + row.Referral + row.Social +
-                      row.LinkedIn + row.Email + row.Unassigned + row.AEO;
-                    return (
-                      <div
-                        style={{
-                          background: C.white,
-                          border: `1px solid ${C.black}`,
-                          borderRadius: 4,
-                          padding: '10px 12px',
-                          fontFamily: FONT_BODY,
-                          fontSize: 11,
-                          minWidth: 180,
-                          boxShadow: '4px 4px 0 rgba(0,0,0,0.08)',
-                        }}
-                      >
-                        <div style={{ fontWeight: 700, marginBottom: 4 }}>
-                          {row.week} · {row.dateRange}
-                          {row.partial && (
-                            <span style={{ fontWeight: 400, opacity: 0.6, marginLeft: 6 }}>
-                              · partial
-                            </span>
-                          )}
-                        </div>
-                        {!row.populated ? (
-                          <div style={{ opacity: 0.6, fontStyle: 'italic' }}>
-                            Future week — placeholder for upcoming data.
-                          </div>
-                        ) : (
-                          <>
-                            <div style={{ marginBottom: 6, opacity: 0.7 }}>
-                              {total} signup{total === 1 ? '' : 's'}
-                            </div>
-                            {SIGNUPS_STACK_ORDER.slice().reverse().map((s) => {
-                              const v = row[s.key];
-                              if (!v) return null;
-                              return (
-                                <div
-                                  key={s.key}
-                                  style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 6,
-                                    marginTop: 2,
-                                  }}
-                                >
-                                  <span
-                                    style={{
-                                      width: 8,
-                                      height: 8,
-                                      background: s.color,
-                                      border: `1px solid ${C.black}`,
-                                      flexShrink: 0,
-                                    }}
-                                  />
-                                  <span style={{ flex: 1 }}>{s.key}</span>
-                                  <span
-                                    style={{
-                                      fontVariantNumeric: 'tabular-nums',
-                                      fontWeight: 600,
-                                    }}
-                                  >
-                                    {v}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                          </>
-                        )}
-                      </div>
-                    );
-                  }}
-                />
-                {/* Real channel bars, stacked bottom→top. Hatched on the
-                    in-progress current week via makeHatchedBarShape. */}
-                {SIGNUPS_STACK_ORDER.map((s) => (
-                  <Bar
-                    key={s.key}
-                    dataKey={s.key}
-                    stackId="signups"
-                    shape={makeHatchedBarShape(s.color, {
-                      strokeWidth: s.hero ? 1.2 : 0.5,
-                      idPrefix: 'sufc',
-                    })}
-                    isAnimationActive={false}
-                  />
-                ))}
-                {/* Ghost placeholder bar — value 8 on empty weeks, 0 on populated.
-                    Same stackId means it only renders when others are 0. */}
-                <Bar
-                  dataKey="_ghost"
-                  stackId="signups"
-                  fill="transparent"
-                  stroke={C.black}
-                  strokeDasharray="4 4"
-                  strokeOpacity={0.22}
-                  isAnimationActive={false}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-        </div>
-
-        {/* Right column: channel funnel table.
-            Flex column so the table can be pushed to the bottom (marginTop:
-            auto on the table wrapper). This makes the table's last row sit
-            at the same Y as the chart's x-axis on the left. */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {/* Chart heading */}
-          <div style={{ marginBottom: 12 }}>
-            <div
-              style={{
-                fontFamily: FONT_BODY,
-                fontWeight: 600,
-                fontSize: 14,
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: 10,
-              }}
-            >
-              Channel funnel
-              <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
-                Since {ATTRIBUTION_START_LABEL} (signup attribution start)
-              </span>
-            </div>
-          </div>
-          <div style={{ marginTop: 'auto' }}>
-
-          {/* Table */}
-          {(() => {
-            const totalChannelSignups = channelTable.reduce((s, r) => s + r.signups, 0);
-            return (
-            <div
-              style={{
-                border: `1px solid ${C.black}`,
-                borderRadius: 4,
-                overflow: 'hidden',
-              }}
-            >
-              {/* Header */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '14px 1fr 60px 96px 80px',
-                  gap: 12,
-                  padding: '10px 14px',
-                  background: C.paper,
-                  borderBottom: `1px solid ${C.black}`,
-                  fontFamily: FONT_BODY,
-                  fontWeight: 700,
-                  fontSize: 10,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  opacity: 0.7,
-                  alignItems: 'center',
-                }}
-              >
-                <div></div>
-                <div>Channel</div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    gap: 0,
-                  }}
-                >
-                  Signup Clicks
-                  <InfoTooltip width={260}>
-                    GA4 <code style={{ fontFamily: "'Geist Mono', monospace", fontSize: 11, background: 'rgba(0,0,0,0.05)', padding: '0 4px', borderRadius: 2 }}>plg_signup_click</code> events — the upstream click on the signup CTA, attributed by GA4 source/medium. Distinct from the "Signups (Completed)" KPI above, which counts successful onboarding completions in Amplitude. Numbers will not match.
-                  </InfoTooltip>
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    gap: 0,
-                  }}
-                >
-                  Web Conv.
-                  <InfoTooltip width={240}>
-                    <strong>Signup Clicks ÷ Website Visitors</strong>, per channel. Calculated from {ATTRIBUTION_START_LABEL} onward — when per-channel attribution on plg_signup_click began.
-                  </InfoTooltip>
-                </div>
-                <div style={{ textAlign: 'right' }}>% of total</div>
-              </div>
-
-              {/* Rows — sorted by signup volume desc (= % of total desc since
-                  they share the same denominator). Click a row to open a
-                  per-source/medium breakdown modal. */}
-              {[...channelTable].sort((a, b) => b.signups - a.signups).map((row, i) => {
-                const rate = row.engagedSessions > 0
-                  ? (row.signups / row.engagedSessions) * 100
-                  : 0;
-                const share = totalChannelSignups > 0
-                  ? (row.signups / totalChannelSignups) * 100
-                  : 0;
-                const isHighlight = row.signups > 0;
-                const isHovered = drillChannel === '__hover_' + row.channel;
-                return (
-                  <div
-                    key={row.channel}
-                    onClick={() => setDrillChannel(row.channel)}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = C.paper)}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = C.white)}
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '14px 1fr 60px 96px 80px',
-                      gap: 12,
-                      padding: '12px 14px',
-                      borderTop: i > 0 ? `1px solid rgba(0,0,0,0.08)` : 'none',
-                      fontFamily: FONT_BODY,
-                      fontSize: 13,
-                      alignItems: 'center',
-                      background: C.white,
-                      cursor: 'pointer',
-                      transition: 'background 0.1s',
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 12,
-                        height: 12,
-                        background: SIGNUPS_CHANNEL_COLORS[row.channel] || C.lightGrey,
-                        border: `1px solid ${C.black}`,
-                        borderRadius: 2,
-                      }}
-                    />
-                    <div style={{ fontWeight: isHighlight ? 600 : 400 }}>{row.channel}</div>
-                    <div
-                      style={{
-                        textAlign: 'right',
-                        fontVariantNumeric: 'tabular-nums',
-                        fontWeight: isHighlight ? 700 : 400,
-                        opacity: row.signups === 0 ? 0.4 : 1,
-                      }}
-                    >
-                      {row.signups}
-                    </div>
-                    <div
-                      style={{
-                        textAlign: 'right',
-                        fontVariantNumeric: 'tabular-nums',
-                        fontWeight: isHighlight ? 600 : 400,
-                        opacity: rate === 0 ? 0.35 : 1,
-                        color: C.black,
-                      }}
-                    >
-                      {rate === 0 ? '—' : rate.toFixed(2) + '%'}
-                    </div>
-                    <div
-                      style={{
-                        textAlign: 'right',
-                        fontVariantNumeric: 'tabular-nums',
-                        opacity: share === 0 ? 0.35 : 1,
-                      }}
-                    >
-                      {share === 0 ? '—' : share.toFixed(1) + '%'}
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* Total row */}
-              {(() => {
-                const totalSessions = channelTable.reduce(
-                  (s, r) => s + r.engagedSessions,
-                  0
-                );
-                const overallRate =
-                  totalSessions > 0 ? (totalChannelSignups / totalSessions) * 100 : 0;
-                return (
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '14px 1fr 60px 96px 80px',
-                      gap: 12,
-                      padding: '12px 14px',
-                      background: C.paper,
-                      borderTop: `1px solid ${C.black}`,
-                      fontFamily: FONT_BODY,
-                      fontSize: 13,
-                      alignItems: 'center',
-                      fontWeight: 700,
-                    }}
-                  >
-                    <div></div>
-                    <div>Total</div>
-                    <div
-                      style={{
-                        textAlign: 'right',
-                        fontVariantNumeric: 'tabular-nums',
-                      }}
-                    >
-                      {totalChannelSignups}
-                    </div>
-                    <div
-                      style={{
-                        textAlign: 'right',
-                        fontVariantNumeric: 'tabular-nums',
-                      }}
-                    >
-                      {overallRate.toFixed(2) + '%'}
-                    </div>
-                    <div
-                      style={{
-                        textAlign: 'right',
-                        fontVariantNumeric: 'tabular-nums',
-                      }}
-                    >
-                      100.0%
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-            );
-          })()}
-          <div
-            style={{
-              marginTop: 8,
-              fontFamily: FONT_CAPTION,
-              fontStyle: 'italic',
-              fontSize: 10.5,
-              opacity: 0.55,
-            }}
-          >
-            Click a row for source breakdown
-          </div>
-
-          </div>{/* end marginTop:auto wrapper */}
-
-        </div>
-        </div>
-
-        <div
-          style={{
-            position: 'absolute',
-            right: -1,
-            top: -1,
-            width: 8,
-            height: 36,
-            background: C.green,
-            border: `1px solid ${C.black}`,
-          }}
-        />
-      </section>
 
       {/* ── Website Visitors ── */}
       <section
@@ -3538,36 +4438,107 @@ export default function MutinyGrowthDashboard() {
         />
       </section>
 
-      {/* ── LinkedIn deep-dive ── */}
-      <ChannelDeepDive
-        data={LINKEDIN_DEEP_DIVE}
-        weekly={linkedinWeekly}
-        signupsWindow={linkedinWindowSignups}
-        windowLabel={windowLabel}
-        extraChart={
-          <SelfReportedSourcesChart
-            title="LinkedIn"
-            targets={[{ name: 'LinkedIn', color: C.linkedinBlue }]}
-          />
-        }
-      />
-
-      {/* ── AEO deep-dive ── */}
-      <ChannelDeepDive
-        data={AEO_DEEP_DIVE}
-        weekly={aeoChannelWeekly}
-        signupsWindow={aeoChannelWindowSignups}
-        windowLabel={windowLabel}
-        extraChart={
-          <SelfReportedSourcesChart
-            title="AEO + Search"
-            targets={[
-              { name: 'AEO',    color: C.green },
-              { name: 'Search', color: C.lightBlue },
-            ]}
-          />
-        }
-      />
+      {/* ── Signup Attribution — combined self-reported breakdowns for
+          LinkedIn and AEO + Search, side-by-side in one card. Replaces
+          the prior LinkedIn / AEO ChannelDeepDive cards (which carried
+          GA4-based programmatic charts alongside these self-reported ones). */}
+      <section
+        style={{
+          background: C.white,
+          border: `1px solid ${C.black}`,
+          borderRadius: 4,
+          padding: '28px 32px 24px',
+          marginBottom: 40,
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            gap: 24,
+            marginBottom: 24,
+          }}
+        >
+          <div>
+            <h2
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 400,
+                fontSize: 32,
+                lineHeight: 1,
+                letterSpacing: '-0.03em',
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                flexWrap: 'wrap',
+              }}
+            >
+              Signup Attribution
+              <SelfReportedTag />
+            </h2>
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 13,
+                opacity: 0.65,
+                marginTop: 6,
+                lineHeight: 1.4,
+              }}
+            >
+              Self-reported source from the onboarding{' '}
+              <code style={codeStyle}>referral_source</code> field, weekly.
+              Reliable from <strong>May 7, 2026</strong> (made required field).
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28 }}>
+          <div>
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontWeight: 700,
+                fontSize: 11,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                opacity: 0.75,
+                marginBottom: 6,
+              }}
+            >
+              LinkedIn
+            </div>
+            <SelfReportedSourcesChart
+              title="LinkedIn"
+              targets={[{ name: 'LinkedIn', color: C.linkedinBlue }]}
+              weeks={channelWeeklyCohorts}
+            />
+          </div>
+          <div>
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontWeight: 700,
+                fontSize: 11,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                opacity: 0.75,
+                marginBottom: 6,
+              }}
+            >
+              AEO + Search
+            </div>
+            <SelfReportedSourcesChart
+              title="AEO + Search"
+              targets={[
+                { name: 'AEO',    color: C.green },
+                { name: 'Search', color: C.lightBlue },
+              ]}
+              weeks={channelWeeklyCohorts}
+            />
+          </div>
+        </div>
+      </section>
 
       {/* AEO Visibility + Source Retrievals — dedicated Peec AI section
           below the AEO+Search signup-attribution card. Two side-by-side
@@ -3590,7 +4561,26 @@ export default function MutinyGrowthDashboard() {
         <span>AEO Visibility · Peec AI</span>
         <span style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.15)' }} />
       </div>
-      <AEOSection />
+      <AEOSection
+        windowStartISO={fmtYYYYMMDDDash(
+          isReporting ? reportingStartDate :
+          isMtd       ? MTD_START_DATE     :
+          isYtd       ? YTD_START_DATE     :
+                        LIVE_START_DATE
+        )}
+        windowEndISO={fmtYYYYMMDDDash(
+          isReporting ? reportingEndDate :
+          isMtd       ? MTD_END_DATE     :
+          isYtd       ? YTD_END_DATE     :
+                        LIVE_END_DATE
+        )}
+        windowLabel={
+          isReporting ? reportingRangeLabel :
+          isMtd       ? MTD_RANGE_LABEL    :
+          isYtd       ? YTD_RANGE_LABEL    :
+                        'Last 30 days'
+        }
+      />
 
       {/* Definitions — collapsible */}
       <section
@@ -3885,7 +4875,9 @@ export default function MutinyGrowthDashboard() {
           table is clicked. Shows per-source/medium breakdown for that
           channel within the same May-7-onward window. */}
       {drillChannel && (() => {
-        const breakdown = computeChannelDrillDown(drillChannel);
+        const breakdown = isReporting
+          ? computeChannelDrillDown(drillChannel, reportingStartCompact, reportingEndCompact)
+          : computeChannelDrillDown(drillChannel);
         const totalSignups  = breakdown.reduce((s, r) => s + r.signups, 0);
         const totalSessions = breakdown.reduce((s, r) => s + r.engagedSessions, 0);
         const overallRate   = totalSessions > 0 ? (totalSignups / totalSessions) * 100 : 0;
@@ -4660,7 +5652,7 @@ function AEOVisibilityChart({ visible, dailySlice = AEO.daily }) {
 // (LinkedIn). Chart-area height matches the parent ChannelDeepDive's main
 // chart so the two sit at the same visual weight side-by-side.
 // ---------------------------------------------------------------------------
-function SelfReportedSourcesChart({ title, targets }) {
+function SelfReportedSourcesChart({ title, targets, weeks = LIVE_WEEKS }) {
   // Build per-day per-bucket counts from amplitude.referralSources entries
   // (skips entries that don't carry a daily map — old shape fallback).
   const bucketDaily = Object.fromEntries(targets.map((t) => [t.name, {}]));
@@ -4673,15 +5665,18 @@ function SelfReportedSourcesChart({ title, targets }) {
     }
   }
 
-  const data = LIVE_WEEKS.map((w) => {
+  const data = weeks.map((w) => {
+    // Reporting Mode passes weeks with `datesInRange` (clipped to range);
+    // other modes pass weeks with just `dates` (full Mon-Sun).
+    const dateBag = w.datesInRange || w.dates;
     const row = {
       week:            w.weekStartLabel,
       dateRange:       w.dateRange,
-      partial:         w.trailingPartial,
-      trailingPartial: w.trailingPartial,
+      partial:         (w.trailingPartial ?? w.partial) || false,
+      trailingPartial: (w.trailingPartial ?? w.partial) || false,
     };
     for (const t of targets) {
-      row[t.name] = w.dates.reduce((s, d) => s + (bucketDaily[t.name][d] || 0), 0);
+      row[t.name] = dateBag.reduce((s, d) => s + (bucketDaily[t.name][d] || 0), 0);
     }
     return row;
   });
@@ -5016,43 +6011,53 @@ function SourceRetrievalsChart({ visible, dailySlice = AEO.sourcesDaily }) {
 // both AEO charts (Visibility + Source Retrievals for mutinyhq.com) side by
 // side. Toggling a topic pill applies to BOTH charts simultaneously.
 // ---------------------------------------------------------------------------
-function AEOSection() {
+function AEOSection({ windowStartISO, windowEndISO, windowLabel, windowDays }) {
   const allLines = AEO_LINES;
   const [visible, setVisible] = useState(
     Object.fromEntries(allLines.map((l) => [l.key, l.isTotal]))
   );
 
-  // Date-range filter — applies to both charts + the stats summaries above
-  // each chart. "all" = the full Peec window (whatever days are present).
-  const RANGES = [
-    { id: '7d',  label: 'Last 7 days',  days: 7 },
-    { id: '14d', label: 'Last 14 days', days: 14 },
-    { id: '28d', label: 'Last 28 days', days: 28 },
-    { id: 'all', label: 'All',          days: null },
-  ];
-  const [rangeId, setRangeId] = useState('14d');
-  const activeRange = RANGES.find((r) => r.id === rangeId);
+  // Range comes from the parent (main mode toggle). Compute prior window
+  // as same length, immediately preceding.
+  const parseISO = (iso) => {
+    if (!iso) return null;
+    const [y, m, d] = iso.split('-').map((x) => parseInt(x, 10));
+    return new Date(Date.UTC(y, m - 1, d));
+  };
+  const fmtISO = (d) =>
+    `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
 
-  // Slice helper — keep only the last N entries of an array, in their
-  // existing order (data is already chronological).
-  const sliceLast = (arr, n) => (n == null ? arr : arr.slice(Math.max(0, arr.length - n)));
-  // Slice the N entries IMMEDIATELY BEFORE the trailing N (the prior
-  // equivalent window). Returns [] when there isn't a full prior window.
-  const slicePrev = (arr, n) => {
-    if (n == null) return [];
-    const start = Math.max(0, arr.length - 2 * n);
-    const end = Math.max(0, arr.length - n);
-    return arr.slice(start, end);
+  const winStart   = parseISO(windowStartISO);
+  const winEnd     = parseISO(windowEndISO);
+  const winDays    = winStart && winEnd
+    ? Math.round((winEnd - winStart) / 86400000) + 1
+    : (windowDays || 0);
+  const priorEnd   = winStart ? new Date(winStart.getTime() - 86400000) : null;
+  const priorStart = priorEnd && winDays > 0
+    ? new Date(priorEnd.getTime() - (winDays - 1) * 86400000)
+    : null;
+  const priorStartISO = priorStart ? fmtISO(priorStart) : null;
+  const priorEndISO   = priorEnd   ? fmtISO(priorEnd)   : null;
+
+  // Each AEO array has either `rawDate` (ISO, on `daily` / `sourcesDaily`) or
+  // `date` (ISO, on `brandDailyStats` / `sourcesDailyStats`). Filter by ISO.
+  const isoOf = (r) => r.rawDate || r.date;
+  const filterRange = (arr, sISO, eISO) => {
+    if (!sISO || !eISO) return [];
+    return (arr || []).filter((r) => {
+      const iso = isoOf(r);
+      return iso >= sISO && iso <= eISO;
+    });
   };
 
   // Filtered slices used by the charts + stats blocks
-  const visDaily   = sliceLast(AEO.daily,          activeRange.days);
-  const srcDaily   = sliceLast(AEO.sourcesDaily,   activeRange.days);
-  const brandStats = sliceLast(AEO.brandDailyStats || [], activeRange.days);
-  const srcStats   = sliceLast(AEO.sourcesDailyStats || [], activeRange.days);
+  const visDaily   = filterRange(AEO.daily,          windowStartISO, windowEndISO);
+  const srcDaily   = filterRange(AEO.sourcesDaily,   windowStartISO, windowEndISO);
+  const brandStats = filterRange(AEO.brandDailyStats, windowStartISO, windowEndISO);
+  const srcStats   = filterRange(AEO.sourcesDailyStats, windowStartISO, windowEndISO);
   // Prior-window equivalents — same N days immediately preceding the active window.
-  const brandStatsPrev = slicePrev(AEO.brandDailyStats   || [], activeRange.days);
-  const srcStatsPrev   = slicePrev(AEO.sourcesDailyStats || [], activeRange.days);
+  const brandStatsPrev = filterRange(AEO.brandDailyStats,   priorStartISO, priorEndISO);
+  const srcStatsPrev   = filterRange(AEO.sourcesDailyStats, priorStartISO, priorEndISO);
 
   // Reducers — extracted so we can compute current + prior windows with one fn.
   const reduceBrand = (rows) => rows.reduce(
@@ -5264,8 +6269,8 @@ function AEOSection() {
           </div>
         </div>
 
-        {/* Date range toggle */}
-        <div style={{ flexShrink: 0 }}>
+        {/* Range — passive label; AEO follows the top-of-page mode toggle. */}
+        <div style={{ flexShrink: 0, textAlign: 'right' }}>
           <div
             style={{
               fontFamily: FONT_BODY,
@@ -5274,44 +6279,23 @@ function AEOSection() {
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
               opacity: 0.6,
-              marginBottom: 8,
-              textAlign: 'right',
+              marginBottom: 4,
             }}
           >
             Range
           </div>
           <div
             style={{
-              display: 'inline-flex',
-              border: `1px solid ${C.black}`,
-              borderRadius: 999,
-              overflow: 'hidden',
               fontFamily: FONT_BODY,
               fontSize: 11,
               fontWeight: 600,
+              padding: '4px 10px',
+              border: `1px solid ${C.black}`,
+              borderRadius: 4,
+              display: 'inline-block',
             }}
           >
-            {RANGES.map((r) => {
-              const active = rangeId === r.id;
-              return (
-                <button
-                  key={r.id}
-                  onClick={() => setRangeId(r.id)}
-                  style={{
-                    padding: '4px 10px',
-                    background: active ? C.black : 'transparent',
-                    color: active ? C.white : C.black,
-                    border: 'none',
-                    cursor: active ? 'default' : 'pointer',
-                    fontFamily: FONT_BODY,
-                    fontSize: 11,
-                    fontWeight: 600,
-                  }}
-                >
-                  {r.label.replace('Last ', '')}
-                </button>
-              );
-            })}
+            {windowLabel || `${winDays} days`}
           </div>
         </div>
       </div>
