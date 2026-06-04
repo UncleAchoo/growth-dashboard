@@ -2342,10 +2342,13 @@ function SelfReportedWeeklyCard({
   // this set (multi-select). Does NOT affect chart bar visibility — for
   // that, see `visible` (controlled only by the card's chip clicks).
   const [selectedResponseBuckets, setSelectedResponseBuckets] = useState(() => new Set());
-  // Summary mode collapses the stacked breakdown to a single bar per week.
-  // Defaults to ON — most-frequent view is plain weekly signups; users can
-  // flip to Stacked when they want the channel breakdown.
-  const [summary, setSummary] = useState(true);
+  // Chart mode — 3-state segmented control:
+  //   'summary' — single bar per week (total signups). Default.
+  //   'stacked' — stacked bars by referral_source bucket.
+  //   'percent' — line chart of each bucket's share of weekly signups (%).
+  const [chartMode, setChartMode] = useState('summary');
+  const summary = chartMode === 'summary';
+  const percent = chartMode === 'percent';
 
   // Per-bucket sources scoped to an arbitrary dateSet (returns
   // [{source, count}] sorted by count desc, plus a notSpecCount for the
@@ -2471,8 +2474,9 @@ function SelfReportedWeeklyCard({
     );
   };
 
-  // ── Chart helper. Renders the same stacked column chart for both the
-  //    card and the modal, parameterized by height + click behavior.
+  // ── Chart helper. Renders the chart for both the card and the modal,
+  //    branching on chartMode: 'summary' (single bar), 'stacked' (stacked
+  //    bars), or 'percent' (line chart of each bucket's share %).
   function renderChart({ height, interactive, scope }) {
     const onBarClick = interactive
       ? (payload) => {
@@ -2482,10 +2486,144 @@ function SelfReportedWeeklyCard({
           setSelectedWeek((cur) => (cur === wk ? null : wk));
         }
       : undefined;
+
+    // Pre-compute %-of-row-total per bucket per row (only used in percent mode).
+    const percentData = data.map((row) => {
+      const denom = row.total || 0;
+      const out = { ...row };
+      for (const b of SIGNUPS_CHANNEL_BUCKETS) {
+        out[`__pct_${b.name}`] = denom > 0 ? ((row[b.name] || 0) / denom) * 100 : 0;
+      }
+      return out;
+    });
+    // Percent y-axis bound — auto-scale, min cap 50%, max cap 100%.
+    const maxPercent = percent
+      ? Math.max(
+          ...percentData.flatMap((r) =>
+            visibleBuckets.map((b) => r[`__pct_${b.name}`] || 0),
+          ),
+          10,
+        )
+      : 0;
+    const pctMax = percent ? Math.min(100, Math.max(50, Math.ceil(maxPercent / 10) * 10 + 10)) : 0;
+    const pctTicks = percent
+      ? Array.from({ length: 6 }, (_, i) => Math.round((pctMax / 5) * i))
+      : [];
+
     return (
       <div>
         <div style={{ width: '100%', height }}>
           <ResponsiveContainer width="100%" height="100%">
+            {percent ? (
+              <LineChart
+                data={percentData}
+                margin={{ top: 8, right: 16, bottom: 8, left: 0 }}
+                onClick={onBarClick}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" vertical={false} />
+                <XAxis
+                  dataKey="week"
+                  axisLine={{ stroke: C.black, strokeWidth: 1 }}
+                  tickLine={false}
+                  tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }}
+                  interval={0}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontFamily: FONT_BODY, fontSize: 10, fill: C.black, opacity: 0.6 }}
+                  width={44}
+                  domain={[0, pctMax]}
+                  ticks={pctTicks}
+                  tickFormatter={(v) => `${v}%`}
+                  allowDecimals={false}
+                />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (!active || !payload || !payload.length) return null;
+                    const d = payload[0].payload;
+                    const rows = visibleBuckets
+                      .map((b) => ({
+                        ...b,
+                        v:   d[b.name] || 0,
+                        pct: d[`__pct_${b.name}`] || 0,
+                      }))
+                      .filter((r) => r.v > 0)
+                      .sort((a, b) => b.pct - a.pct);
+                    return (
+                      <div
+                        style={{
+                          background: C.white,
+                          border: `1px solid ${C.black}`,
+                          padding: '10px 12px',
+                          fontFamily: FONT_BODY,
+                          fontSize: 12,
+                          minWidth: 240,
+                        }}
+                      >
+                        <div style={{ fontWeight: 700, marginBottom: 6 }}>
+                          {d.dateRange}{d.partial ? (isReporting ? ' · clipped to range' : ' · in progress') : ''}
+                          {interactive && (
+                            <span style={{ fontWeight: 400, opacity: 0.6, marginLeft: 6 }}>
+                              (click to select)
+                            </span>
+                          )}
+                        </div>
+                        {rows.length === 0 ? (
+                          <div style={{ opacity: 0.6, fontStyle: 'italic' }}>No data</div>
+                        ) : rows.map((r) => (
+                          <div
+                            key={r.name}
+                            style={{ display: 'flex', justifyContent: 'space-between', gap: 14 }}
+                          >
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{
+                                display: 'inline-block', width: 8, height: 8, background: r.color,
+                                border: `1px solid ${C.black}`,
+                              }} />
+                              {r.name}
+                            </span>
+                            <strong style={{ fontVariantNumeric: 'tabular-nums' }}>
+                              {r.pct.toFixed(1)}%
+                              <span style={{ fontWeight: 400, opacity: 0.6, marginLeft: 4 }}>
+                                · {Math.round(r.v)}
+                              </span>
+                            </strong>
+                          </div>
+                        ))}
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            borderTop: '1px solid rgba(0,0,0,0.1)',
+                            marginTop: 6,
+                            paddingTop: 6,
+                          }}
+                        >
+                          <span>Total signups</span>
+                          <strong style={{ fontVariantNumeric: 'tabular-nums' }}>
+                            {Math.round(d.total || 0)}
+                          </strong>
+                        </div>
+                      </div>
+                    );
+                  }}
+                  cursor={{ stroke: 'rgba(0,0,0,0.15)', strokeWidth: 1 }}
+                />
+                {SIGNUPS_CHANNEL_STACK.filter((b) => visible[b.name]).map((b) => (
+                  <Line
+                    key={b.name}
+                    type="monotone"
+                    dataKey={`__pct_${b.name}`}
+                    stroke={b.color}
+                    strokeWidth={2}
+                    dot={{ r: 3, fill: b.color, stroke: C.black, strokeWidth: 1 }}
+                    activeDot={{ r: 5, fill: b.color, stroke: C.black, strokeWidth: 1.5 }}
+                    isAnimationActive={false}
+                  />
+                ))}
+              </LineChart>
+            ) : (
             <BarChart
               data={data}
               margin={{ top: 8, right: 8, bottom: 8, left: 0 }}
@@ -2627,6 +2765,7 @@ function SelfReportedWeeklyCard({
                 ))
               )}
             </BarChart>
+            )}
           </ResponsiveContainer>
         </div>
       </div>
@@ -3061,30 +3200,34 @@ function SelfReportedWeeklyCard({
               }}
             >
               {[
-                { key: 'stacked', label: 'Stacked', isOn: !summary },
-                { key: 'summary', label: 'Summary', isOn: summary  },
-              ].map((opt, i) => (
-                <button
-                  key={opt.key}
-                  type="button"
-                  onClick={() => setSummary(opt.key === 'summary')}
-                  aria-pressed={opt.isOn}
-                  style={{
-                    padding: '4px 9px',
-                    background: opt.isOn ? C.black : C.white,
-                    color: opt.isOn ? C.white : C.black,
-                    border: 'none',
-                    borderLeft: i > 0 ? `1px solid ${C.black}` : 'none',
-                    cursor: 'pointer',
-                    lineHeight: 1.2,
-                    fontFamily: FONT_BODY,
-                    fontSize: 10.5,
-                    fontWeight: 600,
-                  }}
-                >
-                  {opt.label}
-                </button>
-              ))}
+                { key: 'summary', label: 'Summary' },
+                { key: 'stacked', label: 'Stacked' },
+                { key: 'percent', label: '%' },
+              ].map((opt, i) => {
+                const isOn = chartMode === opt.key;
+                return (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => setChartMode(opt.key)}
+                    aria-pressed={isOn}
+                    style={{
+                      padding: '4px 9px',
+                      background: isOn ? C.black : C.white,
+                      color: isOn ? C.white : C.black,
+                      border: 'none',
+                      borderLeft: i > 0 ? `1px solid ${C.black}` : 'none',
+                      cursor: 'pointer',
+                      lineHeight: 1.2,
+                      fontFamily: FONT_BODY,
+                      fontSize: 10.5,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
             </div>
             <button
               type="button"
@@ -3229,24 +3372,70 @@ function SelfReportedWeeklyCard({
                   · click a column to scope, hover a category to see raw responses
                 </div>
               </div>
-              <button
-                onClick={closeModal}
-                aria-label="Close"
-                style={{
-                  background: 'transparent',
-                  border: `1px solid ${C.black}`,
-                  borderRadius: 4,
-                  width: 28,
-                  height: 28,
-                  fontFamily: FONT_BODY,
-                  fontSize: 14,
-                  cursor: 'pointer',
-                  color: C.black,
-                  flexShrink: 0,
-                }}
-              >
-                ✕
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                {/* Same Summary / Stacked / % segmented toggle as the card. */}
+                <div
+                  role="group"
+                  aria-label="Chart mode"
+                  style={{
+                    display: 'inline-flex',
+                    border: `1px solid ${C.black}`,
+                    borderRadius: 4,
+                    overflow: 'hidden',
+                    fontFamily: FONT_BODY,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    letterSpacing: '0.04em',
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {[
+                    { key: 'summary', label: 'Summary' },
+                    { key: 'stacked', label: 'Stacked' },
+                    { key: 'percent', label: '%' },
+                  ].map((opt, i) => {
+                    const isOn = chartMode === opt.key;
+                    return (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        onClick={() => setChartMode(opt.key)}
+                        aria-pressed={isOn}
+                        style={{
+                          padding: '5px 10px',
+                          background: isOn ? C.black : C.white,
+                          color: isOn ? C.white : C.black,
+                          border: 'none',
+                          borderLeft: i > 0 ? `1px solid ${C.black}` : 'none',
+                          cursor: 'pointer',
+                          fontFamily: FONT_BODY,
+                          fontSize: 11,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  onClick={closeModal}
+                  aria-label="Close"
+                  style={{
+                    background: 'transparent',
+                    border: `1px solid ${C.black}`,
+                    borderRadius: 4,
+                    width: 28,
+                    height: 28,
+                    fontFamily: FONT_BODY,
+                    fontSize: 14,
+                    cursor: 'pointer',
+                    color: C.black,
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             {/* Modal body — chart on top, combined toggle+legend, then responses panel */}
@@ -3292,7 +3481,7 @@ function SelfReportedWeeklyCard({
                 >
                   Summary view — single bar per week using daily-uniques total. Switch to{' '}
                   <button
-                    onClick={() => setSummary(false)}
+                    onClick={() => setChartMode('stacked')}
                     style={{
                       background: 'none', border: 'none', cursor: 'pointer',
                       fontFamily: FONT_BODY, fontSize: 12, color: C.black,
