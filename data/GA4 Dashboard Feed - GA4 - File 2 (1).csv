@@ -10,6 +10,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260520,Direct,(direct) / (none),6
 20260522,Direct,(direct) / (none),6
 20260602,Direct,(direct) / (none),6
+20260605,Direct,(direct) / (none),6
 20260511,Organic Search,google / organic,5
 20260518,AI Referrals,chatgpt.com / (not set),5
 20260519,Organic Search,google / organic,5
@@ -44,6 +45,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260602,Organic Search,google / organic,2
 20260602,Referral,mutiny-revenue-dashboard.pages.dev / referral,2
 20260604,Organic Search,google / organic,2
+20260605,Organic Search,google / organic,2
+20260607,Organic Search,google / organic,2
 20260507,Organic Social,linkedin.com / referral,1
 20260508,Referral,mkt1-website / referral,1
 20260509,Direct,(direct) / (none),1
@@ -79,4 +82,9 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260601,Referral,statics.teams.cdn.office.net / referral,1
 20260601,Referral,track.pstmrk.it / referral,1
 20260602,AI Referrals,claude.ai / referral,1
-20260605,Direct,(direct) / (none),1
+20260605,Referral,ycombinator.com / referral,1
+20260606,Direct,(direct) / (none),1
+20260606,Organic Search,google / organic,1
+20260606,Unassigned,ca.search.yahoo.com / referral,1
+20260608,Direct,(direct) / (none),1
+20260608,Organic Search,google / organic,1
