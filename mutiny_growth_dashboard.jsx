@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import {
   PieChart, Pie, Cell, ResponsiveContainer,
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  BarChart, Bar, AreaChart, Area,
+  BarChart, Bar, AreaChart, Area, ComposedChart,
 } from 'recharts';
 import {
   ArrowUpRight, ArrowDownRight, HelpCircle, AlertTriangle, Sparkles, Info, ChevronDown,
@@ -570,6 +570,19 @@ const TOP_OF_FUNNEL_MONTHLY_YTD = YTD_MONTHS_LIST.map((mo) => {
     meetings:  sumIn(LIVE_MEETINGS_BY_DATE),
   };
 });
+
+// YTD monthly cohorts shaped like LIVE_WEEKS so the Channel Analytics builders
+// (computeSignupsByChannelGAWeekly / computeWebSessionsWeekly /
+// computeChannelDeepDive / SelfReportedSourcesChart) produce one bar per month
+// (Jan→current) in YTD instead of weekly bars. They key off weekStartLabel +
+// dates, so the month label becomes the x-axis label.
+const YTD_MONTH_COHORTS = YTD_MONTHS_LIST.map((mo) => ({
+  weekStartLabel: mo.label,
+  weekStart:      mo.dates[0],     // YYYYMMDD month start — unique row key
+  dateRange:      mo.dateRange,
+  dates:          mo.dates,
+  partial:        mo.partial,
+}));
 
 // ---------------------------------------------------------------------------
 // Helper: per-source count over an arbitrary date set. Handles both the OLD
@@ -3502,6 +3515,269 @@ function SelfReportedWeeklyCard({
 }
 
 // ---------------------------------------------------------------------------
+// Helpers shared by the two cumulative cards so they respect the top-of-page
+// timeframe toggle (Last 30 days / MTD / YTD / Reporting).
+//
+// cumWindowFilter: dateSet holds compact 'YYYYMMDD' day strings for the active
+// window. A weekly point is in-window when its week-ending day falls within the
+// set's date span. (Zoom only — the cumulative VALUES are left untouched, so
+// the line keeps its true running total within the window.)
+function cumWindowFilter(dateSet) {
+  if (!dateSet || !dateSet.size) return () => true;
+  let lo = null, hi = null;
+  for (const d of dateSet) { if (lo === null || d < lo) lo = d; if (hi === null || d > hi) hi = d; }
+  return (iso) => { const c = String(iso).replaceAll('-', ''); return c >= lo && c <= hi; };
+}
+// cumYDomain: a nice [min,max] that zooms to the (filtered) values while
+// keeping true totals — snaps the floor to 0 when the minimum is near the
+// bottom (e.g. full-history YTD), otherwise lifts it so short windows aren't
+// flat lines pinned to the top.
+function cumYDomain(counts) {
+  if (!counts.length) return [0, 10];
+  const maxC = Math.max(...counts), minC = Math.min(...counts);
+  const span = Math.max(maxC - minC, 1);
+  const pow = Math.pow(10, Math.floor(Math.log10((span / 5) || 1)));
+  const n = (span / 5) / pow;
+  const step = ((n < 2 ? 1 : n < 5 ? 2 : 5) * pow) || 1;
+  const hi = Math.ceil((maxC + span * 0.08) / step) * step;
+  const lo = (minC <= span * 0.5) ? 0 : Math.floor((minC - span * 0.08) / step) * step;
+  return [Math.max(0, lo), hi];
+}
+// cumRateDomain: symmetric-ish domain for the WoW % axis. Always includes 0 so
+// the sign of the rate is readable; pads above/below the observed values.
+function cumRateDomain(rates) {
+  const vals = rates.filter((v) => v != null && Number.isFinite(v));
+  if (!vals.length) return [0, 10];
+  const maxR = Math.max(...vals, 0);
+  const minR = Math.min(...vals, 0);
+  const pad = Math.max((maxR - minR) * 0.12, 1);
+  return [Math.floor(minR - pad), Math.ceil(maxR + pad)];
+}
+// Tiny two-item legend for the cumulative cards (solid cumulative line on the
+// left axis, dashed WoW growth-rate line on the right axis).
+function LegendRow({ accent, cumLabel, rateLabel = 'WoW' }) {
+  return (
+    <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginTop: 10, fontFamily: FONT_BODY, fontSize: 10.5, opacity: 0.8 }}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ width: 14, borderTop: `2px solid ${C.black}` }} />
+        {cumLabel} <span style={{ opacity: 0.55 }}>(left)</span>
+      </span>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ width: 14, borderTop: `2px dashed ${accent}` }} />
+        {rateLabel} growth % <span style={{ opacity: 0.55 }}>(right)</span>
+      </span>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Cumulative total signups — running total of signups at the end of each week,
+// over the full history. Same data source as the "Signups by Channel" card
+// (Amplitude dailySignups — the all-channel total). Sits to the LEFT of the
+// Cumulative active logos chart. The last point equals total signups in the
+// pulled window (Jan 1 → now, i.e. the YTD signups figure).
+// ---------------------------------------------------------------------------
+function CumulativeSignupsCard({ dateSet, granularity = 'weekly', months } = {}) {
+  const daily = dataJson.amplitude?.dailySignups || {};
+  const keys = Object.keys(daily).filter((k) => /^\d{8}$/.test(k)).sort();
+  if (!keys.length) return null;
+
+  // Today (for the trailing partial week) from the data's own pulledAt.
+  const today = (dataJson.pulledAt || new Date().toISOString()).slice(0, 10);
+
+  // Bucket daily signups into week-ending Sunday (Mon–Sun weeks), then cumulate.
+  const bySun = {};
+  for (const k of keys) {
+    const d = parseYYYYMMDD(k);
+    const dow = d.getUTCDay();                       // 0 = Sun
+    const sun = addUTCDays(d, dow === 0 ? 0 : 7 - dow);
+    const sunKey = fmtYYYYMMDDDash(sun);
+    bySun[sunKey] = (bySun[sunKey] || 0) + (Number(daily[k]) || 0);
+  }
+
+  // YTD aggregates by MONTH (matching the rest of the dashboard); other windows
+  // use weekly points. The growth-rate line is MoM in monthly mode, WoW weekly.
+  const monthly  = granularity === 'monthly';
+  const rateName = monthly ? 'MoM' : 'WoW';
+  let data;
+  if (monthly) {
+    // One point per month (Jan→current): cumulative signups through month-end.
+    let mcum = 0;
+    data = (months || []).map((mo) => {
+      mcum += mo.dates.reduce((s, d) => s + (Number(daily[d]) || 0), 0);
+      return {
+        label:   mo.label,
+        ending:  mo.label,
+        year:    Number(String(mo.dates[0]).slice(0, 4)),
+        count:   mcum,
+        partial: !!mo.partial,
+      };
+    });
+  } else {
+    // Cumulate over ALL weeks first (true running total), THEN zoom to the window.
+    let cum = 0;
+    const allData = Object.keys(bySun).sort().map((sun) => {
+      cum += bySun[sun];
+      const partial = sun > today;                   // week-ending Sunday not yet reached
+      const ed = parseYYYYMMDD(sun.replaceAll('-', '')); // label by the true week-ending Sunday
+      return {
+        iso:     partial ? today : sun,               // filter key: clamp the partial week so it stays in-window
+        label:   fmtMonDay(ed),
+        ending:  fmtMonDay(ed),
+        year:    ed.getUTCFullYear(),
+        count:   cum,
+        partial,
+      };
+    });
+    // WoW computed on the FULL series so the first visible week keeps a valid rate.
+    allData.forEach((p, i) => {
+      const prev = i > 0 ? allData[i - 1].count : null;
+      p.wow = (prev && prev > 0) ? ((p.count - prev) / prev) * 100 : null;
+    });
+    const inWin    = cumWindowFilter(dateSet);
+    const filtered = allData.filter((p) => inWin(p.iso));
+    data = filtered.length ? filtered : allData;
+  }
+  if (monthly) {
+    data.forEach((p, i) => {
+      const prev = i > 0 ? data[i - 1].count : null;
+      p.wow = (prev && prev > 0) ? ((p.count - prev) / prev) * 100 : null;
+    });
+  }
+  const last     = data[data.length - 1];
+  const [yLo, yHi] = cumYDomain(data.map((r) => r.count));
+  const wDomain    = cumRateDomain(data.map((r) => r.wow));
+  const sep      = monthly ? ' ' : ', ';
+  const firstLbl = data[0] ? `${data[0].ending}${sep}${data[0].year}` : '';
+  const lastLbl  = last ? `${last.ending}${sep}${last.year}` : '';
+
+  return (
+    <div style={{ background: C.white, border: `1px solid ${C.black}`, borderRadius: 4, padding: '28px 32px 24px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+        <div>
+          <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 22, letterSpacing: '-0.02em', margin: 0 }}>
+            Cumulative total signups
+          </h3>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6, marginTop: 4 }}>
+            Amplitude · weekly · all channels
+          </div>
+          {firstLbl && (
+            <div style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 10.5, opacity: 0.55, marginTop: 4 }}>
+              {firstLbl} – {lastLbl}
+            </div>
+          )}
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 30, lineHeight: 1, letterSpacing: '-0.02em' }}>
+            {last.count.toLocaleString()}
+          </div>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 10.5, opacity: 0.6, marginTop: 4 }}>
+            signups to date
+          </div>
+        </div>
+      </div>
+
+      <LegendRow accent={C.purple} cumLabel="Cumulative signups" rateLabel={rateName} />
+
+      <div style={{ width: '100%', height: 360, marginTop: 8 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={data} margin={{ top: 10, right: 8, bottom: 0, left: 0 }}>
+            <defs>
+              <linearGradient id="signupsFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stopColor={C.blue} stopOpacity={0.35} />
+                <stop offset="100%" stopColor={C.blue} stopOpacity={0.04} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid vertical={false} stroke={C.black} strokeOpacity={0.08} />
+            <XAxis
+              dataKey="label"
+              axisLine={{ stroke: C.black }}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 10, fill: C.black }}
+              interval="preserveStartEnd"
+              minTickGap={36}
+              height={28}
+            />
+            <YAxis
+              yAxisId="left"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }}
+              domain={[yLo, yHi]}
+              width={48}
+              allowDecimals={false}
+              tickFormatter={(v) => (Number.isInteger(v) ? v.toLocaleString() : '')}
+            />
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.purple }}
+              domain={wDomain}
+              width={44}
+              tickFormatter={(v) => `${v}%`}
+            />
+            <Tooltip
+              cursor={{ stroke: C.black, strokeOpacity: 0.2, strokeWidth: 1 }}
+              content={({ active, payload }) => {
+                if (!active || !payload || !payload.length) return null;
+                const p = payload[0].payload;
+                return (
+                  <div style={{ background: C.white, border: `1px solid ${C.black}`, borderRadius: 4, padding: '10px 12px', fontFamily: FONT_BODY, fontSize: 11, boxShadow: '4px 4px 0 rgba(0,0,0,0.08)' }}>
+                    <div style={{ fontWeight: 700, marginBottom: 2 }}>
+                      {monthly
+                        ? `${p.ending} ${p.year}${p.partial ? ' · month in progress' : ''}`
+                        : `Week ending ${p.ending}, ${p.year}${p.partial ? ' · current week, in progress' : ''}`}
+                    </div>
+                    <div>
+                      <strong style={{ fontVariantNumeric: 'tabular-nums' }}>{p.count.toLocaleString()}</strong> signups
+                    </div>
+                    <div style={{ color: C.purple }}>
+                      {rateName}: <strong>{p.wow == null ? '—' : `${p.wow >= 0 ? '+' : ''}${p.wow.toFixed(1)}%`}</strong>
+                    </div>
+                  </div>
+                );
+              }}
+            />
+            <Area
+              yAxisId="left"
+              type="monotone"
+              dataKey="count"
+              stroke={C.black}
+              strokeWidth={2}
+              fill="url(#signupsFill)"
+              dot={false}
+              activeDot={{ r: 4, stroke: C.black, strokeWidth: 1, fill: C.blue }}
+              isAnimationActive={false}
+            />
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="wow"
+              stroke={C.purple}
+              strokeWidth={1.5}
+              strokeDasharray="4 3"
+              dot={false}
+              activeDot={{ r: 3, stroke: C.purple, strokeWidth: 1, fill: C.white }}
+              connectNulls
+              isAnimationActive={false}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div style={{ fontFamily: FONT_BODY, fontSize: 10.5, opacity: 0.6, marginTop: 12, lineHeight: 1.5 }}>
+        Running total of signups (all channels) at each {monthly ? 'month-end' : 'week-end'}, same
+        source as Signups by Channel (Amplitude). Final point = {last.count.toLocaleString()} signups
+        to date; dashed line = {monthly ? 'month-over-month' : 'week-over-week'} growth rate (right axis).
+        The trailing in-progress {monthly ? 'month' : 'week'} is partial.
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Cumulative active logos — combined PLG + Enterprise paying-customer logo
 // count at the end of each week, plotted over the full history. Sits directly
 // below "Signups by Channel". Source: HubSpot (dataJson.hubspot.logos), built
@@ -3516,30 +3792,76 @@ function SelfReportedWeeklyCard({
 // current total active logo count (reconciles to the revenue dashboard's 116).
 // Integer (count) axis — not dollars.
 // ---------------------------------------------------------------------------
-function CumulativeLogosCard() {
+function CumulativeLogosCard({ dateSet, granularity = 'weekly', months } = {}) {
   const logos  = dataJson.hubspot?.logos || null;
-  const weekly = logos?.weekly || [];
-  if (!weekly.length) return null;
+  const weeklyAll = logos?.weekly || [];
+  if (!weeklyAll.length) return null;
 
-  const data = weekly.map((w) => {
-    // week_ending is normally ISO 'YYYY-MM-DD'. Guard against other label
-    // formats the revenue repo might use by falling back to the raw string.
-    const raw = w.week_ending || '';
-    const d = /^\d{4}-\d{2}-\d{2}/.test(raw) ? parseYYYYMMDD(raw.slice(0, 10).replaceAll('-', '')) : null;
-    const valid = d && !Number.isNaN(d.getTime());
-    return {
-      label:   valid ? fmtMonDay(d) : raw,
-      ending:  valid ? fmtMonDay(d) : raw,
-      year:    valid ? d.getUTCFullYear() : '',
-      count:   w.count,
-      partial: !!w.partial,
-    };
-  });
+  // Build the full series (display fields + WoW growth rate), THEN zoom to the
+  // active window — WoW computed on the full series so the first visible week
+  // keeps a valid rate. Active-logo stock values are left untouched.
+  // YTD aggregates by MONTH (matching the rest of the dashboard); other windows
+  // use weekly points. Growth-rate line is MoM in monthly mode, WoW weekly.
+  const monthly  = granularity === 'monthly';
+  const rateName = monthly ? 'MoM' : 'WoW';
+  const todayISO = (dataJson.pulledAt || new Date().toISOString()).slice(0, 10);
+  const todayCompact = todayISO.replaceAll('-', '');
+  let data;
+  if (monthly) {
+    // Active-logo stock at each month-end (Jan→current), resampled from the
+    // weekly series: latest week-ending on/before month-end, clamped to today
+    // for the current (partial) month.
+    data = (months || []).map((mo) => {
+      const monthEnd = mo.dates[mo.dates.length - 1];           // YYYYMMDD
+      const cap = mo.partial ? todayCompact : monthEnd;
+      let val = 0;
+      for (const w of weeklyAll) {
+        const we = (w.week_ending || '').slice(0, 10).replaceAll('-', '');
+        if (we <= cap) val = w.count;
+      }
+      return {
+        label:   mo.label,
+        ending:  mo.label,
+        year:    Number(String(mo.dates[0]).slice(0, 4)),
+        count:   val,
+        partial: !!mo.partial,
+      };
+    });
+    data.forEach((p, i) => {
+      const prev = i > 0 ? data[i - 1].count : null;
+      p.wow = (prev && prev > 0) ? ((p.count - prev) / prev) * 100 : null;
+    });
+  } else {
+    const fullData = weeklyAll.map((w, i) => {
+      // week_ending is normally ISO 'YYYY-MM-DD'. Guard against other label
+      // formats the revenue repo might use by falling back to the raw string.
+      const raw = (w.week_ending || '').slice(0, 10);
+      const d = /^\d{4}-\d{2}-\d{2}/.test(raw) ? parseYYYYMMDD(raw.replaceAll('-', '')) : null;
+      const valid = d && !Number.isNaN(d.getTime());
+      // Display by the week-ending Sunday: full weeks are already Sundays; the
+      // partial week's stored date is the as-of day, whose week ends next Sunday.
+      const disp = valid ? (d.getUTCDay() === 0 ? d : addUTCDays(d, 7 - d.getUTCDay())) : null;
+      const prev = i > 0 ? weeklyAll[i - 1].count : null;
+      return {
+        iso:     raw > todayISO ? todayISO : raw,      // filter key: clamp future/partial labels into the window
+        label:   disp ? fmtMonDay(disp) : raw,
+        ending:  disp ? fmtMonDay(disp) : raw,
+        year:    disp ? disp.getUTCFullYear() : '',
+        count:   w.count,
+        wow:     (prev && prev > 0) ? ((w.count - prev) / prev) * 100 : null,
+        partial: !!w.partial,
+      };
+    });
+    const inWin    = cumWindowFilter(dateSet);
+    const filtered = fullData.filter((p) => inWin(p.iso));
+    data = filtered.length ? filtered : fullData;
+  }
   const last     = data[data.length - 1];
-  const maxCount = Math.max(...data.map((r) => r.count), 0);
-  const yMax     = Math.ceil((maxCount * 1.08) / 10) * 10 || 10;
-  const firstLbl = data[0]?.ending ? `${data[0].ending}, ${data[0].year}` : '';
-  const lastLbl  = last?.ending ? `${last.ending}, ${last.year}` : '';
+  const [yLo, yHi] = cumYDomain(data.map((r) => r.count));
+  const wDomain    = cumRateDomain(data.map((r) => r.wow));
+  const sep      = monthly ? ' ' : ', ';
+  const firstLbl = data[0]?.ending ? `${data[0].ending}${sep}${data[0].year}` : '';
+  const lastLbl  = last?.ending ? `${last.ending}${sep}${last.year}` : '';
 
   return (
     <div
@@ -3574,9 +3896,11 @@ function CumulativeLogosCard() {
         </div>
       </div>
 
-      <div style={{ width: '100%', height: 360, marginTop: 16 }}>
+      <LegendRow accent={C.linkedinBlue} cumLabel="Active logos" rateLabel={rateName} />
+
+      <div style={{ width: '100%', height: 360, marginTop: 8 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 16, bottom: 0, left: 0 }}>
+          <ComposedChart data={data} margin={{ top: 10, right: 8, bottom: 0, left: 0 }}>
             <defs>
               <linearGradient id="logosFill" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%"   stopColor={C.purple} stopOpacity={0.18} />
@@ -3594,13 +3918,24 @@ function CumulativeLogosCard() {
               height={28}
             />
             <YAxis
+              yAxisId="left"
               axisLine={false}
               tickLine={false}
               tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }}
-              domain={[0, yMax]}
+              domain={[yLo, yHi]}
               width={40}
               allowDecimals={false}
               tickFormatter={(v) => (Number.isInteger(v) ? v.toLocaleString() : '')}
+            />
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.linkedinBlue }}
+              domain={wDomain}
+              width={44}
+              tickFormatter={(v) => `${v}%`}
             />
             <Tooltip
               cursor={{ stroke: C.black, strokeOpacity: 0.2, strokeWidth: 1 }}
@@ -3620,16 +3955,22 @@ function CumulativeLogosCard() {
                     }}
                   >
                     <div style={{ fontWeight: 700, marginBottom: 2 }}>
-                      Week ending {p.ending}, {p.year}{p.partial ? ' · current week, in progress' : ''}
+                      {monthly
+                        ? `${p.ending} ${p.year}${p.partial ? ' · month in progress' : ''}`
+                        : `Week ending ${p.ending}, ${p.year}${p.partial ? ' · current week, in progress' : ''}`}
                     </div>
                     <div>
                       <strong style={{ fontVariantNumeric: 'tabular-nums' }}>{p.count.toLocaleString()}</strong> active logos
+                    </div>
+                    <div style={{ color: C.linkedinBlue }}>
+                      {rateName}: <strong>{p.wow == null ? '—' : `${p.wow >= 0 ? '+' : ''}${p.wow.toFixed(1)}%`}</strong>
                     </div>
                   </div>
                 );
               }}
             />
             <Area
+              yAxisId="left"
               type="monotone"
               dataKey="count"
               stroke={C.black}
@@ -3639,17 +3980,30 @@ function CumulativeLogosCard() {
               activeDot={{ r: 4, stroke: C.black, strokeWidth: 1, fill: C.purple }}
               isAnimationActive={false}
             />
-          </AreaChart>
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="wow"
+              stroke={C.linkedinBlue}
+              strokeWidth={1.5}
+              strokeDasharray="4 3"
+              dot={false}
+              activeDot={{ r: 3, stroke: C.linkedinBlue, strokeWidth: 1, fill: C.white }}
+              connectNulls
+              isAnimationActive={false}
+            />
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
 
       <div style={{ fontFamily: FONT_BODY, fontSize: 10.5, opacity: 0.6, marginTop: 12, lineHeight: 1.5 }}>
-        End-of-week count of active paying logos (PLG + Enterprise), full history.
-        PLG (Stripe-equivalent via HubSpot) anchored by subscription start date;
+        {monthly ? 'End-of-month' : 'End-of-week'} count of active paying logos (PLG + Enterprise). PLG
+        (Stripe-equivalent via HubSpot) anchored by subscription start date;
         Enterprise (HubSpot List 5010) by most-recent closed-won deal close date.
         Final point = {(logos.total ?? last.count).toLocaleString()} active logos
-        ({(logos.plg ?? '—')} PLG + {(logos.enterprise ?? '—')} Enterprise). The trailing
-        in-progress week is partial.
+        ({(logos.plg ?? '—')} PLG + {(logos.enterprise ?? '—')} Enterprise); dashed line =
+        {monthly ? ' month-over-month' : ' week-over-week'} growth rate (right axis). The trailing
+        in-progress {monthly ? 'month' : 'week'} is partial.
       </div>
     </div>
   );
@@ -3866,7 +4220,9 @@ export default function MutinyGrowthDashboard() {
   const channelTable = isReporting
     ? computeChannelTable(reportingStartCompact, reportingEndCompact)
     : computeChannelTable();
-  const channelWeeklyCohorts = isReporting ? reportingWeeks : LIVE_WEEKS;
+  // YTD uses monthly cohorts (one bar per month) to match the rest of the
+  // dashboard's YTD convention; Reporting uses its custom weeks; else weekly.
+  const channelWeeklyCohorts = isReporting ? reportingWeeks : isYtd ? YTD_MONTH_COHORTS : LIVE_WEEKS;
   const channelWeeklySource  = computeSignupsByChannelGAWeekly(channelWeeklyCohorts);
   const weeklyChartData      = computeWeeklyData(channelWeeklySource);
   const kpiSignups   = is30d ? DATA.signups.window         : isMtd ? SIGNUPS_MTD  : isReporting ? SIGNUPS_REPORTING  : SIGNUPS_YTD;
@@ -4247,11 +4603,20 @@ export default function MutinyGrowthDashboard() {
         />
       </div>
 
-      {/* ── Cumulative active logos — full-width, directly below Signups by
-          Channel. Combined PLG + Enterprise paying-logo count over full
-          history. Source: HubSpot (dataJson.hubspot.logos). */}
-      <div style={{ marginBottom: 24 }}>
-        <CumulativeLogosCard />
+      {/* ── Cumulative trends — 2-col row directly below Signups by Channel:
+          total signups (Amplitude) on the left, active logos (PLG + Enterprise,
+          from the revenue dashboard) on the right. */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+        <CumulativeSignupsCard
+          granularity={isYtd ? 'monthly' : 'weekly'}
+          months={YTD_MONTHS_LIST}
+          dateSet={is30d ? STRICT_WINDOW_DATES_SET : isMtd ? MTD_DATES_SET : isReporting ? reportingDatesSet : YTD_DATES_SET}
+        />
+        <CumulativeLogosCard
+          granularity={isYtd ? 'monthly' : 'weekly'}
+          months={YTD_MONTHS_LIST}
+          dateSet={is30d ? STRICT_WINDOW_DATES_SET : isMtd ? MTD_DATES_SET : isReporting ? reportingDatesSet : YTD_DATES_SET}
+        />
       </div>
 
       {/* ── Sales Meetings — column chart + self-reported channel pie,
@@ -4470,7 +4835,7 @@ export default function MutinyGrowthDashboard() {
               gap: 10,
             }}
           >
-            Engaged Sessions · weekly
+            Engaged Sessions · {isYtd ? 'monthly' : 'weekly'}
             <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
               Stacked by channel
             </span>
@@ -4838,7 +5203,7 @@ export default function MutinyGrowthDashboard() {
               }}
             >
               Self-reported source from the onboarding{' '}
-              <code style={codeStyle}>referral_source</code> field, weekly.
+              <code style={codeStyle}>referral_source</code> field, {isYtd ? 'monthly' : 'weekly'}.
               Reliable from <strong>May 7, 2026</strong> (made required field).
             </div>
           </div>
@@ -4862,6 +5227,7 @@ export default function MutinyGrowthDashboard() {
               title="LinkedIn"
               targets={[{ name: 'LinkedIn', color: C.linkedinBlue }]}
               weeks={channelWeeklyCohorts}
+              cadenceLabel={isYtd ? 'monthly' : 'weekly'}
             />
           </div>
           <div>
@@ -4885,6 +5251,7 @@ export default function MutinyGrowthDashboard() {
                 { name: 'Search', color: C.lightBlue },
               ]}
               weeks={channelWeeklyCohorts}
+              cadenceLabel={isYtd ? 'monthly' : 'weekly'}
             />
           </div>
         </div>
@@ -6002,7 +6369,7 @@ function AEOVisibilityChart({ visible, dailySlice = AEO.daily }) {
 // (LinkedIn). Chart-area height matches the parent ChannelDeepDive's main
 // chart so the two sit at the same visual weight side-by-side.
 // ---------------------------------------------------------------------------
-function SelfReportedSourcesChart({ title, targets, weeks = LIVE_WEEKS }) {
+function SelfReportedSourcesChart({ title, targets, weeks = LIVE_WEEKS, cadenceLabel = 'weekly' }) {
   // Build per-day per-bucket counts from amplitude.referralSources entries
   // (skips entries that don't carry a daily map — old shape fallback).
   const bucketDaily = Object.fromEntries(targets.map((t) => [t.name, {}]));
@@ -6086,7 +6453,7 @@ function SelfReportedSourcesChart({ title, targets, weeks = LIVE_WEEKS }) {
         >
           <SelfReportedTag />
           <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>
-            weekly
+            {cadenceLabel}
           </span>
         </div>
       </div>
