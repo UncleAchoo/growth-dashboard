@@ -73,6 +73,12 @@ const OUT_PATH       = 'src/data.json';
 const inputIdx  = process.argv.indexOf('--input');
 const inputPath = inputIdx >= 0 ? process.argv[inputIdx + 1] : null;
 
+// --logos-only refreshes ONLY hubspot.logos in src/data.json (revenue repo →
+// HubSpot proxy), leaving GA4 / Amplitude / HubSpot meetings / Peec untouched.
+// Used by the scheduled "refresh logos" workflow so CI doesn't need every
+// source's API keys.
+const logosOnly = process.argv.includes('--logos-only');
+
 const log = (...a) => console.log('[pull-data]', ...a);
 const err = (...a) => console.error('[pull-data]', ...a);
 
@@ -367,6 +373,249 @@ async function fetchAmplitude() {
 }
 
 // ===========================================================================
+// HubSpot — Active-logos series (powers the "Cumulative active logos" chart).
+//
+// OFF by default. The methodologically-correct series is baked into
+// src/data.json (built once from the HubSpot revenue connector) and preserved
+// across refreshes. Computing it LIVE here needs `crm.objects.companies.read`
+// + `crm.objects.deals.read` scopes on the private-app token AND enterprise
+// closedate anchoring via each company's associated closed-won deals. Once the
+// token has those scopes and you've validated the output against the revenue
+// dashboard's `total_active_logos`, set PULL_LOGOS=1 to enable.
+//
+// Segmentation reconciles to the revenue dashboard's `total_active_logos`
+// (currently 116 = 107 PLG + 9 Enterprise):
+//   • PLG paying = HubSpot proxy for the canonical Stripe MRR>0 count —
+//       mutiny_app_plan in (business, free) AND monthly_payment_amount > 0 AND
+//       active_mutiny_account=true AND seats_purchased set AND domain != niche.com,
+//       anchored by subscription_start_date. (This dashboard has no Stripe
+//       connector; the proxy currently equals the canonical 107 exactly.)
+//   • Enterprise = HubSpot List 5010 "Current Enterprise Customers" —
+//       active_mutiny_account=true AND mutiny_app_plan=enterprise AND
+//       monthly_payment set AND start_date > 2026-02-01 AND domain != niche.com,
+//       anchored by the most-recent closed-won deal closedate.
+// Disjoint populations (enterprise excluded from PLG via the plan filter), so
+// no double counting. Grid = Sunday-ending weeks from the week-ending on/before
+// STRIPE_HISTORY_START through now (final partial week instant = now). Each
+// week = count of logos whose anchor <= that instant. Last point = total.
+// ===========================================================================
+const STRIPE_HISTORY_START = process.env.STRIPE_HISTORY_START || '2026-03-26';
+// week-ending Sunday on or before an ISO date (UTC)
+function logosSundayOnOrBefore(iso) {
+  const d = new Date(iso.slice(0, 10) + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() - d.getUTCDay()); // 0=Sun
+  return d.toISOString().slice(0, 10);
+}
+function logosAddDaysISO(iso, n) {
+  const d = new Date(iso + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+async function hsCompanySearchAll(filterGroups, properties) {
+  const out = [];
+  let after;
+  do {
+    const body = { filterGroups, properties, limit: 100 };
+    if (after) body.after = after;
+    const res = await fetch('https://api.hubapi.com/crm/v3/objects/companies/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${HUBSPOT_TOKEN}` },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`HubSpot companies search HTTP ${res.status}: ${t.slice(0, 200)}`);
+    }
+    const j = await res.json();
+    out.push(...(j.results || []));
+    after = j.paging?.next?.after;
+  } while (after);
+  return out;
+}
+async function hsMostRecentClosedWon(companyId) {
+  const r = await fetch(`https://api.hubapi.com/crm/v4/objects/companies/${companyId}/associations/deals`, {
+    headers: { 'Authorization': `Bearer ${HUBSPOT_TOKEN}` },
+  });
+  if (!r.ok) return null;
+  const ids = ((await r.json()).results || []).map((x) => x.toObjectId).filter(Boolean);
+  if (!ids.length) return null;
+  const br = await fetch('https://api.hubapi.com/crm/v3/objects/deals/batch/read', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${HUBSPOT_TOKEN}` },
+    body: JSON.stringify({ properties: ['closedate', 'hs_is_closed_won'], inputs: ids.map((id) => ({ id })) }),
+  });
+  if (!br.ok) return null;
+  let max = null;
+  for (const d of ((await br.json()).results || [])) {
+    const p = d.properties || {};
+    if (p.hs_is_closed_won === 'true' && p.closedate && (!max || p.closedate > max)) max = p.closedate;
+  }
+  return max;
+}
+// ---------------------------------------------------------------------------
+// PREFERRED SOURCE — single source of truth. When LOGOS_SOURCE=revenue-repo,
+// read the already-computed logos series straight from the private revenue
+// dashboard repo (it commits dashboard_data.json on each refresh) via the
+// GitHub Contents API. This guarantees the growth dashboard shows the exact
+// same Total active logos the revenue dashboard does, with zero duplicated
+// Stripe/HubSpot logic. Falls through to the HubSpot proxy (fetchHubspotLogos)
+// and then to the baked/prior series if the token is absent or the fetch fails.
+//
+// Required env (set as CI secrets / .env.local):
+//   LOGOS_SOURCE=revenue-repo         ← opt in
+//   REVENUE_REPO_TOKEN=<fine-grained PAT, read-only Contents on the repo>
+// Optional overrides (defaults shown):
+//   REVENUE_REPO=UncleAchoo/hubspot-revenue-dashboard
+//   REVENUE_LOGOS_PATH=dashboard_data.json
+//   REVENUE_REPO_REF=main
+// ---------------------------------------------------------------------------
+async function fetchLogosFromRevenueRepo() {
+  if (process.env.LOGOS_SOURCE !== 'revenue-repo') return null;
+
+  const repo = process.env.REVENUE_REPO || 'UncleAchoo/revenue-dashboard-official';
+  const path = process.env.REVENUE_LOGOS_PATH || 'stripe_data.json';
+  const ref  = process.env.REVENUE_REPO_REF || 'main';
+
+  // Local-test escape hatch: point REVENUE_LOGOS_FIXTURE at a downloaded copy
+  // of stripe_data.json to exercise this path with no token / no network.
+  const fixture = process.env.REVENUE_LOGOS_FIXTURE;
+  let d;
+  if (fixture) {
+    log(`Reading revenue logos from local fixture ${fixture}...`);
+    d = JSON.parse(readFileSync(fixture, 'utf8'));
+  } else {
+    const token = process.env.REVENUE_REPO_TOKEN;
+    if (!token) {
+      err('  LOGOS_SOURCE=revenue-repo but REVENUE_REPO_TOKEN is not set — falling back.');
+      return null;
+    }
+    log(`Fetching logos from revenue repo ${repo}/${path}@${ref}...`);
+
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${ref}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github.raw+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'User-Agent': 'mutiny-growth-dashboard-pull',
+      },
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`GitHub contents HTTP ${res.status}: ${t.slice(0, 200)}`);
+    }
+    d = JSON.parse(await res.text());
+  }
+
+  // Expected shape (revenue dashboard): totals.series.{labels,logos,partial}
+  // parallel arrays, with totals.kpis.total_active_logos as the headline.
+  const s = d?.totals?.series;
+  const labels = s?.labels;
+  let logosArr = s?.logos;
+  if (!Array.isArray(logosArr) || !logosArr.length) {
+    // stripe_data.json predates the persisted `logos` field — recompute it the
+    // same way the revenue dashboard's own template fallback does:
+    //   logos[i] = series.weekly[i].paying_logos + enterprise.series.logos[i]
+    const plgWk = d?.series?.weekly;
+    const entLogos = d?.enterprise?.series?.logos;
+    if (Array.isArray(labels) && Array.isArray(plgWk)) {
+      logosArr = labels.map((_, i) => ((plgWk[i]?.paying_logos) || 0) + ((entLogos && entLogos[i]) || 0));
+      log('  revenue series has no totals.series.logos — recomputed from PLG paying_logos + enterprise logos.');
+    }
+  }
+  if (!Array.isArray(labels) || !Array.isArray(logosArr) || !logosArr.length) {
+    throw new Error('revenue stripe_data.json has no totals.series.logos and no recomputable PLG/enterprise series — check REVENUE_LOGOS_PATH / shape.');
+  }
+  const partialArr = Array.isArray(s.partial) ? s.partial : [];
+  const weekly = labels.map((l, i) => ({
+    week_ending: String(l),
+    count: Number(logosArr[i]) || 0,
+    partial: !!partialArr[i],
+  }));
+  const lastCount = weekly[weekly.length - 1].count;
+  const kpiTotal = Number(d?.totals?.kpis?.total_active_logos);
+
+  // Reconciliation guard (revenue-side spec, verify #1): the series MUST end at
+  // the headline KPI. A mismatch means the revenue export is malformed or our
+  // parse drifted from its shape — fail loudly (non-zero exit) so CI goes red
+  // and we never patch data.json / deploy a wrong number.
+  if (Number.isFinite(kpiTotal) && lastCount !== kpiTotal) {
+    err(`  RECONCILIATION FAILED: logos series ends at ${lastCount} but totals.kpis.total_active_logos=${kpiTotal}. Aborting — data.json left untouched.`);
+    process.exit(1);
+  }
+  log(`  Revenue-repo logos ok: total=${lastCount}, weeks=${weekly.length} (reconciles to KPI ${Number.isFinite(kpiTotal) ? kpiTotal : 'n/a'}).`);
+  return { total: lastCount, source: 'revenue-repo', repo, path, pulledAt: new Date().toISOString(), weekly };
+}
+
+async function fetchHubspotLogos() {
+  if (process.env.PULL_LOGOS !== '1') {
+    log('Skipping live logos pull (set PULL_LOGOS=1 to enable) — preserving baked active-logos series.');
+    return null;
+  }
+  log('Fetching HubSpot active logos (PLG proxy + Enterprise List 5010)...');
+  // PLG paying (Stripe-proxy). Anchor by subscription_start_date.
+  const plg = await hsCompanySearchAll(
+    [{ filters: [
+      { propertyName: 'monthly_payment_amount', operator: 'GT', value: '0' },
+      { propertyName: 'active_mutiny_account', operator: 'EQ', value: 'true' },
+      { propertyName: 'mutiny_app_plan', operator: 'IN', values: ['business', 'free'] },
+      { propertyName: 'seats_purchased', operator: 'HAS_PROPERTY' },
+      { propertyName: 'domain', operator: 'NEQ', value: 'niche.com' },
+    ] }],
+    ['subscription_start_date'],
+  );
+  // Enterprise = List 5010 definition. Anchor by most-recent closed-won closedate
+  // (fallback to start_date when a company has no closed-won deal).
+  const ent = await hsCompanySearchAll(
+    [{ filters: [
+      { propertyName: 'mutiny_app_plan', operator: 'EQ', value: 'enterprise' },
+      { propertyName: 'active_mutiny_account', operator: 'EQ', value: 'true' },
+      { propertyName: 'monthly_payment', operator: 'HAS_PROPERTY' },
+      { propertyName: 'start_date', operator: 'GT', value: '2026-02-01' },
+      { propertyName: 'domain', operator: 'NEQ', value: 'niche.com' },
+    ] }],
+    ['name', 'start_date'],
+  );
+
+  const plgAnchors = [];
+  for (const c of plg) {
+    const s = c.properties?.subscription_start_date;
+    if (s) plgAnchors.push(s.slice(0, 10));
+  }
+  const entAnchors = [];
+  for (const c of ent) {
+    const cd = await hsMostRecentClosedWon(c.id);
+    entAnchors.push((cd || c.properties?.start_date || '').slice(0, 10));
+  }
+  const plgCount = plgAnchors.length;
+  const entCount = entAnchors.filter(Boolean).length;
+  if (!plgCount && !entCount) return null;
+
+  // Sunday-ending grid from week-ending on/before STRIPE_HISTORY_START → now.
+  const asOf = new Date().toISOString().slice(0, 10);
+  const firstSun = logosSundayOnOrBefore(STRIPE_HISTORY_START);
+  const lastFullSun = logosSundayOnOrBefore(asOf);
+  const countAtOrBefore = (arr, t) => arr.filter((a) => a && a <= t).length;
+  const weekly = [];
+  for (let s = firstSun; s <= lastFullSun; s = logosAddDaysISO(s, 7)) {
+    const p = countAtOrBefore(plgAnchors, s);
+    const e = countAtOrBefore(entAnchors, s);
+    weekly.push({ week_ending: s, count: p + e, plg_logos: p, enterprise_logos: e, partial: false });
+  }
+  if (asOf > lastFullSun) {
+    const p = countAtOrBefore(plgAnchors, asOf);
+    const e = countAtOrBefore(entAnchors, asOf);
+    weekly.push({ week_ending: asOf, count: p + e, plg_logos: p, enterprise_logos: e, partial: true });
+  }
+  const total = weekly[weekly.length - 1]?.count ?? 0;
+  log(`  HubSpot logos ok: PLG=${plgCount}, Enterprise=${entCount}, total=${total}, weeks=${weekly.length}.`);
+  return {
+    total, plg: plgCount, enterprise: entCount,
+    method: 'live HubSpot pull (PLG proxy + List 5010 enterprise, closedate-anchored)',
+    pulledAt: new Date().toISOString(), weekly,
+  };
+}
+
+// ===========================================================================
 // HubSpot — Talk to Sales form submissions, contact-property based
 // Docs: https://developers.hubspot.com/docs/api/crm/contacts
 // ===========================================================================
@@ -442,7 +691,28 @@ async function fetchHubspot() {
     });
   }
   log(`  HubSpot ok: ${contacts.length} raw contacts → ${meetings.length} valid meetings in window.`);
-  return { meetings, pulledAt: new Date().toISOString() };
+
+  // Active-logos series. Preference order:
+  //   1. revenue repo (single source of truth)  — LOGOS_SOURCE=revenue-repo
+  //   2. HubSpot proxy                           — PULL_LOGOS=1
+  //   3. baked/prior series                      — carried forward by orchestrator
+  // A failure in any of these must not sink the meetings pull.
+  let logos = null;
+  try {
+    logos = await fetchLogosFromRevenueRepo();
+  } catch (e) {
+    err(`  Revenue-repo logos fetch failed (trying proxy): ${e.message}`);
+  }
+  if (!logos) {
+    try {
+      logos = await fetchHubspotLogos();
+    } catch (e) {
+      err(`  HubSpot logos pull failed (keeping prior series): ${e.message}`);
+      logos = null;
+    }
+  }
+
+  return { meetings, logos, pulledAt: new Date().toISOString() };
 }
 
 // ===========================================================================
@@ -477,7 +747,33 @@ async function fetchPeec() {
 // Orchestrate
 // ===========================================================================
 let payload;
-if (inputPath) {
+if (logosOnly) {
+  // Logos-only refresh: patch src/data.json's hubspot.logos in place.
+  if (!existsSync(OUT_PATH)) {
+    err(`--logos-only needs an existing ${OUT_PATH} to patch. Run a full pull-data first.`);
+    process.exit(1);
+  }
+  const data = JSON.parse(readFileSync(OUT_PATH, 'utf8'));
+  let logos = null;
+  try {
+    logos = await fetchLogosFromRevenueRepo();
+  } catch (e) {
+    err(`  Revenue-repo logos fetch failed (trying proxy): ${e.message}`);
+  }
+  if (!logos) {
+    try { logos = await fetchHubspotLogos(); }
+    catch (e) { err(`  HubSpot logos pull failed: ${e.message}`); }
+  }
+  if (!logos) {
+    err('  No fresh logos series produced — leaving existing series untouched.');
+    process.exit(0);
+  }
+  data.hubspot = data.hubspot || {};
+  data.hubspot.logos = logos;
+  writeFileSync(OUT_PATH, JSON.stringify(data, null, 2));
+  log(`Patched ${OUT_PATH} hubspot.logos — source=${logos.source || logos.method}, total=${logos.total}, weeks=${logos.weekly.length}.`);
+  process.exit(0);
+} else if (inputPath) {
   log(`Reading from local file: ${inputPath}`);
   payload = JSON.parse(readFileSync(inputPath, 'utf8'));
 } else {
@@ -520,6 +816,14 @@ if (inputPath) {
     hubspot:   hubspotResult.status   === 'fulfilled' ? hubspotResult.value   : preserve('hubspot',   { meetings: [], error: hubspotResult.reason?.message }),
     peec:      peecResult.status      === 'fulfilled' ? peecResult.value      : preserve('peec',      { error: peecResult.reason?.message }),
   };
+
+  // Carry the baked/prior active-logos series forward whenever this run didn't
+  // produce a fresh one (PULL_LOGOS off, scope error, or partial HubSpot fail).
+  // The series is methodologically built from the revenue connector and lives
+  // under hubspot.logos; never clobber it with an empty value.
+  if (payload.hubspot && !payload.hubspot.logos && prev.hubspot?.logos) {
+    payload.hubspot.logos = { ...prev.hubspot.logos, _staleFromPrevRun: true };
+  }
 
   if (fail.length) {
     err('Some sources failed:');

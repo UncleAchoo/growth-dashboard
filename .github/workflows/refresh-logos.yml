@@ -1,0 +1,91 @@
+# Refreshes ONLY the "Cumulative active logos" series from the revenue
+# dashboard repo (single source of truth), commits the updated src/data.json,
+# then rebuilds + redeploys the dashboard to Pages.
+#
+# Why a separate workflow: deploy.yml deliberately does NOT run pull-data (CI
+# has no GA4/Amplitude/HubSpot/Peec keys). This one runs pull-data in
+# `--logos-only` mode, which touches ONLY hubspot.logos and leaves every other
+# section of src/data.json exactly as committed.
+#
+# Requires (already set in repo Settings → Actions):
+#   • Variable  LOGOS_SOURCE = revenue-repo
+#   • Secret    REVENUE_REPO_TOKEN = <fine-grained PAT, read-only Contents on
+#                                     the revenue dashboard repo>
+# Optional Variables: REVENUE_REPO, REVENUE_LOGOS_PATH, REVENUE_REPO_REF
+# (pull-data.mjs falls back to sensible defaults when these are unset).
+
+name: Refresh active logos
+
+on:
+  schedule:
+    # ~3x on weekdays (UTC), shortly after the revenue dashboard's refreshes.
+    - cron: '0 14,18,22 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write   # commit the refreshed src/data.json
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  refresh-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Refresh logos from revenue repo
+        env:
+          LOGOS_SOURCE:        ${{ vars.LOGOS_SOURCE }}
+          REVENUE_REPO_TOKEN:  ${{ secrets.REVENUE_REPO_TOKEN }}
+          REVENUE_REPO:        ${{ vars.REVENUE_REPO }}
+          REVENUE_LOGOS_PATH:  ${{ vars.REVENUE_LOGOS_PATH }}
+          REVENUE_REPO_REF:    ${{ vars.REVENUE_REPO_REF }}
+        run: node scripts/pull-data.mjs --logos-only
+
+      - name: Commit refreshed data (if changed)
+        run: |
+          if git diff --quiet -- src/data.json; then
+            echo "No logos change — nothing to commit."
+          else
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add src/data.json
+            git commit -m "chore(logos): refresh active-logos series from revenue repo"
+            git push
+          fi
+
+      - name: Build dashboard
+        run: npm run build:nodata
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: refresh-and-build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

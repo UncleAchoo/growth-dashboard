@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import {
   PieChart, Pie, Cell, ResponsiveContainer,
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  BarChart, Bar,
+  BarChart, Bar, AreaChart, Area,
 } from 'recharts';
 import {
   ArrowUpRight, ArrowDownRight, HelpCircle, AlertTriangle, Sparkles, Info, ChevronDown,
@@ -3502,6 +3502,160 @@ function SelfReportedWeeklyCard({
 }
 
 // ---------------------------------------------------------------------------
+// Cumulative active logos — combined PLG + Enterprise paying-customer logo
+// count at the end of each week, plotted over the full history. Sits directly
+// below "Signups by Channel". Source: HubSpot (dataJson.hubspot.logos), built
+// from the revenue connector and kept fresh by scripts/pull-data.mjs.
+//   • PLG paying logos — HubSpot proxy for the canonical Stripe MRR>0 count
+//     (business/free, monthly_payment_amount>0, active, seats_purchased set,
+//     excl niche.com), anchored by subscription_start_date.
+//   • Enterprise logos — HubSpot List 5010 "Current Enterprise Customers"
+//     (active, mutiny_app_plan=enterprise, monthly_payment set, start_date
+//     >2026-02-01, excl niche.com), anchored by most-recent closed-won closedate.
+// Single combined line (no PLG/Enterprise split). The last point equals the
+// current total active logo count (reconciles to the revenue dashboard's 116).
+// Integer (count) axis — not dollars.
+// ---------------------------------------------------------------------------
+function CumulativeLogosCard() {
+  const logos  = dataJson.hubspot?.logos || null;
+  const weekly = logos?.weekly || [];
+  if (!weekly.length) return null;
+
+  const data = weekly.map((w) => {
+    // week_ending is normally ISO 'YYYY-MM-DD'. Guard against other label
+    // formats the revenue repo might use by falling back to the raw string.
+    const raw = w.week_ending || '';
+    const d = /^\d{4}-\d{2}-\d{2}/.test(raw) ? parseYYYYMMDD(raw.slice(0, 10).replaceAll('-', '')) : null;
+    const valid = d && !Number.isNaN(d.getTime());
+    return {
+      label:   valid ? fmtMonDay(d) : raw,
+      ending:  valid ? fmtMonDay(d) : raw,
+      year:    valid ? d.getUTCFullYear() : '',
+      count:   w.count,
+      partial: !!w.partial,
+    };
+  });
+  const last     = data[data.length - 1];
+  const maxCount = Math.max(...data.map((r) => r.count), 0);
+  const yMax     = Math.ceil((maxCount * 1.08) / 10) * 10 || 10;
+  const firstLbl = data[0]?.ending ? `${data[0].ending}, ${data[0].year}` : '';
+  const lastLbl  = last?.ending ? `${last.ending}, ${last.year}` : '';
+
+  return (
+    <div
+      style={{
+        background: C.white,
+        border: `1px solid ${C.black}`,
+        borderRadius: 4,
+        padding: '28px 32px 24px',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+        <div>
+          <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 22, letterSpacing: '-0.02em', margin: 0 }}>
+            Cumulative active logos
+          </h3>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6, marginTop: 4 }}>
+            HubSpot · weekly · PLG + Enterprise
+          </div>
+          {firstLbl && (
+            <div style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 10.5, opacity: 0.55, marginTop: 4 }}>
+              {firstLbl} – {lastLbl}
+            </div>
+          )}
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 30, lineHeight: 1, letterSpacing: '-0.02em' }}>
+            {(logos.total ?? last.count).toLocaleString()}
+          </div>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 10.5, opacity: 0.6, marginTop: 4 }}>
+            active logos today
+          </div>
+        </div>
+      </div>
+
+      <div style={{ width: '100%', height: 360, marginTop: 16 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data} margin={{ top: 10, right: 16, bottom: 0, left: 0 }}>
+            <defs>
+              <linearGradient id="logosFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stopColor={C.purple} stopOpacity={0.18} />
+                <stop offset="100%" stopColor={C.purple} stopOpacity={0.02} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid vertical={false} stroke={C.black} strokeOpacity={0.08} />
+            <XAxis
+              dataKey="label"
+              axisLine={{ stroke: C.black }}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 10, fill: C.black }}
+              interval="preserveStartEnd"
+              minTickGap={36}
+              height={28}
+            />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }}
+              domain={[0, yMax]}
+              width={40}
+              allowDecimals={false}
+              tickFormatter={(v) => (Number.isInteger(v) ? v.toLocaleString() : '')}
+            />
+            <Tooltip
+              cursor={{ stroke: C.black, strokeOpacity: 0.2, strokeWidth: 1 }}
+              content={({ active, payload }) => {
+                if (!active || !payload || !payload.length) return null;
+                const p = payload[0].payload;
+                return (
+                  <div
+                    style={{
+                      background: C.white,
+                      border: `1px solid ${C.black}`,
+                      borderRadius: 4,
+                      padding: '10px 12px',
+                      fontFamily: FONT_BODY,
+                      fontSize: 11,
+                      boxShadow: '4px 4px 0 rgba(0,0,0,0.08)',
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, marginBottom: 2 }}>
+                      Week ending {p.ending}, {p.year}{p.partial ? ' · current week, in progress' : ''}
+                    </div>
+                    <div>
+                      <strong style={{ fontVariantNumeric: 'tabular-nums' }}>{p.count.toLocaleString()}</strong> active logos
+                    </div>
+                  </div>
+                );
+              }}
+            />
+            <Area
+              type="monotone"
+              dataKey="count"
+              stroke={C.black}
+              strokeWidth={2}
+              fill="url(#logosFill)"
+              dot={false}
+              activeDot={{ r: 4, stroke: C.black, strokeWidth: 1, fill: C.purple }}
+              isAnimationActive={false}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div style={{ fontFamily: FONT_BODY, fontSize: 10.5, opacity: 0.6, marginTop: 12, lineHeight: 1.5 }}>
+        End-of-week count of active paying logos (PLG + Enterprise), full history.
+        PLG (Stripe-equivalent via HubSpot) anchored by subscription start date;
+        Enterprise (HubSpot List 5010) by most-recent closed-won deal close date.
+        Final point = {(logos.total ?? last.count).toLocaleString()} active logos
+        ({(logos.plg ?? '—')} PLG + {(logos.enterprise ?? '—')} Enterprise). The trailing
+        in-progress week is partial.
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main dashboard
 // ---------------------------------------------------------------------------
 export default function MutinyGrowthDashboard() {
@@ -4091,6 +4245,13 @@ export default function MutinyGrowthDashboard() {
             </>
           }
         />
+      </div>
+
+      {/* ── Cumulative active logos — full-width, directly below Signups by
+          Channel. Combined PLG + Enterprise paying-logo count over full
+          history. Source: HubSpot (dataJson.hubspot.logos). */}
+      <div style={{ marginBottom: 24 }}>
+        <CumulativeLogosCard />
       </div>
 
       {/* ── Sales Meetings — column chart + self-reported channel pie,

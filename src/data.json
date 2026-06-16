@@ -98116,7 +98116,86 @@
         "referralSource": "Claude"
       }
     ],
-    "pulledAt": "2026-06-16T13:33:56.682Z"
+    "pulledAt": "2026-06-16T13:33:56.682Z",
+    "logos": {
+      "total": 113,
+      "source": "revenue-repo",
+      "repo": "UncleAchoo/revenue-dashboard-official",
+      "path": "stripe_data.json",
+      "pulledAt": "2026-06-16T16:01:08.429Z",
+      "weekly": [
+        {
+          "week_ending": "2026-03-22",
+          "count": 1,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-03-29",
+          "count": 3,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-04-05",
+          "count": 8,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-04-12",
+          "count": 30,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-04-19",
+          "count": 56,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-04-26",
+          "count": 65,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-05-03",
+          "count": 81,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-05-10",
+          "count": 88,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-05-17",
+          "count": 93,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-05-24",
+          "count": 100,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-05-31",
+          "count": 103,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-06-07",
+          "count": 110,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-06-14",
+          "count": 116,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-06-16",
+          "count": 113,
+          "partial": true
+        }
+      ]
+    }
   },
   "peec": {
     "pulledAt": "2026-06-16T13:31:55.786Z",
