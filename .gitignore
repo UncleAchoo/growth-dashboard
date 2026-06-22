@@ -9,3 +9,12 @@ vite.config.*.timestamp-*.mjs
 .env.*.local
 .gcp-key.json
 *-key.json
+
+data/ytd2026_tmp/
+data/**/*_tmp/
+build_*.py
+*_tmp.csv
+amplitude_signups_*.csv
+signups_list*.csv
+signups_by_channel*.csv
+hubspot_not_in*.csv
