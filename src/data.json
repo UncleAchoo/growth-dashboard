@@ -109147,7 +109147,7 @@
       "source": "revenue-repo",
       "repo": "UncleAchoo/revenue-dashboard-official",
       "path": "stripe_data.json",
-      "pulledAt": "2026-06-24T22:58:09.963Z",
+      "pulledAt": "2026-06-25T16:14:42.564Z",
       "weekly": [
         {
           "week_ending": "2026-03-22",
@@ -109220,7 +109220,7 @@
           "partial": false
         },
         {
-          "week_ending": "2026-06-24",
+          "week_ending": "2026-06-25",
           "count": 119,
           "partial": true
         }
