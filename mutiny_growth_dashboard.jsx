@@ -1920,12 +1920,6 @@ function VisitorSignupTrend({
                       {d.trailingPartial ? (isReporting ? ' · clipped to range' : ' · current, in progress') : ''}
                     </div>
                     <div>Cumulative Visitor → Signup: <strong>{d.ratio == null ? '—' : `${d.ratio.toFixed(2)}%`}</strong></div>
-                    <div style={{ opacity: 0.6, marginTop: 2 }}>
-                      {d.cumSignups.toLocaleString()} signups ÷ {d.cumSessions.toLocaleString()} sessions to date
-                    </div>
-                    <div style={{ opacity: 0.6, marginTop: 2 }}>
-                      This {cadence === 'monthly' ? 'month' : 'week'}: {d.signups.toLocaleString()} signups ÷ {d.sessions.toLocaleString()} sessions
-                    </div>
                   </div>
                 );
               }}
