@@ -393,6 +393,7 @@ async function fetchAmplitude() {
   // for any bar/window whose range no longer matches — regenerate dedup to
   // restore the deduplicated view.
   let dedup;
+  let roles;
   try {
     if (existsSync(OUT_PATH)) {
       const prevData = JSON.parse(readFileSync(OUT_PATH, 'utf8'));
@@ -400,11 +401,23 @@ async function fetchAmplitude() {
         dedup = { ...prevData.amplitude.dedup, _staleFromPrevRun: true };
         log('  Amplitude: carried forward existing amplitude.dedup (regenerate via the query API for fresh dedup).');
       }
+      // ---- Signups by Team (amplitude.roles) ------------------------------
+      // Same story as dedup: the Signups-by-Team split reads deduped uniques
+      // grouped by the self_selected_role user property (windows +
+      // date-anchored period keys). REST's fixed intervals can't reproduce
+      // deduped-per-group uniques, so it's generated out-of-band via the
+      // Amplitude analytics query API. Carry forward whatever exists so a
+      // routine pull doesn't wipe it (dropping roles makes every signup fall
+      // into "No role"). Regenerate via the query API for fresh role splits.
+      if (prevData.amplitude?.roles) {
+        roles = { ...prevData.amplitude.roles, _staleFromPrevRun: true };
+        log('  Amplitude: carried forward existing amplitude.roles (regenerate via the query API for fresh team splits).');
+      }
     }
-  } catch { /* no prior dedup to preserve */ }
+  } catch { /* no prior dedup/roles to preserve */ }
 
   log(`  Amplitude ok: ${Object.values(dailySignups).reduce((a,b)=>a+b,0)} daily-signups across ${Object.keys(dailySignups).length} days, ${referralSources.length} unique referral_source values.`);
-  return { dailySignups, referralSources, ...(dedup ? { dedup } : {}), pulledAt: new Date().toISOString() };
+  return { dailySignups, referralSources, ...(dedup ? { dedup } : {}), ...(roles ? { roles } : {}), pulledAt: new Date().toISOString() };
 }
 
 // ===========================================================================

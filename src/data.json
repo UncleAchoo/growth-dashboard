@@ -1,11 +1,11 @@
 {
-  "pulledAt": "2026-07-01T20:27:30.320Z",
+  "pulledAt": "2026-07-01T20:53:21.293Z",
   "window": {
     "start": "2026-01-01",
     "end": "2026-07-01"
   },
   "ga4": {
-    "pulledAt": "2026-07-01T20:27:26.692Z",
+    "pulledAt": "2026-07-01T20:53:15.464Z",
     "file1": [
       {
         "date": "20260320",
@@ -122536,7 +122536,181 @@
       },
       "_staleFromPrevRun": true
     },
-    "pulledAt": "2026-07-01T20:27:30.317Z"
+    "roles": {
+      "periods": {
+        "20260525_20260531": {
+          "founder": 30,
+          "ae": 24,
+          "other": 22,
+          "product_marketing": 17,
+          "abm": 14,
+          "demand_gen": 14,
+          "bdr_sdr": 9,
+          "none": 1,
+          "cro": 1
+        },
+        "20260601_20260607": {
+          "ae": 35,
+          "founder": 34,
+          "other": 34,
+          "product_marketing": 18,
+          "demand_gen": 17,
+          "abm": 16,
+          "bdr_sdr": 10,
+          "none": 2
+        },
+        "20260608_20260614": {
+          "other": 25,
+          "founder": 17,
+          "product_marketing": 17,
+          "abm": 15,
+          "ae": 12,
+          "demand_gen": 11,
+          "bdr_sdr": 3,
+          "none": 1
+        },
+        "20260615_20260621": {
+          "other": 27,
+          "founder": 21,
+          "demand_gen": 18,
+          "abm": 17,
+          "ae": 11,
+          "product_marketing": 4,
+          "bdr_sdr": 3,
+          "none": 1
+        },
+        "20260622_20260628": {
+          "founder": 50,
+          "ae": 32,
+          "abm": 29,
+          "demand_gen": 25,
+          "other": 25,
+          "product_marketing": 13,
+          "none": 7,
+          "bdr_sdr": 7,
+          "marketing_other": 1
+        },
+        "20260629_20260705": {
+          "other": 29,
+          "founder": 21,
+          "abm": 18,
+          "ae": 11,
+          "demand_gen": 10,
+          "product_marketing": 6,
+          "none": 2,
+          "bdr_sdr": 2
+        },
+        "20260101_20260131": {},
+        "20260201_20260228": {
+          "other": 100,
+          "founder": 77,
+          "abm": 59,
+          "product_marketing": 58,
+          "demand_gen": 56,
+          "ae": 43,
+          "bdr_sdr": 22,
+          "none": 4
+        },
+        "20260301_20260331": {
+          "demand_gen": 53,
+          "abm": 51,
+          "founder": 51,
+          "other": 47,
+          "ae": 38,
+          "product_marketing": 37,
+          "bdr_sdr": 19,
+          "none": 7
+        },
+        "20260401_20260430": {
+          "founder": 703,
+          "other": 271,
+          "product_marketing": 243,
+          "ae": 223,
+          "demand_gen": 211,
+          "abm": 202,
+          "bdr_sdr": 80,
+          "none": 28,
+          "marketing_other": 1
+        },
+        "20260501_20260531": {
+          "founder": 145,
+          "other": 143,
+          "ae": 126,
+          "abm": 87,
+          "demand_gen": 70,
+          "product_marketing": 67,
+          "bdr_sdr": 34,
+          "none": 8,
+          "marketing_other": 2,
+          "cro": 1,
+          "sales_other": 1
+        },
+        "20260601_20260630": {
+          "founder": 137,
+          "other": 133,
+          "ae": 93,
+          "abm": 87,
+          "demand_gen": 75,
+          "product_marketing": 57,
+          "bdr_sdr": 24,
+          "none": 12,
+          "marketing_other": 1
+        }
+      },
+      "windows": {
+        "last30": {
+          "founder": 141,
+          "other": 133,
+          "ae": 93,
+          "abm": 87,
+          "demand_gen": 76,
+          "product_marketing": 58,
+          "bdr_sdr": 24,
+          "none": 12,
+          "marketing_other": 1
+        },
+        "mtd": {
+          "founder": 137,
+          "other": 133,
+          "ae": 93,
+          "abm": 87,
+          "demand_gen": 75,
+          "product_marketing": 57,
+          "bdr_sdr": 24,
+          "none": 12,
+          "marketing_other": 1
+        },
+        "fourweeks": {
+          "founder": 137,
+          "other": 133,
+          "ae": 93,
+          "abm": 87,
+          "demand_gen": 75,
+          "product_marketing": 57,
+          "bdr_sdr": 24,
+          "none": 12,
+          "marketing_other": 1
+        },
+        "ytd": {
+          "founder": 1097,
+          "other": 677,
+          "ae": 505,
+          "abm": 473,
+          "demand_gen": 454,
+          "product_marketing": 454,
+          "bdr_sdr": 175,
+          "none": 58,
+          "marketing_other": 4,
+          "cro": 1,
+          "sales_other": 1
+        }
+      },
+      "basis": "completer_current_role",
+      "note": "self_selected_role CURRENT value (MOST_RECENT) for users who completed [Onboarding] User Setup Complete in the period/window (composition query). Team split in JSX: Sales/Marketing = mapped roles; Other = founder+other+cro; Incomplete/no role = union total (amplitude.dedup) - Sales - Marketing - Other (= completed-but-blank + never-completed-setup), clamped >=0. 'none' = completed setup but blank role.",
+      "_restoredFrom": "3a274cc",
+      "_staleFromPrevRun": true
+    },
+    "pulledAt": "2026-07-01T20:53:21.286Z"
   },
   "hubspot": {
     "meetings": [
@@ -122864,7 +123038,7 @@
       "source": "revenue-repo",
       "repo": "UncleAchoo/revenue-dashboard-official",
       "path": "stripe_data.json",
-      "pulledAt": "2026-07-01T20:27:27.593Z",
+      "pulledAt": "2026-07-01T20:53:16.019Z",
       "weekly": [
         {
           "week_ending": "2026-03-22",
@@ -122948,7 +123122,7 @@
         }
       ]
     },
-    "pulledAt": "2026-07-01T20:27:27.593Z"
+    "pulledAt": "2026-07-01T20:53:16.019Z"
   },
   "peec": {
     "pulledAt": "2026-07-01T20:23:51.337Z",

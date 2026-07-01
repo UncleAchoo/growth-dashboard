@@ -1837,8 +1837,15 @@ function VisitorSignupTrend({
   cadence = 'weekly',
   isReporting = false,
 }) {
+  // Cumulative-to-date: each point is the running total of signups ÷ the
+  // running total of sessions from the window start through that period —
+  // i.e. how the overall conversion rate has evolved, NOT the isolated week.
+  let cumSignups = 0;
+  let cumSessions = 0;
   const rows = data.map((d) => {
-    const hasData = d.sessions > 0 && d.signups > 0;
+    cumSignups += d.signups || 0;
+    cumSessions += d.sessions || 0;
+    const hasData = cumSessions > 0 && cumSignups > 0;
     return {
       week: d.week,
       dateRange: d.dateRange,
@@ -1846,7 +1853,9 @@ function VisitorSignupTrend({
       trailingPartial: d.trailingPartial,
       sessions: d.sessions,
       signups: d.signups,
-      ratio: hasData ? +((d.signups / d.sessions) * 100).toFixed(2) : null,
+      cumSessions,
+      cumSignups,
+      ratio: hasData ? +((cumSignups / cumSessions) * 100).toFixed(2) : null,
     };
   });
   const vals = rows.map((r) => r.ratio).filter((v) => v != null);
@@ -1868,7 +1877,7 @@ function VisitorSignupTrend({
             Visitor → Signup
           </h3>
           <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6, marginTop: 4 }}>
-            Signups ÷ Engaged Sessions · {cadence}
+            Cumulative signups ÷ Engaged Sessions · {cadence}
           </div>
           {dateRangeLabel ? (
             <div style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 10.5, opacity: 0.55, marginTop: 3, letterSpacing: '0.02em' }}>
@@ -1910,9 +1919,12 @@ function VisitorSignupTrend({
                       {d.dateRange}
                       {d.trailingPartial ? (isReporting ? ' · clipped to range' : ' · current, in progress') : ''}
                     </div>
-                    <div>Visitor → Signup: <strong>{d.ratio == null ? '—' : `${d.ratio.toFixed(2)}%`}</strong></div>
+                    <div>Cumulative Visitor → Signup: <strong>{d.ratio == null ? '—' : `${d.ratio.toFixed(2)}%`}</strong></div>
                     <div style={{ opacity: 0.6, marginTop: 2 }}>
-                      {d.signups.toLocaleString()} signups ÷ {d.sessions.toLocaleString()} sessions
+                      {d.cumSignups.toLocaleString()} signups ÷ {d.cumSessions.toLocaleString()} sessions to date
+                    </div>
+                    <div style={{ opacity: 0.6, marginTop: 2 }}>
+                      This {cadence === 'monthly' ? 'month' : 'week'}: {d.signups.toLocaleString()} signups ÷ {d.sessions.toLocaleString()} sessions
                     </div>
                   </div>
                 );
@@ -1933,10 +1945,10 @@ function VisitorSignupTrend({
       </div>
       <div style={{ fontFamily: FONT_BODY, fontSize: 10.5, opacity: 0.55, marginTop: 12, lineHeight: 1.5 }}>
         Cross-system ratio: Amplitude completed signups ÷ GA4 engaged sessions — directional only.
-        Each point is that {cadence === 'monthly' ? 'month' : 'week'}'s own signups ÷ sessions, not a
-        rolling average. Periods before signup tracking began (~Feb 16, 2026) or with no sessions show
-        as gaps. The most recent point covers an in-progress {cadence === 'monthly' ? 'month' : 'week'}
-        {' '}and may rise as more data lands.
+        Each point is the <strong>cumulative</strong> running total of signups ÷ sessions from the window
+        start through that {cadence === 'monthly' ? 'month' : 'week'}, so the line shows how the overall
+        conversion rate has evolved — not the isolated {cadence === 'monthly' ? 'month' : 'week'}. Periods
+        before signup tracking began (~Feb 16, 2026) show as gaps until cumulative signups are non-zero.
       </div>
     </div>
   );
@@ -4417,6 +4429,151 @@ function TeamStackedCard({ title, source, dateRangeLabel, data, total, infoToolt
 }
 
 // ---------------------------------------------------------------------------
+// TeamSplitCard — combines the Signups-by-Team breakdown (donut) and the
+// per-period trend (stacked column) into one card with a Breakdown/Trend
+// toggle. Body switches on the toggle; header stays put. Pie uses the
+// window-total split (pieData/pieRoles/pieTotal), trend uses the periodic
+// stacked series (trendData/trendTotal).
+// ---------------------------------------------------------------------------
+function TeamSplitCard({
+  source,
+  pieDateRangeLabel, pieData, pieTotal, pieRoles,
+  trendDateRangeLabel, trendData, trendTotal,
+  isReporting, infoTooltip,
+}) {
+  const [view, setView] = useState('split'); // 'split' | 'trend'
+  const populated = pieData.filter((d) => d.value > 0);
+  const pct = (v) => (pieTotal > 0 ? ((v / pieTotal) * 100).toFixed(1) : '0.0');
+  const maxValue = Math.max(...trendData.map((r) => r.total || 0), 1);
+  const { ticks: yTicks, max: yMax } = niceTicks(maxValue, 5);
+  return (
+    <section style={{ background: C.white, border: `1px solid ${C.black}`, borderRadius: 4, padding: '28px 32px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 2, gap: 12 }}>
+        <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 22, letterSpacing: '-0.02em', margin: 0 }}>Signups by Team</h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          <div style={{ display: 'inline-flex', border: `1px solid ${C.black}`, borderRadius: 999, overflow: 'hidden', fontFamily: FONT_BODY, fontSize: 10.5, fontWeight: 600 }}>
+            {[
+              { id: 'split', label: 'Breakdown' },
+              { id: 'trend', label: 'Trend' },
+            ].map((opt) => {
+              const active = view === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setView(opt.id)}
+                  style={{
+                    padding: '3px 10px',
+                    background: active ? C.black : 'transparent',
+                    color: active ? C.white : C.black,
+                    border: 'none',
+                    cursor: active ? 'default' : 'pointer',
+                    fontFamily: FONT_BODY,
+                    fontSize: 10.5,
+                    fontWeight: 600,
+                    letterSpacing: '0.04em',
+                  }}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+          {infoTooltip && <InfoTooltip width={340}>{infoTooltip}</InfoTooltip>}
+        </div>
+      </div>
+      <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6, marginBottom: 16 }}>
+        {source} · {view === 'split' ? pieDateRangeLabel : `${trendDateRangeLabel} · ${trendTotal.toLocaleString()} signups`}
+      </div>
+
+      {view === 'split' ? (
+        <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative', width: 200, height: 200, flex: '0 0 auto' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={populated} dataKey="value" nameKey="name" innerRadius={58} outerRadius={92} startAngle={90} endAngle={-270} stroke={C.white} strokeWidth={2} isAnimationActive={false}>
+                  {populated.map((d) => <Cell key={d.name} fill={d.color} />)}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+              <span style={{ fontFamily: FONT_DISPLAY, fontSize: 28, lineHeight: 1 }}>{pieTotal.toLocaleString()}</span>
+              <span style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6 }}>signups</span>
+            </div>
+          </div>
+          <div style={{ flex: '1 1 240px', minWidth: 240, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {pieData.map((d) => (
+              <div key={d.name}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ width: 11, height: 11, borderRadius: 2, background: d.color, border: `1px solid ${C.black}` }} />
+                  <span style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 700 }}>{d.name}</span>
+                  <span style={{ marginLeft: 'auto', fontFamily: FONT_BODY, fontSize: 13, opacity: 0.75, fontVariantNumeric: 'tabular-nums' }}>
+                    {d.value.toLocaleString()} · {pct(d.value)}%
+                  </span>
+                </div>
+                {pieRoles && (
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.55, margin: '2px 0 0 19px' }}>
+                    {teamSubRoleLine(d.name, pieRoles, d.value) || '—'}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <>
+          <div style={{ display: 'flex', gap: 16, marginBottom: 10, flexWrap: 'wrap' }}>
+            {TEAM_DEFS.map((t) => (
+              <span key={t.name} style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: FONT_BODY, fontSize: 12 }}>
+                <span style={{ width: 10, height: 10, borderRadius: 2, background: t.color, border: `1px solid ${C.black}` }} />
+                {t.name}
+              </span>
+            ))}
+          </div>
+          <div style={{ width: '100%', height: 300 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={trendData} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" vertical={false} />
+                <XAxis dataKey="week" axisLine={{ stroke: C.black, strokeWidth: 1 }} tickLine={false} tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }} interval={0} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontFamily: FONT_BODY, fontSize: 10, fill: C.black, opacity: 0.6 }} width={40} domain={[0, yMax]} ticks={yTicks} allowDecimals={false} />
+                <Tooltip
+                  cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                  content={({ active, payload }) => {
+                    if (!active || !payload || !payload.length) return null;
+                    const d = payload[0].payload;
+                    const rows = TEAM_DEFS.map((t) => ({ name: t.name, color: t.color, v: d[t.name] || 0 })).filter((r) => r.v > 0);
+                    return (
+                      <div style={{ background: C.white, border: `1px solid ${C.black}`, padding: '10px 12px', fontFamily: FONT_BODY, fontSize: 12, minWidth: 200 }}>
+                        <div style={{ fontWeight: 700, marginBottom: 6 }}>{d.dateRange}{d.partial ? (isReporting ? ' · clipped to range' : ' · in progress') : ''}</div>
+                        {rows.map((r) => (
+                          <div key={r.name} style={{ display: 'flex', justifyContent: 'space-between', gap: 14, alignItems: 'center' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{ width: 9, height: 9, borderRadius: 2, background: r.color, border: `1px solid ${C.black}` }} />{r.name}
+                            </span>
+                            <strong style={{ fontVariantNumeric: 'tabular-nums' }}>{r.v.toLocaleString()} · {Math.round((r.v / (d.total || 1)) * 100)}%</strong>
+                          </div>
+                        ))}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, marginTop: 6, paddingTop: 6, borderTop: `1px solid rgba(0,0,0,0.15)` }}>
+                          <span>Total</span><strong style={{ fontVariantNumeric: 'tabular-nums' }}>{(d.total || 0).toLocaleString()}</strong>
+                        </div>
+                      </div>
+                    );
+                  }}
+                />
+                {TEAM_STACK.map((name) => {
+                  const def = TEAM_DEFS.find((t) => t.name === name);
+                  return <Bar key={name} dataKey={name} stackId="team" fill={def.color} stroke={C.black} strokeWidth={0.5} isAnimationActive={false} />;
+                })}
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main dashboard
 // ---------------------------------------------------------------------------
 export default function MutinyGrowthDashboard() {
@@ -5021,20 +5178,6 @@ export default function MutinyGrowthDashboard() {
         />
       </div>
 
-      {/* ── Visitor → Signup — weekly line of the KPI-tile ratio over time.
-          Hidden for now (per request). Re-enable by uncommenting the block
-          below; the VisitorSignupTrend component + ratioTrend* data wiring
-          are still in place.
-      <div style={{ marginBottom: 24 }}>
-        <VisitorSignupTrend
-          data={ratioTrendData}
-          dateRangeLabel={ratioTrendLabel}
-          cadence={ratioTrendCadence}
-          isReporting={isReporting}
-        />
-      </div>
-      */}
-
       {/* ── Signups by Channel — full-width.
           Replaces the prior Top-of-funnel Signups column + the Customer
           signups by channel pie. Defaults to Summary mode (single weekly
@@ -5061,26 +5204,26 @@ export default function MutinyGrowthDashboard() {
         />
       </div>
 
-      {/* ── Signups by Team (self_selected_role → Sales / Marketing / Other).
-          Pie = window total split; stacked column = per-period split. */}
+      {/* ── Signups by Team (toggle: Breakdown donut / per-period Trend) on the
+          left; Visitor → Signup cumulative conversion line on the right. */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
-        <TeamPieCard
-          title="Signups by Team"
+        <TeamSplitCard
           source="Amplitude · self_selected_role"
-          dateRangeLabel={activeWindowLabel}
-          data={teamPieData}
-          total={teamWindowTotal}
-          roles={teamWindowRoles}
-          infoTooltip={`Completed signups (User Setup Complete, deduped) grouped by their current self_selected_role. Sales = AE + BDR/SDR + Sales other. Marketing = ABM + Demand gen + Ops lead + Marketing other + Product mktg. Other = Founder + Other + CRO. No role = completed setup but left the role blank (~2%). Team totals reconcile to the completed-signup total. ${teamWindowKey ? '' : 'Role data isn’t precomputed for custom Reporting windows, so this falls back to all-No-role.'}`}
-        />
-        <TeamStackedCard
-          title="Signups by Team — trend"
-          source="Amplitude · self_selected_role"
-          dateRangeLabel={kpiDateRangeLabel}
-          data={teamStackedData}
-          total={teamStackedTotal}
+          pieDateRangeLabel={activeWindowLabel}
+          pieData={teamPieData}
+          pieTotal={teamWindowTotal}
+          pieRoles={teamWindowRoles}
+          trendDateRangeLabel={kpiDateRangeLabel}
+          trendData={teamStackedData}
+          trendTotal={teamStackedTotal}
           isReporting={isReporting}
-          infoTooltip={`Per-period split of signups into Sales / Marketing / Other from self_selected_role. Each bar is deduped within its period; bars can sum slightly above the window pie total (cross-period overlap). Other absorbs Founder, Other, CRO, and no-role-set signups.`}
+          infoTooltip={`Completed signups (User Setup Complete, deduped) grouped by their current self_selected_role. Sales = AE + BDR/SDR + Sales other. Marketing = ABM + Demand gen + Ops lead + Marketing other + Product mktg. Other = Founder + Other + CRO. No role = completed setup but left the role blank (~2%). Breakdown = window-total split; Trend = per-period split (each bar deduped within its period, so bars can sum slightly above the window total). ${teamWindowKey ? '' : 'Role data isn’t precomputed for custom Reporting windows, so this falls back to all-No-role.'}`}
+        />
+        <VisitorSignupTrend
+          data={ratioTrendData}
+          dateRangeLabel={ratioTrendLabel}
+          cadence={ratioTrendCadence}
+          isReporting={isReporting}
         />
       </div>
 
