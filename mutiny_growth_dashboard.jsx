@@ -5022,8 +5022,9 @@ export default function MutinyGrowthDashboard() {
       </div>
 
       {/* ── Visitor → Signup — weekly line of the KPI-tile ratio over time.
-          Follows the page's window toggle (weekly for 30d/MTD/Reporting,
-          monthly for YTD). Directional cross-system metric (Amplitude ÷ GA4). */}
+          Hidden for now (per request). Re-enable by uncommenting the block
+          below; the VisitorSignupTrend component + ratioTrend* data wiring
+          are still in place.
       <div style={{ marginBottom: 24 }}>
         <VisitorSignupTrend
           data={ratioTrendData}
@@ -5032,6 +5033,7 @@ export default function MutinyGrowthDashboard() {
           isReporting={isReporting}
         />
       </div>
+      */}
 
       {/* ── Signups by Channel — full-width.
           Replaces the prior Top-of-funnel Signups column + the Customer
