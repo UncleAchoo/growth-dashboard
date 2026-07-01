@@ -1822,6 +1822,127 @@ const PieHoverPanel = ({ slice, total, unit = 'signup' }) => {
 };
 
 // ---------------------------------------------------------------------------
+// VisitorSignupTrend — the "Visitor → Signup" KPI (Amplitude completed signups
+// ÷ GA4 engaged sessions) rendered as a line over time. Same window/cadence
+// framework as the other charts: the caller hands it a periodic array whose
+// rows carry { week, dateRange, sessions, signups, partial, trailingPartial }
+// — weekly for 30d/MTD/Reporting, monthly for YTD. Each point is that period's
+// own signups ÷ sessions × 100 (NOT a rolling average). Periods before signup
+// tracking began (~Feb 16, 2026) or with zero sessions render as gaps rather
+// than a misleading 0%, so connectNulls stays off.
+// ---------------------------------------------------------------------------
+function VisitorSignupTrend({
+  data,
+  dateRangeLabel,
+  cadence = 'weekly',
+  isReporting = false,
+}) {
+  const rows = data.map((d) => {
+    const hasData = d.sessions > 0 && d.signups > 0;
+    return {
+      week: d.week,
+      dateRange: d.dateRange,
+      partial: d.partial,
+      trailingPartial: d.trailingPartial,
+      sessions: d.sessions,
+      signups: d.signups,
+      ratio: hasData ? +((d.signups / d.sessions) * 100).toFixed(2) : null,
+    };
+  });
+  const vals = rows.map((r) => r.ratio).filter((v) => v != null);
+  const maxV = vals.length ? Math.max(...vals) : 1;
+  const { ticks, max: yMax } = niceTicks(maxV, 5);
+
+  return (
+    <div
+      style={{
+        background: C.white,
+        border: `1px solid ${C.black}`,
+        borderRadius: 4,
+        padding: '28px 32px 24px',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+        <div>
+          <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 22, letterSpacing: '-0.02em', margin: 0 }}>
+            Visitor → Signup
+          </h3>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6, marginTop: 4 }}>
+            Signups ÷ Engaged Sessions · {cadence}
+          </div>
+          {dateRangeLabel ? (
+            <div style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 10.5, opacity: 0.55, marginTop: 3, letterSpacing: '0.02em' }}>
+              {dateRangeLabel}
+            </div>
+          ) : null}
+        </div>
+        <div style={{ width: 44, height: 8, background: C.green, border: `1px solid ${C.black}`, flexShrink: 0, marginTop: 6 }} />
+      </div>
+      <div style={{ height: 320, marginTop: 16 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={rows} margin={{ top: 12, right: 12, bottom: 8, left: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" vertical={false} />
+            <XAxis
+              dataKey="week"
+              axisLine={{ stroke: C.black, strokeWidth: 1 }}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }}
+              interval={rows.length > 8 ? 'preserveStartEnd' : 0}
+              minTickGap={rows.length > 8 ? 28 : 5}
+            />
+            <YAxis
+              tickFormatter={(v) => `${v}%`}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontFamily: FONT_BODY, fontSize: 10, fill: C.black, opacity: 0.6 }}
+              width={44}
+              domain={[0, yMax]}
+              ticks={ticks}
+            />
+            <Tooltip
+              cursor={{ stroke: C.black, strokeOpacity: 0.2, strokeWidth: 1 }}
+              content={({ active, payload }) => {
+                if (!active || !payload || !payload.length) return null;
+                const d = payload[0].payload;
+                return (
+                  <div style={{ background: C.white, border: `1px solid ${C.black}`, borderRadius: 4, padding: '8px 10px', fontFamily: FONT_BODY, fontSize: 12, minWidth: 190, boxShadow: '4px 4px 0 rgba(0,0,0,0.08)' }}>
+                    <div style={{ fontWeight: 700, marginBottom: 2 }}>
+                      {d.dateRange}
+                      {d.trailingPartial ? (isReporting ? ' · clipped to range' : ' · current, in progress') : ''}
+                    </div>
+                    <div>Visitor → Signup: <strong>{d.ratio == null ? '—' : `${d.ratio.toFixed(2)}%`}</strong></div>
+                    <div style={{ opacity: 0.6, marginTop: 2 }}>
+                      {d.signups.toLocaleString()} signups ÷ {d.sessions.toLocaleString()} sessions
+                    </div>
+                  </div>
+                );
+              }}
+            />
+            <Line
+              type="monotone"
+              dataKey="ratio"
+              stroke={C.black}
+              strokeWidth={2.5}
+              dot={{ r: 3, fill: C.green, stroke: C.black, strokeWidth: 1 }}
+              activeDot={{ r: 5, fill: C.green, stroke: C.black, strokeWidth: 1 }}
+              connectNulls={false}
+              isAnimationActive={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      <div style={{ fontFamily: FONT_BODY, fontSize: 10.5, opacity: 0.55, marginTop: 12, lineHeight: 1.5 }}>
+        Cross-system ratio: Amplitude completed signups ÷ GA4 engaged sessions — directional only.
+        Each point is that {cadence === 'monthly' ? 'month' : 'week'}'s own signups ÷ sessions, not a
+        rolling average. Periods before signup tracking began (~Feb 16, 2026) or with no sessions show
+        as gaps. The most recent point covers an in-progress {cadence === 'monthly' ? 'month' : 'week'}
+        {' '}and may rise as more data lands.
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // TopOfFunnelTrend — three single-axis bar charts answering "how is the top
 // of the funnel trending week-over-week?" Columns: Signups, Engaged Sessions,
 // Sales Meetings Requested. Each chart owns its own y-axis — no dual-axis
@@ -4515,6 +4636,25 @@ export default function MutinyGrowthDashboard() {
   const kpiSessions  = is30d ? DATA.engagedSessions.window : isMtd ? SESSIONS_MTD : isReporting ? SESSIONS_REPORTING : SESSIONS_YTD;
   const kpiMeetings  = is30d ? DATA.salesMeetings.window   : isMtd ? MEETINGS_MTD : isReporting ? MEETINGS_REPORTING : MEETINGS_YTD;
   const kpiRatio     = is30d ? ratioWindow                 : isMtd ? RATIO_MTD    : isReporting ? RATIO_REPORTING    : RATIO_YTD;
+  // Visitor → Signup weekly line — mode-aware source (weekly for
+  // 30d/MTD/Reporting, monthly for YTD to match the page convention). Reuses
+  // the top-of-funnel periodic arrays, which already carry per-period signups
+  // + sessions; the component derives the ratio.
+  const ratioTrendData = is30d
+    ? TOP_OF_FUNNEL_WEEKLY_30D_FULL
+    : isMtd
+      ? TOP_OF_FUNNEL_WEEKLY_MTD
+      : isReporting
+        ? TOP_OF_FUNNEL_WEEKLY_REPORTING
+        : TOP_OF_FUNNEL_MONTHLY_YTD;
+  const ratioTrendCadence = isYtd ? 'monthly' : 'weekly';
+  const ratioTrendLabel = is30d
+    ? WEEKLY_30D_FULL_RANGE_LABEL
+    : isMtd
+      ? MTD_WEEKLY_RANGE_LABEL
+      : isReporting
+        ? reportingRangeLabel
+        : YTD_RANGE_LABEL;
   const pieSignups        = is30d ? SHARE_OF_SIGNUPS              : isMtd ? SHARE_OF_SIGNUPS_MTD             : isReporting ? SHARE_OF_SIGNUPS_REPORTING             : SHARE_OF_SIGNUPS_YTD;
   const pieSignupsTotal   = is30d ? TOTAL_SIGNUPS_CATEGORIZED     : isMtd ? TOTAL_SIGNUPS_CATEGORIZED_MTD    : isReporting ? TOTAL_SIGNUPS_CATEGORIZED_REPORTING    : TOTAL_SIGNUPS_CATEGORIZED_YTD;
   // Weekly stacked-column data for Customer signups by channel (replaces the pie).
@@ -4878,6 +5018,18 @@ export default function MutinyGrowthDashboard() {
                 : null
           }
           deltaLabel={isReporting ? `vs prior ${reportingDays}d${reportingPriorRangeLabel ? ` · ${reportingPriorRangeLabel}` : ''}` : 'vs prior 30d'}
+        />
+      </div>
+
+      {/* ── Visitor → Signup — weekly line of the KPI-tile ratio over time.
+          Follows the page's window toggle (weekly for 30d/MTD/Reporting,
+          monthly for YTD). Directional cross-system metric (Amplitude ÷ GA4). */}
+      <div style={{ marginBottom: 24 }}>
+        <VisitorSignupTrend
+          data={ratioTrendData}
+          dateRangeLabel={ratioTrendLabel}
+          cadence={ratioTrendCadence}
+          isReporting={isReporting}
         />
       </div>
 
