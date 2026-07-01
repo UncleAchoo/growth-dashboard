@@ -334,6 +334,40 @@ const SESSIONS_PRIOR30 = sumByMapFilter(LIVE_ENGAGED_BY_DATE,  inPrior30Window);
 const MEETINGS_PRIOR30 = countMeetingsByFilter(inPrior30Window);
 const RATIO_PRIOR30    = SESSIONS_PRIOR30 > 0 ? (SIGNUPS_PRIOR30 / SESSIONS_PRIOR30) * 100 : 0;
 
+// ---------------------------------------------------------------------------
+// Deduplicated signup totals (Amplitude `amplitude.dedup`).
+// The daily signup series counts a user once per active DAY, so summing it
+// across a window double-counts anyone active on multiple days (a user can
+// fire Registration Submitted one day and Company Setup Complete another).
+// `amplitude.dedup` carries TRUE deduplicated unique-user counts of the
+// 4-event union, pulled at two granularities:
+//   - windows: { last30, prior30, mtd, ytd, fourweeks } — one number per KPI window.
+//   - periods: { "<firstDate>_<lastDate>": uniques } — one per weekly/monthly bar,
+//       keyed by the first & last YYYYMMDD of the bar's date range.
+// We prefer these for the headline KPI and per-bar totals, and fall back to
+// the summed-daily value whenever a range isn't precomputed (e.g. custom
+// Reporting windows), so nothing ever breaks — it just loses the dedup.
+// Channel segment heights still come from the per-day referralSources split
+// (Company Setup Complete fires ~once per user, so it's already effectively
+// deduped); the Invited / Referred residual = deduped period total − buckets.
+// ---------------------------------------------------------------------------
+const DEDUP         = dataJson.amplitude?.dedup || { periods: {}, windows: {} };
+const DEDUP_WINDOWS = DEDUP.windows || {};
+function periodDedupKey(dates) {
+  if (!dates || !dates.length) return null;
+  return `${dates[0]}_${dates[dates.length - 1]}`;
+}
+function dedupPeriodTotal(dates, fallback) {
+  const k = periodDedupKey(dates);
+  const v = k != null ? DEDUP.periods?.[k] : undefined;
+  return (v != null) ? v : fallback;
+}
+const SIGNUPS_30D_DEDUP     = DEDUP_WINDOWS.last30    ?? SIGNUPS_30D;
+const SIGNUPS_PRIOR30_DEDUP = DEDUP_WINDOWS.prior30   ?? SIGNUPS_PRIOR30;
+const SIGNUPS_MTD_DEDUP     = DEDUP_WINDOWS.mtd       ?? SIGNUPS_MTD;
+const SIGNUPS_YTD_DEDUP     = DEDUP_WINDOWS.ytd       ?? SIGNUPS_YTD;
+const SIGNUPS_4W_DEDUP      = DEDUP_WINDOWS.fourweeks ?? SIGNUPS_4W;
+
 // Returns { raw, pct } or null when prior period isn't available
 function delta30d(curr, prev, available) {
   if (!available || prev === undefined || prev === null) return null;
@@ -343,7 +377,7 @@ function delta30d(curr, prev, available) {
   };
 }
 const DELTA_30D = {
-  signups:         delta30d(SIGNUPS_30D,  SIGNUPS_PRIOR30,  PRIOR_DATA_AVAILABLE),
+  signups:         delta30d(SIGNUPS_30D_DEDUP, SIGNUPS_PRIOR30_DEDUP, PRIOR_DATA_AVAILABLE),
   engagedSessions: delta30d(ENGAGED_30D,  SESSIONS_PRIOR30, PRIOR_DATA_AVAILABLE),
   salesMeetings:   delta30d(MEETINGS_30D, MEETINGS_PRIOR30, PRIOR_DATA_AVAILABLE),
   ratio:           delta30d(ratioWindow,  RATIO_PRIOR30,    PRIOR_DATA_AVAILABLE),
@@ -823,25 +857,33 @@ const TOTAL_SIGNUPS_CATEGORIZED_MTD = SHARE_OF_SIGNUPS_MTD.reduce((s, x) => s + 
 // ---------------------------------------------------------------------------
 // Per-period stacked-bar data for the Customer signups by channel weekly
 // chart (replaces the pie). Each row = one period (week or month) with the
-// 9 BUCKET_DEFINITIONS bucket counts + a `Not Specified` residual = total
-// signups in the period minus sum of categorized buckets. This surfaces the
-// pre-May-8 signups (when referral_source was optional/empty) instead of
-// silently hiding them.
+// 9 BUCKET_DEFINITIONS bucket counts + an `Invited / Referred` residual = total
+// signups in the period minus sum of categorized buckets. Signups now = the
+// 4-event onboarding union; only Company Setup Complete carries a
+// referral_source, so every other signup falls into the residual, which we
+// label Invited / Referred rather than silently hiding it.
 //
 // Period shape supported: { weekStartLabel | label, dateRange, dates,
 // partial, trailingPartial? }. Returns one row per period with keys:
 //   - week:           x-axis tick label
 //   - dateRange, partial, trailingPartial: passthrough for tooltip + hatch
 //   - <bucketName>:   count per bucket (one key per BUCKET_DEFINITIONS entry)
-//   - 'Not Specified': residual (max 0)
+//   - 'Invited / Referred': residual for signups on/after the May 7 cutoff
+//   - 'Not Specified':      residual for signups before the cutoff
 //   - total:          full unique signups in the period
 // ---------------------------------------------------------------------------
-const NOT_SPECIFIED_BUCKET = { name: 'Not Specified', color: '#C8C8C8' };
-const SIGNUPS_CHANNEL_BUCKETS = [...BUCKET_DEFINITIONS, NOT_SPECIFIED_BUCKET];
-// Stack order (bottom → top): Not Specified at the base so the "no-signal"
-// residual grounds the bar, then categorized buckets in the same order they
-// appear in the pie legend.
-const SIGNUPS_CHANNEL_STACK = [NOT_SPECIFIED_BUCKET, ...BUCKET_DEFINITIONS];
+// The `referral_source` field became REQUIRED on May 7, 2026. So a signup with
+// no source is interpreted differently by date:
+//   - before the cutoff → "Not Specified" (field was optional; source unknown)
+//   - on/after the cutoff → "Invited / Referred" (joined via invitation /
+//       registration; only Company Setup Complete carries a source)
+const REFERRAL_REQUIRED_CUTOFF = '20260507';
+const INVITED_REFERRED_BUCKET = { name: 'Invited / Referred', color: '#B6B6B6' };
+const NOT_SPECIFIED_BUCKET    = { name: 'Not Specified',      color: '#DCDCDC' };
+const SIGNUPS_CHANNEL_BUCKETS = [...BUCKET_DEFINITIONS, INVITED_REFERRED_BUCKET, NOT_SPECIFIED_BUCKET];
+// Stack order (bottom → top): the two no-channel residuals at the base, then
+// the categorized buckets in the same order they appear in the pie legend.
+const SIGNUPS_CHANNEL_STACK = [NOT_SPECIFIED_BUCKET, INVITED_REFERRED_BUCKET, ...BUCKET_DEFINITIONS];
 
 function computeSignupsByChannelPeriodic(periods) {
   // Per-day per-bucket counts from referralSources (skip entries without daily).
@@ -869,17 +911,32 @@ function computeSignupsByChannelPeriodic(periods) {
       row[def.name] = v;
       categorized += v;
     }
-    const total = p.dates.reduce((s, d) => s + (LIVE_SIGNUPS_BY_DATE[d] || 0), 0);
-    // Bucket counts are raw integers from amplitude.referralSources (one
-    // user = one count in their bucket). Not Specified = the residual gap
-    // between daily-uniques and the sum of per-source uniques. Clamped to
-    // 0 in weeks where the per-source breakdown sums above daily-uniques
-    // (happens when a user records multiple referral_source values in the
-    // window — Amplitude counts them in each entry they touched). The
-    // resulting cross-window discrepancy (sum-of-buckets > daily-uniques
-    // by a handful of users) is surfaced honestly in the footnote rather
-    // than papered over with fractional signups.
-    row['Not Specified'] = Math.max(0, total - categorized);
+    // Per-bar total = deduped union uniques over the bar's date range when
+    // available (so each weekly/monthly bar dedupes within its own period),
+    // else the summed-daily total. See the `amplitude.dedup` note up top.
+    const summedTotal = p.dates.reduce((s, d) => s + (LIVE_SIGNUPS_BY_DATE[d] || 0), 0);
+    const total = dedupPeriodTotal(p.dates, summedTotal);
+    // Residual = signups with no referral channel (total − categorized),
+    // clamped to 0. It's split at the May 7, 2026 cutoff (when referral_source
+    // became required): the portion of the period before the cutoff is
+    // "Not Specified" (source unknown), the portion on/after is
+    // "Invited / Referred". We allocate the deduped residual across the two by
+    // the share of daily-union signups on each side of the cutoff, so the bar
+    // total stays exact. Most bars sit entirely on one side (share 0 or 1);
+    // only periods straddling May 7 (the May month / the May 4–10 week) split.
+    const residual = Math.max(0, total - categorized);
+    let preUnion = 0, postUnion = 0;
+    for (const d of p.dates) {
+      const u = LIVE_SIGNUPS_BY_DATE[d] || 0;
+      if (d < REFERRAL_REQUIRED_CUTOFF) preUnion += u; else postUnion += u;
+    }
+    const denom = preUnion + postUnion;
+    const preFrac = denom > 0
+      ? preUnion / denom
+      : (p.dates[p.dates.length - 1] < REFERRAL_REQUIRED_CUTOFF ? 1 : 0);
+    const notSpecified = Math.round(residual * preFrac);
+    row['Not Specified']      = notSpecified;
+    row['Invited / Referred'] = residual - notSpecified;
     row.total = total;
     return row;
   });
@@ -888,6 +945,74 @@ function computeSignupsByChannelPeriodic(periods) {
 const SIGNUPS_BY_CHANNEL_WEEKLY_30D = computeSignupsByChannelPeriodic(LIVE_WEEKS);
 const SIGNUPS_BY_CHANNEL_WEEKLY_MTD = computeSignupsByChannelPeriodic(MTD_WEEKS_LIST);
 const SIGNUPS_BY_CHANNEL_MONTHLY_YTD = computeSignupsByChannelPeriodic(YTD_MONTHS_LIST);
+
+// ---------------------------------------------------------------------------
+// Signups by TEAM — from the onboarding `self_selected_role` user property
+// (amplitude.roles). The role is only captured at [Onboarding] User Setup
+// Complete (the step both onboarding paths converge on), so we attribute each
+// signup's CURRENT (most-recent) role to whoever COMPLETED that step
+// (Amplitude composition, MOST_RECENT). Team split per period/window:
+//   Sales     = AE + BDR/SDR + Sales other
+//   Marketing = ABM + Demand gen + Ops lead + Marketing other + Product mktg
+//   Other     = Founder + Other role + CRO
+//   No role   = completed signup total (amplitude.dedup) − the three above =
+//     the few who completed setup but left the role field blank (~2%).
+// Since a completed signup IS a User Setup Complete, everyone here finished
+// setup; team totals tie to the completed-signup headline. Falls back to all-
+// No-role when role data for a range isn't present (custom Reporting windows).
+// ---------------------------------------------------------------------------
+const ROLES = dataJson.amplitude?.roles || { periods: {}, windows: {} };
+const TEAM_DEFS = [
+  { name: 'Sales',                color: C.purple,  roles: ['ae', 'bdr_sdr', 'sales_other'] },
+  { name: 'Marketing',            color: C.blue,    roles: ['abm', 'demand_gen', 'ops_lead', 'marketing_other', 'product_marketing'] },
+  { name: 'Other',                color: '#5DCAA5', roles: ['founder', 'other', 'cro'] },
+  { name: 'No role', color: '#C8C8C8', roles: null },
+];
+const TEAM_STACK = ['Sales', 'Marketing', 'Other', 'No role'];  // bottom → top
+const SALES_ROLES = new Set(['ae', 'bdr_sdr', 'sales_other']);
+const MKT_ROLES   = new Set(['abm', 'demand_gen', 'ops_lead', 'marketing_other', 'product_marketing']);
+const OTHER_ROLES = new Set(['founder', 'other', 'cro']);
+const ROLE_LABELS = {
+  ae: 'AE', bdr_sdr: 'BDR/SDR', sales_other: 'Sales other',
+  abm: 'ABM', demand_gen: 'Demand gen', ops_lead: 'Ops lead',
+  marketing_other: 'Marketing other', product_marketing: 'Product mktg',
+  founder: 'Founder', other: 'Other role', cro: 'CRO',
+};
+function teamSplit(roleMap, total) {
+  let sales = 0, mkt = 0, other = 0;
+  for (const [k, v] of Object.entries(roleMap || {})) {
+    if (SALES_ROLES.has(k)) sales += v;
+    else if (MKT_ROLES.has(k)) mkt += v;
+    else if (OTHER_ROLES.has(k)) other += v;
+  }
+  return {
+    Sales: sales,
+    Marketing: mkt,
+    Other: other,
+    'No role': Math.max(0, total - sales - mkt - other),
+  };
+}
+function computeTeamPeriodic(periods) {
+  return periods.map((p) => {
+    const key = periodDedupKey(p.dates);
+    const summed = p.dates.reduce((s, d) => s + (LIVE_SIGNUPS_BY_DATE[d] || 0), 0);
+    const unionTotal = dedupPeriodTotal(p.dates, summed);
+    const t = teamSplit(ROLES.periods?.[key], unionTotal);
+    // Bar height = sum of the four segments (= unionTotal, except on a current
+    // partial week where completer role counts can nudge slightly above it).
+    const total = t.Sales + t.Marketing + t.Other + t['No role'];
+    return {
+      week: p.weekStartLabel ?? p.label,
+      dateRange: p.dateRange,
+      partial: p.trailingPartial ?? p.partial,
+      ...t,
+      total,
+    };
+  });
+}
+const TEAM_WEEKLY_30D  = computeTeamPeriodic(LIVE_WEEKS);
+const TEAM_WEEKLY_MTD  = computeTeamPeriodic(MTD_WEEKS_LIST);
+const TEAM_MONTHLY_YTD = computeTeamPeriodic(YTD_MONTHS_LIST);
 
 // ---------------------------------------------------------------------------
 // Sales Meeting Discovery — self-reported "how did you discover Mutiny"
@@ -2318,10 +2443,11 @@ function SelfReportedPieCard({
 //   MTD  → MTD_WEEKS_LIST
 //   YTD  → YTD_MONTHS_LIST (monthly bars)
 //
-// Includes a "Not Specified" bucket at the base of the stack equal to
-// (total signups in period − sum of categorized buckets). This is mainly
-// the pre-May-8 instrumentation gap (when referral_source was optional)
-// and shrinks to ~0 after the field became required.
+// The residual (total − categorized referral buckets) sits at the base of the
+// stack, split at the May 7, 2026 cutoff: "Not Specified" before it (when
+// referral_source was optional, so a missing source is unknown) and
+// "Invited / Referred" on/after it (joined via invitation / registration;
+// only Company Setup Complete carries a referral_source).
 // ---------------------------------------------------------------------------
 function SelfReportedWeeklyCard({
   eyebrow,
@@ -2377,7 +2503,7 @@ function SelfReportedWeeklyCard({
     for (const k of Object.keys(byBucket)) {
       byBucket[k].sort((a, b) => b.count - a.count);
     }
-    // Not Specified residual = total signups − sum of categorized per date.
+    // Invited / Referred residual = total signups − sum of categorized per date.
     let nsCount = 0;
     if (dateScope) {
       const dateArr = Array.isArray(dateScope) ? dateScope : Array.from(dateScope);
@@ -2426,7 +2552,7 @@ function SelfReportedWeeklyCard({
   const { ticks: yTicks, max: yMax } = niceTicks(maxValue, 5);
   // Two distinct, both-valid window totals:
   //   summaryTotal = Σ daily-uniques (matches the Signups KPI / Top of Funnel)
-  //   bucketsTotal = Σ per-source-uniques + Not Specified residual
+  //   bucketsTotal = Σ per-source-uniques + Invited / Referred residual
   // They can differ when a user touches multiple referral_source values in
   // the window (Amplitude counts them in each bucket they appeared in).
   const summaryTotal = data.reduce((s, r) => s + (r.total || 0), 0);
@@ -2950,7 +3076,7 @@ function SelfReportedWeeklyCard({
     const scopeLabel  = inWeek
       ? `${selectedRow.dateRange}${selectedRow.partial ? (isReporting ? ' · clipped to range' : ' · in progress') : ''}`
       : `Window: ${dateRangeLabel}`;
-    const scopeData   = inWeek ? selectedWeekSources : { byBucket: detailedBuckets, nsCount: totals['Not Specified'] || 0 };
+    const scopeData   = inWeek ? selectedWeekSources : { byBucket: detailedBuckets, nsCount: totals['Invited / Referred'] || 0 };
     const headerNote  = inWeek
       ? <>Showing responses for <strong>{selectedRow.dateRange}</strong>. <button onClick={() => setSelectedWeek(null)} style={{ background: 'none', border: 'none', textDecoration: 'underline', cursor: 'pointer', fontFamily: FONT_BODY, fontSize: 12, color: C.black, padding: 0 }}>Clear selection</button> to see the full window.</>
       : <>Click a column above to scope responses to a single week.</>;
@@ -2976,12 +3102,9 @@ function SelfReportedWeeklyCard({
       body = (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
           {pinned.map((b) => {
-            if (b.name === 'Not Specified') {
-              const nsCount = inWeek
-                ? Math.max(0, (selectedRow.total || 0) - SIGNUPS_CHANNEL_BUCKETS
-                    .filter((x) => x.name !== 'Not Specified')
-                    .reduce((s, x) => s + (selectedRow[x.name] || 0), 0))
-                : (scopeData.nsCount || 0);
+            if (b.name === 'Invited / Referred' || b.name === 'Not Specified') {
+              const cnt = inWeek ? (selectedRow[b.name] || 0) : (totals[b.name] || 0);
+              const isInvited = b.name === 'Invited / Referred';
               return (
                 <section
                   key={b.name}
@@ -3001,13 +3124,22 @@ function SelfReportedWeeklyCard({
                       display: 'inline-block', width: 12, height: 12, background: b.color,
                       border: `1px solid ${C.black}`,
                     }} />
-                    {b.name} — {nsCount} signup{nsCount === 1 ? '' : 's'}
+                    {b.name} — {cnt} signup{cnt === 1 ? '' : 's'}
                   </div>
                   <div style={{ fontFamily: FONT_BODY, fontSize: 12, opacity: 0.7, lineHeight: 1.5 }}>
-                    These signups completed Company Setup but did not have a{' '}
-                    <code style={{ fontFamily: FONT_MONO, fontSize: 11 }}>referral_source</code>{' '}
-                    value. Mostly pre-May-8 (before the field became required). Raw response
-                    text is unavailable.
+                    {isInvited ? (
+                      <>Signups from <strong>May 7, 2026</strong> on with no referral source —
+                      invited / referred users who joined via Registration Submitted, User
+                      Invitation Completed, or User Setup Complete (only Company Setup Complete
+                      carries a{' '}
+                      <code style={{ fontFamily: FONT_MONO, fontSize: 11 }}>referral_source</code>).
+                      No raw response text exists for these.</>
+                    ) : (
+                      <>Signups from <strong>before May 7, 2026</strong>, when{' '}
+                      <code style={{ fontFamily: FONT_MONO, fontSize: 11 }}>referral_source</code>{' '}
+                      was optional — no source was captured, so these can't be attributed to a
+                      channel. No raw response text exists for these.</>
+                    )}
                   </div>
                 </section>
               );
@@ -3585,6 +3717,24 @@ function CumulativeSignupsCard({ dateSet, granularity = 'weekly', months } = {})
   // Today (for the trailing partial week) from the data's own pulledAt.
   const today = (dataJson.pulledAt || new Date().toISOString()).slice(0, 10);
 
+  // True deduplicated running total (amplitude.dedup.cumulativeDaily): the
+  // cumulative count of distinct users in the 4-event union, so the line
+  // ends on the same deduped YTD figure as the Signups KPI rather than the
+  // (higher) sum-of-daily-uniques. cumAt() reads the cumulative value at a
+  // date, clamped to the latest available date ≤ that date. Falls back to
+  // summing dailySignups when the deduped series isn't present.
+  const cumDaily = dataJson.amplitude?.dedup?.cumulativeDaily || null;
+  const _cumDates = cumDaily ? Object.keys(cumDaily).sort() : [];
+  function cumAt(yyyymmddDashOrCompact) {
+    if (!cumDaily) return null;
+    const key = String(yyyymmddDashOrCompact).replaceAll('-', '');
+    const clamped = key > today.replaceAll('-', '') ? today.replaceAll('-', '') : key;
+    if (cumDaily[clamped] != null) return cumDaily[clamped];
+    let best = null;
+    for (const k of _cumDates) { if (k <= clamped) best = k; else break; }
+    return best != null ? cumDaily[best] : 0;
+  }
+
   // Bucket daily signups into week-ending Sunday (Mon–Sun weeks), then cumulate.
   const bySun = {};
   for (const k of keys) {
@@ -3604,12 +3754,19 @@ function CumulativeSignupsCard({ dateSet, granularity = 'weekly', months } = {})
     // One point per month (Jan→current): cumulative signups through month-end.
     let mcum = 0;
     data = (months || []).map((mo) => {
-      mcum += mo.dates.reduce((s, d) => s + (Number(daily[d]) || 0), 0);
+      const endDate = mo.dates[mo.dates.length - 1];
+      let count;
+      if (cumDaily) {
+        count = cumAt(endDate);                 // deduped running total at month-end
+      } else {
+        mcum += mo.dates.reduce((s, d) => s + (Number(daily[d]) || 0), 0);
+        count = mcum;
+      }
       return {
         label:   mo.label,
         ending:  mo.label,
         year:    Number(String(mo.dates[0]).slice(0, 4)),
-        count:   mcum,
+        count,
         partial: !!mo.partial,
       };
     });
@@ -3620,12 +3777,15 @@ function CumulativeSignupsCard({ dateSet, granularity = 'weekly', months } = {})
       cum += bySun[sun];
       const partial = sun > today;                   // week-ending Sunday not yet reached
       const ed = parseYYYYMMDD(sun.replaceAll('-', '')); // label by the true week-ending Sunday
+      // Prefer the deduped running total at the week-ending Sunday (clamped to
+      // today for the in-progress week); fall back to the summed running total.
+      const count = cumDaily ? cumAt(sun) : cum;
       return {
         iso:     partial ? today : sun,               // filter key: clamp the partial week so it stays in-window
         label:   fmtMonDay(ed),
         ending:  fmtMonDay(ed),
         year:    ed.getUTCFullYear(),
-        count:   cum,
+        count,
         partial,
       };
     });
@@ -4010,6 +4170,132 @@ function CumulativeLogosCard({ dateSet, granularity = 'weekly', months } = {}) {
 }
 
 // ---------------------------------------------------------------------------
+// Signups by Team — pie + stacked column (self_selected_role → Sales/Marketing/Other)
+// ---------------------------------------------------------------------------
+function teamSubRoleLine(teamName, roles, teamValue) {
+  if (!roles) return '';
+  if (teamName === 'No role') {
+    return teamValue > 0 ? 'completed setup, role left blank' : '';
+  }
+  const def = TEAM_DEFS.find((t) => t.name === teamName);
+  return (def.roles || [])
+    .filter((k) => roles[k])
+    .sort((a, b) => roles[b] - roles[a])
+    .map((k) => `${ROLE_LABELS[k]} ${roles[k].toLocaleString()}`)
+    .join(' · ');
+}
+
+function TeamPieCard({ title, source, dateRangeLabel, data, total, roles, infoTooltip }) {
+  const populated = data.filter((d) => d.value > 0);
+  const pct = (v) => (total > 0 ? ((v / total) * 100).toFixed(1) : '0.0');
+  return (
+    <section style={{ background: C.white, border: `1px solid ${C.black}`, borderRadius: 4, padding: '28px 32px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 2, gap: 12 }}>
+        <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 22, letterSpacing: '-0.02em', margin: 0 }}>{title}</h3>
+        {infoTooltip && <InfoTooltip width={340}>{infoTooltip}</InfoTooltip>}
+      </div>
+      <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6, marginBottom: 16 }}>
+        {source} · {dateRangeLabel}
+      </div>
+      <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ position: 'relative', width: 200, height: 200, flex: '0 0 auto' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={populated} dataKey="value" nameKey="name" innerRadius={58} outerRadius={92} startAngle={90} endAngle={-270} stroke={C.white} strokeWidth={2} isAnimationActive={false}>
+                {populated.map((d) => <Cell key={d.name} fill={d.color} />)}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+            <span style={{ fontFamily: FONT_DISPLAY, fontSize: 28, lineHeight: 1 }}>{total.toLocaleString()}</span>
+            <span style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6 }}>signups</span>
+          </div>
+        </div>
+        <div style={{ flex: '1 1 240px', minWidth: 240, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {data.map((d) => (
+            <div key={d.name}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ width: 11, height: 11, borderRadius: 2, background: d.color, border: `1px solid ${C.black}` }} />
+                <span style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 700 }}>{d.name}</span>
+                <span style={{ marginLeft: 'auto', fontFamily: FONT_BODY, fontSize: 13, opacity: 0.75, fontVariantNumeric: 'tabular-nums' }}>
+                  {d.value.toLocaleString()} · {pct(d.value)}%
+                </span>
+              </div>
+              {roles && (
+                <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.55, margin: '2px 0 0 19px' }}>
+                  {teamSubRoleLine(d.name, roles, d.value) || '—'}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TeamStackedCard({ title, source, dateRangeLabel, data, total, infoTooltip, isReporting }) {
+  const maxValue = Math.max(...data.map((r) => r.total || 0), 1);
+  const { ticks: yTicks, max: yMax } = niceTicks(maxValue, 5);
+  return (
+    <section style={{ background: C.white, border: `1px solid ${C.black}`, borderRadius: 4, padding: '28px 32px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 2, gap: 12 }}>
+        <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 22, letterSpacing: '-0.02em', margin: 0 }}>{title}</h3>
+        {infoTooltip && <InfoTooltip width={340}>{infoTooltip}</InfoTooltip>}
+      </div>
+      <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6, marginBottom: 14 }}>
+        {source} · {dateRangeLabel} · {total.toLocaleString()} signups
+      </div>
+      <div style={{ display: 'flex', gap: 16, marginBottom: 10, flexWrap: 'wrap' }}>
+        {TEAM_DEFS.map((t) => (
+          <span key={t.name} style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: FONT_BODY, fontSize: 12 }}>
+            <span style={{ width: 10, height: 10, borderRadius: 2, background: t.color, border: `1px solid ${C.black}` }} />
+            {t.name}
+          </span>
+        ))}
+      </div>
+      <div style={{ width: '100%', height: 300 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" vertical={false} />
+            <XAxis dataKey="week" axisLine={{ stroke: C.black, strokeWidth: 1 }} tickLine={false} tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }} interval={0} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fontFamily: FONT_BODY, fontSize: 10, fill: C.black, opacity: 0.6 }} width={40} domain={[0, yMax]} ticks={yTicks} allowDecimals={false} />
+            <Tooltip
+              cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+              content={({ active, payload }) => {
+                if (!active || !payload || !payload.length) return null;
+                const d = payload[0].payload;
+                const rows = TEAM_DEFS.map((t) => ({ name: t.name, color: t.color, v: d[t.name] || 0 })).filter((r) => r.v > 0);
+                return (
+                  <div style={{ background: C.white, border: `1px solid ${C.black}`, padding: '10px 12px', fontFamily: FONT_BODY, fontSize: 12, minWidth: 200 }}>
+                    <div style={{ fontWeight: 700, marginBottom: 6 }}>{d.dateRange}{d.partial ? (isReporting ? ' · clipped to range' : ' · in progress') : ''}</div>
+                    {rows.map((r) => (
+                      <div key={r.name} style={{ display: 'flex', justifyContent: 'space-between', gap: 14, alignItems: 'center' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span style={{ width: 9, height: 9, borderRadius: 2, background: r.color, border: `1px solid ${C.black}` }} />{r.name}
+                        </span>
+                        <strong style={{ fontVariantNumeric: 'tabular-nums' }}>{r.v.toLocaleString()} · {Math.round((r.v / (d.total || 1)) * 100)}%</strong>
+                      </div>
+                    ))}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, marginTop: 6, paddingTop: 6, borderTop: `1px solid rgba(0,0,0,0.15)` }}>
+                      <span>Total</span><strong style={{ fontVariantNumeric: 'tabular-nums' }}>{(d.total || 0).toLocaleString()}</strong>
+                    </div>
+                  </div>
+                );
+              }}
+            />
+            {TEAM_STACK.map((name) => {
+              const def = TEAM_DEFS.find((t) => t.name === name);
+              return <Bar key={name} dataKey={name} stackId="team" fill={def.color} stroke={C.black} strokeWidth={0.5} isAnimationActive={false} />;
+            })}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main dashboard
 // ---------------------------------------------------------------------------
 export default function MutinyGrowthDashboard() {
@@ -4225,14 +4511,14 @@ export default function MutinyGrowthDashboard() {
   const channelWeeklyCohorts = isReporting ? reportingWeeks : isYtd ? YTD_MONTH_COHORTS : LIVE_WEEKS;
   const channelWeeklySource  = computeSignupsByChannelGAWeekly(channelWeeklyCohorts);
   const weeklyChartData      = computeWeeklyData(channelWeeklySource);
-  const kpiSignups   = is30d ? DATA.signups.window         : isMtd ? SIGNUPS_MTD  : isReporting ? SIGNUPS_REPORTING  : SIGNUPS_YTD;
+  const kpiSignups   = is30d ? SIGNUPS_30D_DEDUP          : isMtd ? SIGNUPS_MTD_DEDUP : isReporting ? SIGNUPS_REPORTING : SIGNUPS_YTD_DEDUP;
   const kpiSessions  = is30d ? DATA.engagedSessions.window : isMtd ? SESSIONS_MTD : isReporting ? SESSIONS_REPORTING : SESSIONS_YTD;
   const kpiMeetings  = is30d ? DATA.salesMeetings.window   : isMtd ? MEETINGS_MTD : isReporting ? MEETINGS_REPORTING : MEETINGS_YTD;
   const kpiRatio     = is30d ? ratioWindow                 : isMtd ? RATIO_MTD    : isReporting ? RATIO_REPORTING    : RATIO_YTD;
   const pieSignups        = is30d ? SHARE_OF_SIGNUPS              : isMtd ? SHARE_OF_SIGNUPS_MTD             : isReporting ? SHARE_OF_SIGNUPS_REPORTING             : SHARE_OF_SIGNUPS_YTD;
   const pieSignupsTotal   = is30d ? TOTAL_SIGNUPS_CATEGORIZED     : isMtd ? TOTAL_SIGNUPS_CATEGORIZED_MTD    : isReporting ? TOTAL_SIGNUPS_CATEGORIZED_REPORTING    : TOTAL_SIGNUPS_CATEGORIZED_YTD;
   // Weekly stacked-column data for Customer signups by channel (replaces the pie).
-  // Total = sum of all bars (includes Not Specified) — matches what's plotted.
+  // Total = sum of all bars (includes Invited / Referred) — matches what's plotted.
   const signupsByChannelData = is30d
     ? SIGNUPS_BY_CHANNEL_WEEKLY_30D
     : isMtd
@@ -4241,6 +4527,23 @@ export default function MutinyGrowthDashboard() {
         ? SIGNUPS_BY_CHANNEL_WEEKLY_REPORTING
         : SIGNUPS_BY_CHANNEL_MONTHLY_YTD;
   const signupsByChannelTotal = signupsByChannelData.reduce((s, r) => s + (r.total || 0), 0);
+  // Signups by Team (self_selected_role → Sales/Marketing/Other), window-aware.
+  const teamStackedData = is30d
+    ? TEAM_WEEKLY_30D
+    : isMtd
+      ? TEAM_WEEKLY_MTD
+      : isReporting
+        ? computeTeamPeriodic(reportingWeeks.map((w) => ({
+            weekStartLabel: w.weekStartLabel, dateRange: w.dateRange,
+            trailingPartial: w.trailingPartial, partial: w.partial, dates: w.datesInRange,
+          })))
+        : TEAM_MONTHLY_YTD;
+  const teamStackedTotal = teamStackedData.reduce((s, r) => s + (r.total || 0), 0);
+  const teamWindowKey   = is30d ? 'last30' : isMtd ? 'mtd' : isYtd ? 'ytd' : null;
+  const teamWindowTotal = is30d ? SIGNUPS_30D_DEDUP : isMtd ? SIGNUPS_MTD_DEDUP : isReporting ? SIGNUPS_REPORTING : SIGNUPS_YTD_DEDUP;
+  const teamWindowRoles = teamWindowKey ? (ROLES.windows?.[teamWindowKey] || null) : null;
+  const teamWinSplit    = teamSplit(teamWindowRoles, teamWindowTotal);
+  const teamPieData     = TEAM_DEFS.map((t) => ({ name: t.name, value: teamWinSplit[t.name], color: t.color }));
   const pieMeetings       = is30d ? SHARE_OF_SALES_MEETINGS       : isMtd ? SHARE_OF_SALES_MEETINGS_MTD      : isReporting ? SHARE_OF_SALES_MEETINGS_REPORTING      : SHARE_OF_SALES_MEETINGS_YTD;
   const pieMeetingsTotal  = is30d ? TOTAL_SALES_MEETINGS_CATEGORIZED : isMtd ? TOTAL_SALES_MEETINGS_CATEGORIZED_MTD : isReporting ? TOTAL_SALES_MEETINGS_CATEGORIZED_REPORTING : TOTAL_SALES_MEETINGS_CATEGORIZED_YTD;
   const activeWindowLabel = is30d
@@ -4509,10 +4812,10 @@ export default function MutinyGrowthDashboard() {
         }}
       >
         <KpiCard
-          label="Signups (Completed)"
+          label="Signups"
           value={kpiSignups.toLocaleString()}
-          sublabel="Company Setup Complete · Amplitude"
-          footnote={`Successful onboarding completions (Amplitude event). Distinct from "Signup Clicks" in the Channel Funnel below, which counts the upstream click on the signup CTA from GA4.`}
+          sublabel="User Setup Complete · Amplitude"
+          footnote={`A completed signup = a unique user who finished onboarding by firing [Onboarding] User Setup Complete — the step both paths converge on (create an org, or accept an invite), i.e. they actually made it into the app (internal accounts excluded). Deduplicated across the selected window. Note: this event only began firing ~Feb 16, 2026, so earlier dates read zero. Distinct from "Signup Clicks" in the Channel Funnel below, which counts the upstream click on the signup CTA from GA4.`}
           bgColor={C.lightPurple}
           accentColor={C.purple}
           dateRangeLabel={kpiDateRangeLabel}
@@ -4593,13 +4896,37 @@ export default function MutinyGrowthDashboard() {
           unit="signup"
           isReporting={isReporting}
           dateSet={is30d ? STRICT_WINDOW_DATES_SET : isMtd ? MTD_DATES_SET : isReporting ? reportingDatesSet : YTD_DATES_SET}
-          infoTooltip={`Self-reported referral_source at Company Setup, weekly. ${signupsByChannelTotal} total signups in window (${activeWindowLabel}). In Stacked mode, bars include a Not Specified residual for signups without a referral_source value — almost all pre-May-8 (before the field became required). 11 mutinyhq.com test accounts excluded at the Amplitude query layer. Bucketing rules: see the Definitions panel.`}
+          infoTooltip={`Signups = completed signups (unique users who fired [Onboarding] User Setup Complete), excl. internal accounts. Each bar is deduplicated within its own period (week or month); the KPI tile up top is deduplicated across the whole window, so the bars can sum slightly higher than that headline (someone active in two weeks counts in both bars but once in the window total). Referral source is only captured at Company Setup Complete, so invited users and org-creators who left it blank fall into the residual. In Stacked mode, signups with no source split by date: before May 7, 2026 (field optional) they're "Not Specified"; from May 7 on they're "Invited / Referred". Bucketing rules: see the Definitions panel.`}
           alertBanner={
             <>
-              Source field became required <strong>May 7, 2026</strong> — earlier
-              signups land in <strong>Not Specified</strong>.
+              Only <strong>Company Setup Complete</strong> carries a referral source. Signups
+              without one are <strong>Not Specified</strong> before May 7, 2026 (field was
+              optional) and <strong>Invited / Referred</strong> from May 7 on.
             </>
           }
+        />
+      </div>
+
+      {/* ── Signups by Team (self_selected_role → Sales / Marketing / Other).
+          Pie = window total split; stacked column = per-period split. */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
+        <TeamPieCard
+          title="Signups by Team"
+          source="Amplitude · self_selected_role"
+          dateRangeLabel={activeWindowLabel}
+          data={teamPieData}
+          total={teamWindowTotal}
+          roles={teamWindowRoles}
+          infoTooltip={`Completed signups (User Setup Complete, deduped) grouped by their current self_selected_role. Sales = AE + BDR/SDR + Sales other. Marketing = ABM + Demand gen + Ops lead + Marketing other + Product mktg. Other = Founder + Other + CRO. No role = completed setup but left the role blank (~2%). Team totals reconcile to the completed-signup total. ${teamWindowKey ? '' : 'Role data isn’t precomputed for custom Reporting windows, so this falls back to all-No-role.'}`}
+        />
+        <TeamStackedCard
+          title="Signups by Team — trend"
+          source="Amplitude · self_selected_role"
+          dateRangeLabel={kpiDateRangeLabel}
+          data={teamStackedData}
+          total={teamStackedTotal}
+          isReporting={isReporting}
+          infoTooltip={`Per-period split of signups into Sales / Marketing / Other from self_selected_role. Each bar is deduped within its period; bars can sum slightly above the window pie total (cross-period overlap). Other absorbs Founder, Other, CRO, and no-role-set signups.`}
         />
       </div>
 
@@ -5389,12 +5716,19 @@ export default function MutinyGrowthDashboard() {
           }}
         >
           <Def
-            term="Signups (Completed)"
+            term="Signups"
             body={
               <>
-                Unique users who fired the <code style={codeStyle}>[Onboarding] Company Setup Complete</code> event
-                in Amplitude — i.e. completed onboarding. This is the source of truth for new account creation
-                and powers the KPI tile up top.
+                A <strong>completed signup</strong> = a unique user who finished onboarding by firing{' '}
+                <code style={codeStyle}>[Onboarding] User Setup Complete</code> in Amplitude — the step
+                both paths converge on (create an org, or accept an invite into one), i.e. they
+                actually made it into the app. Deduplicated so one person counts once (internal
+                accounts excluded). This is the source of truth for new account creation and powers the
+                KPI tile up top. <strong>Note:</strong> this event only began firing ~Feb 16, 2026, so
+                dates before then read zero. Only Company Setup Complete carries a{' '}
+                <code style={codeStyle}>referral_source</code>. In the Signups by Channel chart, a
+                signup with no source is <strong>Not Specified</strong> before May 7, 2026 (when the
+                field was optional) and <strong>Invited / Referred</strong> from May 7 on.
               </>
             }
           />

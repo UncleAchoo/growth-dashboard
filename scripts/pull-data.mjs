@@ -289,25 +289,32 @@ async function fetchAmplitude() {
   }
   log('Fetching Amplitude (daily signups + referral_source breakdown)...');
 
-  // Both queries share the same event spec + email filter.
-  // Filter mirrors the Amplitude chart `vu1dvirn` (Sign Up complete event
-  // [Growth Dashboard]): `email does not contain "mutinyhq" or "mutiny"`.
-  // "mutinyhq" is redundant with "mutiny" as a substring match, but listing
-  // both keeps our pull a literal mirror of the chart's filter config.
+  // Email filter — excludes internal users. Mirrors the Amplitude charts:
+  // `email does not contain "mutinyhq" or "mutiny"`. "mutinyhq" is redundant
+  // with "mutiny" as a substring match, but listing both keeps our pull a
+  // literal mirror of the chart's filter config.
+  const emailFilter = { group_type: 'User', subprop_op: 'does not contain', subprop_key: 'email', subprop_type: 'event', subprop_value: ['mutinyhq', 'mutiny'] };
+
+  // 1) Daily SIGNUPS — COMPLETED signups. A "signup" = a unique user who
+  // finished onboarding by firing [Onboarding] User Setup Complete (the step
+  // both onboarding paths — create-an-org and accept-an-invite — converge on,
+  // i.e. they actually made it into the app). Single event, metric=uniques.
+  // NOTE: this event only began firing ~Feb 16, 2026; earlier dates are zero.
   const eventSpec = {
-    event_type: '[Onboarding] Company Setup Complete',
-    filters: [
-      { group_type: 'User', subprop_op: 'does not contain', subprop_key: 'email', subprop_type: 'event', subprop_value: ['mutinyhq', 'mutiny'] },
-    ],
+    event_type: '[Onboarding] User Setup Complete',
+    filters: [emailFilter],
   };
 
-  // 1) Daily uniques (no group_by) — covers the Signups KPI + weekly trend.
+  // Covers the Signups KPI + weekly/monthly trend everywhere on the dashboard.
   const daily = await ampSegmentation({ event: eventSpec, start: WINDOW_START, end: WINDOW_END });
 
   // Parse Amplitude response. Daily uniques live in data.series[0] aligned
   // with data.xValues (dates).
   const series = daily?.data?.series?.[0] ?? [];
   const xValues = daily?.data?.xValues ?? [];
+  if (xValues.length === 0) {
+    throw new Error('Amplitude daily signups (User Setup Complete) returned no data — preserving last-known-good dailySignups.');
+  }
   const dailySignups = {};
   for (let i = 0; i < xValues.length; i++) {
     dailySignups[ymdCompact(xValues[i])] = Number(series[i]) || 0;
@@ -368,8 +375,36 @@ async function fetchAmplitude() {
     return { source: src, count, daily };
   }).filter((r) => r.count > 0);
 
+  // ---- Deduplicated totals (amplitude.dedup) ----------------------------
+  // The deduped headline KPI, per-bar totals, and cumulative-signups line read
+  // from `amplitude.dedup` (true unique-user counts of the 4-event union at
+  // period + window granularity, plus a cumulative-unique daily series).
+  // These canNOT be reproduced through the Dashboard REST API: deduped uniques
+  // over an arbitrary multi-day range (a calendar month, the 30/60-day KPI
+  // windows, the running cumulative line) require single-bucket / cumulative
+  // unique queries that REST's fixed 1 / 7 / 30-day intervals can't express.
+  // They are generated out-of-band via the Amplitude analytics query API
+  // (eventsSegmentation, metric=uniques, isCumulative, on the inline 4-event
+  // custom event — see HANDOFF.md "Deduped signups"). We carry forward
+  // whatever dedup block already exists in src/data.json so a routine pull
+  // doesn't wipe it.
+  // NOTE: the period keys are date-anchored ("<firstDate>_<lastDate>"). Once
+  // the window rolls to a new day, the dashboard falls back to summed-daily
+  // for any bar/window whose range no longer matches — regenerate dedup to
+  // restore the deduplicated view.
+  let dedup;
+  try {
+    if (existsSync(OUT_PATH)) {
+      const prevData = JSON.parse(readFileSync(OUT_PATH, 'utf8'));
+      if (prevData.amplitude?.dedup) {
+        dedup = { ...prevData.amplitude.dedup, _staleFromPrevRun: true };
+        log('  Amplitude: carried forward existing amplitude.dedup (regenerate via the query API for fresh dedup).');
+      }
+    }
+  } catch { /* no prior dedup to preserve */ }
+
   log(`  Amplitude ok: ${Object.values(dailySignups).reduce((a,b)=>a+b,0)} daily-signups across ${Object.keys(dailySignups).length} days, ${referralSources.length} unique referral_source values.`);
-  return { dailySignups, referralSources, pulledAt: new Date().toISOString() };
+  return { dailySignups, referralSources, ...(dedup ? { dedup } : {}), pulledAt: new Date().toISOString() };
 }
 
 // ===========================================================================
