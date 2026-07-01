@@ -55473,7 +55473,7 @@
         }
       },
       {
-        "source": "Indica\u00e7\u00e3o",
+        "source": "Indicação",
         "count": 1,
         "daily": {
           "20260522": 1
@@ -57606,11 +57606,11 @@
       }
     ],
     "logos": {
-      "total": 122,
+      "total": 123,
       "source": "revenue-repo",
       "repo": "UncleAchoo/revenue-dashboard-official",
       "path": "stripe_data.json",
-      "pulledAt": "2026-06-30T23:02:11.162Z",
+      "pulledAt": "2026-07-01T16:14:51.583Z",
       "weekly": [
         {
           "week_ending": "2026-03-22",
@@ -57688,8 +57688,8 @@
           "partial": false
         },
         {
-          "week_ending": "2026-06-30",
-          "count": 122,
+          "week_ending": "2026-07-01",
+          "count": 123,
           "partial": true
         }
       ]
