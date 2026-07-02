@@ -16,6 +16,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260610,Direct,(direct) / (none),8
 20260616,Direct,(direct) / (none),8
 20260626,Direct,(direct) / (none),8
+20260701,Direct,(direct) / (none),7
 20260510,Organic Search,google / organic,6
 20260520,Direct,(direct) / (none),6
 20260522,Direct,(direct) / (none),6
@@ -86,6 +87,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260627,Referral,30mpc.com / referral,2
 20260628,Organic Search,bing / organic,2
 20260629,Organic Search,duckduckgo / organic,2
+20260701,Organic Search,google / organic,2
 20260507,Organic Social,linkedin.com / referral,1
 20260508,Referral,mkt1-website / referral,1
 20260509,Direct,(direct) / (none),1
@@ -153,4 +155,4 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260626,Referral,30mpcsite.webflow.io / referral,1
 20260628,Organic Search,google / organic,1
 20260629,Referral,mail.google.com / referral,1
-20260701,Direct,(direct) / (none),1
+20260701,Referral,mail.google.com / referral,1
