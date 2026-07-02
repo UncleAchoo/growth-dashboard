@@ -1,11 +1,11 @@
 {
-  "pulledAt": "2026-07-02T13:51:12.553Z",
+  "pulledAt": "2026-07-02T14:02:10.474Z",
   "window": {
     "start": "2026-01-01",
     "end": "2026-07-02"
   },
   "ga4": {
-    "pulledAt": "2026-07-02T13:51:07.733Z",
+    "pulledAt": "2026-07-02T14:02:04.769Z",
     "file1": [
       {
         "date": "20260320",
@@ -123619,7 +123619,7 @@
       "_restoredFrom": "3a274cc",
       "_staleFromPrevRun": true
     },
-    "pulledAt": "2026-07-02T13:51:12.545Z"
+    "pulledAt": "2026-07-02T14:02:10.466Z"
   },
   "hubspot": {
     "meetings": [
@@ -123947,7 +123947,7 @@
       "source": "revenue-repo",
       "repo": "UncleAchoo/revenue-dashboard-official",
       "path": "stripe_data.json",
-      "pulledAt": "2026-07-02T13:51:08.586Z",
+      "pulledAt": "2026-07-02T14:02:05.340Z",
       "weekly": [
         {
           "week_ending": "2026-03-22",
@@ -124031,7 +124031,7 @@
         }
       ]
     },
-    "pulledAt": "2026-07-02T13:51:08.586Z"
+    "pulledAt": "2026-07-02T14:02:05.340Z"
   },
   "peec": {
     "pulledAt": "2026-07-02T13:48:29.778Z",
