@@ -1,11 +1,11 @@
 {
-  "pulledAt": "2026-07-06T14:19:36.832Z",
+  "pulledAt": "2026-07-06T14:22:26.002Z",
   "window": {
     "start": "2026-01-01",
     "end": "2026-07-06"
   },
   "ga4": {
-    "pulledAt": "2026-07-06T14:19:31.104Z",
+    "pulledAt": "2026-07-06T14:22:22.319Z",
     "file1": [
       {
         "date": "20260320",
@@ -126219,7 +126219,7 @@
       "20260702": 3
     },
     "companySetupDailyNote": "Daily unique [Onboarding] Company Setup Complete (PREVIOUS signup definition, org-creators only; internal excluded). Sum-of-daily per period. Regenerated via Amplitude MCP.",
-    "pulledAt": "2026-07-06T14:19:36.825Z"
+    "pulledAt": "2026-07-06T14:22:25.995Z"
   },
   "hubspot": {
     "meetings": [
@@ -126547,7 +126547,7 @@
       "source": "revenue-repo",
       "repo": "UncleAchoo/revenue-dashboard-official",
       "path": "stripe_data.json",
-      "pulledAt": "2026-07-06T14:19:31.899Z",
+      "pulledAt": "2026-07-06T14:22:22.884Z",
       "weekly": [
         {
           "week_ending": "2026-03-22",
@@ -126636,7 +126636,7 @@
         }
       ]
     },
-    "pulledAt": "2026-07-06T14:19:31.899Z"
+    "pulledAt": "2026-07-06T14:22:22.884Z"
   },
   "peec": {
     "pulledAt": "2026-07-02T13:48:29.778Z",
