@@ -1118,19 +1118,24 @@ const CSC_BY_CHANNEL_WEEKLY_MTD  = computeCscByChannelPeriodic(MTD_WEEKS_LIST);
 const CSC_BY_CHANNEL_MONTHLY_YTD = computeCscByChannelPeriodic(YTD_MONTHS_LIST);
 
 // ---------------------------------------------------------------------------
-// Signups by TEAM — from the onboarding `self_selected_role` user property
-// (amplitude.roles). The role is only captured at [Onboarding] User Setup
-// Complete (the step both onboarding paths converge on), so we attribute each
-// signup's CURRENT (most-recent) role to whoever COMPLETED that step
-// (Amplitude composition, MOST_RECENT). Team split per period/window:
+// Signups by TEAM — from the `user_work_role` EVENT property stamped on
+// [Onboarding] User Setup Complete itself (amplitude.roles). Every completer
+// carries it at completion time (no event-time-evaluation lag, no MOST_RECENT
+// drift), so genuine blanks are near-zero from Mar 2026 on. Only gap: the
+// property wasn't instrumented for the first USC weeks → Feb 2026 has ~117
+// 'none'. Team split per period/window:
 //   Sales     = AE + BDR/SDR + Sales other
 //   Marketing = ABM + Demand gen + Ops lead + Marketing other + Product mktg
 //   Other     = Founder + Other role + CRO
-//   No role   = completed signup total (amplitude.dedup) − the three above =
-//     the few who completed setup but left the role field blank (~2%).
-// Since a completed signup IS a User Setup Complete, everyone here finished
-// setup; team totals tie to the completed-signup headline. Falls back to all-
-// No-role when role data for a range isn't present (custom Reporting windows).
+//   No role   = the 'none' group (genuinely blank work role).
+// RECONCILIATION: per-role uniques can sum ABOVE the deduped signup total —
+// a user who completed setup more than once with different role answers is
+// counted once in EACH role group (event-property grouping has no cross-group
+// dedup; ~3-8% of recent signups). teamSplit() therefore SCALES the raw mix
+// so the four segments sum EXACTLY to the deduped total (amplitude.dedup),
+// with largest-remainder rounding — same spirit as the channel chart's
+// residual split. Falls back to all-No-role when role data for a range isn't
+// present (custom Reporting windows).
 // ---------------------------------------------------------------------------
 const ROLES = dataJson.amplitude?.roles || { periods: {}, windows: {} };
 const TEAM_DEFS = [
@@ -1149,19 +1154,49 @@ const ROLE_LABELS = {
   marketing_other: 'Marketing other', product_marketing: 'Product mktg',
   founder: 'Founder', other: 'Other role', cro: 'CRO',
 };
+// Largest-remainder rounding: scale `values` by `target / sum(values)` and
+// round so the results sum EXACTLY to `target`.
+function scaleToTotal(values, target) {
+  const rawSum = values.reduce((a, b) => a + b, 0);
+  if (!(rawSum > 0) || !(target > 0)) return values.map(() => 0);
+  const exact = values.map((v) => (v * target) / rawSum);
+  const out = exact.map(Math.floor);
+  let remainder = target - out.reduce((a, b) => a + b, 0);
+  const byRemainder = exact
+    .map((v, i) => [v - out[i], i])
+    .sort((a, b) => b[0] - a[0]);
+  for (const [, i] of byRemainder) {
+    if (remainder <= 0) break;
+    out[i] += 1;
+    remainder -= 1;
+  }
+  return out;
+}
 function teamSplit(roleMap, total) {
-  let sales = 0, mkt = 0, other = 0;
+  let sales = 0, mkt = 0, other = 0, blank = 0;
   for (const [k, v] of Object.entries(roleMap || {})) {
     if (SALES_ROLES.has(k)) sales += v;
     else if (MKT_ROLES.has(k)) mkt += v;
     else if (OTHER_ROLES.has(k)) other += v;
+    else if (k === 'none' || k === '(none)') blank += v;
   }
-  return {
-    Sales: sales,
-    Marketing: mkt,
-    Other: other,
-    'No role': Math.max(0, total - sales - mkt - other),
-  };
+  const rawSum = sales + mkt + other + blank;
+  if (!rawSum || !(total > 0)) {
+    // No role data for this range → everything falls into "No role".
+    return { Sales: 0, Marketing: 0, Other: 0, 'No role': Math.max(0, total || 0) };
+  }
+  const [s, m, o, n] = scaleToTotal([sales, mkt, other, blank], total);
+  return { Sales: s, Marketing: m, Other: o, 'No role': n };
+}
+// Scaled per-role map (for the pie's sub-role detail lines) using the same
+// factor that ties the team segments to the deduped total.
+function scaleRoleMap(roleMap, total) {
+  if (!roleMap) return null;
+  const keys = Object.keys(roleMap);
+  const rawSum = keys.reduce((a, k) => a + roleMap[k], 0);
+  if (!(rawSum > 0) || !(total > 0)) return roleMap;
+  const scaled = scaleToTotal(keys.map((k) => roleMap[k]), total);
+  return Object.fromEntries(keys.map((k, i) => [k, scaled[i]]));
 }
 function computeTeamPeriodic(periods) {
   return periods.map((p) => {
@@ -1169,8 +1204,8 @@ function computeTeamPeriodic(periods) {
     const summed = p.dates.reduce((s, d) => s + (LIVE_SIGNUPS_BY_DATE[d] || 0), 0);
     const unionTotal = dedupPeriodTotal(p.dates, summed);
     const t = teamSplit(ROLES.periods?.[key], unionTotal);
-    // Bar height = sum of the four segments (= unionTotal, except on a current
-    // partial week where completer role counts can nudge slightly above it).
+    // Bar height = sum of the four segments; teamSplit scales the mix so this
+    // equals unionTotal exactly whenever role data exists for the period.
     const total = t.Sales + t.Marketing + t.Other + t['No role'];
     return {
       week: p.weekStartLabel ?? p.label,
@@ -4450,7 +4485,7 @@ function CumulativeLogosCard({ dateSet, granularity = 'weekly', months } = {}) {
 }
 
 // ---------------------------------------------------------------------------
-// Signups by Team — pie + stacked column (self_selected_role → Sales/Marketing/Other)
+// Signups by Team — pie + stacked column (user_work_role → Sales/Marketing/Other)
 // ---------------------------------------------------------------------------
 function teamSubRoleLine(teamName, roles, teamValue) {
   if (!roles) return '';
@@ -4976,7 +5011,7 @@ export default function MutinyGrowthDashboard() {
         ? CSC_BY_CHANNEL_WEEKLY_REPORTING
         : CSC_BY_CHANNEL_MONTHLY_YTD;
   const cscByChannelTotal = cscByChannelData.reduce((s, r) => s + (r.total || 0), 0);
-  // Signups by Team (self_selected_role → Sales/Marketing/Other), window-aware.
+  // Signups by Team (user_work_role → Sales/Marketing/Other), window-aware.
   const teamStackedData = is30d
     ? TEAM_WEEKLY_30D
     : isMtd
@@ -4991,6 +5026,7 @@ export default function MutinyGrowthDashboard() {
   const teamWindowKey   = is30d ? 'last30' : isMtd ? 'mtd' : isYtd ? 'ytd' : null;
   const teamWindowTotal = is30d ? SIGNUPS_30D_DEDUP : isMtd ? SIGNUPS_MTD_DEDUP : isReporting ? SIGNUPS_REPORTING : SIGNUPS_YTD_DEDUP;
   const teamWindowRoles = teamWindowKey ? (ROLES.windows?.[teamWindowKey] || null) : null;
+  const teamWindowRolesScaled = scaleRoleMap(teamWindowRoles, teamWindowTotal);
   const teamWinSplit    = teamSplit(teamWindowRoles, teamWindowTotal);
   const teamPieData     = TEAM_DEFS.map((t) => ({ name: t.name, value: teamWinSplit[t.name], color: t.color }));
   const pieMeetings       = is30d ? SHARE_OF_SALES_MEETINGS       : isMtd ? SHARE_OF_SALES_MEETINGS_MTD      : isReporting ? SHARE_OF_SALES_MEETINGS_REPORTING      : SHARE_OF_SALES_MEETINGS_YTD;
@@ -5378,16 +5414,16 @@ export default function MutinyGrowthDashboard() {
           left; Visitor → Signup cumulative conversion line on the right. */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
         <TeamSplitCard
-          source="Amplitude · self_selected_role"
+          source="Amplitude · user_work_role"
           pieDateRangeLabel={activeWindowLabel}
           pieData={teamPieData}
           pieTotal={teamWindowTotal}
-          pieRoles={teamWindowRoles}
+          pieRoles={teamWindowRolesScaled}
           trendDateRangeLabel={kpiDateRangeLabel}
           trendData={teamStackedData}
           trendTotal={teamStackedTotal}
           isReporting={isReporting}
-          infoTooltip={`Completed signups (User Setup Complete, deduped) grouped by their current self_selected_role. Sales = AE + BDR/SDR + Sales other. Marketing = ABM + Demand gen + Ops lead + Marketing other + Product mktg. Other = Founder + Other + CRO. No role = completed setup but left the role blank (~2%). Breakdown = window-total split; Trend = per-period split (each bar deduped within its period, so bars can sum slightly above the window total). ${teamWindowKey ? '' : 'Role data isn’t precomputed for custom Reporting windows, so this falls back to all-No-role.'}`}
+          infoTooltip={`Completed signups (User Setup Complete, deduped) grouped by the work role reported at setup completion (user_work_role event property). Sales = AE + BDR/SDR + Sales other. Marketing = ABM + Demand gen + Ops lead + Marketing other + Product mktg. Other = Founder + Other + CRO. No role = genuinely left blank (near-zero since Mar 2026; the property wasn't captured for the first setup-complete weeks of Feb 2026). Users who completed setup more than once with different role answers would otherwise count in each group, so the mix is scaled to sum exactly to the deduped signup total. ${teamWindowKey ? '' : 'Role data isn’t precomputed for custom Reporting windows, so this falls back to all-No-role.'}`}
         />
         <VisitorSignupTrend
           data={ratioTrendData}
