@@ -394,6 +394,8 @@ async function fetchAmplitude() {
   // restore the deduplicated view.
   let dedup;
   let roles;
+  let companySetupDaily;
+  let companySetupDailyNote;
   try {
     if (existsSync(OUT_PATH)) {
       const prevData = JSON.parse(readFileSync(OUT_PATH, 'utf8'));
@@ -413,11 +415,21 @@ async function fetchAmplitude() {
         roles = { ...prevData.amplitude.roles, _staleFromPrevRun: true };
         log('  Amplitude: carried forward existing amplitude.roles (regenerate via the query API for fresh team splits).');
       }
+      // ---- Previous-method daily signups (amplitude.companySetupDaily) -----
+      // Daily unique Company Setup Complete — the pre-USC signup definition,
+      // used by the "Company signups by Channel (previous method)" chart.
+      // Generated out-of-band via the Amplitude query API (this REST pull only
+      // fetches the current USC dailySignups), so carry it forward.
+      if (prevData.amplitude?.companySetupDaily) {
+        companySetupDaily = prevData.amplitude.companySetupDaily;
+        companySetupDailyNote = prevData.amplitude.companySetupDailyNote;
+        log('  Amplitude: carried forward existing amplitude.companySetupDaily (regenerate via the query API to extend it).');
+      }
     }
-  } catch { /* no prior dedup/roles to preserve */ }
+  } catch { /* no prior dedup/roles/companySetupDaily to preserve */ }
 
   log(`  Amplitude ok: ${Object.values(dailySignups).reduce((a,b)=>a+b,0)} daily-signups across ${Object.keys(dailySignups).length} days, ${referralSources.length} unique referral_source values.`);
-  return { dailySignups, referralSources, ...(dedup ? { dedup } : {}), ...(roles ? { roles } : {}), pulledAt: new Date().toISOString() };
+  return { dailySignups, referralSources, ...(dedup ? { dedup } : {}), ...(roles ? { roles } : {}), ...(companySetupDaily ? { companySetupDaily, companySetupDailyNote } : {}), pulledAt: new Date().toISOString() };
 }
 
 // ===========================================================================

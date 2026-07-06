@@ -111,6 +111,11 @@ const LIVE_DATA_PULLED_AT =
 // dataJson.amplitude.dailySignups : { "20260427": 26, ... }
 // dataJson.hubspot.meetings       : [{ date, email, company, referralSource }]
 const LIVE_SIGNUPS_BY_DATE = dataJson.amplitude?.dailySignups || {};
+// Previous signup definition — daily unique [Onboarding] Company Setup Complete
+// (org-creators only). Powers the "Company signups by Channel (previous method)"
+// stacked column. Summed daily per period (no cross-day dedup), matching how the
+// pre-USC dashboard counted.
+const LIVE_CSC_BY_DATE = dataJson.amplitude?.companySetupDaily || {};
 const LIVE_MEETINGS_BY_DATE = (() => {
   const out = {};
   for (const m of (dataJson.hubspot?.meetings || [])) {
@@ -945,6 +950,53 @@ function computeSignupsByChannelPeriodic(periods) {
 const SIGNUPS_BY_CHANNEL_WEEKLY_30D = computeSignupsByChannelPeriodic(LIVE_WEEKS);
 const SIGNUPS_BY_CHANNEL_WEEKLY_MTD = computeSignupsByChannelPeriodic(MTD_WEEKS_LIST);
 const SIGNUPS_BY_CHANNEL_MONTHLY_YTD = computeSignupsByChannelPeriodic(YTD_MONTHS_LIST);
+
+// ---------------------------------------------------------------------------
+// Previous-method signups by channel — [Onboarding] Company Setup Complete,
+// SUM-OF-DAILY (the way the pre-June-29 dashboard counted: no cross-day
+// dedup). Same referral_source categorization as the USC chart, but the
+// per-bar total is the summed daily CSC count and the residual (CSC signups
+// with a blank/(none) referral_source) is labelled "Not Specified" — CSC only
+// fires for org-creators, so there's no "Invited / Referred" cohort here.
+// ---------------------------------------------------------------------------
+function computeCscByChannelPeriodic(periods) {
+  const perDay = {};
+  for (const entry of (dataJson.amplitude?.referralSources || [])) {
+    const bucket = categorizeReferralSource(entry.source);
+    if (!entry.daily) continue;
+    for (const [d, n] of Object.entries(entry.daily)) {
+      perDay[d] = perDay[d] || {};
+      perDay[d][bucket] = (perDay[d][bucket] || 0) + (n || 0);
+    }
+  }
+  return periods.map((p) => {
+    const row = {
+      week:            p.weekStartLabel ?? p.label,
+      dateRange:       p.dateRange,
+      partial:         p.trailingPartial ?? p.partial,
+      trailingPartial: p.trailingPartial ?? p.partial,
+      dates:           p.dates,
+    };
+    let categorized = 0;
+    for (const def of BUCKET_DEFINITIONS) {
+      let v = 0;
+      for (const d of p.dates) v += perDay[d]?.[def.name] || 0;
+      row[def.name] = v;
+      categorized += v;
+    }
+    // Sum-of-daily CSC total for the bar (no dedup).
+    const total = p.dates.reduce((s, d) => s + (LIVE_CSC_BY_DATE[d] || 0), 0);
+    // Residual = CSC signups whose referral_source was blank/(none). Labelled
+    // "Not Specified" for the whole series (no invited cohort in the CSC event).
+    row['Not Specified']      = Math.max(0, total - categorized);
+    row['Invited / Referred'] = 0;
+    row.total = total;
+    return row;
+  });
+}
+const CSC_BY_CHANNEL_WEEKLY_30D  = computeCscByChannelPeriodic(LIVE_WEEKS);
+const CSC_BY_CHANNEL_WEEKLY_MTD  = computeCscByChannelPeriodic(MTD_WEEKS_LIST);
+const CSC_BY_CHANNEL_MONTHLY_YTD = computeCscByChannelPeriodic(YTD_MONTHS_LIST);
 
 // ---------------------------------------------------------------------------
 // Signups by TEAM — from the onboarding `self_selected_role` user property
@@ -4758,6 +4810,15 @@ export default function MutinyGrowthDashboard() {
       dates:           w.datesInRange,
     })),
   );
+  const CSC_BY_CHANNEL_WEEKLY_REPORTING = computeCscByChannelPeriodic(
+    reportingWeeks.map((w) => ({
+      weekStartLabel:  w.weekStartLabel,
+      dateRange:       w.dateRange,
+      trailingPartial: w.trailingPartial,
+      partial:         w.partial,
+      dates:           w.datesInRange,
+    })),
+  );
 
   // Top-of-funnel weekly data shape (Sales Meetings column chart). Same
   // clipping rule: bar values use datesInRange.
@@ -4818,6 +4879,15 @@ export default function MutinyGrowthDashboard() {
         ? SIGNUPS_BY_CHANNEL_WEEKLY_REPORTING
         : SIGNUPS_BY_CHANNEL_MONTHLY_YTD;
   const signupsByChannelTotal = signupsByChannelData.reduce((s, r) => s + (r.total || 0), 0);
+  // Previous-method (Company Setup Complete) signups by channel, sum-of-daily.
+  const cscByChannelData = is30d
+    ? CSC_BY_CHANNEL_WEEKLY_30D
+    : isMtd
+      ? CSC_BY_CHANNEL_WEEKLY_MTD
+      : isReporting
+        ? CSC_BY_CHANNEL_WEEKLY_REPORTING
+        : CSC_BY_CHANNEL_MONTHLY_YTD;
+  const cscByChannelTotal = cscByChannelData.reduce((s, r) => s + (r.total || 0), 0);
   // Signups by Team (self_selected_role → Sales/Marketing/Other), window-aware.
   const teamStackedData = is30d
     ? TEAM_WEEKLY_30D
@@ -5103,7 +5173,7 @@ export default function MutinyGrowthDashboard() {
         }}
       >
         <KpiCard
-          label="Signups"
+          label="User Signups"
           value={kpiSignups.toLocaleString()}
           sublabel="User Setup Complete · Amplitude"
           footnote={`A completed signup = a unique user who finished onboarding by firing [Onboarding] User Setup Complete — the step both paths converge on (create an org, or accept an invite), i.e. they actually made it into the app (internal accounts excluded). Deduplicated across the selected window. Note: this event only began firing ~Feb 16, 2026, so earlier dates read zero. Distinct from "Signup Clicks" in the Channel Funnel below, which counts the upstream click on the signup CTA from GA4.`}
@@ -5179,7 +5249,7 @@ export default function MutinyGrowthDashboard() {
           the per-channel breakdown. */}
       <div style={{ marginBottom: 24 }}>
         <SelfReportedWeeklyCard
-          title="Signups by Channel"
+          title="User signups by Channel"
           source="Amplitude"
           dateRangeLabel={kpiDateRangeLabel}
           data={signupsByChannelData}
@@ -5193,6 +5263,31 @@ export default function MutinyGrowthDashboard() {
               Only <strong>Company Setup Complete</strong> carries a referral source. Signups
               without one are <strong>Not Specified</strong> before May 7, 2026 (field was
               optional) and <strong>Invited / Referred</strong> from May 7 on.
+            </>
+          }
+        />
+      </div>
+
+      {/* ── Company signups by Channel (PREVIOUS method) — the pre-June-29 way
+          of counting: [Onboarding] Company Setup Complete (org-creators only),
+          summed daily per period, split by self-reported referral_source. Kept
+          alongside the current User-Signups chart for continuity. */}
+      <div style={{ marginBottom: 24 }}>
+        <SelfReportedWeeklyCard
+          title="Company signups by Channel (previous method)"
+          source="Amplitude · Company Setup Complete"
+          dateRangeLabel={kpiDateRangeLabel}
+          data={cscByChannelData}
+          total={cscByChannelTotal}
+          unit="signup"
+          isReporting={isReporting}
+          dateSet={is30d ? STRICT_WINDOW_DATES_SET : isMtd ? MTD_DATES_SET : isReporting ? reportingDatesSet : YTD_DATES_SET}
+          infoTooltip={`How we counted signups before June 29, 2026: a signup = a unique user who fired [Onboarding] Company Setup Complete (org-creators only; internal accounts excluded). Counts are SUM-OF-DAILY (each day's unique count added up per period — the way the old dashboard displayed it, so a user active on two days counts twice). Bars split by the self-reported referral_source captured on that event; signups that left it blank are "Not Specified." This is a lower, narrower number than the current "User Signups" (User Setup Complete), which also counts invited users who join an existing org. For reference: June = 496 sum-of-daily (484 deduped).`}
+          alertBanner={
+            <>
+              <strong>Previous method.</strong> Company Setup Complete only (org-creators),
+              counted <strong>sum-of-daily</strong>. Shown for continuity with how signups
+              were tracked before the switch to User Signups.
             </>
           }
         />
