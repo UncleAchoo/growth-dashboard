@@ -34,6 +34,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260521,Organic Search,google / organic,5
 20260623,Organic Search,google / organic,5
 20260630,Organic Search,google / organic,5
+20260704,Organic Social - Reddit,reddit.com / referral,5
 20260508,Direct,(direct) / (none),4
 20260508,Organic Search,google / organic,4
 20260509,Organic Search,google / organic,4
@@ -46,6 +47,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260612,Direct,(direct) / (none),4
 20260625,Organic Search,google / organic,4
 20260628,Direct,(direct) / (none),4
+20260702,Direct,(direct) / (none),4
 20260507,Organic Search,google / organic,3
 20260507,Referral,framer.com / referral,3
 20260510,Direct,(direct) / (none),3
@@ -88,6 +90,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260628,Organic Search,bing / organic,2
 20260629,Organic Search,duckduckgo / organic,2
 20260701,Organic Search,google / organic,2
+20260702,Organic Search,google / organic,2
+20260703,Direct,(direct) / (none),2
 20260507,Organic Social,linkedin.com / referral,1
 20260508,Referral,mkt1-website / referral,1
 20260509,Direct,(direct) / (none),1
@@ -156,3 +160,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260628,Organic Search,google / organic,1
 20260629,Referral,mail.google.com / referral,1
 20260701,Referral,mail.google.com / referral,1
+20260704,Direct,(direct) / (none),1
+20260705,Direct,(direct) / (none),1
+20260705,Organic Social - LinkedIn,linkedin / social,1
+20260706,Organic Search,google / organic,1
