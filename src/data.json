@@ -1,11 +1,11 @@
 {
-  "pulledAt": "2026-07-06T14:25:45.675Z",
+  "pulledAt": "2026-07-06T14:58:44.213Z",
   "window": {
     "start": "2026-01-01",
     "end": "2026-07-06"
   },
   "ga4": {
-    "pulledAt": "2026-07-06T14:25:41.906Z",
+    "pulledAt": "2026-07-06T14:58:40.260Z",
     "file1": [
       {
         "date": "20260320",
@@ -127018,7 +127018,46 @@
       },
       "regeneratedAt": "2026-07-06T14:15:23.257983Z",
       "regeneratedVia": "amplitude MCP eventsSegmentation uniques (isCumulative)",
-      "_staleFromPrevRun": true
+      "_staleFromPrevRun": true,
+      "cumulativeWindow": {
+        "last30": {
+          "20260602": 24,
+          "20260603": 60,
+          "20260604": 88,
+          "20260605": 113,
+          "20260606": 118,
+          "20260607": 125,
+          "20260608": 144,
+          "20260609": 171,
+          "20260610": 188,
+          "20260611": 204,
+          "20260612": 215,
+          "20260613": 220,
+          "20260614": 221,
+          "20260615": 240,
+          "20260616": 258,
+          "20260617": 279,
+          "20260618": 293,
+          "20260619": 308,
+          "20260620": 317,
+          "20260621": 320,
+          "20260622": 333,
+          "20260623": 354,
+          "20260624": 370,
+          "20260625": 428,
+          "20260626": 480,
+          "20260627": 491,
+          "20260628": 501,
+          "20260629": 539,
+          "20260630": 578,
+          "20260701": 606,
+          "20260702": 608
+        },
+        "mtd": {
+          "20260701": 29,
+          "20260702": 32
+        }
+      }
     },
     "roles": {
       "periods": {
@@ -127380,7 +127419,7 @@
       "20260702": 3
     },
     "companySetupDailyNote": "Daily unique [Onboarding] Company Setup Complete (PREVIOUS signup definition, org-creators only; internal excluded). Sum-of-daily per period. Regenerated via Amplitude MCP.",
-    "pulledAt": "2026-07-06T14:25:45.668Z"
+    "pulledAt": "2026-07-06T14:58:44.207Z"
   },
   "hubspot": {
     "meetings": [
@@ -127708,7 +127747,7 @@
       "source": "revenue-repo",
       "repo": "UncleAchoo/revenue-dashboard-official",
       "path": "stripe_data.json",
-      "pulledAt": "2026-07-06T14:25:42.459Z",
+      "pulledAt": "2026-07-06T14:58:41.187Z",
       "weekly": [
         {
           "week_ending": "2026-03-22",
@@ -127797,7 +127836,7 @@
         }
       ]
     },
-    "pulledAt": "2026-07-06T14:25:42.459Z"
+    "pulledAt": "2026-07-06T14:58:41.187Z"
   },
   "peec": {
     "pulledAt": "2026-07-06T14:25:05.309Z",
