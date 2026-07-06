@@ -5143,7 +5143,6 @@ export default function MutinyGrowthDashboard() {
               { id: '30d',       label: 'Last 30 days' },
               { id: 'mtd',       label: 'MTD' },
               { id: 'ytd',       label: 'YTD' },
-              { id: 'reporting', label: 'Reporting' },
             ].map((opt) => {
               const active = viewMode === opt.id;
               return (
@@ -5166,109 +5165,6 @@ export default function MutinyGrowthDashboard() {
               );
             })}
           </div>
-          {isReporting && (
-            <div
-              style={{
-                display: 'flex',
-                gap: 10,
-                alignItems: 'center',
-                marginTop: 8,
-                flexWrap: 'wrap',
-              }}
-            >
-              <label style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                fontFamily: FONT_BODY, fontSize: 11, fontWeight: 600, opacity: 0.75,
-              }}>
-                From
-                <input
-                  type="date"
-                  value={reportingRange.start}
-                  min={REPORTING_FLOOR_DASH}
-                  max={reportingRange.end}
-                  onChange={(e) => setReportingRange((r) => ({ ...r, start: e.target.value }))}
-                  style={{
-                    border: `1px solid ${C.black}`,
-                    borderRadius: 4,
-                    padding: '3px 6px',
-                    fontFamily: FONT_BODY,
-                    fontSize: 12,
-                    background: C.white,
-                    color: C.black,
-                  }}
-                />
-              </label>
-              <label style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                fontFamily: FONT_BODY, fontSize: 11, fontWeight: 600, opacity: 0.75,
-              }}>
-                To
-                <input
-                  type="date"
-                  value={reportingRange.end}
-                  min={reportingRange.start > REPORTING_FLOOR_DASH ? reportingRange.start : REPORTING_FLOOR_DASH}
-                  onChange={(e) => setReportingRange((r) => ({ ...r, end: e.target.value }))}
-                  style={{
-                    border: `1px solid ${C.black}`,
-                    borderRadius: 4,
-                    padding: '3px 6px',
-                    fontFamily: FONT_BODY,
-                    fontSize: 12,
-                    background: C.white,
-                    color: C.black,
-                  }}
-                />
-              </label>
-              <span style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.65 }}>
-                {reportingDays} day{reportingDays === 1 ? '' : 's'}
-              </span>
-              {/* Quick presets */}
-              <div
-                style={{
-                  display: 'inline-flex',
-                  border: `1px solid ${C.black}`,
-                  borderRadius: 4,
-                  overflow: 'hidden',
-                  fontFamily: FONT_BODY,
-                  fontSize: 10.5,
-                  fontWeight: 600,
-                  marginLeft: 4,
-                }}
-              >
-                {[
-                  { id: 'last7',  label: 'Last 7d',  days: 7  },
-                  { id: 'last14', label: 'Last 14d', days: 14 },
-                  { id: 'last30', label: 'Last 30d', days: 30 },
-                ].map((preset, i) => {
-                  const presetStart = addUTCDays(_today, -(preset.days - 1));
-                  const startDash = fmtYYYYMMDDDash(presetStart);
-                  const endDash   = fmtYYYYMMDDDash(_today);
-                  const isActive  = reportingRange.start === startDash
-                                  && reportingRange.end   === endDash;
-                  return (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      onClick={() => setReportingRange({ start: startDash, end: endDash })}
-                      style={{
-                        padding: '3px 8px',
-                        background: isActive ? C.black : C.white,
-                        color: isActive ? C.white : C.black,
-                        border: 'none',
-                        borderLeft: i > 0 ? `1px solid ${C.black}` : 'none',
-                        cursor: 'pointer',
-                        fontFamily: FONT_BODY,
-                        fontSize: 10.5,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {preset.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
           <div style={{ opacity: 0.6, marginTop: 4, fontSize: 11 }}>
             {is30d
               ? WINDOW.label
