@@ -173,6 +173,48 @@ function buildWeeks() {
 }
 const LIVE_WEEKS = buildWeeks();
 
+// ---------------------------------------------------------------------------
+// Visitor → User Signup weekly conversion trend — a FIXED trailing 12-week
+// window, independent of the dashboard's date toggle. Each point is that ISO
+// (Mon-Sun) week's completed signups ÷ engaged sessions. Per-week (NOT
+// cumulative), so it shows the actual week-to-week trend and never depends on
+// deduped-window anchoring (no staleness spikes). User Setup Complete fires
+// once per user, so summing daily uniques over a week equals the week's unique
+// signup count. The current (in-progress) week is flagged partial.
+// ---------------------------------------------------------------------------
+const RATIO_TREND_WEEKS = 12;
+const RATIO_TREND_SERIES = (() => {
+  const out = [];
+  // End at the last COMPLETE Mon-Sun week — the in-progress week is excluded so
+  // a 1-3 day partial can't distort the trend with a volume spike.
+  const curMon = mondayOfUTC(LIVE_END_DATE);
+  const curSun = addUTCDays(curMon, 6);
+  const lastCompleteMon = curSun > LIVE_END_DATE ? addUTCDays(curMon, -7) : curMon;
+  for (let i = RATIO_TREND_WEEKS - 1; i >= 0; i--) {
+    const wkStart = addUTCDays(lastCompleteMon, -7 * i);
+    const wkEnd   = addUTCDays(wkStart, 6);
+    let sig = 0, sess = 0;
+    for (let d = new Date(wkStart); d <= wkEnd; d = addUTCDays(d, 1)) {
+      const k = fmtYYYYMMDD(d);
+      sig  += LIVE_SIGNUPS_BY_DATE[k] || 0;
+      sess += LIVE_ENGAGED_BY_DATE[k] || 0;
+    }
+    out.push({
+      week:            fmtMonDay(wkStart),
+      dateRange:       `${fmtMonDay(wkStart)} – ${fmtMonDay(wkEnd)}`,
+      partial:         false,
+      trailingPartial: false,
+      signups:         sig,
+      sessions:        sess,
+      ratio: (sess > 0 && sig > 0) ? +((sig / sess) * 100).toFixed(2) : null,
+    });
+  }
+  return out;
+})();
+const RATIO_TREND_LABEL = RATIO_TREND_SERIES.length
+  ? `${RATIO_TREND_SERIES[0].week} – ${RATIO_TREND_SERIES[RATIO_TREND_SERIES.length - 1].dateRange.split('–')[1].trim()}, ${LIVE_END_DATE.getUTCFullYear()}`
+  : '';
+
 const WINDOW = {
   start: LIVE_START_YYYYMMDD,
   end:   LIVE_END_YYYYMMDD,
@@ -374,6 +416,18 @@ function runningSumMap(datesArray, byDate) {
   let c = 0; const out = {};
   for (const d of datesArray) { c += (byDate[d] || 0); out[d] = c; }
   return out;
+}
+// Guard against a STALE deduped cumulative series. These series are date-
+// anchored (regenerated out-of-band); once the rolling window advances past the
+// last regeneration, a stored series no longer covers the current window and
+// mixing its old cumulative numerator with fresh sessions produces a garbage
+// ratio (e.g. a 55% leading spike). Only use the series if it actually spans
+// the current window's first AND last date; otherwise the caller falls back to
+// the summed-daily numerator, which is self-consistent (just not deduped).
+function windowAlignedCum(series, windowDates) {
+  if (!series || !windowDates || !windowDates.length) return null;
+  const first = windowDates[0], last = windowDates[windowDates.length - 1];
+  return (series[first] != null && series[last] != null) ? series : null;
 }
 // Build the Visitor → User Signup cumulative line: for each period (week or
 // month), ratio = cumulative-unique signups ÷ cumulative sessions, both running
@@ -640,6 +694,28 @@ const YTD_MONTHS_LIST = (() => {
   }
   return list;
 })();
+
+// Monthly variant of the visitor-conversion-rate trend, shown when the toggle
+// is YTD. Per-month rate (month signups ÷ month sessions), complete calendar
+// months only (the in-progress current month is excluded like the weekly view).
+const RATIO_TREND_MONTHLY_SERIES = YTD_MONTHS_LIST
+  .filter((m) => !m.partial)
+  .map((m) => {
+    let sig = 0, sess = 0;
+    for (const k of m.dates) { sig += LIVE_SIGNUPS_BY_DATE[k] || 0; sess += LIVE_ENGAGED_BY_DATE[k] || 0; }
+    return {
+      week:            m.label,
+      dateRange:       m.dateRange,
+      partial:         false,
+      trailingPartial: false,
+      signups:         sig,
+      sessions:        sess,
+      ratio: (sess > 0 && sig > 0) ? +((sig / sess) * 100).toFixed(2) : null,
+    };
+  });
+const RATIO_TREND_MONTHLY_LABEL = RATIO_TREND_MONTHLY_SERIES.length
+  ? `${RATIO_TREND_MONTHLY_SERIES[0].week} – ${RATIO_TREND_MONTHLY_SERIES[RATIO_TREND_MONTHLY_SERIES.length - 1].week} ${LIVE_END_DATE.getUTCFullYear()}`
+  : '';
 const TOP_OF_FUNNEL_MONTHLY_YTD = YTD_MONTHS_LIST.map((mo) => {
   const sumIn = (map) => mo.dates.reduce((s, d) => s + (map[d] || 0), 0);
   return {
@@ -1917,13 +1993,12 @@ const PieHoverPanel = ({ slice, total, unit = 'signup' }) => {
 };
 
 // ---------------------------------------------------------------------------
-// VisitorSignupTrend — the "Visitor → User Signup" KPI (deduped Amplitude user
-// signups ÷ GA4 engaged sessions) as a cumulative line over time. The caller
-// precomputes each point's cumulative ratio (running deduped-unique signups ÷
-// running sessions from the window start) so the final point equals the KPI
-// tile exactly. Rows carry { week, dateRange, ratio, partial, trailingPartial }.
-// Periods before signup tracking began (~Feb 16, 2026) or with no data render
-// as gaps rather than a misleading 0%, so connectNulls stays off.
+// VisitorSignupTrend — Visitor → User Signup conversion rate over time, as a
+// per-week line (each point = that week's signups ÷ engaged sessions). Fixed
+// trailing window, independent of the dashboard toggle. Rows are precomputed
+// by the caller: { week, dateRange, ratio, partial, trailingPartial }. Weeks
+// with no data render as gaps (connectNulls off). This is a trend view, so it
+// is intentionally NOT the same number as the window-aggregate KPI tile.
 // ---------------------------------------------------------------------------
 function VisitorSignupTrend({
   data,
@@ -1948,10 +2023,10 @@ function VisitorSignupTrend({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
         <div>
           <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 22, letterSpacing: '-0.02em', margin: 0 }}>
-            Visitor → User Signup
+            {cadence === 'monthly' ? 'Monthly' : 'Weekly'} visitor conversion rate
           </h3>
           <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6, marginTop: 4 }}>
-            Cumulative signups ÷ Engaged Sessions · {cadence}
+            Signups ÷ Engaged Sessions · {cadence}
           </div>
           {dateRangeLabel ? (
             <div style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 10.5, opacity: 0.55, marginTop: 3, letterSpacing: '0.02em' }}>
@@ -1993,7 +2068,10 @@ function VisitorSignupTrend({
                       {d.dateRange}
                       {d.trailingPartial ? (isReporting ? ' · clipped to range' : ' · current, in progress') : ''}
                     </div>
-                    <div>Cumulative Visitor → User Signup: <strong>{d.ratio == null ? '—' : `${d.ratio.toFixed(2)}%`}</strong></div>
+                    <div>Visitor → User Signup: <strong>{d.ratio == null ? '—' : `${d.ratio.toFixed(2)}%`}</strong></div>
+                    <div style={{ opacity: 0.6, marginTop: 2 }}>
+                      {(d.signups ?? 0).toLocaleString()} signups ÷ {(d.sessions ?? 0).toLocaleString()} sessions
+                    </div>
                   </div>
                 );
               }}
@@ -2012,11 +2090,12 @@ function VisitorSignupTrend({
         </ResponsiveContainer>
       </div>
       <div style={{ fontFamily: FONT_BODY, fontSize: 10.5, opacity: 0.55, marginTop: 12, lineHeight: 1.5 }}>
-        Cross-system ratio: Amplitude deduped user signups ÷ GA4 engaged sessions — directional only.
-        Each point is the <strong>cumulative</strong> running total of deduped-unique signups ÷ sessions
-        from the window start through that {cadence === 'monthly' ? 'month' : 'week'}, so the final point
-        equals the Visitor → User Signup KPI tile. Periods before signup tracking began (~Feb 16, 2026)
-        show as gaps.
+        Cross-system ratio: Amplitude completed user signups ÷ GA4 engaged sessions — directional only.
+        Each point is <strong>that {cadence === 'monthly' ? 'month' : "week"}'s own</strong> signups ÷
+        sessions (not cumulative) — so it reads as a trend. {cadence === 'monthly'
+          ? 'Complete calendar months (Jan → last complete month); the in-progress month is excluded.'
+          : `Complete Mon–Sun weeks only over a fixed trailing ${RATIO_TREND_WEEKS} weeks; the in-progress week is excluded.`}
+        {' '}The KPI tile above is the full-window rate, so it won't equal any single {cadence === 'monthly' ? 'month' : 'week'} here.
       </div>
     </div>
   );
@@ -4870,29 +4949,12 @@ export default function MutinyGrowthDashboard() {
   const kpiSessions  = is30d ? DATA.engagedSessions.window : isMtd ? SESSIONS_MTD : isReporting ? SESSIONS_REPORTING : SESSIONS_YTD;
   const kpiMeetings  = is30d ? DATA.salesMeetings.window   : isMtd ? MEETINGS_MTD : isReporting ? MEETINGS_REPORTING : MEETINGS_YTD;
   const kpiRatio     = is30d ? RATIO_30D_DEDUP             : isMtd ? RATIO_MTD_DEDUP : isReporting ? RATIO_REPORTING : RATIO_YTD_DEDUP;
-  // Visitor → User Signup cumulative line. Aligned to the SAME window as the
-  // KPI tile, with the DEDUPED within-window cumulative-unique series as the
-  // numerator, so the final point equals the KPI ratio exactly. Weekly buckets
-  // (monthly for YTD), each clipped to the window. Reporting falls back to
-  // summed-daily (no precomputed dedup for custom windows) — consistent with
-  // its summed KPI.
-  const ratioCumUniqueMap = is30d
-    ? (DEDUP.cumulativeWindow?.last30 || runningSumMap(STRICT_WINDOW_DATES, LIVE_SIGNUPS_BY_DATE))
-    : isMtd
-      ? (DEDUP.cumulativeWindow?.mtd || runningSumMap(MTD_DATES_ARRAY, LIVE_SIGNUPS_BY_DATE))
-      : isReporting
-        ? runningSumMap(reportingDatesArray, LIVE_SIGNUPS_BY_DATE)
-        : (DEDUP.cumulativeDaily || runningSumMap(YTD_DATES_ARRAY, LIVE_SIGNUPS_BY_DATE));
-  const ratioPeriods = is30d
-    ? LIVE_WEEKS.map((w) => ({ week: w.weekStartLabel, dateRange: w.dateRange, partial: w.trailingPartial, trailingPartial: w.trailingPartial, dates: w.dates.filter(inStrictWindow) })).filter((p) => p.dates.length)
-    : isMtd
-      ? MTD_WEEKS_LIST.map((w) => ({ week: w.weekStartLabel, dateRange: w.dateRange, partial: w.partial, trailingPartial: w.partial, dates: w.dates.filter(inMtdWindow) })).filter((p) => p.dates.length)
-      : isReporting
-        ? reportingWeeks.map((w) => ({ week: w.weekStartLabel, dateRange: w.dateRange, partial: w.partial, trailingPartial: w.partial, dates: w.datesInRange }))
-        : YTD_MONTHS_LIST.map((m) => ({ week: m.label, dateRange: m.dateRange, partial: m.partial, trailingPartial: m.partial, dates: m.dates.filter(inYtdWindow) })).filter((p) => p.dates.length);
-  const ratioTrendData = buildCumRatioSeries(ratioPeriods, ratioCumUniqueMap, LIVE_ENGAGED_BY_DATE);
+  // Visitor conversion-rate trend — per-period rate, complete periods only.
+  // Weekly (fixed trailing 12 weeks) for every view except YTD, which switches
+  // to per-month (Jan → last complete month) to match the YTD convention.
+  const ratioTrendData = isYtd ? RATIO_TREND_MONTHLY_SERIES : RATIO_TREND_SERIES;
   const ratioTrendCadence = isYtd ? 'monthly' : 'weekly';
-  const ratioTrendLabel = is30d ? WINDOW.label : isMtd ? MTD_RANGE_LABEL : isReporting ? reportingRangeLabel : YTD_RANGE_LABEL;
+  const ratioTrendLabel = isYtd ? RATIO_TREND_MONTHLY_LABEL : RATIO_TREND_LABEL;
   const pieSignups        = is30d ? SHARE_OF_SIGNUPS              : isMtd ? SHARE_OF_SIGNUPS_MTD             : isReporting ? SHARE_OF_SIGNUPS_REPORTING             : SHARE_OF_SIGNUPS_YTD;
   const pieSignupsTotal   = is30d ? TOTAL_SIGNUPS_CATEGORIZED     : isMtd ? TOTAL_SIGNUPS_CATEGORIZED_MTD    : isReporting ? TOTAL_SIGNUPS_CATEGORIZED_REPORTING    : TOTAL_SIGNUPS_CATEGORIZED_YTD;
   // Weekly stacked-column data for Customer signups by channel (replaces the pie).
