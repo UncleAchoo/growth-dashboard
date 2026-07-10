@@ -1,15 +1,15 @@
 {
- "pulledAt": "2026-07-09T15:36:01.000Z",
+ "pulledAt": "2026-07-10T13:31:56.000Z",
  "windowStart": "2026-04-23",
  "windowEnd": "2026-07-09",
- "visibility": 0.158,
+ "visibility": 0.1559,
  "mentionCount": 11881,
  "avgPosition": 2.5,
  "competitorRank": 5,
  "competitorTotal": 14,
  "topCompetitor": {
   "name": "6sense",
-  "visibility": 0.1834
+  "visibility": 0.1809
  },
  "topics": [
   {
@@ -828,7 +828,7 @@
   },
   {
    "date": "2026-07-09",
-   "visibility": 0.1594,
+   "visibility": 0.0774,
    "Competitor Comparisons": 0.1875,
    "ABM": 0.3469,
    "Modern GTM tech stack": 0.0714,
@@ -1488,8 +1488,8 @@
     }
    ],
    "metric": {
-    "retrievedPct": 0.1932,
-    "retrievalRate": 0.2979,
+    "retrievedPct": 0.1907,
+    "retrievalRate": 0.2939,
     "citationRate": 1.6324,
     "retrievalCount": 5846,
     "citationCount": 6190
@@ -2113,8 +2113,8 @@
     },
     {
      "date": "2026-07-09",
-     "retrievedPct": 0.2789,
-     "retrievalRate": 0.3745,
+     "retrievedPct": 0.1354,
+     "retrievalRate": 0.1818,
      "citationRate": 2.2429,
      "retrievalCount": 94,
      "citationCount": 157
@@ -2588,7 +2588,7 @@
   {
    "date": "2026-07-09",
    "visCount": 40,
-   "visTotal": 251,
+   "visTotal": 517,
    "mentions": 82
   }
  ]
