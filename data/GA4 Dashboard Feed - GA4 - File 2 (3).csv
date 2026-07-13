@@ -54,6 +54,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260702,Direct,(direct) / (none),4
 20260707,Organic Search,google / organic,4
 20260709,Direct,(direct) / (none),4
+20260711,Organic Search,google / organic,4
 20260507,Organic Search,google / organic,3
 20260507,Referral,framer.com / referral,3
 20260510,Direct,(direct) / (none),3
@@ -73,6 +74,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260629,Organic Search,google / organic,3
 20260630,Direct,(direct) / (none),3
 20260708,Organic Search,google / organic,3
+20260710,Organic Search,google / organic,3
 20260511,Organic Social,linkedin / social,2
 20260514,Referral,chatgpt.com / referral,2
 20260515,Direct,(direct) / (none),2
@@ -101,6 +103,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260703,Direct,(direct) / (none),2
 20260708,Referral,ycombinator.com / referral,2
 20260709,Organic Search,google / organic,2
+20260711,Direct,(direct) / (none),2
 20260507,Organic Social,linkedin.com / referral,1
 20260508,Referral,mkt1-website / referral,1
 20260509,Direct,(direct) / (none),1
@@ -174,3 +177,5 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260705,Organic Social - LinkedIn,linkedin / social,1
 20260707,Organic Social - Twitter,t.co / referral,1
 20260707,Referral,mail.google.com / referral,1
+20260710,Direct,(direct) / (none),1
+20260710,Organic Social - LinkedIn,linkedin / social,1

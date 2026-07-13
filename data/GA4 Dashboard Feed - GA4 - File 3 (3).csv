@@ -27,7 +27,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260623,Direct,(direct) / (none),45515,1772,9490,9514
 20260612,Direct,(direct) / (none),44749,1905,9729,9315
 20260409,Direct,(direct) / (none),43871,986,11032,10841
-20260709,Direct,(direct) / (none),43016,1535,9159,9103
+20260709,Direct,(direct) / (none),43050,1536,9435,9108
 20260424,Direct,(direct) / (none),42996,1298,9564,9462
 20260410,Direct,(direct) / (none),41527,820,10807,10587
 20260625,Direct,(direct) / (none),40977,1599,8500,8494
@@ -53,6 +53,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260610,Direct,(direct) / (none),33084,1469,7072,7050
 20260303,Direct,(direct) / (none),32739,2150,6767,6836
 20260522,Direct,(direct) / (none),31600,980,6769,6719
+20260710,Direct,(direct) / (none),31389,897,6660,6739
 20260507,Direct,(direct) / (none),30264,799,6897,7011
 20260310,Direct,(direct) / (none),30029,984,6243,6189
 20260707,Direct,(direct) / (none),29121,981,6111,6110
@@ -131,6 +132,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260705,Direct,(direct) / (none),4397,153,933,935
 20260209,Organic Social,t.co / referral,4266,635,902,898
 20260407,Organic Search,google / organic,4103,527,680,671
+20260712,Direct,(direct) / (none),3624,110,768,767
 20260408,Organic Search,google / organic,3603,462,623,609
 20260628,Direct,(direct) / (none),3214,140,708,706
 20260614,Direct,(direct) / (none),3059,119,737,735
@@ -172,11 +174,11 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260421,Organic Search,google / organic,1527,189,289,284
 20260511,Organic Search,google / organic,1513,170,279,268
 20260602,Organic Search,google / organic,1507,186,255,248
+20260709,Organic Search,google / organic,1499,199,276,272
 20260423,Organic Search,google / organic,1493,187,279,271
 20260417,Organic Search,google / organic,1487,186,276,270
 20260203,Direct,(direct) / (none),1486,122,220,216
 20260328,Direct,(direct) / (none),1472,49,346,346
-20260709,Organic Search,google / organic,1465,194,270,266
 20260629,Organic Search,google / organic,1445,181,269,262
 20260521,Organic Search,google / organic,1435,180,258,256
 20260526,Organic Search,google / organic,1420,180,261,254
@@ -223,6 +225,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260415,Organic Social,t.co / referral,1112,149,227,224
 20260618,Organic Search,google / organic,1111,139,209,206
 20260412,Organic Search,google / organic,1109,132,203,199
+20260710,Organic Search,google / organic,1106,135,204,202
 20260212,Organic Search,google / organic,1097,138,201,195
 20260607,Direct,(direct) / (none),1097,40,225,224
 20260219,Organic Search,google / organic,1095,139,201,199
@@ -247,6 +250,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260122,Organic Search,google / organic,980,88,132,129
 20260127,Direct,(direct) / (none),973,68,173,173
 20260122,Direct,(direct) / (none),969,65,169,166
+20260711,Direct,(direct) / (none),967,91,236,235
 20260508,Organic Search,google / organic,966,124,207,205
 20260312,Organic Search,google / organic,955,125,183,182
 20260121,Organic Search,google / organic,953,82,128,124
@@ -365,6 +369,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260704,Organic Search,google / organic,369,40,68,66
 20260110,Direct,(direct) / (none),364,25,76,76
 20260222,Organic Search,google / organic,360,44,69,68
+20260711,Organic Search,google / organic,359,40,69,66
 20260531,Organic Search,google / organic,358,45,80,79
 20260627,Organic Search,google / organic,357,48,78,74
 20260606,Organic Search,google / organic,354,34,69,66
@@ -381,6 +386,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260118,Organic Search,google / organic,298,31,51,50
 20260405,Organic Search,google / organic,293,35,50,49
 20260413,Organic Social,linkedin.com / referral,289,32,50,48
+20260713,Direct,(direct) / (none),288,20,63,63
 20260408,Email,hs_email / email,287,28,63,62
 20260614,Organic Search,google / organic,273,28,55,51
 20260215,Organic Search,google / organic,271,35,51,49
@@ -391,6 +397,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260417,Organic Social,linkedin / social,262,34,52,52
 20260201,Organic Search,google / organic,260,29,42,41
 20260625,Organic Social - LinkedIn,linkedin / social,259,36,43,43
+20260712,Organic Search,google / organic,252,29,56,55
 20260415,Organic Social,linkedin / social,244,32,39,39
 20260207,Organic Search,google / organic,237,33,45,43
 20260412,Organic Social,linkedin.com / referral,236,26,57,57
@@ -453,7 +460,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260626,Organic Social - LinkedIn,linkedin.com / referral,140,18,31,31
 20260213,Organic Social,linkedin.com / referral,139,22,28,28
 20260521,Organic Social - LinkedIn,linkedin.com / referral,137,21,32,32
-20260709,Email,mkt1 / email,134,18,28,28
+20260709,Email,mkt1 / email,134,19,28,28
 20260706,Organic Social - Twitter,t.co / referral,128,18,25,25
 20260615,Referral,mail.google.com / referral,127,2,2,2
 20260420,Organic Social,linkedin / social,125,20,29,29
@@ -467,10 +474,12 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260413,Referral,statics.teams.cdn.office.net / referral,120,9,14,13
 20260603,Referral,maxibestof.one / referral,120,17,21,21
 20260409,Email,hs_email / email,119,14,26,24
+20260713,Organic Search,google / organic,118,13,25,25
 20260626,Referral,ycombinator.com / referral,114,16,20,20
 20260302,Email,hs_email / email,113,10,19,19
 20260409,Unassigned,evidently.beehiiv.com / newsletter,112,14,21,20
 20260415,Referral,statics.teams.cdn.office.net / referral,112,11,18,18
+20260709,AI Referrals,chatgpt.com / ai-assistant,112,9,9,9
 20260325,Organic Social,linkedin.com / referral,111,17,21,21
 20260318,Organic Social,linkedin.com / referral,110,14,23,23
 20260422,Organic Social,linkedin.com / referral,110,16,27,27
@@ -479,7 +488,6 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260224,Referral,mail.google.com / referral,108,2,2,2
 20260423,Organic Social,linkedin / social,108,11,18,18
 20260423,Unassigned,btwob-sales-digest.beehiiv.com / newsletter,107,0,31,31
-20260709,AI Referrals,chatgpt.com / ai-assistant,107,8,9,9
 20260101,Organic Search,google / organic,106,11,19,19
 20260107,Paid Social,linkedin / paid,105,1,1,1
 20260325,Organic Social,linkedin / social,105,18,19,19
@@ -621,6 +629,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260520,AI Referrals,chatgpt.com / referral,57,8,11,11
 20260608,Organic Social - LinkedIn,linkedin.com / referral,57,6,8,7
 20260611,AI Referrals,chatgpt.com / referral,57,7,7,7
+20260711,Referral,framer.com / referral,57,8,9,8
 20260326,Organic Social,linkedin.com / referral,56,8,12,12
 20260414,Referral,a16zbuild.substack.com / referral,56,8,10,10
 20260418,Organic Social,linkedin.com / referral,56,7,16,16
@@ -719,11 +728,13 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260625,Referral,framer.com / referral,46,1,1,1
 20260628,Organic Social - LinkedIn,linkedin / social,46,4,5,5
 20260707,AI Referrals,chatgpt.com / ai-assistant,46,3,4,4
+20260710,AI Referrals,chatgpt.com / ai-assistant,46,5,7,7
 20260220,Organic Social,linkedin / social,45,6,8,8
 20260413,Referral,startups.gallery / referral,45,7,10,9
 20260418,Organic Social,t.co / referral,45,5,11,11
 20260618,Referral,mail.google.com / referral,45,3,3,2
 20260707,Organic Social - LinkedIn,linkedin.com / referral,45,4,11,11
+20260710,Email,mkt1 / email,45,7,10,10
 20260115,Referral,chatgpt.com / referral,44,5,6,6
 20260309,Organic Social,linkedin / social,44,4,5,5
 20260427,Referral,statics.teams.cdn.office.net / referral,44,5,5,5
@@ -731,6 +742,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260514,Email,hs_email / email,44,4,5,5
 20260611,Referral,mail.google.com / referral,44,2,3,3
 20260622,Organic Social - LinkedIn,linkedin.com / referral,44,5,11,11
+20260710,Organic Social - LinkedIn,linkedin / social,44,7,9,9
 20260112,Referral,gemini.google.com / referral,43,3,3,3
 20260213,Organic Social,t.co / referral,43,5,8,8
 20260303,Referral,mkt1-website / referral,43,5,8,8
@@ -770,6 +782,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260514,Organic Search,bing / organic,41,5,5,5
 20260605,Organic Social - LinkedIn,linkedin.com / referral,41,3,6,5
 20260621,Organic Social - Twitter,t.co / referral,41,5,10,10
+20260710,Referral,framer.com / referral,41,7,7,7
 20260105,Referral,6371341.hubspotpreview-na1.com / referral,40,1,1,1
 20260116,Unassigned,navattic / (not set),40,1,1,1
 20260214,Organic Social,linkedin.com / referral,40,5,11,11
@@ -779,6 +792,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260501,Organic Social,linkedin / social,40,5,9,9
 20260613,Referral,accounts.google.com / referral,40,2,2,2
 20260617,Organic Social - LinkedIn,linkedin.com / referral,40,4,7,7
+20260712,Referral,framer.com / referral,40,4,5,5
 20260128,Referral,mail.google.com / referral,39,1,1,1
 20260217,Organic Social,linkedin / social,39,5,9,9
 20260217,Organic Social,linkedin.com / referral,39,2,9,9
@@ -1138,6 +1152,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260624,Referral,energized-premise-816902--add-responsive-breakpoints-si1zi1zoo.framer.app / referral,26,2,2,2
 20260625,Referral,bookface.ycombinator.com / referral,26,3,3,3
 20260630,Organic Search,bing / organic,26,4,6,6
+20260710,Organic Search,bing / organic,26,3,5,5
+20260712,Organic Social - LinkedIn,linkedin.com / referral,26,4,6,6
 20260103,Referral,catonetworks.com / referral,25,1,1,1
 20260105,Referral,statics.teams.cdn.office.net / referral,25,2,5,4
 20260211,Organic Social,linkedin / social,25,3,3,3
@@ -1174,6 +1190,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260623,Organic Social - Twitter,t.co / referral,25,2,6,6
 20260630,Organic Social - LinkedIn,linkedin.com / referral,25,2,4,4
 20260706,Referral,mail.google.com / referral,25,2,2,2
+20260712,Referral,ycombinator.com / referral,25,2,3,3
 20260114,Referral,gemini.google.com / referral,24,4,5,5
 20260118,Referral,perplexity.ai / referral,24,3,4,4
 20260123,Referral,chatgpt.com / referral,24,1,5,5
@@ -1210,6 +1227,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260626,Referral,30mpcsite.webflow.io / referral,24,1,1,1
 20260628,Organic Search,bing / organic,24,1,2,2
 20260703,AI Referrals,chatgpt.com / ai-assistant,24,4,4,4
+20260709,Referral,ycombinator.com / referral,24,4,4,4
+20260711,Unassigned,newsletter.workflows.io / newsletter,24,4,5,5
 20260116,Referral,chatgpt.com / referral,23,3,5,5
 20260124,Referral,ycombinator.com / referral,23,1,2,2
 20260127,Referral,marketermilk.com / referral,23,2,2,2
@@ -1248,7 +1267,6 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260626,Organic Search,bing / organic,23,4,6,6
 20260629,Organic Search,bing / organic,23,3,3,3
 20260708,Organic Social - Twitter,t.co / referral,23,3,4,4
-20260709,Referral,ycombinator.com / referral,23,3,4,4
 20260104,Unassigned,topstartups.io / (not set),22,3,3,3
 20260106,Referral,github.com / referral,22,3,4,4
 20260113,Referral,navattic / referral,22,2,2,2
@@ -1343,7 +1361,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260703,Organic Search,bing / organic,21,1,3,3
 20260708,Organic Social - LinkedIn,linkedin.com / referral,21,2,6,6
 20260708,Referral,teams.public.onecdn.static.microsoft / referral,21,3,4,4
-20260709,Organic Search,bing / organic,21,2,3,3
+20260709,Organic Search,bing / organic,21,3,3,3
+20260710,Organic Social - LinkedIn,linkedin.com / referral,21,2,5,5
 20260105,Referral,gemini.google.com / referral,20,1,2,2
 20260109,Unassigned,topstartups.io / (not set),20,2,3,3
 20260111,Referral,ycombinator.com / referral,20,1,1,1
@@ -1466,6 +1485,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260706,Organic Search,duckduckgo / organic,19,2,2,2
 20260708,Unassigned,(not set),19,0,2,2
 20260709,Referral,accounts.google.com / referral,19,3,4,4
+20260710,Unassigned,newsletter.workflows.io / newsletter,19,3,3,3
+20260711,Email,mkt1 / email,19,3,3,3
 20260105,Organic Social,lm.facebook.com / referral,18,2,4,4
 20260107,Email,hs_email / email,18,2,3,3
 20260115,Referral,navattic / referral,18,2,2,2
@@ -1545,6 +1566,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260625,Referral,docs.superhuman.com / referral,18,1,1,1
 20260630,Referral,accounts.google.com / referral,18,1,4,4
 20260630,Referral,statics.teams.cdn.office.net / referral,18,2,2,2
+20260713,Organic Social - LinkedIn,linkedin / social,18,2,2,2
 20260105,Organic Social,linkedin / social,17,2,2,2
 20260105,Unassigned,topstartups.io / (not set),17,3,3,3
 20260107,Organic Social,linkedin.com / referral,17,2,4,4
@@ -1619,6 +1641,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260704,Organic Social - Twitter,t.co / referral,17,1,5,5
 20260706,Organic Social - LinkedIn,linkedin.com / referral,17,2,4,4
 20260708,Referral,accounts.google.com / referral,17,1,3,3
+20260710,AI Referrals,gemini.google.com / ai-assistant,17,3,3,3
 20260102,Unassigned,topstartups.io / (not set),16,2,3,3
 20260108,Referral,php.cn / referral,16,1,1,1
 20260109,Unassigned,chatgpt.com / (not set),16,1,4,4
@@ -1699,6 +1722,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260629,Referral,coveoat.coveo.com / referral,16,2,2,2
 20260630,Organic Social - Reddit,reddit.com / referral,16,1,2,2
 20260709,AI Referrals,gemini.google.com / ai-assistant,16,2,3,3
+20260710,Email,substack / email,16,3,3,3
+20260712,Unassigned,newsletter.workflows.io / newsletter,16,3,3,3
 20260105,Organic Social,l.facebook.com / referral,15,2,3,3
 20260106,Referral,gemini.google.com / referral,15,2,3,3
 20260111,Referral,amplitude.com / referral,15,1,1,1
@@ -1782,7 +1807,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260628,Unassigned,(not set),15,0,9,9
 20260706,Referral,most-exercise-922671--sheer-ember-yq4ls1pxl.framer.app / referral,15,1,1,1
 20260707,Referral,startups.gallery / referral,15,2,2,2
-20260710,Organic Search,google / organic,15,3,3,3
+20260710,Organic Social - Twitter,t.co / referral,15,1,2,2
 20260101,Referral,www.yourattnp.lease / referral,14,1,3,3
 20260106,Referral,mail.google.com / referral,14,1,1,1
 20260107,Referral,mkt1.co / referral,14,1,1,1
@@ -1880,6 +1905,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260708,AI Referrals,claude.ai / ai-assistant,14,2,3,3
 20260708,Referral,app.rippling.com / referral,14,0,3,3
 20260709,Email,substack / email,14,1,4,4
+20260710,Referral,project-ltnuxjrlseuvtnc3fky0.framercanvas.com / referral,14,1,1,1
+20260711,AI Referrals,chatgpt.com / ai-assistant,14,1,4,4
 20260106,Referral,mkt1.co / referral,13,1,1,1
 20260108,Referral,ycombinator.com / referral,13,2,2,2
 20260110,Referral,chatgpt.com / referral,13,2,2,2
@@ -2120,6 +2147,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260705,Referral,mail.google.com / referral,12,1,1,1
 20260707,Referral,login.microsoftonline.com / referral,12,2,2,2
 20260708,Referral,mutinyhq.com / referral,12,2,2,2
+20260711,Organic Social - LinkedIn,linkedin / social,12,3,3,3
+20260712,Organic Social - LinkedIn,linkedin / social,12,2,3,3
 20260102,Organic Social,linkedin / social,11,1,1,1
 20260105,Unassigned,(not set),11,1,1,1
 20260111,Referral,ya.ru / referral,11,2,2,2
@@ -2239,6 +2268,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260707,Organic Social - Reddit,reddit.com / referral,11,1,1,1
 20260708,Organic Social - Reddit,reddit.com / referral,11,2,2,2
 20260708,Referral,jobs.mkt1.co / referral,11,1,1,1
+20260710,Organic Social - Reddit,reddit.com / referral,11,2,2,2
+20260712,Referral,accounts.google.com / referral,11,1,2,2
 20260102,Referral,chatgpt.com / referral,10,1,2,2
 20260102,Referral,github.com / referral,10,1,2,2
 20260102,Referral,ycombinator.com / referral,10,1,2,2
@@ -2397,6 +2428,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260705,Referral,betalist.com / referral,10,1,1,1
 20260706,Referral,login.microsoftonline.com / referral,10,1,2,2
 20260707,Referral,app.rippling.com / referral,10,1,1,1
+20260710,Referral,statics.teams.cdn.office.net / referral,10,0,3,3
+20260712,AI Referrals,chatgpt.com / ai-assistant,10,1,3,3
 20260102,Email,hs_automation / email,9,0,2,2
 20260104,Referral,semrush.com / referral,9,1,1,1
 20260105,Organic Social,m.facebook.com / referral,9,1,1,1
@@ -2620,10 +2653,14 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260707,Organic Search,bing / organic,9,2,2,2
 20260707,Referral,accounts.google.com / referral,9,2,2,2
 20260709,Organic Social - Twitter,t.co / referral,9,1,2,2
-20260709,Referral,demandcurve.com / referral,9,2,3,2
+20260709,Referral,demandcurve.com / referral,9,1,3,2
 20260709,Referral,mkt1 / referral,9,2,2,2
 20260709,Referral,statics.teams.cdn.office.net / referral,9,1,2,2
 20260709,Unassigned,au.search.yahoo.com / referral,9,1,1,1
+20260710,Referral,revenue-dashboard-official.pages.dev / referral,9,1,1,1
+20260711,Email,substack / email,9,2,2,2
+20260711,Organic Search,bing / organic,9,0,3,3
+20260713,Unassigned,newsletter.workflows.io / newsletter,9,2,2,2
 20260101,Referral,claude.ai / referral,8,1,1,1
 20260101,Referral,topai.tools / referral,8,1,1,1
 20260101,Unassigned,startup.jobs / (not set),8,1,1,1
@@ -2849,6 +2886,9 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260707,Referral,statics.teams.cdn.office.net / referral,8,1,2,2
 20260708,AI Referrals,gemini.google.com / ai-assistant,8,1,2,2
 20260709,Referral,login.microsoftonline.com / referral,8,1,1,1
+20260710,Referral,app.asana.com / referral,8,1,1,1
+20260710,Referral,euna.clickup.com / referral,8,1,1,1
+20260710,Referral,mkt1 / referral,8,1,1,1
 20260101,Referral,workatastartup.com / referral,7,1,1,1
 20260105,Referral,failory.com / referral,7,1,1,1
 20260105,Referral,hiring.cafe / referral,7,1,1,1
@@ -3126,6 +3166,10 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260706,Referral,nexplora-check.pages.dev / referral,7,1,1,1
 20260707,Unassigned,(not set),7,0,3,3
 20260708,Referral,sequel.io / referral,7,1,1,1
+20260711,Organic Social - LinkedIn,linkedin.com / referral,7,1,2,2
+20260711,Organic Social - Twitter,t.co / referral,7,1,2,2
+20260712,Unassigned,mkt1 / ,7,1,2,2
+20260713,Referral,login.microsoftonline.com / referral,7,1,1,1
 20260102,Organic Social,linkedin.com / referral,6,1,1,1
 20260102,Referral,mail.google.com / referral,6,1,1,1
 20260103,Referral,workatastartup.com / referral,6,1,1,1
@@ -3481,7 +3525,11 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260709,Organic Search,yahoo / organic,6,1,1,1
 20260709,Referral,teams.public.onecdn.static.microsoft / referral,6,1,1,1
 20260709,Referral,track.pstmrk.it / referral,6,1,1,1
-20260710,Email,mkt1 / email,6,0,2,2
+20260710,Referral,app.rippling.com / referral,6,1,1,1
+20260710,Referral,maxibestof.one / referral,6,1,1,1
+20260710,Referral,smarsh.okta.com / referral,6,1,1,1
+20260710,Referral,speero.com / referral,6,1,1,1
+20260711,Referral,accounts.google.com / referral,6,1,1,1
 20260102,Organic Search,bing / organic,5,1,1,1
 20260102,Referral,gemini.google.com / referral,5,1,1,1
 20260103,Organic Search,yandex.ru / referral,5,1,1,1
@@ -4116,13 +4164,16 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260707,Referral,sequoiacap.com / referral,5,1,1,1
 20260707,Referral,web.outreach.io / referral,5,1,1,1
 20260708,Unassigned,ca.search.yahoo.com / referral,5,1,1,1
-20260709,AI Referrals,chatgpt.com / (none),5,1,1,1
 20260709,Organic Search,duckduckgo / organic,5,1,1,1
 20260709,Referral,claude.com / referral,5,1,1,1
 20260709,Referral,startups.gallery / referral,5,1,1,1
-20260709,Unassigned,aiagentstore.ai / ,5,1,1,1
-20260709,Unassigned,vendr.com / ,5,0,1,1
+20260709,Unassigned,aiagentstore.ai / (not set),5,1,1,1
+20260709,Unassigned,vendr.com / (not set),5,0,1,1
 20260710,Referral,sequoiacap.com / referral,5,1,1,1
+20260710,Unassigned,topstartups.io / (not set),5,1,1,1
+20260712,Referral,30mpc.com / referral,5,0,1,1
+20260712,Referral,ai-market-research-indol.vercel.app / referral,5,1,1,1
+20260713,Referral,framer.com / referral,5,2,2,2
 20260101,Organic Social,linkedin.com / referral,4,0,1,1
 20260101,Referral,blitzportal.com / referral,4,0,1,1
 20260101,Referral,sites.contify.com / referral,4,0,1,1
@@ -4996,7 +5047,18 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260709,Referral,docs.superhuman.com / referral,4,1,1,1
 20260709,Referral,maxibestof.one / referral,4,1,1,1
 20260709,Referral,product.costar.com / referral,4,1,1,1
-20260709,Unassigned,mkt1 / ,4,0,1,1
+20260709,Unassigned,mkt1 / (not set),4,0,1,1
+20260710,Referral,30mpcsite.webflow.io / referral,4,0,1,1
+20260710,Referral,github.com / referral,4,1,1,1
+20260710,Referral,startups.gallery / referral,4,0,1,1
+20260710,Unassigned,skillwaala.com / button,4,0,1,1
+20260710,Unassigned,twitter / social,4,0,1,1
+20260711,Referral,ycombinator.com / referral,4,0,2,1
+20260711,Unassigned,cn.bing.com / referral,4,1,1,1
+20260712,Email,mkt1 / email,4,1,1,1
+20260712,Referral,gokickflip.com / referral,4,1,1,1
+20260712,Referral,waimao.office.163.com / referral,4,1,1,1
+20260713,Referral,30mpc.com / referral,4,0,1,1
 20260102,Email,nurture / email,3,0,1,1
 20260102,Referral,www.yourattnp.lease / referral,3,0,1,1
 20260103,Email,hs_automation / email,3,0,1,1
@@ -5812,7 +5874,26 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260709,Referral,trysignalbase.com / referral,3,0,1,1
 20260709,Unassigned,m.facebook.com / referral,3,0,1,1
 20260709,Unassigned,skillwaala.com / button,3,0,1,1
-20260710,Direct,(direct) / (none),3,0,1,1
+20260710,Organic Search,duckduckgo / organic,3,0,1,1
+20260710,Referral,ycombinator.com / referral,3,0,1,1
+20260710,Unassigned,(not set),3,0,3,3
+20260710,Unassigned,Contineofy / Partner,3,0,1,1
+20260710,Unassigned,Contineofy / Partner Promotion,3,0,1,1
+20260710,Unassigned,ainave / (not set),3,0,1,1
+20260711,Email,mutinynewsletter / email,3,0,1,1
+20260711,Organic Social - LinkedIn,linkedin / paid_social,3,0,1,1
+20260711,Referral,failory.com / referral,3,0,1,1
+20260711,Referral,tiorai / referral,3,0,1,1
+20260711,Referral,www.superpowerdaily.com / referral,3,0,1,1
+20260711,Unassigned,perplexity / (not set),3,0,1,1
+20260712,Referral,app.raindrop.io / referral,3,0,1,1
+20260712,Referral,login.microsoftonline.com / referral,3,1,1,1
+20260712,Referral,www.newsletter.marketermilk.com / referral,3,0,1,1
+20260712,Unassigned,clearbit-partner / ,3,0,1,1
+20260712,Unassigned,online.yandex.com / referral,3,0,1,1
+20260712,Unassigned,www.therundown.ai / newsletter,3,0,1,1
+20260713,Organic Social - LinkedIn,linkedin.com / referral,3,0,1,1
+20260713,Referral,accounts.google.com / referral,3,0,1,1
 20260103,Referral,perplexity.ai / referral,2,0,1,1
 20260105,Email,hs_automation / email,2,0,1,1
 20260111,Organic Search,bing / organic,2,0,1,1
@@ -6121,7 +6202,16 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260708,Referral,app.raindrop.io / referral,2,0,1,1
 20260708,Referral,startups.gallery / referral,2,0,1,1
 20260708,Referral,tailscale.lightning.force.com / referral,2,0,1,1
-20260710,Referral,demandcurve.com / referral,2,1,1,1
+20260710,Organic Search,yahoo / organic,2,0,1,1
+20260710,Referral,demandcurve.com / referral,2,0,1,1
+20260710,Referral,login.microsoftonline.com / referral,2,0,1,1
+20260710,Referral,substack.com / referral,2,0,1,1
+20260710,Referral,zendesk.lightning.force.com / referral,2,0,1,1
+20260711,AI Referrals,claude.ai / ai-assistant,2,0,1,1
+20260711,Organic Social - Reddit,reddit.com / referral,2,0,1,1
+20260712,Referral,failory.com / referral,2,0,1,1
+20260712,Referral,startups.gallery / referral,2,0,1,1
+20260713,AI Referrals,claude.ai / ai-assistant,2,0,1,1
 20260105,Unassigned,chatgpt.com / (none),1,1,1,1
 20260110,Unassigned,(not set),1,0,1,1
 20260119,Referral,inbeat.agency / referral,1,0,1,1
@@ -6165,3 +6255,4 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount,engagedSessions,s
 20260701,Unassigned,(not set),1,0,1,1
 20260703,Unassigned,(not set),1,0,1,1
 20260706,Unassigned,(not set),1,0,1,1
+20260713,Unassigned,(not set),1,0,1,1
