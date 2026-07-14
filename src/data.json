@@ -137735,11 +137735,11 @@
       }
     ],
     "logos": {
-      "total": 130,
+      "total": 128,
       "source": "revenue-repo",
       "repo": "UncleAchoo/revenue-dashboard-official",
       "path": "stripe_data.json",
-      "pulledAt": "2026-07-14T15:15:06.259Z",
+      "pulledAt": "2026-07-14T18:59:13.797Z",
       "weekly": [
         {
           "week_ending": "2026-03-22",
@@ -137778,27 +137778,27 @@
         },
         {
           "week_ending": "2026-05-10",
-          "count": 88,
+          "count": 87,
           "partial": false
         },
         {
           "week_ending": "2026-05-17",
-          "count": 93,
+          "count": 92,
           "partial": false
         },
         {
           "week_ending": "2026-05-24",
-          "count": 100,
+          "count": 99,
           "partial": false
         },
         {
           "week_ending": "2026-05-31",
-          "count": 103,
+          "count": 102,
           "partial": false
         },
         {
           "week_ending": "2026-06-07",
-          "count": 110,
+          "count": 109,
           "partial": false
         },
         {
@@ -137808,27 +137808,27 @@
         },
         {
           "week_ending": "2026-06-21",
-          "count": 115,
+          "count": 114,
           "partial": false
         },
         {
           "week_ending": "2026-06-28",
-          "count": 121,
+          "count": 119,
           "partial": false
         },
         {
           "week_ending": "2026-07-05",
-          "count": 122,
+          "count": 120,
           "partial": false
         },
         {
           "week_ending": "2026-07-12",
-          "count": 130,
+          "count": 128,
           "partial": false
         },
         {
           "week_ending": "2026-07-14",
-          "count": 130,
+          "count": 128,
           "partial": true
         }
       ]
