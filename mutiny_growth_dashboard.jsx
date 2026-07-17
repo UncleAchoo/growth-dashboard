@@ -2580,7 +2580,7 @@ function SelfReportedPieCard({
           >
             {title}
             <SelfReportedTag />
-            <InfoTooltip>{infoTooltip}</InfoTooltip>
+            {infoTooltip && <InfoTooltip>{infoTooltip}</InfoTooltip>}
           </h2>
         </div>
         <div
@@ -3647,7 +3647,7 @@ function SelfReportedWeeklyCard({
           >
             {title}
             <SelfReportedTag />
-            <InfoTooltip>{infoTooltip}</InfoTooltip>
+            {infoTooltip && <InfoTooltip>{infoTooltip}</InfoTooltip>}
           </h2>
         </div>
         <div
@@ -4050,13 +4050,13 @@ function CumulativeSignupsCard({ dateSet, granularity = 'weekly', months } = {})
   // Today (for the trailing partial week) from the data's own pulledAt.
   const today = (dataJson.pulledAt || new Date().toISOString()).slice(0, 10);
 
-  // True deduplicated running total (amplitude.dedup.cumulativeDaily): the
-  // cumulative count of distinct users in the 4-event union, so the line
-  // ends on the same deduped YTD figure as the Signups KPI rather than the
-  // (higher) sum-of-daily-uniques. cumAt() reads the cumulative value at a
-  // date, clamped to the latest available date ≤ that date. Falls back to
-  // summing dailySignups when the deduped series isn't present.
-  const cumDaily = dataJson.amplitude?.dedup?.cumulativeDaily || null;
+  // Signups are RAW EVENT TOTALS now (User Setup Complete event count), not
+  // deduped uniques — so the cumulative line is a plain running sum of
+  // dailySignups and its endpoint equals the YTD signup KPI by construction.
+  // (We intentionally no longer read amplitude.dedup.cumulativeDaily, which
+  // would end lower on the deduped figure and disagree with the KPI.)
+  // cumDaily = null forces the summed-daily path below everywhere.
+  const cumDaily = null;
   const _cumDates = cumDaily ? Object.keys(cumDaily).sort() : [];
   function cumAt(yyyymmddDashOrCompact) {
     if (!cumDaily) return null;
@@ -5399,14 +5399,6 @@ export default function MutinyGrowthDashboard() {
           unit="signup"
           isReporting={isReporting}
           dateSet={is30d ? STRICT_WINDOW_DATES_SET : isMtd ? MTD_DATES_SET : isReporting ? reportingDatesSet : YTD_DATES_SET}
-          infoTooltip={`Signups = completed signups (unique users who fired [Onboarding] User Setup Complete), excl. internal accounts. Each bar is deduplicated within its own period (week or month); the KPI tile up top is deduplicated across the whole window, so the bars can sum slightly higher than that headline (someone active in two weeks counts in both bars but once in the window total). Referral source is only captured at Company Setup Complete, so invited users and org-creators who left it blank fall into the residual. In Stacked mode, signups with no source split by date: before May 7, 2026 (field optional) they're "Not Specified"; from May 7 on they're "Invited / Referred". Bucketing rules: see the Definitions panel.`}
-          alertBanner={
-            <>
-              Only <strong>Company Setup Complete</strong> carries a referral source. Signups
-              without one are <strong>Not Specified</strong> before May 7, 2026 (field was
-              optional) and <strong>Invited / Referred</strong> from May 7 on.
-            </>
-          }
         />
       </div>
 
@@ -5424,7 +5416,6 @@ export default function MutinyGrowthDashboard() {
           unit="signup"
           isReporting={isReporting}
           dateSet={is30d ? STRICT_WINDOW_DATES_SET : isMtd ? MTD_DATES_SET : isReporting ? reportingDatesSet : YTD_DATES_SET}
-          infoTooltip={`How we counted signups before June 29, 2026: a signup = a unique user who fired [Onboarding] Company Setup Complete (org-creators only; internal accounts excluded). Counts are SUM-OF-DAILY (each day's unique count added up per period — the way the old dashboard displayed it, so a user active on two days counts twice). Bars split by the self-reported referral_source captured on that event; signups that left it blank are "Not Specified." This is a lower, narrower number than the current "User Signups" (User Setup Complete), which also counts invited users who join an existing org. For reference: June = 496 sum-of-daily (484 deduped).`}
         />
       </div>
 
