@@ -295,10 +295,13 @@ async function fetchAmplitude() {
   // literal mirror of the chart's filter config.
   const emailFilter = { group_type: 'User', subprop_op: 'does not contain', subprop_key: 'email', subprop_type: 'event', subprop_value: ['mutinyhq', 'mutiny'] };
 
-  // 1) Daily SIGNUPS — COMPLETED signups. A "signup" = a unique user who
-  // finished onboarding by firing [Onboarding] User Setup Complete (the step
-  // both onboarding paths — create-an-org and accept-an-invite — converge on,
-  // i.e. they actually made it into the app). Single event, metric=uniques.
+  // 1) Daily SIGNUPS — COMPLETED signups. A "signup" = an [Onboarding] User
+  // Setup Complete EVENT (the step both onboarding paths — create-an-org and
+  // accept-an-invite — converge on, i.e. they actually made it into the app).
+  // Single event, metric=totals: raw EVENT COUNT, not unique users — a user
+  // who completes setup N times counts N. This is deliberate: it lets the
+  // Signups-by-Team split (same event grouped by user_work_role) sum EXACTLY
+  // to this KPI by construction, with no dedup/scaling reconciliation.
   // NOTE: this event only began firing ~Feb 16, 2026; earlier dates are zero.
   const eventSpec = {
     event_type: '[Onboarding] User Setup Complete',
@@ -306,9 +309,9 @@ async function fetchAmplitude() {
   };
 
   // Covers the Signups KPI + weekly/monthly trend everywhere on the dashboard.
-  const daily = await ampSegmentation({ event: eventSpec, start: WINDOW_START, end: WINDOW_END });
+  const daily = await ampSegmentation({ event: eventSpec, start: WINDOW_START, end: WINDOW_END, metric: 'totals' });
 
-  // Parse Amplitude response. Daily uniques live in data.series[0] aligned
+  // Parse Amplitude response. Daily event totals live in data.series[0] aligned
   // with data.xValues (dates).
   const series = daily?.data?.series?.[0] ?? [];
   const xValues = daily?.data?.xValues ?? [];
@@ -375,32 +378,16 @@ async function fetchAmplitude() {
     return { source: src, count, daily };
   }).filter((r) => r.count > 0);
 
-  // 3) Signups by Team — uniques of User Setup Complete grouped by the
-  // `user_work_role` EVENT property (stamped on the event at setup completion,
-  // so every completer carries it; genuine blanks are near-zero from Mar 2026 —
+  // 3) Signups by Team — EVENT TOTALS of User Setup Complete grouped by the
+  // `user_work_role` EVENT property (stamped on the event at completion, so
+  // every completion carries it; genuine blanks are near-zero from Mar 2026 —
   // Feb 2026 has ~117 'none' from before the property was instrumented).
-  // Because it's an event-property group-by, plain REST segmentation CAN
-  // reproduce the deduped-per-bucket splits — unlike dedup:
-  //   - weekly buckets (i=7, Monday-aligned) → period keys <mon>_<sun>
-  //   - monthly buckets (i=30, calendar months) → period keys <1st>_<monthEnd>
-  //   - mtd window = the current calendar-month bucket
-  // The last30 / fourweeks / ytd WINDOWS still need single-bucket cumulative
-  // per-role unique queries over arbitrary multi-month ranges, which REST's
-  // fixed intervals can't express — those are carried forward from the prior
-  // data.json and refreshed out-of-band via the Amplitude query API (same as
-  // dedup). NOTE: per-role uniques can sum ABOVE the deduped union total
-  // (a user who completed setup more than once with different role answers
-  // counts in each group, ~3-8%); the JSX scales the mix so the team segments
-  // sum exactly to the amplitude.dedup totals.
-  const addDaysYmd = (ymd, days) => {
-    const dt = new Date(`${ymd}T00:00:00Z`);
-    dt.setUTCDate(dt.getUTCDate() + days);
-    return dt.toISOString().slice(0, 10);
-  };
-  const lastDayOfMonthYmd = (ymd) => {
-    const dt = new Date(`${ymd}T00:00:00Z`);
-    return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth() + 1, 0)).toISOString().slice(0, 10);
-  };
+  // Pulled at DAILY granularity (interval=1, metric=totals) as a
+  // { 'YYYYMMDD': { <role>: count } } map. Because these are the SAME events
+  // counted by dailySignups (just grouped), Σ_role daily[d] === dailySignups[d]
+  // for every day. The JSX therefore sums this map over ANY window's dates to
+  // get the team split — including custom Reporting ranges — and the four team
+  // segments sum EXACTLY to the signup total with no scaling or dedup needed.
   let rolesFresh = null;
   try {
     const roleEvent = {
@@ -408,40 +395,28 @@ async function fetchAmplitude() {
       filters: [emailFilter],
       group_by: [{ type: 'event', value: 'user_work_role' }],
     };
-    const endDow = (new Date(`${WINDOW_END}T00:00:00Z`).getUTCDay() + 6) % 7; // 0 = Monday
-    const thisMonday  = addDaysYmd(WINDOW_END, -endDow);
-    const weeklyStart = addDaysYmd(thisMonday, -35);          // 6 weekly bars
-    const yearStart   = `${WINDOW_END.slice(0, 4)}-01-01`;    // YTD monthly bars
-    const buildPeriods = (resp, keyFor) => {
-      const labels = (resp?.data?.seriesLabels ?? []).map(extractLabel);
-      const groupSeries = resp?.data?.series ?? [];
-      const buckets = resp?.data?.xValues ?? [];
-      const periods = {};
-      buckets.forEach((bucketStart, j) => {
-        const m = {};
-        labels.forEach((lab, i) => {
-          const v = Number(groupSeries[i]?.[j]) || 0;
-          if (!v || lab === 'user_work_role') return;
-          m[lab === '(none)' ? 'none' : lab] = v;
-        });
-        periods[keyFor(bucketStart)] = m;
+    const rd = await ampSegmentation({ event: roleEvent, start: WINDOW_START, end: WINDOW_END, interval: 1, metric: 'totals' });
+    const labels = (rd?.data?.seriesLabels ?? []).map(extractLabel);
+    const groupSeries = rd?.data?.series ?? [];
+    const buckets = rd?.data?.xValues ?? [];
+    const rolesDaily = {};
+    buckets.forEach((day, j) => {
+      const m = {};
+      labels.forEach((lab, i) => {
+        const v = Number(groupSeries[i]?.[j]) || 0;
+        if (!v || lab === 'user_work_role') return;
+        m[lab === '(none)' ? 'none' : lab] = v;
       });
-      return periods;
-    };
-    const wk = await ampSegmentation({ event: roleEvent, start: weeklyStart, end: WINDOW_END, interval: 7 });
-    const mo = await ampSegmentation({ event: roleEvent, start: yearStart,   end: WINDOW_END, interval: 30 });
-    const weeklyPeriods  = buildPeriods(wk, (d) => `${ymdCompact(d)}_${ymdCompact(addDaysYmd(d, 6))}`);
-    const monthlyPeriods = buildPeriods(mo, (d) => `${ymdCompact(d)}_${ymdCompact(lastDayOfMonthYmd(d))}`);
-    const mtdKey = `${ymdCompact(WINDOW_END.slice(0, 8) + '01')}_${ymdCompact(lastDayOfMonthYmd(WINDOW_END))}`;
+      if (Object.keys(m).length) rolesDaily[ymdCompact(day)] = m;
+    });
     rolesFresh = {
-      basis: 'completer_work_role_event_prop',
-      note: 'user_work_role event property on [Onboarding] User Setup Complete (uniques per role, internal emails excluded — same filter as dedup). \'none\' → the No role segment; per-role sums can exceed the deduped union total (multi-completion users) and the JSX scales the mix to reconcile. periods (weekly + monthly) and the mtd window regenerate on every pull; last30/fourweeks/ytd windows are carried forward — refresh via the Amplitude query API (isCumulative per-role uniques over the window range).',
-      periods: { ...monthlyPeriods, ...weeklyPeriods },
-      windows: { ...(monthlyPeriods[mtdKey] ? { mtd: monthlyPeriods[mtdKey] } : {}) },
+      basis: 'completer_work_role_event_prop_totals',
+      note: 'user_work_role event property on [Onboarding] User Setup Complete (EVENT TOTALS per role per day, internal emails excluded — same filter as dailySignups). \'none\' → the No role segment. Daily map: Σ over roles for a day equals dailySignups for that day, so summing over any window (incl. custom Reporting ranges) makes the team segments tie exactly to the signup KPI — no dedup, no scaling.',
+      daily: rolesDaily,
       regeneratedAt: new Date().toISOString(),
-      regeneratedVia: 'pull-data.mjs (REST segmentation, event-property group_by user_work_role)',
+      regeneratedVia: 'pull-data.mjs (REST segmentation, daily event totals, event-property group_by user_work_role)',
     };
-    log(`  Amplitude: regenerated amplitude.roles periods (${Object.keys(weeklyPeriods).length} weekly + ${Object.keys(monthlyPeriods).length} monthly buckets) + mtd window from user_work_role.`);
+    log(`  Amplitude: regenerated amplitude.roles.daily (${Object.keys(rolesDaily).length} days) from user_work_role event totals.`);
   } catch (err) {
     log(`  Amplitude: roles regeneration failed (${err.message}) — will carry forward the previous roles block.`);
   }

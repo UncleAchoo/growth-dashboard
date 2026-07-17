@@ -398,7 +398,13 @@ const RATIO_PRIOR30    = SESSIONS_PRIOR30 > 0 ? (SIGNUPS_PRIOR30 / SESSIONS_PRIO
 // (Company Setup Complete fires ~once per user, so it's already effectively
 // deduped); the Invited / Referred residual = deduped period total − buckets.
 // ---------------------------------------------------------------------------
-const DEDUP         = dataJson.amplitude?.dedup || { periods: {}, windows: {} };
+// Signups now use RAW EVENT TOTALS (User Setup Complete event count), not
+// deduped uniques. dedup is intentionally ignored so every signup total is the
+// summed-daily event count from dailySignups — this makes the Signups-by-Team
+// split (same events grouped by user_work_role) sum EXACTLY to the KPI by
+// construction, with no scaling. (The old amplitude.dedup block may still be
+// present in data.json; it is deliberately not read.)
+const DEDUP         = { periods: {}, windows: {} };
 const DEDUP_WINDOWS = DEDUP.windows || {};
 function periodDedupKey(dates) {
   if (!dates || !dates.length) return null;
@@ -1128,16 +1134,31 @@ const CSC_BY_CHANNEL_MONTHLY_YTD = computeCscByChannelPeriodic(YTD_MONTHS_LIST);
 //   Marketing = ABM + Demand gen + Ops lead + Marketing other + Product mktg
 //   Other     = Founder + Other role + CRO
 //   No role   = the 'none' group (genuinely blank work role).
-// RECONCILIATION: per-role uniques can sum ABOVE the deduped signup total —
-// a user who completed setup more than once with different role answers is
-// counted once in EACH role group (event-property grouping has no cross-group
-// dedup; ~3-8% of recent signups). teamSplit() therefore SCALES the raw mix
-// so the four segments sum EXACTLY to the deduped total (amplitude.dedup),
-// with largest-remainder rounding — same spirit as the channel chart's
-// residual split. Falls back to all-No-role when role data for a range isn't
-// present (custom Reporting windows).
+// BASIS: amplitude.roles.daily is the SAME User Setup Complete events counted
+// by dailySignups, grouped by user_work_role as EVENT TOTALS per day. So for
+// every day Σ over roles === dailySignups[day], and summing the daily map over
+// any window's dates yields a role split whose four team segments sum EXACTLY
+// to the signup total for that window — no scaling, no dedup reconciliation.
+// This holds for custom Reporting ranges too (just another set of dates).
+// Falls back to all-No-role only if roles.daily is absent (e.g. data.json not
+// yet refreshed by pull-data).
 // ---------------------------------------------------------------------------
-const ROLES = dataJson.amplitude?.roles || { periods: {}, windows: {} };
+const ROLES = dataJson.amplitude?.roles || {};
+const ROLES_BY_DATE = ROLES.daily || {};
+// Sum per-role event totals over a set/array of YYYYMMDD dates → { role: n },
+// or null if no daily role data covers any of those dates.
+function roleMapForDates(dates) {
+  if (!dates) return null;
+  const arr = Array.isArray(dates) ? dates : [...dates];
+  const out = {};
+  let any = false;
+  for (const d of arr) {
+    const m = ROLES_BY_DATE[d];
+    if (!m) continue;
+    for (const [k, v] of Object.entries(m)) { out[k] = (out[k] || 0) + v; any = true; }
+  }
+  return any ? out : null;
+}
 const TEAM_DEFS = [
   { name: 'Sales',                color: C.purple,  roles: ['ae', 'bdr_sdr', 'sales_other'] },
   { name: 'Marketing',            color: C.blue,    roles: ['abm', 'demand_gen', 'ops_lead', 'marketing_other', 'product_marketing'] },
@@ -1172,40 +1193,37 @@ function scaleToTotal(values, target) {
   }
   return out;
 }
+// Bucket the raw per-role EVENT TOTALS into the four teams. No scaling: the
+// segments are the true event counts and already sum to the window's signup
+// total (same events, just grouped). Any unrecognized/blank role → No role, so
+// nothing is dropped. `total` is only used as the all-No-role fallback when no
+// role data exists for the range.
 function teamSplit(roleMap, total) {
   let sales = 0, mkt = 0, other = 0, blank = 0;
   for (const [k, v] of Object.entries(roleMap || {})) {
     if (SALES_ROLES.has(k)) sales += v;
     else if (MKT_ROLES.has(k)) mkt += v;
     else if (OTHER_ROLES.has(k)) other += v;
-    else if (k === 'none' || k === '(none)') blank += v;
+    else blank += v; // 'none' / '(none)' / any blank or unknown role
   }
   const rawSum = sales + mkt + other + blank;
-  if (!rawSum || !(total > 0)) {
+  if (!rawSum) {
     // No role data for this range → everything falls into "No role".
     return { Sales: 0, Marketing: 0, Other: 0, 'No role': Math.max(0, total || 0) };
   }
-  const [s, m, o, n] = scaleToTotal([sales, mkt, other, blank], total);
-  return { Sales: s, Marketing: m, Other: o, 'No role': n };
+  return { Sales: sales, Marketing: mkt, Other: other, 'No role': blank };
 }
-// Scaled per-role map (for the pie's sub-role detail lines) using the same
-// factor that ties the team segments to the deduped total.
-function scaleRoleMap(roleMap, total) {
-  if (!roleMap) return null;
-  const keys = Object.keys(roleMap);
-  const rawSum = keys.reduce((a, k) => a + roleMap[k], 0);
-  if (!(rawSum > 0) || !(total > 0)) return roleMap;
-  const scaled = scaleToTotal(keys.map((k) => roleMap[k]), total);
-  return Object.fromEntries(keys.map((k, i) => [k, scaled[i]]));
+// Per-role detail map for the pie's sub-role lines — raw event totals, passed
+// through unchanged (no scaling now that segments already tie to the total).
+function scaleRoleMap(roleMap) {
+  return roleMap || null;
 }
 function computeTeamPeriodic(periods) {
   return periods.map((p) => {
-    const key = periodDedupKey(p.dates);
     const summed = p.dates.reduce((s, d) => s + (LIVE_SIGNUPS_BY_DATE[d] || 0), 0);
-    const unionTotal = dedupPeriodTotal(p.dates, summed);
-    const t = teamSplit(ROLES.periods?.[key], unionTotal);
-    // Bar height = sum of the four segments; teamSplit scales the mix so this
-    // equals unionTotal exactly whenever role data exists for the period.
+    const t = teamSplit(roleMapForDates(p.dates), summed);
+    // Bar height = sum of the four segments; equals the summed-daily signup
+    // total exactly whenever roles.daily covers the period.
     const total = t.Sales + t.Marketing + t.Other + t['No role'];
     return {
       week: p.weekStartLabel ?? p.label,
@@ -5023,10 +5041,10 @@ export default function MutinyGrowthDashboard() {
           })))
         : TEAM_MONTHLY_YTD;
   const teamStackedTotal = teamStackedData.reduce((s, r) => s + (r.total || 0), 0);
-  const teamWindowKey   = is30d ? 'last30' : isMtd ? 'mtd' : isYtd ? 'ytd' : null;
   const teamWindowTotal = is30d ? SIGNUPS_30D_DEDUP : isMtd ? SIGNUPS_MTD_DEDUP : isReporting ? SIGNUPS_REPORTING : SIGNUPS_YTD_DEDUP;
-  const teamWindowRoles = teamWindowKey ? (ROLES.windows?.[teamWindowKey] || null) : null;
-  const teamWindowRolesScaled = scaleRoleMap(teamWindowRoles, teamWindowTotal);
+  const teamWindowDates = is30d ? STRICT_WINDOW_DATES : isMtd ? MTD_DATES_ARRAY : isReporting ? reportingDatesArray : YTD_DATES_ARRAY;
+  const teamWindowRoles = roleMapForDates(teamWindowDates);
+  const teamWindowRolesScaled = scaleRoleMap(teamWindowRoles);
   const teamWinSplit    = teamSplit(teamWindowRoles, teamWindowTotal);
   const teamPieData     = TEAM_DEFS.map((t) => ({ name: t.name, value: teamWinSplit[t.name], color: t.color }));
   const pieMeetings       = is30d ? SHARE_OF_SALES_MEETINGS       : isMtd ? SHARE_OF_SALES_MEETINGS_MTD      : isReporting ? SHARE_OF_SALES_MEETINGS_REPORTING      : SHARE_OF_SALES_MEETINGS_YTD;
@@ -5143,6 +5161,7 @@ export default function MutinyGrowthDashboard() {
               { id: '30d',       label: 'Last 30 days' },
               { id: 'mtd',       label: 'MTD' },
               { id: 'ytd',       label: 'YTD' },
+              { id: 'reporting', label: 'Reporting' },
             ].map((opt) => {
               const active = viewMode === opt.id;
               return (
@@ -5165,6 +5184,109 @@ export default function MutinyGrowthDashboard() {
               );
             })}
           </div>
+          {isReporting && (
+            <div
+              style={{
+                display: 'flex',
+                gap: 10,
+                alignItems: 'center',
+                marginTop: 8,
+                flexWrap: 'wrap',
+              }}
+            >
+              <label style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                fontFamily: FONT_BODY, fontSize: 11, fontWeight: 600, opacity: 0.75,
+              }}>
+                From
+                <input
+                  type="date"
+                  value={reportingRange.start}
+                  min={REPORTING_FLOOR_DASH}
+                  max={reportingRange.end}
+                  onChange={(e) => setReportingRange((r) => ({ ...r, start: e.target.value }))}
+                  style={{
+                    border: `1px solid ${C.black}`,
+                    borderRadius: 4,
+                    padding: '3px 6px',
+                    fontFamily: FONT_BODY,
+                    fontSize: 12,
+                    background: C.white,
+                    color: C.black,
+                  }}
+                />
+              </label>
+              <label style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                fontFamily: FONT_BODY, fontSize: 11, fontWeight: 600, opacity: 0.75,
+              }}>
+                To
+                <input
+                  type="date"
+                  value={reportingRange.end}
+                  min={reportingRange.start > REPORTING_FLOOR_DASH ? reportingRange.start : REPORTING_FLOOR_DASH}
+                  onChange={(e) => setReportingRange((r) => ({ ...r, end: e.target.value }))}
+                  style={{
+                    border: `1px solid ${C.black}`,
+                    borderRadius: 4,
+                    padding: '3px 6px',
+                    fontFamily: FONT_BODY,
+                    fontSize: 12,
+                    background: C.white,
+                    color: C.black,
+                  }}
+                />
+              </label>
+              <span style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.65 }}>
+                {reportingDays} day{reportingDays === 1 ? '' : 's'}
+              </span>
+              {/* Quick presets */}
+              <div
+                style={{
+                  display: 'inline-flex',
+                  border: `1px solid ${C.black}`,
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                  fontFamily: FONT_BODY,
+                  fontSize: 10.5,
+                  fontWeight: 600,
+                  marginLeft: 4,
+                }}
+              >
+                {[
+                  { id: 'last7',  label: 'Last 7d',  days: 7  },
+                  { id: 'last14', label: 'Last 14d', days: 14 },
+                  { id: 'last30', label: 'Last 30d', days: 30 },
+                ].map((preset, i) => {
+                  const presetStart = addUTCDays(_today, -(preset.days - 1));
+                  const startDash = fmtYYYYMMDDDash(presetStart);
+                  const endDash   = fmtYYYYMMDDDash(_today);
+                  const isActive  = reportingRange.start === startDash
+                                  && reportingRange.end   === endDash;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => setReportingRange({ start: startDash, end: endDash })}
+                      style={{
+                        padding: '3px 8px',
+                        background: isActive ? C.black : C.white,
+                        color: isActive ? C.white : C.black,
+                        border: 'none',
+                        borderLeft: i > 0 ? `1px solid ${C.black}` : 'none',
+                        cursor: 'pointer',
+                        fontFamily: FONT_BODY,
+                        fontSize: 10.5,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {preset.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <div style={{ opacity: 0.6, marginTop: 4, fontSize: 11 }}>
             {is30d
               ? WINDOW.label
@@ -5319,7 +5441,7 @@ export default function MutinyGrowthDashboard() {
           trendData={teamStackedData}
           trendTotal={teamStackedTotal}
           isReporting={isReporting}
-          infoTooltip={`Completed signups (User Setup Complete, deduped) grouped by the work role reported at setup completion (user_work_role event property). Sales = AE + BDR/SDR + Sales other. Marketing = ABM + Demand gen + Ops lead + Marketing other + Product mktg. Other = Founder + Other + CRO. No role = genuinely left blank (near-zero since Mar 2026; the property wasn't captured for the first setup-complete weeks of Feb 2026). Users who completed setup more than once with different role answers would otherwise count in each group, so the mix is scaled to sum exactly to the deduped signup total. ${teamWindowKey ? '' : 'Role data isn’t precomputed for custom Reporting windows, so this falls back to all-No-role.'}`}
+          infoTooltip={`Completed signups (User Setup Complete event count) grouped by the work role reported at setup completion (user_work_role event property). Sales = AE + BDR/SDR + Sales other. Marketing = ABM + Demand gen + Ops lead + Marketing other + Product mktg. Other = Founder + Other + CRO. No role = genuinely left blank (near-zero since Mar 2026; the property wasn't captured for the first setup-complete weeks of Feb 2026). These are raw event totals — the same events counted by the User Signups KPI, just grouped by role — so the four segments sum exactly to the signup total for the window (no dedup, no scaling), including custom Reporting ranges.`}
         />
         <VisitorSignupTrend
           data={ratioTrendData}
