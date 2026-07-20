@@ -33,6 +33,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260625,Referral,30mpc.com / referral,6
 20260706,Organic Search,google / organic,6
 20260713,Direct,(direct) / (none),6
+20260719,Direct,(direct) / (none),6
 20260511,Organic Search,google / organic,5
 20260518,AI Referrals,chatgpt.com / (not set),5
 20260519,Organic Search,google / organic,5
@@ -78,6 +79,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260630,Direct,(direct) / (none),3
 20260708,Organic Search,google / organic,3
 20260710,Organic Search,google / organic,3
+20260717,Direct,(direct) / (none),3
 20260511,Organic Social,linkedin / social,2
 20260514,Referral,chatgpt.com / referral,2
 20260515,Direct,(direct) / (none),2
@@ -111,6 +113,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260714,Referral,30mpc.com / referral,2
 20260715,Direct,(direct) / (none),2
 20260716,Organic Search,google / organic,2
+20260718,Direct,(direct) / (none),2
 20260507,Organic Social,linkedin.com / referral,1
 20260508,Referral,mkt1-website / referral,1
 20260509,Direct,(direct) / (none),1
@@ -191,3 +194,5 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260716,Organic Search,bing / organic,1
 20260716,Organic Social - LinkedIn,linkedin / social,1
 20260716,Referral,30mpc.com / referral,1
+20260717,Organic Search,google / organic,1
+20260720,Direct,(direct) / (none),1
