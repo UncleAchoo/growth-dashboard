@@ -6,6 +6,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260618,Direct,(direct) / (none),14
 20260623,Direct,(direct) / (none),14
 20260514,Direct,(direct) / (none),11
+20260720,Direct,(direct) / (none),11
 20260603,Direct,(direct) / (none),10
 20260611,Direct,(direct) / (none),10
 20260707,Direct,(direct) / (none),10
@@ -195,4 +196,5 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260716,Organic Social - LinkedIn,linkedin / social,1
 20260716,Referral,30mpc.com / referral,1
 20260717,Organic Search,google / organic,1
-20260720,Direct,(direct) / (none),1
+20260720,Organic Search,google / organic,1
+20260721,Direct,(direct) / (none),1
