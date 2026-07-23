@@ -7,6 +7,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260623,Direct,(direct) / (none),14
 20260514,Direct,(direct) / (none),11
 20260720,Direct,(direct) / (none),11
+20260722,Direct,(direct) / (none),11
 20260603,Direct,(direct) / (none),10
 20260611,Direct,(direct) / (none),10
 20260707,Direct,(direct) / (none),10
@@ -18,6 +19,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260610,Direct,(direct) / (none),8
 20260616,Direct,(direct) / (none),8
 20260626,Direct,(direct) / (none),8
+20260721,Direct,(direct) / (none),8
 20260701,Direct,(direct) / (none),7
 20260708,Direct,(direct) / (none),7
 20260714,Direct,(direct) / (none),7
@@ -197,4 +199,6 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260716,Referral,30mpc.com / referral,1
 20260717,Organic Search,google / organic,1
 20260720,Organic Search,google / organic,1
-20260721,Direct,(direct) / (none),1
+20260721,Email,hs_automation / email,1
+20260722,Organic Search,google / organic,1
+20260723,Organic Social - LinkedIn,linkedin / social,1

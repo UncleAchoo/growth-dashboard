@@ -1,11 +1,11 @@
 {
-  "pulledAt": "2026-07-21T19:52:46.524Z",
+  "pulledAt": "2026-07-23T13:42:06.603Z",
   "window": {
     "start": "2026-01-01",
-    "end": "2026-07-21"
+    "end": "2026-07-23"
   },
   "ga4": {
-    "pulledAt": "2026-07-21T19:52:38.575Z",
+    "pulledAt": "2026-07-23T13:41:59.243Z",
     "file1": [
       {
         "date": "20260320",
@@ -860,6 +860,12 @@
         "sessions": 611
       },
       {
+        "date": "20260721",
+        "totalUsers": 577,
+        "engagedSessions": 170,
+        "sessions": 584
+      },
+      {
         "date": "20260606",
         "totalUsers": 571,
         "engagedSessions": 133,
@@ -876,6 +882,12 @@
         "totalUsers": 519,
         "engagedSessions": 93,
         "sessions": 520
+      },
+      {
+        "date": "20260722",
+        "totalUsers": 517,
+        "engagedSessions": 182,
+        "sessions": 526
       },
       {
         "date": "20260704",
@@ -1184,12 +1196,6 @@
         "sessions": 142
       },
       {
-        "date": "20260721",
-        "totalUsers": 135,
-        "engagedSessions": 34,
-        "sessions": 136
-      },
-      {
         "date": "20260718",
         "totalUsers": 129,
         "engagedSessions": 48,
@@ -1218,6 +1224,12 @@
         "totalUsers": 96,
         "engagedSessions": 40,
         "sessions": 98
+      },
+      {
+        "date": "20260723",
+        "totalUsers": 50,
+        "engagedSessions": 23,
+        "sessions": 50
       }
     ],
     "file2": [
@@ -1265,6 +1277,12 @@
       },
       {
         "date": "20260720",
+        "channelGroup": "Direct",
+        "sourceMedium": "(direct) / (none)",
+        "eventCount": 11
+      },
+      {
+        "date": "20260722",
         "channelGroup": "Direct",
         "sourceMedium": "(direct) / (none)",
         "eventCount": 11
@@ -1331,6 +1349,12 @@
       },
       {
         "date": "20260626",
+        "channelGroup": "Direct",
+        "sourceMedium": "(direct) / (none)",
+        "eventCount": 8
+      },
+      {
+        "date": "20260721",
         "channelGroup": "Direct",
         "sourceMedium": "(direct) / (none)",
         "eventCount": 8
@@ -2411,8 +2435,20 @@
       },
       {
         "date": "20260721",
-        "channelGroup": "Direct",
-        "sourceMedium": "(direct) / (none)",
+        "channelGroup": "Email",
+        "sourceMedium": "hs_automation / email",
+        "eventCount": 1
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / organic",
+        "eventCount": 1
+      },
+      {
+        "date": "20260723",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sourceMedium": "linkedin / social",
         "eventCount": 1
       }
     ],
@@ -3759,6 +3795,15 @@
         "totalUsers": 578
       },
       {
+        "date": "20260721",
+        "channelGroup": "Direct",
+        "sourceMedium": "(direct) / (none)",
+        "eventCount": 2445,
+        "engagedSessions": 107,
+        "sessions": 475,
+        "totalUsers": 472
+      },
+      {
         "date": "20260606",
         "channelGroup": "Direct",
         "sourceMedium": "(direct) / (none)",
@@ -3811,6 +3856,15 @@
         "engagedSessions": 72,
         "sessions": 510,
         "totalUsers": 509
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Direct",
+        "sourceMedium": "(direct) / (none)",
+        "eventCount": 2123,
+        "engagedSessions": 105,
+        "sessions": 397,
+        "totalUsers": 392
       },
       {
         "date": "20260410",
@@ -5469,6 +5523,15 @@
         "totalUsers": 108
       },
       {
+        "date": "20260722",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / organic",
+        "eventCount": 577,
+        "engagedSessions": 57,
+        "sessions": 93,
+        "totalUsers": 90
+      },
+      {
         "date": "20260406",
         "channelGroup": "Organic Search",
         "sourceMedium": "google / organic",
@@ -5476,15 +5539,6 @@
         "engagedSessions": 75,
         "sessions": 118,
         "totalUsers": 117
-      },
-      {
-        "date": "20260721",
-        "channelGroup": "Direct",
-        "sourceMedium": "(direct) / (none)",
-        "eventCount": 569,
-        "engagedSessions": 21,
-        "sessions": 106,
-        "totalUsers": 105
       },
       {
         "date": "20260109",
@@ -5791,6 +5845,15 @@
         "engagedSessions": 35,
         "sessions": 72,
         "totalUsers": 72
+      },
+      {
+        "date": "20260721",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / organic",
+        "eventCount": 392,
+        "engagedSessions": 45,
+        "sessions": 69,
+        "totalUsers": 67
       },
       {
         "date": "20260117",
@@ -6412,6 +6475,15 @@
         "engagedSessions": 26,
         "sessions": 34,
         "totalUsers": 33
+      },
+      {
+        "date": "20260723",
+        "channelGroup": "Direct",
+        "sourceMedium": "(direct) / (none)",
+        "eventCount": 182,
+        "engagedSessions": 12,
+        "sessions": 32,
+        "totalUsers": 32
       },
       {
         "date": "20260204",
@@ -7368,15 +7440,6 @@
         "totalUsers": 2
       },
       {
-        "date": "20260721",
-        "channelGroup": "Organic Search",
-        "sourceMedium": "google / organic",
-        "eventCount": 82,
-        "engagedSessions": 9,
-        "sessions": 17,
-        "totalUsers": 17
-      },
-      {
         "date": "20260115",
         "channelGroup": "Unassigned",
         "sourceMedium": "navattic / (not set)",
@@ -8003,6 +8066,15 @@
         "sourceMedium": "linkedin / social",
         "eventCount": 64,
         "engagedSessions": 10,
+        "sessions": 12,
+        "totalUsers": 12
+      },
+      {
+        "date": "20260723",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / organic",
+        "eventCount": 64,
+        "engagedSessions": 6,
         "sessions": 12,
         "totalUsers": 12
       },
@@ -11247,6 +11319,15 @@
         "totalUsers": 1
       },
       {
+        "date": "20260722",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sourceMedium": "linkedin / social",
+        "eventCount": 33,
+        "engagedSessions": 3,
+        "sessions": 4,
+        "totalUsers": 4
+      },
+      {
         "date": "20260105",
         "channelGroup": "Referral",
         "sourceMedium": "chatgpt.com / referral",
@@ -13218,6 +13299,15 @@
         "totalUsers": 6
       },
       {
+        "date": "20260721",
+        "channelGroup": "Referral",
+        "sourceMedium": "framer.com / referral",
+        "eventCount": 26,
+        "engagedSessions": 3,
+        "sessions": 4,
+        "totalUsers": 4
+      },
+      {
         "date": "20260103",
         "channelGroup": "Referral",
         "sourceMedium": "catonetworks.com / referral",
@@ -13909,6 +13999,24 @@
         "engagedSessions": 4,
         "sessions": 5,
         "totalUsers": 5
+      },
+      {
+        "date": "20260721",
+        "channelGroup": "AI Referrals",
+        "sourceMedium": "chatgpt.com / ai-assistant",
+        "eventCount": 24,
+        "engagedSessions": 2,
+        "sessions": 4,
+        "totalUsers": 4
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Referral",
+        "sourceMedium": "framer.com / referral",
+        "eventCount": 24,
+        "engagedSessions": 3,
+        "sessions": 3,
+        "totalUsers": 3
       },
       {
         "date": "20260116",
@@ -15630,6 +15738,24 @@
         "totalUsers": 2
       },
       {
+        "date": "20260721",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sourceMedium": "linkedin / social",
+        "eventCount": 20,
+        "engagedSessions": 2,
+        "sessions": 4,
+        "totalUsers": 4
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "AI Referrals",
+        "sourceMedium": "chatgpt.com / ai-assistant",
+        "eventCount": 20,
+        "engagedSessions": 1,
+        "sessions": 3,
+        "totalUsers": 3
+      },
+      {
         "date": "20260104",
         "channelGroup": "Referral",
         "sourceMedium": "workatastartup.com / referral",
@@ -16989,6 +17115,15 @@
         "totalUsers": 2
       },
       {
+        "date": "20260722",
+        "channelGroup": "Email",
+        "sourceMedium": "mkt1 / email",
+        "eventCount": 18,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
         "date": "20260105",
         "channelGroup": "Organic Social",
         "sourceMedium": "linkedin / social",
@@ -17678,15 +17813,6 @@
         "sourceMedium": "teams.public.onecdn.static.microsoft / referral",
         "eventCount": 17,
         "engagedSessions": 3,
-        "sessions": 3,
-        "totalUsers": 3
-      },
-      {
-        "date": "20260721",
-        "channelGroup": "AI Referrals",
-        "sourceMedium": "chatgpt.com / ai-assistant",
-        "eventCount": 17,
-        "engagedSessions": 1,
         "sessions": 3,
         "totalUsers": 3
       },
@@ -18436,6 +18562,15 @@
         "engagedSessions": 1,
         "sessions": 1,
         "totalUsers": 1
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Referral",
+        "sourceMedium": "ycombinator.com / referral",
+        "eventCount": 16,
+        "engagedSessions": 2,
+        "sessions": 2,
+        "totalUsers": 2
       },
       {
         "date": "20260105",
@@ -19219,6 +19354,15 @@
         "engagedSessions": 1,
         "sessions": 4,
         "totalUsers": 4
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / cpc",
+        "eventCount": 15,
+        "engagedSessions": 0,
+        "sessions": 3,
+        "totalUsers": 3
       },
       {
         "date": "20260101",
@@ -20124,6 +20268,24 @@
         "date": "20260715",
         "channelGroup": "Referral",
         "sourceMedium": "startups.gallery / referral",
+        "eventCount": 14,
+        "engagedSessions": 2,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
+        "date": "20260721",
+        "channelGroup": "Referral",
+        "sourceMedium": "marketplace.salesloft.com / referral",
+        "eventCount": 14,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260721",
+        "channelGroup": "Referral",
+        "sourceMedium": "ycombinator.com / referral",
         "eventCount": 14,
         "engagedSessions": 2,
         "sessions": 2,
@@ -21181,6 +21343,42 @@
         "engagedSessions": 2,
         "sessions": 3,
         "totalUsers": 3
+      },
+      {
+        "date": "20260721",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "bing / organic",
+        "eventCount": 13,
+        "engagedSessions": 1,
+        "sessions": 3,
+        "totalUsers": 3
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sourceMedium": "linkedin.com / referral",
+        "eventCount": 13,
+        "engagedSessions": 2,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Referral",
+        "sourceMedium": "app.rippling.com / referral",
+        "eventCount": 13,
+        "engagedSessions": 1,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "topstartups.io / ",
+        "eventCount": 13,
+        "engagedSessions": 1,
+        "sessions": 2,
+        "totalUsers": 2
       },
       {
         "date": "20260105",
@@ -29463,6 +29661,42 @@
         "totalUsers": 1
       },
       {
+        "date": "20260721",
+        "channelGroup": "Referral",
+        "sourceMedium": "teams.public.onecdn.static.microsoft / referral",
+        "eventCount": 8,
+        "engagedSessions": 1,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Referral",
+        "sourceMedium": "airwallex.lightning.force.com / referral",
+        "eventCount": 8,
+        "engagedSessions": 1,
+        "sessions": 2,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Referral",
+        "sourceMedium": "topai.tools / referral",
+        "eventCount": 8,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260723",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "topstartups.io / ",
+        "eventCount": 8,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
         "date": "20260101",
         "channelGroup": "Referral",
         "sourceMedium": "workatastartup.com / referral",
@@ -32074,8 +32308,62 @@
       },
       {
         "date": "20260721",
+        "channelGroup": "AI Referrals",
+        "sourceMedium": "gemini.google.com / ai-assistant",
+        "eventCount": 7,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260721",
         "channelGroup": "Referral",
         "sourceMedium": "sequoiacap.com / referral",
+        "eventCount": 7,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260721",
+        "channelGroup": "Referral",
+        "sourceMedium": "workatastartup.com / referral",
+        "eventCount": 7,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Referral",
+        "sourceMedium": "blindsearch.fejus.com / referral",
+        "eventCount": 7,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Referral",
+        "sourceMedium": "martech.org / referral",
+        "eventCount": 7,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260723",
+        "channelGroup": "AI Referrals",
+        "sourceMedium": "chatgpt.com / ai-assistant",
+        "eventCount": 7,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260723",
+        "channelGroup": "Referral",
+        "sourceMedium": "ycombinator.com / referral",
         "eventCount": 7,
         "engagedSessions": 1,
         "sessions": 1,
@@ -35413,17 +35701,17 @@
       },
       {
         "date": "20260721",
-        "channelGroup": "Referral",
-        "sourceMedium": "framer.com / referral",
+        "channelGroup": "Email",
+        "sourceMedium": "hs_automation / email",
         "eventCount": 6,
         "engagedSessions": 1,
-        "sessions": 2,
-        "totalUsers": 2
+        "sessions": 1,
+        "totalUsers": 1
       },
       {
-        "date": "20260721",
+        "date": "20260723",
         "channelGroup": "Referral",
-        "sourceMedium": "ycombinator.com / referral",
+        "sourceMedium": "gokickflip.com / referral",
         "eventCount": 6,
         "engagedSessions": 1,
         "sessions": 1,
@@ -41425,10 +41713,55 @@
       },
       {
         "date": "20260721",
-        "channelGroup": "Organic Search",
-        "sourceMedium": "bing / organic",
+        "channelGroup": "Referral",
+        "sourceMedium": "login.microsoftonline.com / referral",
+        "eventCount": 5,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260721",
+        "channelGroup": "Referral",
+        "sourceMedium": "mail.google.com / referral",
+        "eventCount": 5,
+        "engagedSessions": 1,
+        "sessions": 2,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260721",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "m.facebook.com / referral",
         "eventCount": 5,
         "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260721",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "newsletter.workflows.io / newsletter",
+        "eventCount": 5,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Referral",
+        "sourceMedium": "30mpc.com / referral",
+        "eventCount": 5,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260723",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sourceMedium": "linkedin / social",
+        "eventCount": 5,
+        "engagedSessions": 1,
         "sessions": 1,
         "totalUsers": 1
       },
@@ -49731,6 +50064,60 @@
         "totalUsers": 1
       },
       {
+        "date": "20260721",
+        "channelGroup": "Referral",
+        "sourceMedium": "moveworks.okta.com / referral",
+        "eventCount": 4,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260721",
+        "channelGroup": "Referral",
+        "sourceMedium": "statics.teams.cdn.office.net / referral",
+        "eventCount": 4,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Referral",
+        "sourceMedium": "30mpcsite.webflow.io / referral",
+        "eventCount": 4,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Referral",
+        "sourceMedium": "app.asana.com / referral",
+        "eventCount": 4,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Referral",
+        "sourceMedium": "teams.public.onecdn.static.microsoft / referral",
+        "eventCount": 4,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Referral",
+        "sourceMedium": "track.pstmrk.it / referral",
+        "eventCount": 4,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
         "date": "20260102",
         "channelGroup": "Email",
         "sourceMedium": "nurture / email",
@@ -57472,8 +57859,71 @@
       },
       {
         "date": "20260721",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "yahoo / organic",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260721",
         "channelGroup": "Referral",
         "sourceMedium": "accounts.google.com / referral",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260721",
+        "channelGroup": "Referral",
+        "sourceMedium": "dwavesys.my.idaptive.app / referral",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260721",
+        "channelGroup": "Referral",
+        "sourceMedium": "insightpartners.com / referral",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260721",
+        "channelGroup": "Referral",
+        "sourceMedium": "search.infospace.com / referral",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "bing / organic",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Referral",
+        "sourceMedium": "usc-excel.officeapps.live.com / referral",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "ca.search.yahoo.com / referral",
         "eventCount": 3,
         "engagedSessions": 0,
         "sessions": 1,
@@ -60488,7 +60938,7 @@
       {
         "date": "20260721",
         "channelGroup": "Referral",
-        "sourceMedium": "snowbiz.okta.com / referral",
+        "sourceMedium": "rippling.runlayer.com / referral",
         "eventCount": 2,
         "engagedSessions": 0,
         "sessions": 1,
@@ -60497,7 +60947,7 @@
       {
         "date": "20260721",
         "channelGroup": "Referral",
-        "sourceMedium": "teams.public.onecdn.static.microsoft / referral",
+        "sourceMedium": "snowbiz.okta.com / referral",
         "eventCount": 2,
         "engagedSessions": 0,
         "sessions": 1,
@@ -60507,6 +60957,24 @@
         "date": "20260721",
         "channelGroup": "Unassigned",
         "sourceMedium": "(not set)",
+        "eventCount": 2,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260722",
+        "channelGroup": "Referral",
+        "sourceMedium": "substack.com / referral",
+        "eventCount": 2,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260723",
+        "channelGroup": "Referral",
+        "sourceMedium": "substack.com / referral",
         "eventCount": 2,
         "engagedSessions": 0,
         "sessions": 1,
@@ -61113,12 +61581,14 @@
       "20260718": 3,
       "20260719": 4,
       "20260720": 21,
-      "20260721": 17
+      "20260721": 20,
+      "20260722": 21,
+      "20260723": 4
     },
     "referralSources": [
       {
         "source": "Google",
-        "count": 71,
+        "count": 72,
         "daily": {
           "20260101": 0,
           "20260102": 0,
@@ -61321,12 +61791,14 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 1,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 1,
+          "20260723": 0
         }
       },
       {
         "source": "google",
-        "count": 65,
+        "count": 68,
         "daily": {
           "20260101": 0,
           "20260102": 0,
@@ -61529,12 +62001,14 @@
           "20260718": 0,
           "20260719": 1,
           "20260720": 0,
-          "20260721": 3
+          "20260721": 4,
+          "20260722": 2,
+          "20260723": 0
         }
       },
       {
         "source": "LinkedIn",
-        "count": 58,
+        "count": 59,
         "daily": {
           "20260101": 0,
           "20260102": 0,
@@ -61737,12 +62211,14 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 1
         }
       },
       {
         "source": "Claude",
-        "count": 42,
+        "count": 44,
         "daily": {
           "20260101": 0,
           "20260102": 0,
@@ -61945,7 +62421,9 @@
           "20260718": 0,
           "20260719": 1,
           "20260720": 1,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 1,
+          "20260723": 1
         }
       },
       {
@@ -62153,7 +62631,9 @@
           "20260718": 0,
           "20260719": 1,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -62361,12 +62841,14 @@
           "20260718": 1,
           "20260719": 0,
           "20260720": 1,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
         "source": "Friend",
-        "count": 31,
+        "count": 32,
         "daily": {
           "20260101": 0,
           "20260102": 0,
@@ -62569,7 +63051,9 @@
           "20260718": 1,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 1
+          "20260721": 1,
+          "20260722": 0,
+          "20260723": 1
         }
       },
       {
@@ -62777,7 +63261,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -62985,7 +63471,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -63193,7 +63681,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -63401,7 +63891,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -63609,7 +64101,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -63817,7 +64311,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -64025,7 +64521,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -64233,7 +64731,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -64441,7 +64941,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 1,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -64649,7 +65151,219 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
+        }
+      },
+      {
+        "source": "coworker",
+        "count": 9,
+        "daily": {
+          "20260101": 0,
+          "20260102": 0,
+          "20260103": 0,
+          "20260104": 0,
+          "20260105": 0,
+          "20260106": 0,
+          "20260107": 0,
+          "20260108": 0,
+          "20260109": 0,
+          "20260110": 0,
+          "20260111": 0,
+          "20260112": 0,
+          "20260113": 0,
+          "20260114": 0,
+          "20260115": 0,
+          "20260116": 0,
+          "20260117": 0,
+          "20260118": 0,
+          "20260119": 0,
+          "20260120": 0,
+          "20260121": 0,
+          "20260122": 0,
+          "20260123": 0,
+          "20260124": 0,
+          "20260125": 0,
+          "20260126": 0,
+          "20260127": 0,
+          "20260128": 0,
+          "20260129": 0,
+          "20260130": 0,
+          "20260131": 0,
+          "20260201": 0,
+          "20260202": 0,
+          "20260203": 0,
+          "20260204": 0,
+          "20260205": 0,
+          "20260206": 0,
+          "20260207": 0,
+          "20260208": 0,
+          "20260209": 0,
+          "20260210": 0,
+          "20260211": 0,
+          "20260212": 0,
+          "20260213": 0,
+          "20260214": 0,
+          "20260215": 0,
+          "20260216": 0,
+          "20260217": 0,
+          "20260218": 0,
+          "20260219": 0,
+          "20260220": 0,
+          "20260221": 0,
+          "20260222": 0,
+          "20260223": 0,
+          "20260224": 0,
+          "20260225": 0,
+          "20260226": 0,
+          "20260227": 0,
+          "20260228": 0,
+          "20260301": 0,
+          "20260302": 0,
+          "20260303": 0,
+          "20260304": 0,
+          "20260305": 0,
+          "20260306": 0,
+          "20260307": 0,
+          "20260308": 0,
+          "20260309": 0,
+          "20260310": 0,
+          "20260311": 0,
+          "20260312": 0,
+          "20260313": 0,
+          "20260314": 0,
+          "20260315": 0,
+          "20260316": 0,
+          "20260317": 0,
+          "20260318": 0,
+          "20260319": 0,
+          "20260320": 0,
+          "20260321": 0,
+          "20260322": 0,
+          "20260323": 0,
+          "20260324": 0,
+          "20260325": 0,
+          "20260326": 0,
+          "20260327": 0,
+          "20260328": 0,
+          "20260329": 0,
+          "20260330": 0,
+          "20260331": 0,
+          "20260401": 0,
+          "20260402": 0,
+          "20260403": 0,
+          "20260404": 0,
+          "20260405": 0,
+          "20260406": 0,
+          "20260407": 0,
+          "20260408": 0,
+          "20260409": 0,
+          "20260410": 0,
+          "20260411": 0,
+          "20260412": 0,
+          "20260413": 0,
+          "20260414": 0,
+          "20260415": 0,
+          "20260416": 0,
+          "20260417": 0,
+          "20260418": 0,
+          "20260419": 0,
+          "20260420": 0,
+          "20260421": 0,
+          "20260422": 0,
+          "20260423": 0,
+          "20260424": 0,
+          "20260425": 0,
+          "20260426": 0,
+          "20260427": 0,
+          "20260428": 0,
+          "20260429": 0,
+          "20260430": 0,
+          "20260501": 0,
+          "20260502": 0,
+          "20260503": 0,
+          "20260504": 0,
+          "20260505": 0,
+          "20260506": 0,
+          "20260507": 1,
+          "20260508": 0,
+          "20260509": 0,
+          "20260510": 0,
+          "20260511": 0,
+          "20260512": 0,
+          "20260513": 0,
+          "20260514": 0,
+          "20260515": 0,
+          "20260516": 0,
+          "20260517": 0,
+          "20260518": 0,
+          "20260519": 0,
+          "20260520": 0,
+          "20260521": 0,
+          "20260522": 1,
+          "20260523": 0,
+          "20260524": 0,
+          "20260525": 0,
+          "20260526": 0,
+          "20260527": 2,
+          "20260528": 0,
+          "20260529": 0,
+          "20260530": 0,
+          "20260531": 0,
+          "20260601": 1,
+          "20260602": 0,
+          "20260603": 0,
+          "20260604": 0,
+          "20260605": 0,
+          "20260606": 0,
+          "20260607": 0,
+          "20260608": 0,
+          "20260609": 0,
+          "20260610": 2,
+          "20260611": 0,
+          "20260612": 0,
+          "20260613": 0,
+          "20260614": 0,
+          "20260615": 0,
+          "20260616": 0,
+          "20260617": 0,
+          "20260618": 0,
+          "20260619": 0,
+          "20260620": 0,
+          "20260621": 0,
+          "20260622": 0,
+          "20260623": 0,
+          "20260624": 0,
+          "20260625": 0,
+          "20260626": 0,
+          "20260627": 0,
+          "20260628": 0,
+          "20260629": 0,
+          "20260630": 0,
+          "20260701": 0,
+          "20260702": 0,
+          "20260703": 0,
+          "20260704": 0,
+          "20260705": 0,
+          "20260706": 0,
+          "20260707": 0,
+          "20260708": 1,
+          "20260709": 0,
+          "20260710": 0,
+          "20260711": 0,
+          "20260712": 0,
+          "20260713": 0,
+          "20260714": 0,
+          "20260715": 0,
+          "20260716": 0,
+          "20260717": 0,
+          "20260718": 0,
+          "20260719": 0,
+          "20260720": 0,
+          "20260721": 0,
+          "20260722": 1,
+          "20260723": 0
         }
       },
       {
@@ -64857,7 +65571,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -65065,7 +65781,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 1,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -65273,7 +65991,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -65481,215 +66201,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
-        }
-      },
-      {
-        "source": "coworker",
-        "count": 8,
-        "daily": {
-          "20260101": 0,
-          "20260102": 0,
-          "20260103": 0,
-          "20260104": 0,
-          "20260105": 0,
-          "20260106": 0,
-          "20260107": 0,
-          "20260108": 0,
-          "20260109": 0,
-          "20260110": 0,
-          "20260111": 0,
-          "20260112": 0,
-          "20260113": 0,
-          "20260114": 0,
-          "20260115": 0,
-          "20260116": 0,
-          "20260117": 0,
-          "20260118": 0,
-          "20260119": 0,
-          "20260120": 0,
-          "20260121": 0,
-          "20260122": 0,
-          "20260123": 0,
-          "20260124": 0,
-          "20260125": 0,
-          "20260126": 0,
-          "20260127": 0,
-          "20260128": 0,
-          "20260129": 0,
-          "20260130": 0,
-          "20260131": 0,
-          "20260201": 0,
-          "20260202": 0,
-          "20260203": 0,
-          "20260204": 0,
-          "20260205": 0,
-          "20260206": 0,
-          "20260207": 0,
-          "20260208": 0,
-          "20260209": 0,
-          "20260210": 0,
-          "20260211": 0,
-          "20260212": 0,
-          "20260213": 0,
-          "20260214": 0,
-          "20260215": 0,
-          "20260216": 0,
-          "20260217": 0,
-          "20260218": 0,
-          "20260219": 0,
-          "20260220": 0,
-          "20260221": 0,
-          "20260222": 0,
-          "20260223": 0,
-          "20260224": 0,
-          "20260225": 0,
-          "20260226": 0,
-          "20260227": 0,
-          "20260228": 0,
-          "20260301": 0,
-          "20260302": 0,
-          "20260303": 0,
-          "20260304": 0,
-          "20260305": 0,
-          "20260306": 0,
-          "20260307": 0,
-          "20260308": 0,
-          "20260309": 0,
-          "20260310": 0,
-          "20260311": 0,
-          "20260312": 0,
-          "20260313": 0,
-          "20260314": 0,
-          "20260315": 0,
-          "20260316": 0,
-          "20260317": 0,
-          "20260318": 0,
-          "20260319": 0,
-          "20260320": 0,
-          "20260321": 0,
-          "20260322": 0,
-          "20260323": 0,
-          "20260324": 0,
-          "20260325": 0,
-          "20260326": 0,
-          "20260327": 0,
-          "20260328": 0,
-          "20260329": 0,
-          "20260330": 0,
-          "20260331": 0,
-          "20260401": 0,
-          "20260402": 0,
-          "20260403": 0,
-          "20260404": 0,
-          "20260405": 0,
-          "20260406": 0,
-          "20260407": 0,
-          "20260408": 0,
-          "20260409": 0,
-          "20260410": 0,
-          "20260411": 0,
-          "20260412": 0,
-          "20260413": 0,
-          "20260414": 0,
-          "20260415": 0,
-          "20260416": 0,
-          "20260417": 0,
-          "20260418": 0,
-          "20260419": 0,
-          "20260420": 0,
-          "20260421": 0,
-          "20260422": 0,
-          "20260423": 0,
-          "20260424": 0,
-          "20260425": 0,
-          "20260426": 0,
-          "20260427": 0,
-          "20260428": 0,
-          "20260429": 0,
-          "20260430": 0,
-          "20260501": 0,
-          "20260502": 0,
-          "20260503": 0,
-          "20260504": 0,
-          "20260505": 0,
-          "20260506": 0,
-          "20260507": 1,
-          "20260508": 0,
-          "20260509": 0,
-          "20260510": 0,
-          "20260511": 0,
-          "20260512": 0,
-          "20260513": 0,
-          "20260514": 0,
-          "20260515": 0,
-          "20260516": 0,
-          "20260517": 0,
-          "20260518": 0,
-          "20260519": 0,
-          "20260520": 0,
-          "20260521": 0,
-          "20260522": 1,
-          "20260523": 0,
-          "20260524": 0,
-          "20260525": 0,
-          "20260526": 0,
-          "20260527": 2,
-          "20260528": 0,
-          "20260529": 0,
-          "20260530": 0,
-          "20260531": 0,
-          "20260601": 1,
-          "20260602": 0,
-          "20260603": 0,
-          "20260604": 0,
-          "20260605": 0,
-          "20260606": 0,
-          "20260607": 0,
-          "20260608": 0,
-          "20260609": 0,
-          "20260610": 2,
-          "20260611": 0,
-          "20260612": 0,
-          "20260613": 0,
-          "20260614": 0,
-          "20260615": 0,
-          "20260616": 0,
-          "20260617": 0,
-          "20260618": 0,
-          "20260619": 0,
-          "20260620": 0,
-          "20260621": 0,
-          "20260622": 0,
-          "20260623": 0,
-          "20260624": 0,
-          "20260625": 0,
-          "20260626": 0,
-          "20260627": 0,
-          "20260628": 0,
-          "20260629": 0,
-          "20260630": 0,
-          "20260701": 0,
-          "20260702": 0,
-          "20260703": 0,
-          "20260704": 0,
-          "20260705": 0,
-          "20260706": 0,
-          "20260707": 0,
-          "20260708": 1,
-          "20260709": 0,
-          "20260710": 0,
-          "20260711": 0,
-          "20260712": 0,
-          "20260713": 0,
-          "20260714": 0,
-          "20260715": 0,
-          "20260716": 0,
-          "20260717": 0,
-          "20260718": 0,
-          "20260719": 0,
-          "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -65897,7 +66411,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -66105,7 +66621,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -66313,7 +66831,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -66521,7 +67041,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -66729,7 +67251,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 2
+          "20260721": 2,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -66937,7 +67461,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -67145,7 +67671,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -67353,7 +67881,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -67561,7 +68091,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -67769,7 +68301,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -67977,7 +68511,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -68185,7 +68721,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -68393,7 +68931,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -68601,7 +69141,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -68809,7 +69351,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 1,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -69017,7 +69561,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -69225,7 +69771,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -69433,7 +69981,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -69641,7 +70191,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -69849,7 +70401,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -70057,7 +70611,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 1,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -70265,7 +70821,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -70473,7 +71031,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -70681,7 +71241,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -70889,7 +71451,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -71097,7 +71661,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -71305,7 +71871,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -71513,7 +72081,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -71721,7 +72291,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -71929,7 +72501,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -72137,7 +72711,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -72345,7 +72921,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -72553,7 +73131,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -72761,7 +73341,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -72969,7 +73551,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -73177,7 +73761,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -73385,7 +73971,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -73593,7 +74181,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -73801,7 +74391,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -74009,7 +74601,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -74217,7 +74811,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -74425,7 +75021,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -74633,7 +75231,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -74841,7 +75441,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -75049,7 +75651,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -75257,7 +75861,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -75465,7 +76071,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -75673,7 +76281,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -75881,7 +76491,219 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
+        }
+      },
+      {
+        "source": "Slack",
+        "count": 2,
+        "daily": {
+          "20260101": 0,
+          "20260102": 0,
+          "20260103": 0,
+          "20260104": 0,
+          "20260105": 0,
+          "20260106": 0,
+          "20260107": 0,
+          "20260108": 0,
+          "20260109": 0,
+          "20260110": 0,
+          "20260111": 0,
+          "20260112": 0,
+          "20260113": 0,
+          "20260114": 0,
+          "20260115": 0,
+          "20260116": 0,
+          "20260117": 0,
+          "20260118": 0,
+          "20260119": 0,
+          "20260120": 0,
+          "20260121": 0,
+          "20260122": 0,
+          "20260123": 0,
+          "20260124": 0,
+          "20260125": 0,
+          "20260126": 0,
+          "20260127": 0,
+          "20260128": 0,
+          "20260129": 0,
+          "20260130": 0,
+          "20260131": 0,
+          "20260201": 0,
+          "20260202": 0,
+          "20260203": 0,
+          "20260204": 0,
+          "20260205": 0,
+          "20260206": 0,
+          "20260207": 0,
+          "20260208": 0,
+          "20260209": 0,
+          "20260210": 0,
+          "20260211": 0,
+          "20260212": 0,
+          "20260213": 0,
+          "20260214": 0,
+          "20260215": 0,
+          "20260216": 0,
+          "20260217": 0,
+          "20260218": 0,
+          "20260219": 0,
+          "20260220": 0,
+          "20260221": 0,
+          "20260222": 0,
+          "20260223": 0,
+          "20260224": 0,
+          "20260225": 0,
+          "20260226": 0,
+          "20260227": 0,
+          "20260228": 0,
+          "20260301": 0,
+          "20260302": 0,
+          "20260303": 0,
+          "20260304": 0,
+          "20260305": 0,
+          "20260306": 0,
+          "20260307": 0,
+          "20260308": 0,
+          "20260309": 0,
+          "20260310": 0,
+          "20260311": 0,
+          "20260312": 0,
+          "20260313": 0,
+          "20260314": 0,
+          "20260315": 0,
+          "20260316": 0,
+          "20260317": 0,
+          "20260318": 0,
+          "20260319": 0,
+          "20260320": 0,
+          "20260321": 0,
+          "20260322": 0,
+          "20260323": 0,
+          "20260324": 0,
+          "20260325": 0,
+          "20260326": 0,
+          "20260327": 0,
+          "20260328": 0,
+          "20260329": 0,
+          "20260330": 0,
+          "20260331": 0,
+          "20260401": 0,
+          "20260402": 0,
+          "20260403": 0,
+          "20260404": 0,
+          "20260405": 0,
+          "20260406": 0,
+          "20260407": 0,
+          "20260408": 0,
+          "20260409": 0,
+          "20260410": 0,
+          "20260411": 0,
+          "20260412": 0,
+          "20260413": 0,
+          "20260414": 0,
+          "20260415": 0,
+          "20260416": 0,
+          "20260417": 0,
+          "20260418": 0,
+          "20260419": 0,
+          "20260420": 0,
+          "20260421": 0,
+          "20260422": 0,
+          "20260423": 0,
+          "20260424": 0,
+          "20260425": 0,
+          "20260426": 0,
+          "20260427": 0,
+          "20260428": 0,
+          "20260429": 0,
+          "20260430": 0,
+          "20260501": 0,
+          "20260502": 0,
+          "20260503": 0,
+          "20260504": 0,
+          "20260505": 0,
+          "20260506": 0,
+          "20260507": 0,
+          "20260508": 0,
+          "20260509": 0,
+          "20260510": 0,
+          "20260511": 0,
+          "20260512": 0,
+          "20260513": 1,
+          "20260514": 0,
+          "20260515": 0,
+          "20260516": 0,
+          "20260517": 0,
+          "20260518": 0,
+          "20260519": 0,
+          "20260520": 0,
+          "20260521": 0,
+          "20260522": 0,
+          "20260523": 0,
+          "20260524": 0,
+          "20260525": 0,
+          "20260526": 0,
+          "20260527": 0,
+          "20260528": 0,
+          "20260529": 0,
+          "20260530": 0,
+          "20260531": 0,
+          "20260601": 0,
+          "20260602": 0,
+          "20260603": 0,
+          "20260604": 0,
+          "20260605": 0,
+          "20260606": 0,
+          "20260607": 0,
+          "20260608": 0,
+          "20260609": 0,
+          "20260610": 0,
+          "20260611": 0,
+          "20260612": 0,
+          "20260613": 0,
+          "20260614": 0,
+          "20260615": 0,
+          "20260616": 0,
+          "20260617": 0,
+          "20260618": 0,
+          "20260619": 0,
+          "20260620": 0,
+          "20260621": 0,
+          "20260622": 0,
+          "20260623": 0,
+          "20260624": 0,
+          "20260625": 0,
+          "20260626": 0,
+          "20260627": 0,
+          "20260628": 0,
+          "20260629": 0,
+          "20260630": 0,
+          "20260701": 0,
+          "20260702": 0,
+          "20260703": 0,
+          "20260704": 0,
+          "20260705": 0,
+          "20260706": 0,
+          "20260707": 0,
+          "20260708": 0,
+          "20260709": 0,
+          "20260710": 0,
+          "20260711": 0,
+          "20260712": 0,
+          "20260713": 0,
+          "20260714": 0,
+          "20260715": 0,
+          "20260716": 0,
+          "20260717": 0,
+          "20260718": 0,
+          "20260719": 0,
+          "20260720": 0,
+          "20260721": 0,
+          "20260722": 1,
+          "20260723": 0
         }
       },
       {
@@ -76089,7 +76911,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -76297,7 +77121,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -76505,7 +77331,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -76713,7 +77541,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 2
+          "20260721": 2,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -76921,7 +77751,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -77129,7 +77961,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -77337,7 +78171,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -77545,7 +78381,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -77753,7 +78591,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -77961,7 +78801,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -78169,7 +79011,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -78377,7 +79221,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -78585,7 +79431,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -78793,7 +79641,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -79001,7 +79851,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -79209,7 +80061,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -79417,7 +80271,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -79625,7 +80481,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -79833,7 +80691,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -80041,7 +80901,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -80249,7 +81111,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -80457,7 +81321,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -80665,7 +81531,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -80873,7 +81741,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -81081,7 +81951,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -81289,7 +82161,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -81497,7 +82371,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -81705,7 +82581,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -81913,7 +82791,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -82121,7 +83001,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -82329,7 +83211,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -82537,7 +83421,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -82745,7 +83631,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -82953,7 +83841,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -83161,7 +84051,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -83369,7 +84261,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -83577,7 +84471,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -83785,7 +84681,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -83993,7 +84891,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -84201,7 +85101,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -84409,7 +85311,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -84617,7 +85521,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -84825,7 +85731,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -85033,7 +85941,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -85241,7 +86151,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -85449,7 +86361,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -85657,7 +86571,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -85865,7 +86781,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -86073,7 +86991,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -86281,7 +87201,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -86489,7 +87411,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -86697,7 +87621,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -86905,7 +87831,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -87113,7 +88041,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -87321,7 +88251,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -87529,7 +88461,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -87737,7 +88671,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -87945,7 +88881,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -88153,7 +89091,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -88361,7 +89301,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -88569,7 +89511,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -88777,7 +89721,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -88985,7 +89931,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -89193,7 +90141,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -89401,7 +90351,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -89609,7 +90561,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -89817,7 +90771,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -90025,7 +90981,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -90233,7 +91191,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -90441,7 +91401,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -90649,7 +91611,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -90857,7 +91821,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -91065,7 +92031,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -91273,7 +92241,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 1,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -91481,7 +92451,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -91689,7 +92661,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -91897,7 +92871,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -92105,7 +93081,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -92313,7 +93291,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -92521,7 +93501,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -92729,7 +93711,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -92937,7 +93921,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -93145,7 +94131,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -93353,7 +94341,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -93561,7 +94551,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -93769,7 +94761,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -93977,7 +94971,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -94185,7 +95181,219 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
+        }
+      },
+      {
+        "source": "Get in campaign",
+        "count": 1,
+        "daily": {
+          "20260101": 0,
+          "20260102": 0,
+          "20260103": 0,
+          "20260104": 0,
+          "20260105": 0,
+          "20260106": 0,
+          "20260107": 0,
+          "20260108": 0,
+          "20260109": 0,
+          "20260110": 0,
+          "20260111": 0,
+          "20260112": 0,
+          "20260113": 0,
+          "20260114": 0,
+          "20260115": 0,
+          "20260116": 0,
+          "20260117": 0,
+          "20260118": 0,
+          "20260119": 0,
+          "20260120": 0,
+          "20260121": 0,
+          "20260122": 0,
+          "20260123": 0,
+          "20260124": 0,
+          "20260125": 0,
+          "20260126": 0,
+          "20260127": 0,
+          "20260128": 0,
+          "20260129": 0,
+          "20260130": 0,
+          "20260131": 0,
+          "20260201": 0,
+          "20260202": 0,
+          "20260203": 0,
+          "20260204": 0,
+          "20260205": 0,
+          "20260206": 0,
+          "20260207": 0,
+          "20260208": 0,
+          "20260209": 0,
+          "20260210": 0,
+          "20260211": 0,
+          "20260212": 0,
+          "20260213": 0,
+          "20260214": 0,
+          "20260215": 0,
+          "20260216": 0,
+          "20260217": 0,
+          "20260218": 0,
+          "20260219": 0,
+          "20260220": 0,
+          "20260221": 0,
+          "20260222": 0,
+          "20260223": 0,
+          "20260224": 0,
+          "20260225": 0,
+          "20260226": 0,
+          "20260227": 0,
+          "20260228": 0,
+          "20260301": 0,
+          "20260302": 0,
+          "20260303": 0,
+          "20260304": 0,
+          "20260305": 0,
+          "20260306": 0,
+          "20260307": 0,
+          "20260308": 0,
+          "20260309": 0,
+          "20260310": 0,
+          "20260311": 0,
+          "20260312": 0,
+          "20260313": 0,
+          "20260314": 0,
+          "20260315": 0,
+          "20260316": 0,
+          "20260317": 0,
+          "20260318": 0,
+          "20260319": 0,
+          "20260320": 0,
+          "20260321": 0,
+          "20260322": 0,
+          "20260323": 0,
+          "20260324": 0,
+          "20260325": 0,
+          "20260326": 0,
+          "20260327": 0,
+          "20260328": 0,
+          "20260329": 0,
+          "20260330": 0,
+          "20260331": 0,
+          "20260401": 0,
+          "20260402": 0,
+          "20260403": 0,
+          "20260404": 0,
+          "20260405": 0,
+          "20260406": 0,
+          "20260407": 0,
+          "20260408": 0,
+          "20260409": 0,
+          "20260410": 0,
+          "20260411": 0,
+          "20260412": 0,
+          "20260413": 0,
+          "20260414": 0,
+          "20260415": 0,
+          "20260416": 0,
+          "20260417": 0,
+          "20260418": 0,
+          "20260419": 0,
+          "20260420": 0,
+          "20260421": 0,
+          "20260422": 0,
+          "20260423": 0,
+          "20260424": 0,
+          "20260425": 0,
+          "20260426": 0,
+          "20260427": 0,
+          "20260428": 0,
+          "20260429": 0,
+          "20260430": 0,
+          "20260501": 0,
+          "20260502": 0,
+          "20260503": 0,
+          "20260504": 0,
+          "20260505": 0,
+          "20260506": 0,
+          "20260507": 0,
+          "20260508": 0,
+          "20260509": 0,
+          "20260510": 0,
+          "20260511": 0,
+          "20260512": 0,
+          "20260513": 0,
+          "20260514": 0,
+          "20260515": 0,
+          "20260516": 0,
+          "20260517": 0,
+          "20260518": 0,
+          "20260519": 0,
+          "20260520": 0,
+          "20260521": 0,
+          "20260522": 0,
+          "20260523": 0,
+          "20260524": 0,
+          "20260525": 0,
+          "20260526": 0,
+          "20260527": 0,
+          "20260528": 0,
+          "20260529": 0,
+          "20260530": 0,
+          "20260531": 0,
+          "20260601": 0,
+          "20260602": 0,
+          "20260603": 0,
+          "20260604": 0,
+          "20260605": 0,
+          "20260606": 0,
+          "20260607": 0,
+          "20260608": 0,
+          "20260609": 0,
+          "20260610": 0,
+          "20260611": 0,
+          "20260612": 0,
+          "20260613": 0,
+          "20260614": 0,
+          "20260615": 0,
+          "20260616": 0,
+          "20260617": 0,
+          "20260618": 0,
+          "20260619": 0,
+          "20260620": 0,
+          "20260621": 0,
+          "20260622": 0,
+          "20260623": 0,
+          "20260624": 0,
+          "20260625": 0,
+          "20260626": 0,
+          "20260627": 0,
+          "20260628": 0,
+          "20260629": 0,
+          "20260630": 0,
+          "20260701": 0,
+          "20260702": 0,
+          "20260703": 0,
+          "20260704": 0,
+          "20260705": 0,
+          "20260706": 0,
+          "20260707": 0,
+          "20260708": 0,
+          "20260709": 0,
+          "20260710": 0,
+          "20260711": 0,
+          "20260712": 0,
+          "20260713": 0,
+          "20260714": 0,
+          "20260715": 0,
+          "20260716": 0,
+          "20260717": 0,
+          "20260718": 0,
+          "20260719": 0,
+          "20260720": 0,
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 1
         }
       },
       {
@@ -94393,7 +95601,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -94601,7 +95811,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -94809,7 +96021,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -95017,7 +96231,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -95225,7 +96441,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -95433,7 +96651,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -95641,7 +96861,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -95849,7 +97071,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -96057,7 +97281,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -96265,7 +97491,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -96473,7 +97701,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -96681,7 +97911,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -96889,7 +98121,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -97097,7 +98331,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -97305,7 +98541,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -97513,7 +98751,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -97721,7 +98961,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -97929,7 +99171,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -98137,7 +99381,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -98345,7 +99591,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -98553,7 +99801,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -98761,7 +100011,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -98969,7 +100221,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -99177,7 +100431,9 @@
           "20260718": 1,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -99385,7 +100641,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -99593,7 +100851,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 1,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -99801,7 +101061,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -100009,7 +101271,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -100217,7 +101481,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -100425,7 +101691,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -100633,7 +101901,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -100841,7 +102111,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -101049,7 +102321,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -101257,7 +102531,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -101465,7 +102741,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -101673,7 +102951,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -101881,7 +103161,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -102089,7 +103371,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 1
+          "20260721": 1,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -102297,7 +103581,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -102505,7 +103791,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -102713,7 +104001,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -102921,7 +104211,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -103129,7 +104421,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -103337,7 +104631,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -103545,7 +104841,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -103753,7 +105051,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -103961,7 +105261,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -104169,7 +105471,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -104377,7 +105681,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -104585,7 +105891,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -104793,7 +106101,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 1,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -105001,7 +106311,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -105209,7 +106521,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -105417,7 +106731,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -105625,7 +106941,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -105833,7 +107151,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -106041,7 +107361,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -106249,7 +107571,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -106457,7 +107781,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -106665,7 +107991,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -106873,7 +108201,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -107081,7 +108411,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -107289,7 +108621,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -107497,7 +108831,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -107705,7 +109041,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -107913,7 +109251,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -108121,7 +109461,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -108329,7 +109671,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -108537,7 +109881,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -108745,7 +110091,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -108953,7 +110301,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -109161,7 +110511,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -109369,7 +110721,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -109577,7 +110931,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -109785,7 +111141,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -109993,7 +111351,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -110201,7 +111561,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -110409,7 +111771,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -110617,7 +111981,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -110825,7 +112191,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -111033,215 +112401,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
-        }
-      },
-      {
-        "source": "Slack",
-        "count": 1,
-        "daily": {
-          "20260101": 0,
-          "20260102": 0,
-          "20260103": 0,
-          "20260104": 0,
-          "20260105": 0,
-          "20260106": 0,
-          "20260107": 0,
-          "20260108": 0,
-          "20260109": 0,
-          "20260110": 0,
-          "20260111": 0,
-          "20260112": 0,
-          "20260113": 0,
-          "20260114": 0,
-          "20260115": 0,
-          "20260116": 0,
-          "20260117": 0,
-          "20260118": 0,
-          "20260119": 0,
-          "20260120": 0,
-          "20260121": 0,
-          "20260122": 0,
-          "20260123": 0,
-          "20260124": 0,
-          "20260125": 0,
-          "20260126": 0,
-          "20260127": 0,
-          "20260128": 0,
-          "20260129": 0,
-          "20260130": 0,
-          "20260131": 0,
-          "20260201": 0,
-          "20260202": 0,
-          "20260203": 0,
-          "20260204": 0,
-          "20260205": 0,
-          "20260206": 0,
-          "20260207": 0,
-          "20260208": 0,
-          "20260209": 0,
-          "20260210": 0,
-          "20260211": 0,
-          "20260212": 0,
-          "20260213": 0,
-          "20260214": 0,
-          "20260215": 0,
-          "20260216": 0,
-          "20260217": 0,
-          "20260218": 0,
-          "20260219": 0,
-          "20260220": 0,
-          "20260221": 0,
-          "20260222": 0,
-          "20260223": 0,
-          "20260224": 0,
-          "20260225": 0,
-          "20260226": 0,
-          "20260227": 0,
-          "20260228": 0,
-          "20260301": 0,
-          "20260302": 0,
-          "20260303": 0,
-          "20260304": 0,
-          "20260305": 0,
-          "20260306": 0,
-          "20260307": 0,
-          "20260308": 0,
-          "20260309": 0,
-          "20260310": 0,
-          "20260311": 0,
-          "20260312": 0,
-          "20260313": 0,
-          "20260314": 0,
-          "20260315": 0,
-          "20260316": 0,
-          "20260317": 0,
-          "20260318": 0,
-          "20260319": 0,
-          "20260320": 0,
-          "20260321": 0,
-          "20260322": 0,
-          "20260323": 0,
-          "20260324": 0,
-          "20260325": 0,
-          "20260326": 0,
-          "20260327": 0,
-          "20260328": 0,
-          "20260329": 0,
-          "20260330": 0,
-          "20260331": 0,
-          "20260401": 0,
-          "20260402": 0,
-          "20260403": 0,
-          "20260404": 0,
-          "20260405": 0,
-          "20260406": 0,
-          "20260407": 0,
-          "20260408": 0,
-          "20260409": 0,
-          "20260410": 0,
-          "20260411": 0,
-          "20260412": 0,
-          "20260413": 0,
-          "20260414": 0,
-          "20260415": 0,
-          "20260416": 0,
-          "20260417": 0,
-          "20260418": 0,
-          "20260419": 0,
-          "20260420": 0,
-          "20260421": 0,
-          "20260422": 0,
-          "20260423": 0,
-          "20260424": 0,
-          "20260425": 0,
-          "20260426": 0,
-          "20260427": 0,
-          "20260428": 0,
-          "20260429": 0,
-          "20260430": 0,
-          "20260501": 0,
-          "20260502": 0,
-          "20260503": 0,
-          "20260504": 0,
-          "20260505": 0,
-          "20260506": 0,
-          "20260507": 0,
-          "20260508": 0,
-          "20260509": 0,
-          "20260510": 0,
-          "20260511": 0,
-          "20260512": 0,
-          "20260513": 1,
-          "20260514": 0,
-          "20260515": 0,
-          "20260516": 0,
-          "20260517": 0,
-          "20260518": 0,
-          "20260519": 0,
-          "20260520": 0,
-          "20260521": 0,
-          "20260522": 0,
-          "20260523": 0,
-          "20260524": 0,
-          "20260525": 0,
-          "20260526": 0,
-          "20260527": 0,
-          "20260528": 0,
-          "20260529": 0,
-          "20260530": 0,
-          "20260531": 0,
-          "20260601": 0,
-          "20260602": 0,
-          "20260603": 0,
-          "20260604": 0,
-          "20260605": 0,
-          "20260606": 0,
-          "20260607": 0,
-          "20260608": 0,
-          "20260609": 0,
-          "20260610": 0,
-          "20260611": 0,
-          "20260612": 0,
-          "20260613": 0,
-          "20260614": 0,
-          "20260615": 0,
-          "20260616": 0,
-          "20260617": 0,
-          "20260618": 0,
-          "20260619": 0,
-          "20260620": 0,
-          "20260621": 0,
-          "20260622": 0,
-          "20260623": 0,
-          "20260624": 0,
-          "20260625": 0,
-          "20260626": 0,
-          "20260627": 0,
-          "20260628": 0,
-          "20260629": 0,
-          "20260630": 0,
-          "20260701": 0,
-          "20260702": 0,
-          "20260703": 0,
-          "20260704": 0,
-          "20260705": 0,
-          "20260706": 0,
-          "20260707": 0,
-          "20260708": 0,
-          "20260709": 0,
-          "20260710": 0,
-          "20260711": 0,
-          "20260712": 0,
-          "20260713": 0,
-          "20260714": 0,
-          "20260715": 0,
-          "20260716": 0,
-          "20260717": 0,
-          "20260718": 0,
-          "20260719": 0,
-          "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -111449,7 +112611,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -111657,7 +112821,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -111865,7 +113031,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -112073,7 +113241,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -112281,7 +113451,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -112489,7 +113661,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -112697,7 +113871,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -112905,7 +114081,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -113113,7 +114291,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -113321,7 +114501,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -113529,7 +114711,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -113737,7 +114921,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -113945,7 +115131,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 1,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -114153,7 +115341,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -114361,7 +115551,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -114569,7 +115761,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -114777,7 +115971,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -114985,7 +116181,219 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
+        }
+      },
+      {
+        "source": "Webinar",
+        "count": 1,
+        "daily": {
+          "20260101": 0,
+          "20260102": 0,
+          "20260103": 0,
+          "20260104": 0,
+          "20260105": 0,
+          "20260106": 0,
+          "20260107": 0,
+          "20260108": 0,
+          "20260109": 0,
+          "20260110": 0,
+          "20260111": 0,
+          "20260112": 0,
+          "20260113": 0,
+          "20260114": 0,
+          "20260115": 0,
+          "20260116": 0,
+          "20260117": 0,
+          "20260118": 0,
+          "20260119": 0,
+          "20260120": 0,
+          "20260121": 0,
+          "20260122": 0,
+          "20260123": 0,
+          "20260124": 0,
+          "20260125": 0,
+          "20260126": 0,
+          "20260127": 0,
+          "20260128": 0,
+          "20260129": 0,
+          "20260130": 0,
+          "20260131": 0,
+          "20260201": 0,
+          "20260202": 0,
+          "20260203": 0,
+          "20260204": 0,
+          "20260205": 0,
+          "20260206": 0,
+          "20260207": 0,
+          "20260208": 0,
+          "20260209": 0,
+          "20260210": 0,
+          "20260211": 0,
+          "20260212": 0,
+          "20260213": 0,
+          "20260214": 0,
+          "20260215": 0,
+          "20260216": 0,
+          "20260217": 0,
+          "20260218": 0,
+          "20260219": 0,
+          "20260220": 0,
+          "20260221": 0,
+          "20260222": 0,
+          "20260223": 0,
+          "20260224": 0,
+          "20260225": 0,
+          "20260226": 0,
+          "20260227": 0,
+          "20260228": 0,
+          "20260301": 0,
+          "20260302": 0,
+          "20260303": 0,
+          "20260304": 0,
+          "20260305": 0,
+          "20260306": 0,
+          "20260307": 0,
+          "20260308": 0,
+          "20260309": 0,
+          "20260310": 0,
+          "20260311": 0,
+          "20260312": 0,
+          "20260313": 0,
+          "20260314": 0,
+          "20260315": 0,
+          "20260316": 0,
+          "20260317": 0,
+          "20260318": 0,
+          "20260319": 0,
+          "20260320": 0,
+          "20260321": 0,
+          "20260322": 0,
+          "20260323": 0,
+          "20260324": 0,
+          "20260325": 0,
+          "20260326": 0,
+          "20260327": 0,
+          "20260328": 0,
+          "20260329": 0,
+          "20260330": 0,
+          "20260331": 0,
+          "20260401": 0,
+          "20260402": 0,
+          "20260403": 0,
+          "20260404": 0,
+          "20260405": 0,
+          "20260406": 0,
+          "20260407": 0,
+          "20260408": 0,
+          "20260409": 0,
+          "20260410": 0,
+          "20260411": 0,
+          "20260412": 0,
+          "20260413": 0,
+          "20260414": 0,
+          "20260415": 0,
+          "20260416": 0,
+          "20260417": 0,
+          "20260418": 0,
+          "20260419": 0,
+          "20260420": 0,
+          "20260421": 0,
+          "20260422": 0,
+          "20260423": 0,
+          "20260424": 0,
+          "20260425": 0,
+          "20260426": 0,
+          "20260427": 0,
+          "20260428": 0,
+          "20260429": 0,
+          "20260430": 0,
+          "20260501": 0,
+          "20260502": 0,
+          "20260503": 0,
+          "20260504": 0,
+          "20260505": 0,
+          "20260506": 0,
+          "20260507": 0,
+          "20260508": 0,
+          "20260509": 0,
+          "20260510": 0,
+          "20260511": 0,
+          "20260512": 0,
+          "20260513": 0,
+          "20260514": 0,
+          "20260515": 0,
+          "20260516": 0,
+          "20260517": 0,
+          "20260518": 0,
+          "20260519": 0,
+          "20260520": 0,
+          "20260521": 0,
+          "20260522": 0,
+          "20260523": 0,
+          "20260524": 0,
+          "20260525": 0,
+          "20260526": 0,
+          "20260527": 0,
+          "20260528": 0,
+          "20260529": 0,
+          "20260530": 0,
+          "20260531": 0,
+          "20260601": 0,
+          "20260602": 0,
+          "20260603": 0,
+          "20260604": 0,
+          "20260605": 0,
+          "20260606": 0,
+          "20260607": 0,
+          "20260608": 0,
+          "20260609": 0,
+          "20260610": 0,
+          "20260611": 0,
+          "20260612": 0,
+          "20260613": 0,
+          "20260614": 0,
+          "20260615": 0,
+          "20260616": 0,
+          "20260617": 0,
+          "20260618": 0,
+          "20260619": 0,
+          "20260620": 0,
+          "20260621": 0,
+          "20260622": 0,
+          "20260623": 0,
+          "20260624": 0,
+          "20260625": 0,
+          "20260626": 0,
+          "20260627": 0,
+          "20260628": 0,
+          "20260629": 0,
+          "20260630": 0,
+          "20260701": 0,
+          "20260702": 0,
+          "20260703": 0,
+          "20260704": 0,
+          "20260705": 0,
+          "20260706": 0,
+          "20260707": 0,
+          "20260708": 0,
+          "20260709": 0,
+          "20260710": 0,
+          "20260711": 0,
+          "20260712": 0,
+          "20260713": 0,
+          "20260714": 0,
+          "20260715": 0,
+          "20260716": 0,
+          "20260717": 0,
+          "20260718": 0,
+          "20260719": 0,
+          "20260720": 0,
+          "20260721": 0,
+          "20260722": 1,
+          "20260723": 0
         }
       },
       {
@@ -115193,7 +116601,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -115401,7 +116811,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -115609,7 +117021,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -115817,7 +117231,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -116025,7 +117441,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -116233,7 +117651,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -116441,7 +117861,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -116649,7 +118071,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -116857,7 +118281,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -117065,7 +118491,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -117273,7 +118701,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -117481,7 +118911,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -117689,7 +119121,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -117897,7 +119331,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -118105,7 +119541,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -118313,7 +119751,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -118521,7 +119961,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -118729,7 +120171,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -118937,7 +120381,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -119145,7 +120591,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -119353,7 +120801,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -119561,7 +121011,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -119769,7 +121221,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -119977,7 +121431,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -120185,7 +121641,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -120393,7 +121851,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -120601,7 +122061,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -120809,7 +122271,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -121017,7 +122481,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -121225,7 +122691,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -121433,7 +122901,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -121641,7 +123111,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -121849,7 +123321,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -122057,7 +123531,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -122265,7 +123741,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -122473,7 +123951,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -122681,7 +124161,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -122889,7 +124371,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -123097,7 +124581,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -123305,7 +124791,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -123513,7 +125001,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -123721,7 +125211,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -123929,7 +125421,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -124137,7 +125631,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -124345,7 +125841,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -124553,7 +126051,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -124761,7 +126261,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -124969,7 +126471,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -125177,7 +126681,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -125385,7 +126891,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -125593,7 +127101,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -125801,7 +127311,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -126009,7 +127521,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -126217,7 +127731,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -126425,7 +127941,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -126633,7 +128151,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -126841,7 +128361,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -127049,7 +128571,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -127257,7 +128781,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -127465,7 +128991,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -127673,7 +129201,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -127881,7 +129411,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -128089,7 +129621,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -128297,7 +129831,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -128505,7 +130041,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -128713,7 +130251,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -128921,7 +130461,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -129129,7 +130671,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -129337,7 +130881,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -129545,7 +131091,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -129753,7 +131301,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -129961,7 +131511,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -130169,7 +131721,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -130377,7 +131931,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -130585,7 +132141,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -130793,7 +132351,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -131001,7 +132561,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -131209,7 +132771,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -131417,7 +132981,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -131625,7 +133191,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -131833,7 +133401,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -132041,7 +133611,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -132249,7 +133821,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -132457,7 +134031,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -132665,7 +134241,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -132873,7 +134451,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -133081,7 +134661,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -133289,7 +134871,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -133497,7 +135081,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -133705,7 +135291,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -133913,7 +135501,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -134121,7 +135711,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -134329,7 +135921,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -134537,7 +136131,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -134745,7 +136341,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -134953,7 +136551,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -135161,7 +136761,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -135369,7 +136971,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -135577,7 +137181,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -135785,7 +137391,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -135993,7 +137601,219 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
+        }
+      },
+      {
+        "source": "mutual customer",
+        "count": 1,
+        "daily": {
+          "20260101": 0,
+          "20260102": 0,
+          "20260103": 0,
+          "20260104": 0,
+          "20260105": 0,
+          "20260106": 0,
+          "20260107": 0,
+          "20260108": 0,
+          "20260109": 0,
+          "20260110": 0,
+          "20260111": 0,
+          "20260112": 0,
+          "20260113": 0,
+          "20260114": 0,
+          "20260115": 0,
+          "20260116": 0,
+          "20260117": 0,
+          "20260118": 0,
+          "20260119": 0,
+          "20260120": 0,
+          "20260121": 0,
+          "20260122": 0,
+          "20260123": 0,
+          "20260124": 0,
+          "20260125": 0,
+          "20260126": 0,
+          "20260127": 0,
+          "20260128": 0,
+          "20260129": 0,
+          "20260130": 0,
+          "20260131": 0,
+          "20260201": 0,
+          "20260202": 0,
+          "20260203": 0,
+          "20260204": 0,
+          "20260205": 0,
+          "20260206": 0,
+          "20260207": 0,
+          "20260208": 0,
+          "20260209": 0,
+          "20260210": 0,
+          "20260211": 0,
+          "20260212": 0,
+          "20260213": 0,
+          "20260214": 0,
+          "20260215": 0,
+          "20260216": 0,
+          "20260217": 0,
+          "20260218": 0,
+          "20260219": 0,
+          "20260220": 0,
+          "20260221": 0,
+          "20260222": 0,
+          "20260223": 0,
+          "20260224": 0,
+          "20260225": 0,
+          "20260226": 0,
+          "20260227": 0,
+          "20260228": 0,
+          "20260301": 0,
+          "20260302": 0,
+          "20260303": 0,
+          "20260304": 0,
+          "20260305": 0,
+          "20260306": 0,
+          "20260307": 0,
+          "20260308": 0,
+          "20260309": 0,
+          "20260310": 0,
+          "20260311": 0,
+          "20260312": 0,
+          "20260313": 0,
+          "20260314": 0,
+          "20260315": 0,
+          "20260316": 0,
+          "20260317": 0,
+          "20260318": 0,
+          "20260319": 0,
+          "20260320": 0,
+          "20260321": 0,
+          "20260322": 0,
+          "20260323": 0,
+          "20260324": 0,
+          "20260325": 0,
+          "20260326": 0,
+          "20260327": 0,
+          "20260328": 0,
+          "20260329": 0,
+          "20260330": 0,
+          "20260331": 0,
+          "20260401": 0,
+          "20260402": 0,
+          "20260403": 0,
+          "20260404": 0,
+          "20260405": 0,
+          "20260406": 0,
+          "20260407": 0,
+          "20260408": 0,
+          "20260409": 0,
+          "20260410": 0,
+          "20260411": 0,
+          "20260412": 0,
+          "20260413": 0,
+          "20260414": 0,
+          "20260415": 0,
+          "20260416": 0,
+          "20260417": 0,
+          "20260418": 0,
+          "20260419": 0,
+          "20260420": 0,
+          "20260421": 0,
+          "20260422": 0,
+          "20260423": 0,
+          "20260424": 0,
+          "20260425": 0,
+          "20260426": 0,
+          "20260427": 0,
+          "20260428": 0,
+          "20260429": 0,
+          "20260430": 0,
+          "20260501": 0,
+          "20260502": 0,
+          "20260503": 0,
+          "20260504": 0,
+          "20260505": 0,
+          "20260506": 0,
+          "20260507": 0,
+          "20260508": 0,
+          "20260509": 0,
+          "20260510": 0,
+          "20260511": 0,
+          "20260512": 0,
+          "20260513": 0,
+          "20260514": 0,
+          "20260515": 0,
+          "20260516": 0,
+          "20260517": 0,
+          "20260518": 0,
+          "20260519": 0,
+          "20260520": 0,
+          "20260521": 0,
+          "20260522": 0,
+          "20260523": 0,
+          "20260524": 0,
+          "20260525": 0,
+          "20260526": 0,
+          "20260527": 0,
+          "20260528": 0,
+          "20260529": 0,
+          "20260530": 0,
+          "20260531": 0,
+          "20260601": 0,
+          "20260602": 0,
+          "20260603": 0,
+          "20260604": 0,
+          "20260605": 0,
+          "20260606": 0,
+          "20260607": 0,
+          "20260608": 0,
+          "20260609": 0,
+          "20260610": 0,
+          "20260611": 0,
+          "20260612": 0,
+          "20260613": 0,
+          "20260614": 0,
+          "20260615": 0,
+          "20260616": 0,
+          "20260617": 0,
+          "20260618": 0,
+          "20260619": 0,
+          "20260620": 0,
+          "20260621": 0,
+          "20260622": 0,
+          "20260623": 0,
+          "20260624": 0,
+          "20260625": 0,
+          "20260626": 0,
+          "20260627": 0,
+          "20260628": 0,
+          "20260629": 0,
+          "20260630": 0,
+          "20260701": 0,
+          "20260702": 0,
+          "20260703": 0,
+          "20260704": 0,
+          "20260705": 0,
+          "20260706": 0,
+          "20260707": 0,
+          "20260708": 0,
+          "20260709": 0,
+          "20260710": 0,
+          "20260711": 0,
+          "20260712": 0,
+          "20260713": 0,
+          "20260714": 0,
+          "20260715": 0,
+          "20260716": 0,
+          "20260717": 0,
+          "20260718": 0,
+          "20260719": 0,
+          "20260720": 0,
+          "20260721": 0,
+          "20260722": 1,
+          "20260723": 0
         }
       },
       {
@@ -136201,7 +138021,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -136409,7 +138231,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -136617,7 +138441,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -136825,7 +138651,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -137033,7 +138861,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -137241,7 +139071,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -137449,7 +139281,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -137657,7 +139491,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -137865,7 +139701,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -138073,7 +139911,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -138281,7 +140121,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 1,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -138489,7 +140331,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -138697,7 +140541,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -138905,7 +140751,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -139113,7 +140961,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -139321,7 +141171,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -139529,7 +141381,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -139737,7 +141591,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -139945,7 +141801,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -140153,7 +142011,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -140361,7 +142221,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -140569,7 +142431,9 @@
           "20260718": 0,
           "20260719": 1,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -140777,7 +142641,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -140985,7 +142851,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -141193,7 +143061,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -141401,7 +143271,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -141609,7 +143481,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -141817,7 +143691,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -142025,7 +143901,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -142233,7 +144111,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -142441,7 +144321,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -142649,7 +144531,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -142857,7 +144741,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -143065,7 +144951,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -143273,7 +145161,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -143481,7 +145371,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -143689,7 +145581,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -143897,7 +145791,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -144105,7 +146001,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -144313,7 +146211,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -144521,7 +146421,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -144729,7 +146631,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -144937,7 +146841,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -145145,7 +147051,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -145353,7 +147261,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -145561,7 +147471,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 1
+          "20260721": 1,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -145769,7 +147681,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -145977,7 +147891,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -146185,7 +148101,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -146393,7 +148311,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -146601,7 +148521,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -146809,7 +148731,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -147017,7 +148941,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -147225,7 +149151,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       },
       {
@@ -147433,7 +149361,9 @@
           "20260718": 0,
           "20260719": 0,
           "20260720": 0,
-          "20260721": 0
+          "20260721": 0,
+          "20260722": 0,
+          "20260723": 0
         }
       }
     ],
@@ -148868,15 +150798,30 @@
         },
         "20260721": {
           "founder": 3,
-          "other": 3,
-          "ae": 6,
+          "other": 5,
+          "ae": 7,
           "abm": 2,
           "demand_gen": 1,
           "product_marketing": 1,
           "bdr_sdr": 1
+        },
+        "20260722": {
+          "founder": 2,
+          "other": 6,
+          "ae": 6,
+          "abm": 2,
+          "demand_gen": 2,
+          "product_marketing": 2,
+          "bdr_sdr": 1
+        },
+        "20260723": {
+          "other": 1,
+          "ae": 1,
+          "abm": 1,
+          "bdr_sdr": 1
         }
       },
-      "regeneratedAt": "2026-07-21T19:52:46.502Z",
+      "regeneratedAt": "2026-07-23T13:42:06.533Z",
       "regeneratedVia": "pull-data.mjs (REST segmentation, daily event totals, event-property group_by user_work_role)",
       "periods": {
         "20260101_20260131": {},
@@ -149235,7 +151180,7 @@
       "20260716": 14
     },
     "companySetupDailyNote": "Daily unique [Onboarding] Company Setup Complete (PREVIOUS signup definition, org-creators only; internal excluded). Sum-of-daily per period. Regenerated via Amplitude MCP.",
-    "pulledAt": "2026-07-21T19:52:46.512Z"
+    "pulledAt": "2026-07-23T13:42:06.578Z"
   },
   "hubspot": {
     "meetings": [
@@ -149580,14 +151525,20 @@
         "email": "ellie.gilbert-ryan@ppro.com",
         "company": "PPRO",
         "referralSource": "Referral"
+      },
+      {
+        "date": "20260721",
+        "email": "hannah.zwick@mikmak.com",
+        "company": "MikMak",
+        "referralSource": "ChatGPT"
       }
     ],
     "logos": {
-      "total": 129,
+      "total": 128,
       "source": "revenue-repo",
       "repo": "UncleAchoo/revenue-dashboard-official",
       "path": "stripe_data.json",
-      "pulledAt": "2026-07-22T22:51:52.424Z",
+      "pulledAt": "2026-07-23T13:42:00.532Z",
       "weekly": [
         {
           "week_ending": "2026-03-22",
@@ -149680,62 +151631,62 @@
           "partial": false
         },
         {
-          "week_ending": "2026-07-22",
-          "count": 129,
+          "week_ending": "2026-07-23",
+          "count": 128,
           "partial": true
         }
       ]
     },
-    "pulledAt": "2026-07-21T19:52:39.274Z"
+    "pulledAt": "2026-07-23T13:42:00.532Z"
   },
   "peec": {
-    "pulledAt": "2026-07-21T19:52:13.000Z",
+    "pulledAt": "2026-07-23T13:41:35.000Z",
     "windowStart": "2026-04-23",
-    "windowEnd": "2026-07-20",
-    "visibility": 0.1576,
-    "mentionCount": 12935,
+    "windowEnd": "2026-07-22",
+    "visibility": 0.1571,
+    "mentionCount": 13103,
     "avgPosition": 2.6,
     "competitorRank": 4,
     "competitorTotal": 16,
     "topCompetitor": {
       "name": "6sense",
-      "visibility": 0.1773
+      "visibility": 0.1761
     },
     "topics": [
       {
         "topicId": "to_c7f0f067-a48f-4d0e-8676-a01f183e416c",
         "name": "Competitor Comparisons",
-        "visibility": 0.4152,
-        "mentions": 7517,
-        "responses": 3114
+        "visibility": 0.4108,
+        "mentions": 7569,
+        "responses": 3179
       },
       {
         "topicId": "to_1f306540-833c-4b81-9753-653c33a70cd7",
         "name": "ABM",
-        "visibility": 0.2652,
-        "mentions": 2440,
-        "responses": 4340
+        "visibility": 0.2648,
+        "mentions": 2487,
+        "responses": 4441
       },
       {
         "topicId": "to_8f9cecf0-a16c-49b7-af05-1c7f6fd5e684",
         "name": "Modern GTM tech stack",
-        "visibility": 0.0764,
-        "mentions": 341,
-        "responses": 3678
+        "visibility": 0.0768,
+        "mentions": 352,
+        "responses": 3762
       },
       {
         "topicId": "to_89f3990a-c991-4a09-9852-23df929174d1",
         "name": "AI Sales Tools",
-        "visibility": 0.0723,
-        "mentions": 505,
-        "responses": 4677
+        "visibility": 0.0729,
+        "mentions": 527,
+        "responses": 4789
       },
       {
         "topicId": "to_180aec82-5c6e-4570-8787-7eefa5444185",
         "name": "AI Sales Enablement",
-        "visibility": 0.0639,
-        "mentions": 669,
-        "responses": 4338
+        "visibility": 0.0651,
+        "mentions": 696,
+        "responses": 4440
       },
       {
         "topicId": "to_65877128-3c62-43e5-a8cd-a26ad9740afc",
@@ -150635,6 +152586,26 @@
         "AI Sales Tools": 0.1071,
         "AI Sales Enablement": 0.1569,
         "Outbound tools": 0
+      },
+      {
+        "date": "2026-07-21",
+        "visibility": 0.1408,
+        "Competitor Comparisons": 0.1875,
+        "ABM": 0.2745,
+        "Modern GTM tech stack": 0.0952,
+        "AI Sales Tools": 0.125,
+        "AI Sales Enablement": 0.1176,
+        "Outbound tools": 0
+      },
+      {
+        "date": "2026-07-22",
+        "visibility": 0.13,
+        "Competitor Comparisons": 0.2121,
+        "ABM": 0.22,
+        "Modern GTM tech stack": 0.0952,
+        "AI Sales Tools": 0.0714,
+        "AI Sales Enablement": 0.1176,
+        "Outbound tools": 0
       }
     ],
     "sources": {
@@ -151393,14 +153364,34 @@
             "AI Sales Enablement": 18,
             "Competitor Comparisons": 9,
             "Modern GTM tech stack": 8
+          },
+          {
+            "date": "2026-07-21",
+            "Total": 101,
+            "AI Sales Tools": 24,
+            "Assets": 21,
+            "ABM": 19,
+            "AI Sales Enablement": 19,
+            "Competitor Comparisons": 9,
+            "Modern GTM tech stack": 9
+          },
+          {
+            "date": "2026-07-22",
+            "Total": 98,
+            "Assets": 23,
+            "AI Sales Enablement": 19,
+            "ABM": 18,
+            "AI Sales Tools": 17,
+            "Modern GTM tech stack": 12,
+            "Competitor Comparisons": 9
           }
         ],
         "metric": {
-          "retrievedPct": 0.2059,
-          "retrievalRate": 0.3106,
-          "citationRate": 1.7004,
-          "retrievalCount": 7118,
-          "citationCount": 8026
+          "retrievedPct": 0.2096,
+          "retrievalRate": 0.3143,
+          "citationRate": 1.6953,
+          "retrievalCount": 7379,
+          "citationCount": 8339
         },
         "dailyStats": [
           {
@@ -152114,6 +154105,22 @@
             "citationRate": 1.6702,
             "retrievalCount": 134,
             "citationCount": 157
+          },
+          {
+            "date": "2026-07-21",
+            "retrievedPct": 0.3646,
+            "retrievalRate": 0.4657,
+            "citationRate": 1.6832,
+            "retrievalCount": 129,
+            "citationCount": 170
+          },
+          {
+            "date": "2026-07-22",
+            "retrievedPct": 0.3538,
+            "retrievalRate": 0.4765,
+            "citationRate": 1.4592,
+            "retrievalCount": 132,
+            "citationCount": 143
           }
         ]
       }
@@ -152652,6 +154659,18 @@
         "visCount": 51,
         "visTotal": 275,
         "mentions": 110
+      },
+      {
+        "date": "2026-07-21",
+        "visCount": 39,
+        "visTotal": 277,
+        "mentions": 89
+      },
+      {
+        "date": "2026-07-22",
+        "visCount": 36,
+        "visTotal": 277,
+        "mentions": 79
       }
     ]
   }
