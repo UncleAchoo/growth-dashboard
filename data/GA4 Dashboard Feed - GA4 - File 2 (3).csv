@@ -23,6 +23,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260701,Direct,(direct) / (none),7
 20260708,Direct,(direct) / (none),7
 20260714,Direct,(direct) / (none),7
+20260723,Direct,(direct) / (none),7
 20260510,Organic Search,google / organic,6
 20260520,Direct,(direct) / (none),6
 20260522,Direct,(direct) / (none),6
@@ -117,6 +118,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260715,Direct,(direct) / (none),2
 20260716,Organic Search,google / organic,2
 20260718,Direct,(direct) / (none),2
+20260723,Organic Search,google / organic,2
 20260507,Organic Social,linkedin.com / referral,1
 20260508,Referral,mkt1-website / referral,1
 20260509,Direct,(direct) / (none),1
@@ -202,3 +204,4 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260721,Email,hs_automation / email,1
 20260722,Organic Search,google / organic,1
 20260723,Organic Social - LinkedIn,linkedin / social,1
+20260724,Organic Search,google / organic,1
