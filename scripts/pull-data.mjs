@@ -421,6 +421,33 @@ async function fetchAmplitude() {
     log(`  Amplitude: roles regeneration failed (${err.message}) — will carry forward the previous roles block.`);
   }
 
+  // ---- Previous-method daily signups (amplitude.companySetupDaily) -------
+  // Daily UNIQUE [Onboarding] Company Setup Complete (the pre-USC signup
+  // definition — org-creators only, internal excluded). Unlike the dedup block,
+  // this is plain daily uniques (interval=1), which the Dashboard REST API CAN
+  // express — so regenerate it every pull instead of carrying it forward stale.
+  // Merged over the prior block below so history before WINDOW_START survives.
+  let companySetupDailyFresh = null;
+  try {
+    const csEvent = {
+      event_type: '[Onboarding] Company Setup Complete',
+      filters: [{ subprop_op: 'does not contain', subprop_key: 'email', subprop_type: 'event', subprop_value: ['mutinyhq', 'mutiny'] }],
+    };
+    const cs = await ampSegmentation({ event: csEvent, start: WINDOW_START, end: WINDOW_END, interval: 1, metric: 'uniques' });
+    const csSeries = cs?.data?.series?.[0] ?? [];
+    const csX = cs?.data?.xValues ?? [];
+    if (csX.length) {
+      companySetupDailyFresh = {};
+      for (let i = 0; i < csX.length; i++) {
+        companySetupDailyFresh[ymdCompact(csX[i])] = Number(csSeries[i]) || 0;
+      }
+      log(`  Amplitude: regenerated amplitude.companySetupDaily (${csX.length} days) from Company Setup Complete daily uniques.`);
+    }
+  } catch (err) {
+    log(`  Amplitude: companySetupDaily regeneration failed (${err.message}) — will carry forward the previous series.`);
+  }
+  const COMPANY_SETUP_DAILY_NOTE = 'Daily unique [Onboarding] Company Setup Complete (PREVIOUS signup definition, org-creators only; internal excluded). Sum-of-daily per period. Regenerated each pull via REST segmentation (daily uniques, interval=1); history before the pull window is carried forward.';
+
   // ---- Deduplicated totals (amplitude.dedup) ----------------------------
   // The deduped headline KPI, per-bar totals, and cumulative-signups line read
   // from `amplitude.dedup` (true unique-user counts of the 4-event union at
@@ -483,16 +510,25 @@ async function fetchAmplitude() {
       // ---- Previous-method daily signups (amplitude.companySetupDaily) -----
       // Daily unique Company Setup Complete — the pre-USC signup definition,
       // used by the "Company signups by Channel (previous method)" chart.
-      // Generated out-of-band via the Amplitude query API (this REST pull only
-      // fetches the current USC dailySignups), so carry it forward.
-      if (prevData.amplitude?.companySetupDaily) {
-        companySetupDaily = prevData.amplitude.companySetupDaily;
-        companySetupDailyNote = prevData.amplitude.companySetupDailyNote;
-        log('  Amplitude: carried forward existing amplitude.companySetupDaily (regenerate via the query API to extend it).');
+      // Regenerated fresh above via REST; merge it OVER the prior series so the
+      // pull window is refreshed while older history (before WINDOW_START) is
+      // preserved. Falls back to carry-forward if the fresh pull failed.
+      if (prevData.amplitude?.companySetupDaily || companySetupDailyFresh) {
+        companySetupDaily = { ...(prevData.amplitude?.companySetupDaily || {}), ...(companySetupDailyFresh || {}) };
+        companySetupDailyNote = companySetupDailyFresh
+          ? COMPANY_SETUP_DAILY_NOTE
+          : (prevData.amplitude?.companySetupDailyNote || COMPANY_SETUP_DAILY_NOTE);
+        log(companySetupDailyFresh
+          ? `  Amplitude: merged fresh companySetupDaily over prior history (${Object.keys(companySetupDaily).length} total days).`
+          : '  Amplitude: carried forward existing amplitude.companySetupDaily (fresh regeneration unavailable).');
       }
     }
   } catch { /* no prior dedup/roles/companySetupDaily to preserve */ }
   if (!roles && rolesFresh) roles = rolesFresh; // fresh pull, no prior data.json
+  if (!companySetupDaily && companySetupDailyFresh) { // fresh pull, no prior data.json
+    companySetupDaily = companySetupDailyFresh;
+    companySetupDailyNote = COMPANY_SETUP_DAILY_NOTE;
+  }
 
   log(`  Amplitude ok: ${Object.values(dailySignups).reduce((a,b)=>a+b,0)} daily-signups across ${Object.keys(dailySignups).length} days, ${referralSources.length} unique referral_source values.`);
   return { dailySignups, referralSources, ...(dedup ? { dedup } : {}), ...(roles ? { roles } : {}), ...(companySetupDaily ? { companySetupDaily, companySetupDailyNote } : {}), pulledAt: new Date().toISOString() };

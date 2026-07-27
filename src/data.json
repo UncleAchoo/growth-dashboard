@@ -1,11 +1,11 @@
 {
-  "pulledAt": "2026-07-27T13:43:31.342Z",
+  "pulledAt": "2026-07-27T13:53:15.987Z",
   "window": {
     "start": "2026-01-01",
     "end": "2026-07-27"
   },
   "ga4": {
-    "pulledAt": "2026-07-27T13:43:24.782Z",
+    "pulledAt": "2026-07-27T13:53:01.977Z",
     "file1": [
       {
         "date": "20260320",
@@ -155919,7 +155919,7 @@
           "bdr_sdr": 1
         }
       },
-      "regeneratedAt": "2026-07-27T13:43:31.305Z",
+      "regeneratedAt": "2026-07-27T13:53:14.683Z",
       "regeneratedVia": "pull-data.mjs (REST segmentation, daily event totals, event-property group_by user_work_role)",
       "periods": {
         "20260101_20260131": {},
@@ -156275,10 +156275,21 @@
       "20260713": 4,
       "20260714": 9,
       "20260715": 11,
-      "20260716": 14
+      "20260716": 14,
+      "20260717": 6,
+      "20260718": 3,
+      "20260719": 4,
+      "20260720": 12,
+      "20260721": 11,
+      "20260722": 8,
+      "20260723": 16,
+      "20260724": 16,
+      "20260725": 8,
+      "20260726": 3,
+      "20260727": 6
     },
-    "companySetupDailyNote": "Daily unique [Onboarding] Company Setup Complete (PREVIOUS signup definition, org-creators only; internal excluded). Sum-of-daily per period. Regenerated via Amplitude MCP.",
-    "pulledAt": "2026-07-27T13:43:31.328Z"
+    "companySetupDailyNote": "Daily unique [Onboarding] Company Setup Complete (PREVIOUS signup definition, org-creators only; internal excluded). Sum-of-daily per period. Regenerated each pull via REST segmentation (daily uniques, interval=1); history before the pull window is carried forward.",
+    "pulledAt": "2026-07-27T13:53:15.970Z"
   },
   "hubspot": {
     "meetings": [
@@ -156636,7 +156647,7 @@
       "source": "revenue-repo",
       "repo": "UncleAchoo/revenue-dashboard-official",
       "path": "stripe_data.json",
-      "pulledAt": "2026-07-27T13:43:25.530Z",
+      "pulledAt": "2026-07-27T13:53:03.006Z",
       "weekly": [
         {
           "week_ending": "2026-03-22",
@@ -156740,7 +156751,7 @@
         }
       ]
     },
-    "pulledAt": "2026-07-27T13:43:25.530Z"
+    "pulledAt": "2026-07-27T13:53:03.006Z"
   },
   "peec": {
     "pulledAt": "2026-07-27T13:41:26.000Z",
