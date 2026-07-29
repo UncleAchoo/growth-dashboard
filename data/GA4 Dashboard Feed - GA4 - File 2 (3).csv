@@ -5,12 +5,14 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260629,Direct,(direct) / (none),15
 20260618,Direct,(direct) / (none),14
 20260623,Direct,(direct) / (none),14
+20260728,Direct,(direct) / (none),12
 20260514,Direct,(direct) / (none),11
 20260720,Direct,(direct) / (none),11
 20260722,Direct,(direct) / (none),11
 20260603,Direct,(direct) / (none),10
 20260611,Direct,(direct) / (none),10
 20260707,Direct,(direct) / (none),10
+20260727,Direct,(direct) / (none),10
 20260514,Organic Search,google / organic,9
 20260521,Direct,(direct) / (none),9
 20260604,Direct,(direct) / (none),9
@@ -122,6 +124,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260716,Organic Search,google / organic,2
 20260718,Direct,(direct) / (none),2
 20260723,Organic Search,google / organic,2
+20260728,Organic Search,google / organic,2
+20260729,Direct,(direct) / (none),2
 20260507,Organic Social,linkedin.com / referral,1
 20260508,Referral,mkt1-website / referral,1
 20260509,Direct,(direct) / (none),1
@@ -212,4 +216,5 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260725,Organic Search,google / organic,1
 20260725,Referral,30mpc.com / referral,1
 20260726,Direct,(direct) / (none),1
-20260727,Direct,(direct) / (none),1
+20260727,Organic Search,google / organic,1
+20260727,Referral,30mpc.com / referral,1
