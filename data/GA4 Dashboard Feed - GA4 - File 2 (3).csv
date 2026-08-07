@@ -74,6 +74,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260711,Organic Search,google / organic,4
 20260715,Organic Search,google / organic,4
 20260725,Organic Search,google / cpc,4
+20260805,Organic Search,google / organic,4
 20260507,Organic Search,google / organic,3
 20260507,Referral,framer.com / referral,3
 20260510,Direct,(direct) / (none),3
@@ -95,6 +96,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260708,Organic Search,google / organic,3
 20260710,Organic Search,google / organic,3
 20260717,Direct,(direct) / (none),3
+20260806,Email,hs_automation / email,3
 20260511,Organic Social,linkedin / social,2
 20260514,Referral,chatgpt.com / referral,2
 20260515,Direct,(direct) / (none),2
@@ -231,3 +233,9 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260731,Organic Search,google / organic,1
 20260801,Organic Search,google / organic,1
 20260801,Referral,ycombinator.com / referral,1
+20260805,Direct,(direct) / (none),1
+20260806,Direct,(direct) / (none),1
+20260806,Referral,app.rippling.com / referral,1
+20260806,Unassigned,toolify / ,1
+20260807,Direct,(direct) / (none),1
+20260807,Referral,teams.public.onecdn.static.microsoft / referral,1
