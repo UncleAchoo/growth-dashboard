@@ -123,6 +123,97 @@ const LIVE_MEETINGS_BY_DATE = (() => {
   }
   return out;
 })();
+// Per-date list of the raw Talk-to-Sales submissions, for the Sales Meetings
+// chart hover tooltip. Each entry carries jobTitle / companySize / whoWillUse
+// (pulled by scripts/pull-data.mjs). Those three fields are only present after
+// pull-data.mjs has been re-run with the expanded property set; rows from an
+// older data.json simply lack them and render as "—".
+const LIVE_MEETING_SUBS_BY_DATE = (() => {
+  const out = {};
+  for (const m of (dataJson.hubspot?.meetings || [])) {
+    (out[m.date] = out[m.date] || []).push(m);
+  }
+  return out;
+})();
+// Collect every submission whose date is in `dates` (array of YYYYMMDD),
+// preserving order, so a bar's tooltip lists exactly the submissions counted
+// in that bar. Uses the same date set the bar's `meetings` count is summed over.
+function meetingSubsForDates(dates) {
+  const out = [];
+  for (const d of dates) {
+    const subs = LIVE_MEETING_SUBS_BY_DATE[d];
+    if (subs) out.push(...subs);
+  }
+  return out;
+}
+// ---------------------------------------------------------------------------
+// Sales Meetings by team — bucket each submission's job title into
+// Sales / Marketing / Other for the stacked Sales Meetings Requested column.
+//
+// Keyword rules, FIRST MATCH WINS (top → bottom). Marketing is listed before
+// Sales on purpose, so hybrid titles like "Revenue Marketing" or "Growth
+// Marketing" land in Marketing rather than Sales. A title matching neither
+// group falls through to Other. To retune, just edit the two keyword groups —
+// everything else stays Other by default.
+//
+// Colors mirror the "User Signups by Team" chart (TEAM_DEFS) so the two charts
+// share one visual language: Sales = purple, Marketing = blue, Other = green.
+// ---------------------------------------------------------------------------
+const MEETING_CAT_DEFS = [
+  { name: 'Sales',     color: C.purple,  dataKey: 'mtgSales'     },
+  { name: 'Marketing', color: C.blue,    dataKey: 'mtgMarketing' },
+  { name: 'Other',     color: '#5DCAA5', dataKey: 'mtgOther'     },
+];
+const JOB_TITLE_RULES = [
+  // --- Marketing: ABM, demand gen, and anything explicitly "marketing" ---
+  [/\bmarket(?:ing|er)\b/,            'Marketing'], // marketing, marketer, product/field/growth marketing, marketing ops
+  [/\babm\b/,                         'Marketing'],
+  [/account[-\s]?based\s+marketing/,  'Marketing'],
+  [/\bdemand\b/,                      'Marketing'], // demand gen / demand generation
+  [/\bcmo\b/,                         'Marketing'],
+  [/\bbrand\b/,                       'Marketing'],
+  [/\bcontent\b/,                     'Marketing'],
+  [/\bseo\b/,                         'Marketing'],
+  [/\blifecycle\b/,                   'Marketing'],
+  // --- Sales: AE / SDR / BDR / account exec / business dev / revenue roles ---
+  [/\bae\b/,                          'Sales'],
+  [/\ba\.e\.?\b/,                     'Sales'],     // "A.E."
+  [/\bsdr\b/,                         'Sales'],
+  [/\bbdr\b/,                         'Sales'],
+  [/\bbdm\b/,                         'Sales'],
+  [/account\s+executive/,             'Sales'],
+  [/account\s+manager/,               'Sales'],
+  [/business\s+development/,          'Sales'],
+  [/sales\s+development/,             'Sales'],
+  [/\bsales\b/,                       'Sales'],
+  [/\bcro\b/,                         'Sales'],     // Chief Revenue Officer
+  [/\brevenue\b/,                     'Sales'],
+  [/\bquota\b/,                       'Sales'],
+];
+function categorizeJobTitle(title) {
+  const t = String(title || '').toLowerCase().trim();
+  if (!t) return 'Other';
+  for (const [rx, bucket] of JOB_TITLE_RULES) if (rx.test(t)) return bucket;
+  return 'Other';
+}
+// Count a bar's submissions by team bucket. Keys match MEETING_CAT_DEFS[].dataKey
+// so the stacked column can read them directly.
+function meetingCatCounts(subs) {
+  const c = { mtgSales: 0, mtgMarketing: 0, mtgOther: 0 };
+  for (const m of subs) {
+    const cat = categorizeJobTitle(m.jobTitle);
+    if (cat === 'Sales') c.mtgSales++;
+    else if (cat === 'Marketing') c.mtgMarketing++;
+    else c.mtgOther++;
+  }
+  return c;
+}
+// Fields spread into each Sales Meetings chart datum: the raw submissions (for
+// the hover tooltip) plus the three per-category counts (for the stacked bars).
+function meetingBarFields(dates) {
+  const subs = meetingSubsForDates(dates);
+  return { meetingSubs: subs, ...meetingCatCounts(subs) };
+}
 
 // --- File 1 indexed by date (engaged sessions, daily totals) ---------------
 const LIVE_ENGAGED_BY_DATE = Object.fromEntries(
@@ -508,6 +599,7 @@ const TOP_OF_FUNNEL_DAILY_30D = STRICT_WINDOW_DATES.map((d) => {
     sessions:  LIVE_ENGAGED_BY_DATE[d]  || 0,
     signups:   LIVE_SIGNUPS_BY_DATE[d]  || 0,
     meetings:  LIVE_MEETINGS_BY_DATE[d] || 0,
+    ...meetingBarFields([d]),
   };
 });
 // Weekly bars for "Last 30 days" mode — strict 30-day data bucketed Mon-Sun.
@@ -578,6 +670,7 @@ const TOP_OF_FUNNEL_WEEKLY_30D_FULL = LIVE_WEEKS.map((w) => {
     sessions:  sumIn(LIVE_ENGAGED_BY_DATE),
     signups:   sumIn(LIVE_SIGNUPS_BY_DATE),
     meetings:  sumIn(LIVE_MEETINGS_BY_DATE),
+    ...meetingBarFields(w.dates),
   };
 });
 // Effective chart range label: first week's Monday → today.
@@ -634,6 +727,7 @@ const TOP_OF_FUNNEL_DAILY_MTD = MTD_DATES_ARRAY.map((d) => {
     sessions:  LIVE_ENGAGED_BY_DATE[d]  || 0,
     signups:   LIVE_SIGNUPS_BY_DATE[d]  || 0,
     meetings:  LIVE_MEETINGS_BY_DATE[d] || 0,
+    ...meetingBarFields([d]),
   };
 });
 // MTD weekly — Mon-Sun weeks that overlap MTD, FULL week data per bar
@@ -675,6 +769,7 @@ const TOP_OF_FUNNEL_WEEKLY_MTD = MTD_WEEKS_LIST.map((w) => {
     sessions:  sumIn(LIVE_ENGAGED_BY_DATE),
     signups:   sumIn(LIVE_SIGNUPS_BY_DATE),
     meetings:  sumIn(LIVE_MEETINGS_BY_DATE),
+    ...meetingBarFields(w.dates),
   };
 });
 
@@ -732,6 +827,7 @@ const TOP_OF_FUNNEL_MONTHLY_YTD = YTD_MONTHS_LIST.map((mo) => {
     sessions:  sumIn(LIVE_ENGAGED_BY_DATE),
     signups:   sumIn(LIVE_SIGNUPS_BY_DATE),
     meetings:  sumIn(LIVE_MEETINGS_BY_DATE),
+    ...meetingBarFields(mo.dates),
   };
 });
 
@@ -859,27 +955,44 @@ const KNOWN_EMPLOYER_MENTIONS = /^(BMC|Homebase|Slack|calm|sequoia|Team|SWI|Airw
 // "from a coworker", "Co-Worker", "my colleagues", and "collegaue" all hit the
 // same Word of Mouth rule.
 const CATEGORIZATION_RULES = [
-  // ── 1. LinkedIn — name OR linkedin.com domain (any casing/spacing). ──
-  { match: /linked[\s-]?in|linkedin\.com/i, bucket: 'LinkedIn' },
+  // ── 1. Influencer / Community — HIGH-PRIORITY named signals. Checked FIRST
+  //       so "any mention of" these wins even when the same response also names
+  //       a platform or channel — e.g. "LinkedIn - 30mpc", "30MPC co-brand
+  //       email", "newsletter.mkt1.co", "Mkt1 podcast" all land here (per Nick,
+  //       Aug 2026). Covers 30MPC + its misspellings (30mpc, 30 mpc, 30M2PC,
+  //       "30 Mins", "30 mins to…"), any podcast, MKT1, Emily Kramer, and Crew. ──
+  { match: /30\s?m\s?[0-9]?\s?p\s?c|30\s?mins?\b|30x\s?sales|podcast|\bmkt\s?1\b|emily\s?kramer|\bcrew\b/i,
+    bucket: 'Influencer / Community' },
 
-  // ── 2. AEO — AI search/chat engines & their URLs. ──
+  // ── 2. LinkedIn → Social. LinkedIn is folded into the Social bucket (per
+  //       Nick, Aug 2026), but matched HERE — ahead of Word of Mouth / Search —
+  //       so "LinkedIn post from a friend" stays Social instead of falling to
+  //       Word of Mouth. Name OR linkedin.com domain (any casing/spacing). ──
+  { match: /linked[\s-]?in|linkedin\.com/i, bucket: 'Social' },
+
+  // ── 3. AEO — AI search/chat engines & their URLs. ──
   // Catches: chatgpt, chat gpt, claude (incl. claude.ai/claude.com), gpt,
   // perplexity, gemini, copilot (incl. co-pilot, co pilot), bare "ai".
-  { match: /chat\s?gpt|\bgpt\b|claude(\.ai|\.com)?|perplexity|gemini|co[-\s]?pilot|\bai\b/i, bucket: 'AEO' },
+  { match: /chat\s?gpt|\bgpt\b|claude(\.ai|\.com)?|perplexity|gemini|co[-\s]?pilot|\bai\b|\bllm\b/i, bucket: 'AEO' },
 
-  // ── 3. YC — Y Combinator and its internal community (Bookface). ──
+  // ── 4. YC — Y Combinator and its internal community (Bookface). ──
   { match: /y\s?combinator|\byc\b|bookface/i, bucket: 'YC' },
 
-  // ── 4. Influencer / Community — known names, podcasts, conferences,
-  //       courses/academies, content channels. ──
-  { match: /\bmkt1\b|\bhbs\b|alumni|community|30\s?mpc|30\s?mins?\s?to|emily\s?kramer|\bjaleh\b|wes\s?bush|joel\s?klettke|patrick\s?collins|inbound\s?conference|substack|\bacademy\b|long\s?time\s?listener|^content$|par\s?une\s?formation/i,
+  // ── 5. Influencer / Community — broader community / course / content
+  //       signals (checked after the high-priority named signals above). ──
+  { match: /\bhbs\b|alumni|community|\bjaleh\b|wes\s?bush|joel\s?klettke|patrick\s?collins|inbound\s?conference|\bwebinar\b|\bacademy\b|long\s?time\s?listener|^content$|par\s?une\s?formation/i,
     bucket: 'Influencer / Community' },
-  { match: /podcast/i, bucket: 'Influencer / Community' },
 
-  // ── 5. Word of Mouth — peer/colleague/client recommendations, employer
+  // ── 6. Email — any mention of email (incl. typos emial / emai, e-mail, bare
+  //       "mail") or newsletter. Checked BEFORE Word of Mouth / Search / Social
+  //       so it pulls email + newsletter out of those buckets into its own
+  //       category (per Nick, Aug 2026). ──
+  { match: /e[\s-]?mail|emial|emai\b|news\s?letter|netsletter|^news$|\bmail\b/i, bucket: 'Email' },
+
+  // ── 7. Word of Mouth — peer/colleague/client recommendations, employer
   //       mentions, family/personal references, multi-language equivalents,
   //       and "someone mentioned it" phrasings. Order this AFTER LinkedIn
-  //       so "LinkedIn post from someone" stays in LinkedIn. ──
+  //       so "LinkedIn post from someone" stays in Social. ──
   // Typos: `colleg` stem catches colleague/colleagues/collegues/collegaue;
   //        `refer` stem catches referred/referral/referal/refferal/recc/refers.
   // Multi-language: passaparola (it), indicação (pt).
@@ -887,27 +1000,30 @@ const CATEGORIZATION_RULES = [
   // means a third party is enthusiastic about Mutiny.
   // "work"/"working with" handles bare-word "work" / "at work" / "Working
   // with Mutiny on rebrand" type responses (colleague-adjacent context).
+  // NOTE: "newsletter" was removed from this rule — it now routes to Email.
   { match: new RegExp(
-      /friend|colleagu|colleg(au|ue|e)|co[-\s]?worker|\bclients?\b|\bteammate\b|\bcousin\b|\bre[fF]+er|\brecc\b|recommen|word.?of.?mouth|\bwom\b|\bmanager\b|\bteacher\b|\bceo\b|\bvp\b|\bboss\b|\bfan\b|\bbuddy\b|\bhubby\b|\bwife\b|\bhusband\b|\bspouse\b|\binvestor\b|\bruben\b|\bnikhil\b|\belijah\b|\bawoke\b|\blexi\b|sam\s?gong|previous\s?customer|consultant|advisor|\bfounder\b|\bboard\b|cowboy\s?ventures|newsletter|passaparola|indicaç|mention(ed|ing|s)?\b|my\s?(ae|coworker|boss|hubby|manager|wife|husband|teammate|bosses)|^work$|^at\s?work$|work(ing|ed)?\s?with|^company$|^company\s?profile$|^business$|^marketing(\s?lead)?$|^another\s?competitor$|^other\s?company$|from\s?job\s?boards?|^job\s?boards?$|interview|peer|industry/.source
+      /friend|amigos?|colleagu|colleg(au|ue|e)|co[-\s]?worker|\bclients?\b|\bcustomer\b|\bteammate\b|\bcousin\b|\bre[fF]+er|\brecc\b|recommen|recomman|word.?of.?mouth|\bwom\b|\bmanager\b|\bmentor\b|\bteacher\b|\bemployee\b|\bnetwork\b|\bvendor\b|\brep\b|rippling|\bceo\b|\bvp\b|\bboss\b|\bfan\b|\bbuddy\b|\bhubby\b|\bwife\b|\bhusband\b|\bspouse\b|\binvestor\b|\bruben\b|\bnikhil\b|\belijah\b|\bawoke\b|\blexi\b|sam\s?gong|previous\s?customer|previous\s?workplace|past\s?role|already\s?used\s?it|used\s?it\b|consultant|advisor|\bfounder\b|\bboard\b|cowboy\s?ventures|passaparola|indicaç|mention(ed|ing|s)?\b|my\s?(ae|coworker|boss|hubby|manager|wife|husband|teammate|bosses)|^work$|^at\s?work$|work(ing|ed)?\s?with|^company$|^company\s?profile$|^business$|^marketing(\s?lead)?$|^another\s?competitor$|^other\s?company$|from\s?job\s?boards?|^job\s?boards?$|interview|peer|industry/.source
       + '|' + KNOWN_EMPLOYER_MENTIONS.source, 'i'),
     bucket: 'Word of Mouth' },
 
-  // ── 6. Search — Google/web/internet/organic + generic "looking for"
+  // ── 8. Search — Google/web/internet/organic + generic "looking for"
   //       intent + SEO/research-style phrasings. ──
   { match: /google|googl|\bsearch\b|^web$|web\s?search|^organic$|online|internet|^www$|\bseo\b|looking\s?for|\bresearch\b|^website$/i,
     bucket: 'Search' },
 
-  // ── 7. Social — all major platforms + bare "social"/"social media" +
-  //       email/mail (outbound, not its own bucket). ──
-  { match: /\bx post\b|^x$|twitter|reddit|facebook|^fb$|^fb\b|instagram|\binsta\b|youtube|^yt$|\byt\b|tiktok|tik\s?tok|snapchat|pinterest|threads|bluesky|mastodon|social\s?media|^social$|^email$|^mail$/i,
+  // ── 9. Social — all major platforms + Substack + bare "social" /
+  //       "social media". LinkedIn also folds in here (see rule 2 above).
+  //       Substack ADDED and email/mail REMOVED (now the Email bucket) per
+  //       Nick, Aug 2026. ──
+  { match: /\bx post\b|^x$|x\.com|twitter|reddit|facebook|^fb$|^fb\b|instagram|\binsta\b|youtube|^yt$|\byt\b|tiktok|tik\s?tok|snapchat|pinterest|threads|bluesky|mastodon|substack|social\s?media|^socials?$|^li$|\bli post\b/i,
     bucket: 'Social' },
 
-  // ── 8. Joke / Invalid — fate/destiny variants, test entries, blanks,
+  // ── 10. Joke / Invalid — fate/destiny variants, test entries, blanks,
   //       short random strings, obvious joke phrases, "I don't know"
   //       equivalents. Keeps the Other bucket meaningful. Vague-but-real
   //       responses ("Marketing", "business", "company profile") fall through
   //       to Other rather than getting buried in Joke. ──
-  { match: /\bfate\b|\bdestiny\b|\bluck\b|^test|\btesting\b|^demo$|^trining$|\bidk\b|^jk$|^it$|^try$|^omar$|^dj\s?khaled$|^sfasf$|^hello$|^\.+$|^-+$|^\d{1,2}$|^n\/?a$|^na$|^tbd$|^dunno$|^date$|^spam$|^myself$|^my\s?meta\s?data$|i didn'?t|i was so excited|don'?t remember|pressured me into|its blowing up|my neighbors|home\s?boy|20 year marketing|\bloved it\b|wizard.*alley|raccoon|^(aa+|gg+|ff+|das|sds|ifif|f)$/i,
+  { match: /\bfate\b|\bdestiny\b|\bluck\b|^test|\btesting\b|^demo$|^trining$|\bidk\b|^jk$|^it$|^try$|^omar$|^dj\s?khaled$|^sfasf$|^hello$|^\.+$|^-+$|^\d{1,2}$|^n\/?a$|^na$|^tbd$|^dunno$|^date$|^spam$|^myself$|^my\s?meta\s?data$|i didn'?t|i was so excited|don'?t remember|pressured me into|its blowing up|my neighbors|home\s?boy|20 year marketing|\bloved it\b|wizard.*alley|raccoon|can'?t remember|^(aa+|gg+|ff+|das|sds|ifif|f|asd|sda|cyes|da|vv|wqe|qq|xxgdfgfd|nunya)$/i,
     bucket: 'Joke / Invalid' },
 ];
 
@@ -944,8 +1060,8 @@ const BUCKET_DEFINITIONS = [
   { name: 'AEO',                    color: C.green },
   { name: 'Influencer / Community', color: C.lightPurple },
   { name: 'YC',                     color: C.red },
-  { name: 'LinkedIn',                color: C.linkedinBlue },
   { name: 'Social',                  color: C.lightRed },
+  { name: 'Email',                   color: C.linkedinBlue },
   { name: 'Joke / Invalid',          color: '#9D9D9D' },
   { name: 'Other / Unparseable',     color: C.black },
 ];
@@ -2205,8 +2321,19 @@ function TopOfFunnelTrend({
   // For the eyebrow + footnote when there's no per-chart toggle.
   const isDaily = mode === 'daily';
 
+  // Sales Meetings drill-down modal. Clicking a meetings bar stores that bar's
+  // datum here; the modal then lists its submissions grouped by team bucket.
+  const [detailBar, setDetailBar] = useState(null);
+  React.useEffect(() => {
+    if (!detailBar) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') setDetailBar(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [detailBar]);
+
   // Recharts custom Bar shape that swaps in a hatched fill for partial weeks.
-  const HatchedBar = (color) => (props) => {
+  // `clickable` adds a pointer cursor (used for the drill-down meetings bars).
+  const HatchedBar = (color, clickable = false) => (props) => {
     const { x, y, width, height, payload } = props;
     if (!payload || height <= 0) return null;
     const isPartial = payload.partial;
@@ -2229,15 +2356,20 @@ function TopOfFunnelTrend({
           fill={isPartial ? `url(#${patternId})` : color}
           stroke={C.black}
           strokeWidth={1}
+          style={clickable ? { cursor: 'pointer' } : undefined}
         />
       </g>
     );
   };
 
-  // Custom tooltip for the bar charts
-  const BarTooltip = (metricLabel, formatter) => ({ active, payload }) => {
+  // Custom tooltip for the bar charts. When `dataKey === 'meetings'` and the
+  // bar carries a `meetingSubs` array (the raw Talk-to-Sales submissions in
+  // that bar), the tooltip additionally lists each submission's job title and
+  // company size — full list, one per line, in submission order.
+  const BarTooltip = (metricLabel, formatter, dataKey) => ({ active, payload }) => {
     if (!active || !payload || !payload.length) return null;
     const d = payload[0].payload;
+    const subs = dataKey === 'meetings' && Array.isArray(d.meetingSubs) ? d.meetingSubs : [];
     return (
       <div
         style={{
@@ -2253,6 +2385,34 @@ function TopOfFunnelTrend({
           {d.trailingPartial ? (isReporting ? ' · clipped to range' : ' · current week, in progress') : ''}
         </div>
         <div>{metricLabel}: <strong>{formatter(d)}</strong></div>
+        {subs.length > 0 && (() => {
+          // Category breakdown only (Sales / Marketing / Other). The full
+          // job-title list lives in the click-to-open modal, not the tooltip.
+          const groups = MEETING_CAT_DEFS
+            .map((cat) => ({ ...cat, items: subs.filter((m) => categorizeJobTitle(m.jobTitle) === cat.name) }))
+            .filter((g) => g.items.length > 0);
+          return (
+            <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px solid rgba(0,0,0,0.12)', maxWidth: 300 }}>
+              {groups.map((g) => (
+                <div
+                  key={g.name}
+                  style={{ display: 'flex', justifyContent: 'space-between', gap: 14, alignItems: 'center', lineHeight: 1.6 }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ width: 9, height: 9, borderRadius: 2, background: g.color, border: `1px solid ${C.black}` }} />
+                    {g.name}
+                  </span>
+                  <strong style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    {g.items.length} · {Math.round((g.items.length / subs.length) * 100)}%
+                  </strong>
+                </div>
+              ))}
+              <div style={{ marginTop: 6, fontSize: 10.5, fontStyle: 'italic', opacity: 0.55 }}>
+                Click bar for job-title details
+              </div>
+            </div>
+          );
+        })()}
       </div>
     );
   };
@@ -2339,6 +2499,19 @@ function TopOfFunnelTrend({
             </div>
           )}
         </div>
+        {chartKey === 'meetings' && (
+          <div style={{ display: 'flex', gap: 14, marginTop: 12, flexWrap: 'wrap' }}>
+            {MEETING_CAT_DEFS.map((cat) => (
+              <span
+                key={cat.name}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: FONT_BODY, fontSize: 11.5 }}
+              >
+                <span style={{ width: 10, height: 10, borderRadius: 2, background: cat.color, border: `1px solid ${C.black}` }} />
+                {cat.name}
+              </span>
+            ))}
+          </div>
+        )}
         <div style={{ height: 320, marginTop: 16 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={panelData} margin={{ top: 12, right: 8, bottom: 8, left: 0 }}>
@@ -2375,15 +2548,33 @@ function TopOfFunnelTrend({
                 );
               })()}
               <Tooltip
-                content={BarTooltip(title, (d) => format ? format(d[dataKey]) : d[dataKey].toLocaleString())}
+                content={BarTooltip(title, (d) => format ? format(d[dataKey]) : d[dataKey].toLocaleString(), dataKey)}
                 cursor={{ fill: 'rgba(0,0,0,0.04)' }}
               />
-              <Bar
-                dataKey={dataKey}
-                shape={HatchedBar(color)}
-                maxBarSize={60}
-                isAnimationActive={false}
-              />
+              {chartKey === 'meetings' ? (
+                // Stacked by team bucket (Sales / Marketing / Other). Each
+                // segment keeps the partial-week hatch via HatchedBar, and
+                // clicking any segment opens the drill-down modal for that bar.
+                MEETING_CAT_DEFS.map((cat) => (
+                  <Bar
+                    key={cat.name}
+                    dataKey={cat.dataKey}
+                    stackId="mtg"
+                    shape={HatchedBar(cat.color, true)}
+                    maxBarSize={60}
+                    isAnimationActive={false}
+                    onClick={(_, index) => setDetailBar({ datum: panelData[index], title })}
+                    style={{ cursor: 'pointer' }}
+                  />
+                ))
+              ) : (
+                <Bar
+                  dataKey={dataKey}
+                  shape={HatchedBar(color)}
+                  maxBarSize={60}
+                  isAnimationActive={false}
+                />
+              )}
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -2484,6 +2675,109 @@ function TopOfFunnelTrend({
           )}
         </div>
       )}
+
+      {/* Sales Meetings drill-down modal — opened by clicking a bar. Lists that
+          bar's submissions grouped by team bucket (Sales / Marketing / Other),
+          each as job title · company size. Close via ×, overlay click, or Esc. */}
+      {detailBar && (() => {
+        const d    = detailBar.datum || {};
+        const subs = Array.isArray(d.meetingSubs) ? d.meetingSubs : [];
+        const groups = MEETING_CAT_DEFS
+          .map((cat) => ({ ...cat, items: subs.filter((m) => categorizeJobTitle(m.jobTitle) === cat.name) }))
+          .filter((g) => g.items.length > 0);
+        const partialNote = d.trailingPartial ? (isReporting ? ' · clipped to range' : ' · in progress') : '';
+        return (
+          <div
+            onClick={() => setDetailBar(null)}
+            style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              zIndex: 1000, padding: 20,
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: C.white, border: `1px solid ${C.black}`, borderRadius: 6,
+                width: 'min(560px, 100%)', maxHeight: '82vh', display: 'flex',
+                flexDirection: 'column', boxShadow: '0 12px 40px rgba(0,0,0,0.25)',
+              }}
+            >
+              {/* Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '20px 24px 14px', borderBottom: `1px solid rgba(0,0,0,0.12)` }}>
+                <div>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', opacity: 0.6 }}>
+                    {detailBar.title}
+                  </div>
+                  <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 24, letterSpacing: '-0.02em', margin: '4px 0 0' }}>
+                    {d.dateRange}{partialNote}
+                  </h3>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 12, opacity: 0.6, marginTop: 2 }}>
+                    {subs.length} meeting request{subs.length === 1 ? '' : 's'} · HubSpot
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDetailBar(null)}
+                  aria-label="Close"
+                  style={{ border: `1px solid ${C.black}`, background: C.white, borderRadius: 999, width: 30, height: 30, cursor: 'pointer', fontSize: 16, lineHeight: 1, flexShrink: 0 }}
+                >
+                  ×
+                </button>
+              </div>
+              {/* Category summary */}
+              {groups.length > 0 && (
+                <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', padding: '14px 24px', borderBottom: `1px solid rgba(0,0,0,0.12)` }}>
+                  {groups.map((g) => (
+                    <span key={g.name} style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: FONT_BODY, fontSize: 13 }}>
+                      <span style={{ width: 11, height: 11, borderRadius: 2, background: g.color, border: `1px solid ${C.black}` }} />
+                      <strong>{g.name}</strong>
+                      <span style={{ opacity: 0.7, fontVariantNumeric: 'tabular-nums' }}>
+                        {g.items.length} · {Math.round((g.items.length / subs.length) * 100)}%
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              )}
+              {/* Detailed list grouped by category */}
+              <div style={{ padding: '14px 24px 22px', overflowY: 'auto' }}>
+                {subs.length === 0 ? (
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 13, opacity: 0.6 }}>
+                    No submissions in this bar. Job titles populate after the next data refresh.
+                  </div>
+                ) : groups.map((g) => (
+                  <div key={g.name} style={{ marginBottom: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                      <span style={{ width: 10, height: 10, borderRadius: 2, background: g.color, border: `1px solid ${C.black}` }} />
+                      <span style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 700 }}>{g.name}</span>
+                      <span style={{ fontFamily: FONT_BODY, fontSize: 12, opacity: 0.55 }}>({g.items.length})</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      {g.items.map((m, i) => {
+                        const t    = (m.jobTitle && String(m.jobTitle).trim()) || '—';
+                        const size = (m.companySize && String(m.companySize).trim()) || '';
+                        return (
+                          <div
+                            key={i}
+                            style={{
+                              display: 'flex', justifyContent: 'space-between', gap: 12,
+                              fontFamily: FONT_BODY, fontSize: 13, lineHeight: 1.55,
+                              padding: '3px 0', borderBottom: '1px solid rgba(0,0,0,0.06)',
+                            }}
+                          >
+                            <span>{t}</span>
+                            {size ? <span style={{ opacity: 0.6, whiteSpace: 'nowrap' }}>{size}</span> : null}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </section>
   );
 }
@@ -4986,6 +5280,7 @@ export default function MutinyGrowthDashboard() {
       sessions:  sumIn(LIVE_ENGAGED_BY_DATE),
       signups:   sumIn(LIVE_SIGNUPS_BY_DATE),
       meetings:  sumIn(LIVE_MEETINGS_BY_DATE),
+      ...meetingBarFields(w.datesInRange),
     };
   });
   // Channel funnel / weekly data — for the PCA section. Mode-aware so
@@ -6060,11 +6355,9 @@ export default function MutinyGrowthDashboard() {
                 marginBottom: 6,
               }}
             >
-              LinkedIn
+              Social
             </div>
-            <SelfReportedSourcesChart
-              title="LinkedIn"
-              targets={[{ name: 'LinkedIn', color: C.linkedinBlue }]}
+            <SocialBreakdownChart
               weeks={channelWeeklyCohorts}
               cadenceLabel={isYtd ? 'monthly' : 'weekly'}
             />
@@ -6284,7 +6577,7 @@ export default function MutinyGrowthDashboard() {
                 Self-reported <code style={codeStyle}>referral_source</code> from the onboarding
                 form (Amplitude event <code style={codeStyle}>[Onboarding] Company Setup Complete</code>),
                 bucketed into 9 categories: Word of Mouth, Search, AEO, Influencer /
-                Community, YC, LinkedIn, Social, Joke / Invalid, and Other / Unparseable.
+                Community, YC, Social, Email, Joke / Invalid, and Other / Unparseable.
                 Bucketing is rule-based (regex patterns) — see <em>Share of Signups · how
                 buckets are assigned</em> below. Hover any slice to see the raw responses
                 bucketed into it. Internal Mutiny test accounts excluded at the Amplitude
@@ -6299,15 +6592,15 @@ export default function MutinyGrowthDashboard() {
                 Each raw <code style={codeStyle}>referral_source</code> string runs through a
                 rules pipeline. Order matters; first match wins.
                 <ul style={{ margin: '6px 0 0 0', paddingLeft: 18 }}>
-                  <li><strong>LinkedIn</strong> — contains "linkedin"</li>
-                  <li><strong>AEO</strong> — contains chatgpt, claude, perplexity, gemini, copilot, or "ai" as a whole word</li>
+                  <li><strong>Influencer / Community</strong> — high-priority named signals matched first: 30MPC (incl. misspellings like "30M2PC", "30 Mins", "30 mins to…"), any podcast, MKT1, Emily Kramer, Crew; plus broader community/course/content signals: HBS, alumni, community, Wes Bush, Joel Klettke, inbound conference, webinar, academy, "long time listener", "content". These win even when the response also names a platform (e.g. "LinkedIn - 30mpc", "30MPC co-brand email", "Mkt1 podcast").</li>
+                  <li><strong>Social</strong> — LinkedIn (folded in), and all major social platforms: X / X post / twitter, reddit, facebook (incl. "FB"), instagram (incl. "insta"), youtube (incl. "YT"), tiktok, snapchat, pinterest, threads, bluesky, mastodon, substack, plus generic "social media" / "social" mentions.</li>
+                  <li><strong>AEO</strong> — contains chatgpt, claude, perplexity, gemini, copilot, "llm", or "ai" as a whole word</li>
                   <li><strong>YC</strong> — matches "y combinator" or "yc" as a whole word (catches "YC Video" too)</li>
-                  <li><strong>Influencer / Community</strong> — mkt1, hbs, alumni, community, 30mpc, podcast</li>
-                  <li><strong>Word of Mouth</strong> — friend, colleague (incl. typo "collegaue"), coworker, client, manager, teacher, CEO, VP, boss, buddy, referred, referral, recommended, recommendation, "word of mouth", "WOM", anyone described as a fan ("Our Group CEO is a huge fan"), AND single-token employer mentions (BMC, Homebase, Slack, calm, sequoia, Team, "we use it at X") read as "heard from coworkers there." The signal is "heard from a real person."</li>
+                  <li><strong>Email</strong> — any mention of email (incl. typos like "emial" / "emai", "e-mail", bare "mail") or newsletter (incl. typo "netsletter", bare "news"). Pulled out of Social and Word of Mouth into its own bucket.</li>
+                  <li><strong>Word of Mouth</strong> — friend (incl. "amigos"), colleague (incl. typo "collegaue"), coworker, client, customer ("previous / mutual customer"), employee, mentor, manager, teacher, CEO, VP, boss, buddy, "network", vendor / rep (e.g. "Rippling", "EcoMap Tech Rep"), referred, referral, recommended, recommendation (incl. typo "recommandation"), "word of mouth", "WOM", prior usage ("already used it", "used it in a past role / previous workplace"), anyone described as a fan ("Our Group CEO is a huge fan"), AND single-token employer mentions (BMC, Homebase, Slack, calm, sequoia, Team, "we use it at X") read as "heard from coworkers there." The signal is "heard from a real person."</li>
                   <li><strong>Search</strong> — google, search, organic, "web"</li>
-                  <li><strong>Social</strong> — all major social platforms: X / X post / twitter, reddit, facebook (incl. "FB"), instagram (incl. "insta"), youtube (incl. "YT"), tiktok, snapchat, pinterest, threads, bluesky, mastodon, plus generic "social media" / "social" mentions. Plain "email" also bucketed here as an outbound channel.</li>
                   <li><strong>Joke / Invalid</strong> — fate/destiny, test/demo, empty entries (".", "-", single digits), one-off joke responses ("dj khaled", "I was so excited about spirit 2.0…", "Jason Liu my homeboy", "20 year marketing veteran"). Separated from Other so the Other bucket stays meaningful.</li>
-                  <li><strong>Other / Unparseable</strong> — legit-looking but ambiguous: external products mentioned without context (Online, Newsletter, "Ruben email"), unclear intent ("Looking for ABM Strategy help").</li>
+                  <li><strong>Other / Unparseable</strong> — legit-looking but ambiguous: external products mentioned without context ("Online"), unclear intent ("Looking for ABM Strategy help").</li>
                 </ul>
                 Joke / Invalid (~26%) is the actionable finding: the free-text field
                 attracts a lot of non-signal — the form needs a dropdown.
@@ -7203,6 +7496,171 @@ function AEOVisibilityChart({ visible, dailySlice = AEO.daily }) {
       >
         Source: Peec AI · {AEO.windowLabel}. Competitor Comparisons topic added to
         monitoring May 5 (line starts then).
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Social signups breakdown (WoW) — sub-classification of the "Social"
+// referral_source bucket into named platforms. `SOCIAL_SUBCATS` is checked
+// first-match-wins; only sources that categorizeReferralSource() maps to
+// 'Social' are ever passed here, and anything that isn't a named platform
+// falls to "Other" — so the sub-bars sum exactly to the Social bucket's
+// weekly total. (Added Aug 2026 per Nick.)
+// ---------------------------------------------------------------------------
+const SOCIAL_SUBCATS = [
+  { name: 'LinkedIn',         color: C.linkedinBlue, match: /linked[\s-]?in|linkedin\.com|^li$|\bli post\b/i },
+  { name: 'X / Twitter',      color: C.black,        match: /\bx post\b|^x$|x\.com|twitter/i },
+  { name: 'YouTube',          color: C.red,          match: /youtube|^yt$|\byt\b/i },
+  { name: 'Threads',          color: C.purple,       match: /threads/i },
+  { name: 'TikTok',           color: C.blue,         match: /tiktok|tik\s?tok/i },
+  { name: 'Substack',         color: C.lightRed,     match: /substack/i },
+  { name: 'Social (generic)', color: C.green,        match: /social\s?media|^socials?$|\bsocial\b/i },
+  { name: 'Other',            color: C.lightGrey,    match: null }, // residual: reddit, facebook, instagram, snapchat, pinterest, bluesky, mastodon, …
+];
+
+// Sub-classify a raw referral_source already known to be in the 'Social'
+// bucket. Returns one of the SOCIAL_SUBCATS names; 'Other' when no named
+// platform matches.
+function subcategorizeSocial(raw) {
+  const s = normalizeReferralSource(raw);
+  for (const sc of SOCIAL_SUBCATS) {
+    if (sc.match && sc.match.test(s)) return sc.name;
+  }
+  return 'Other';
+}
+
+// ---------------------------------------------------------------------------
+// SocialBreakdownChart — weekly stacked column chart that splits the "Social"
+// referral_source bucket into platforms (SOCIAL_SUBCATS). Styled to match
+// SelfReportedSourcesChart so it sits side-by-side with the AEO + Search chart
+// in the Signup Attribution section (replaces the old LinkedIn chart, since
+// LinkedIn now folds into Social). Only Social-bucket sources are counted;
+// anything without a named platform falls to "Other", so the sub-bars sum to
+// the Social bucket's weekly total.
+// ---------------------------------------------------------------------------
+function SocialBreakdownChart({ weeks = LIVE_WEEKS, cadenceLabel = 'weekly' }) {
+  const subDaily = Object.fromEntries(SOCIAL_SUBCATS.map((sc) => [sc.name, {}]));
+  for (const entry of (dataJson.amplitude?.referralSources || [])) {
+    if (categorizeReferralSource(entry.source) !== 'Social') continue;
+    if (!entry.daily) continue;
+    const sub = subcategorizeSocial(entry.source);
+    for (const [d, n] of Object.entries(entry.daily)) {
+      subDaily[sub][d] = (subDaily[sub][d] || 0) + (n || 0);
+    }
+  }
+
+  const data = weeks.map((w) => {
+    const dateBag = w.datesInRange || w.dates;
+    const row = {
+      week:            w.weekStartLabel,
+      dateRange:       w.dateRange,
+      partial:         (w.trailingPartial ?? w.partial) || false,
+    };
+    for (const sc of SOCIAL_SUBCATS) {
+      row[sc.name] = dateBag.reduce((s, d) => s + (subDaily[sc.name][d] || 0), 0);
+    }
+    return row;
+  });
+
+  const totalBySub = Object.fromEntries(
+    SOCIAL_SUBCATS.map((sc) => [sc.name, data.reduce((s, r) => s + (r[sc.name] || 0), 0)])
+  );
+  const totalAll = Object.values(totalBySub).reduce((s, v) => s + v, 0);
+
+  const maxValue = Math.max(
+    ...data.map((r) => SOCIAL_SUBCATS.reduce((s, sc) => s + (r[sc.name] || 0), 0)),
+    1
+  );
+  const { ticks: yTicks, max: yMax } = niceTicks(maxValue, 5);
+
+  const HatchedStack = (color) => (props) => {
+    const { x, y, width, height, payload, dataKey } = props;
+    if (!payload || height <= 0) return null;
+    const isPartial = payload.partial;
+    const patternId =
+      `hatchsoc-${String(dataKey).replace(/[^a-zA-Z0-9]/g, '')}-${(payload.week || '').replace(/[^a-zA-Z0-9]/g, '')}`;
+    return (
+      <g>
+        {isPartial && (
+          <defs>
+            <pattern id={patternId} patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+              <rect width="6" height="6" fill={color} fillOpacity="0.25" />
+              <line x1="0" y1="0" x2="0" y2="6" stroke={color} strokeWidth="2" />
+            </pattern>
+          </defs>
+        )}
+        <rect x={x} y={y} width={width} height={height}
+          fill={isPartial ? `url(#${patternId})` : color} stroke={C.black} strokeWidth={1} />
+      </g>
+    );
+  };
+
+  return (
+    <div>
+      {/* Heading — mirrors SelfReportedSourcesChart */}
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'baseline', gap: 10 }}>
+          <SelfReportedTag />
+          <span style={{ fontFamily: FONT_BODY, fontWeight: 400, fontSize: 11, opacity: 0.6 }}>{cadenceLabel}</span>
+        </div>
+      </div>
+
+      {/* Window totals */}
+      <div style={{ display: 'flex', gap: 14, marginBottom: 14, fontFamily: FONT_BODY, fontSize: 11, opacity: 0.75, flexWrap: 'wrap' }}>
+        {SOCIAL_SUBCATS.map((sc) => (
+          <span key={sc.name}>
+            <span style={{ display: 'inline-block', width: 10, height: 10, background: sc.color, border: `1px solid ${C.black}`, marginRight: 6, verticalAlign: '-1px' }} />
+            {sc.name} <strong>{totalBySub[sc.name]}</strong>
+          </span>
+        ))}
+        <span style={{ opacity: 0.7 }}>· Total <strong>{totalAll}</strong></span>
+      </div>
+
+      {/* Stacked column chart — height matches SelfReportedSourcesChart */}
+      <div style={{ width: '100%', height: 390 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 12, right: 8, bottom: 8, left: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" vertical={false} />
+            <XAxis dataKey="week" axisLine={{ stroke: C.black, strokeWidth: 1 }} tickLine={false} tick={{ fontFamily: FONT_BODY, fontSize: 11, fill: C.black }} interval={0} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fontFamily: FONT_BODY, fontSize: 10, fill: C.black, opacity: 0.6 }} width={40} domain={[0, yMax]} ticks={yTicks} allowDecimals={false} />
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload || !payload.length) return null;
+                const d = payload[0].payload;
+                const tot = SOCIAL_SUBCATS.reduce((s, sc) => s + (d[sc.name] || 0), 0);
+                return (
+                  <div style={{ background: C.white, border: `1px solid ${C.black}`, padding: '8px 10px', fontFamily: FONT_BODY, fontSize: 12, minWidth: 190 }}>
+                    <div style={{ fontWeight: 700, marginBottom: 4 }}>{d.dateRange}{d.partial ? ' · in progress' : ''}</div>
+                    {SOCIAL_SUBCATS.map((sc) => (
+                      <div key={sc.name} style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span style={{ display: 'inline-block', width: 8, height: 8, background: sc.color, border: `1px solid ${C.black}` }} />
+                          {sc.name}
+                        </span>
+                        <strong>{d[sc.name] ?? 0}</strong>
+                      </div>
+                    ))}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.1)', marginTop: 4, paddingTop: 4 }}>
+                      <span>Social total</span><strong>{tot}</strong>
+                    </div>
+                  </div>
+                );
+              }}
+              cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+            />
+            {SOCIAL_SUBCATS.map((sc) => (
+              <Bar key={sc.name} dataKey={sc.name} stackId="a" shape={HatchedStack(sc.color)} maxBarSize={48} isAnimationActive={false} />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Footnote */}
+      <div style={{ fontFamily: FONT_BODY, fontSize: 10.5, opacity: 0.55, marginTop: 10, lineHeight: 1.5 }}>
+        The Social bucket from the User signups by channel chart, split by platform. “Other” = any social
+        platform outside the named set (e.g. Reddit, Facebook, Instagram, Snapchat, Pinterest).
       </div>
     </div>
   );

@@ -781,6 +781,32 @@ async function fetchHubspotLogos() {
 // HubSpot — Talk to Sales form submissions, contact-property based
 // Docs: https://developers.hubspot.com/docs/api/crm/contacts
 // ===========================================================================
+// Enum (dropdown) properties come back from the contacts search API as the
+// option's internal *value* — an opaque id like "nDKu_akAOhH4sUK9Oyjei", not
+// its human label ("201-1,000"). Fetch the property definition and build a
+// value→label map so we store readable labels in data.json. Returns {} on any
+// failure so a label lookup never sinks the meetings pull (callers fall back to
+// the raw value).
+async function fetchEnumLabelMap(propertyName) {
+  try {
+    const r = await fetch(
+      `https://api.hubapi.com/crm/v3/properties/contacts/${propertyName}`,
+      { headers: { 'Authorization': `Bearer ${HUBSPOT_TOKEN}` } },
+    );
+    if (!r.ok) {
+      err(`  HubSpot property ${propertyName} HTTP ${r.status} — keeping raw values.`);
+      return {};
+    }
+    const def = await r.json();
+    const map = {};
+    for (const o of (def.options || [])) map[o.value] = o.label;
+    return map;
+  } catch (e) {
+    err(`  HubSpot property ${propertyName} fetch failed (${e.message}) — keeping raw values.`);
+    return {};
+  }
+}
+
 async function fetchHubspot() {
   if (!HUBSPOT_TOKEN) {
     log('Skipping HubSpot — HUBSPOT_PRIVATE_APP_TOKEN not set.');
@@ -802,6 +828,12 @@ async function fetchHubspot() {
     properties: [
       'email', 'company',
       'how_did_you_discover_mutiny',
+      // Extra Talk-to-Sales form fields surfaced in the Sales Meetings chart
+      // tooltip (jobtitle + company size) and stored for future breakdowns
+      // (who-will-use-Mutiny).
+      'jobtitle',
+      'form_response__company_size',
+      'form_response__who_will_use_mutiny',
       'first_conversion_event_name', 'first_conversion_date',
       'recent_conversion_event_name', 'recent_conversion_date',
       'createdate',
@@ -823,6 +855,14 @@ async function fetchHubspot() {
   }
   const raw = await res.json();
   const contacts = raw.results || [];
+
+  // The two form-response dropdowns store opaque option ids; resolve them to
+  // labels ("201-1,000", "Marketing only"). Fetched once per pull, in parallel.
+  const [companySizeLabels, whoWillUseLabels] = await Promise.all([
+    fetchEnumLabelMap('form_response__company_size'),
+    fetchEnumLabelMap('form_response__who_will_use_mutiny'),
+  ]);
+  const labelFor = (map, v) => (v ? (map[v] || v) : '');
 
   // Apply filtering: test exclusions, submission-date rule, window check.
   const startCompact = ymdCompact(WINDOW_START);
@@ -850,6 +890,9 @@ async function fetchHubspot() {
       email:          p.email || '',
       company:        p.company || '',
       referralSource: p.how_did_you_discover_mutiny || '',
+      jobTitle:       p.jobtitle || '',
+      companySize:    labelFor(companySizeLabels, p.form_response__company_size),
+      whoWillUse:     labelFor(whoWillUseLabels,  p.form_response__who_will_use_mutiny),
     });
   }
   log(`  HubSpot ok: ${contacts.length} raw contacts → ${meetings.length} valid meetings in window.`);
