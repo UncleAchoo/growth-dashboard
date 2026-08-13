@@ -2595,7 +2595,7 @@ function TopOfFunnelTrend({
     },
     meetings: {
       chartKey: 'meetings',
-      title:    'Sales Meetings Requested',
+      title:    'Enterprise Talk to Sales Submissions',
       source:   'HubSpot',
       dataKey:  'meetings',
       color:    C.red,
@@ -5661,7 +5661,7 @@ export default function MutinyGrowthDashboard() {
           deltaLabel={isReporting ? `vs prior ${reportingDays}d${reportingPriorRangeLabel ? ` · ${reportingPriorRangeLabel}` : ''}` : 'vs prior 30d'}
         />
         <KpiCard
-          label="Sales Meetings Requested"
+          label="Enterprise Talk to Sales Submissions"
           value={kpiMeetings.toLocaleString()}
           sublabel="Talk to Sales form fills · HubSpot"
           footnote="HubSpot contacts where Talk to Sales form-submission date is within the window. Test-filtered."
@@ -6651,7 +6651,7 @@ export default function MutinyGrowthDashboard() {
             }
           />
           <Def
-            term="Sales Meetings Requested"
+            term="Enterprise Talk to Sales Submissions"
             body={
               <>
                 Count of <em>Talk to Sales</em> form submissions in HubSpot whose
