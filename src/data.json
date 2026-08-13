@@ -1,11 +1,11 @@
 {
-  "pulledAt": "2026-08-13T18:53:34.489Z",
+  "pulledAt": "2026-08-13T19:45:59.989Z",
   "window": {
     "start": "2026-01-01",
     "end": "2026-08-13"
   },
   "ga4": {
-    "pulledAt": "2026-08-13T18:53:27.765Z",
+    "pulledAt": "2026-08-13T19:45:49.369Z",
     "file1": [
       {
         "date": "20260320",
@@ -177105,265 +177105,219 @@
       "_staleFromPrevRun": true
     },
     "roles": {
-      "basis": "completer_work_role_event_prop_totals",
-      "note": "user_work_role event property on [Onboarding] User Setup Complete (EVENT TOTALS per role per day, internal emails excluded — same filter as dailySignups). 'none' → the No role segment. Daily map: Σ over roles for a day equals dailySignups for that day, so summing over any window (incl. custom Reporting ranges) makes the team segments tie exactly to the signup KPI — no dedup, no scaling.",
+      "basis": "orgcreator_completer_work_role_event_prop_totals",
+      "cohortId": "xjt01ben",
+      "note": "user_work_role event property on [Onboarding] User Setup Complete (EVENT TOTALS per role per day, internal emails excluded), FILTERED to the \"Ever completed [Onboarding] Company Setup Complete\" cohort (org-creators only — excludes invited teammates). 'none' → the No role segment. Because of the cohort filter these totals are a SUBSET of dailySignups, so the Team split intentionally does NOT tie to the User Signups KPI (which still includes invited users).",
       "daily": {
         "20260216": {
-          "none": 10
+          "none": 6
         },
         "20260217": {
-          "none": 75
+          "none": 54
         },
         "20260218": {
           "founder": 7,
-          "other": 8,
-          "ae": 1,
-          "abm": 3,
-          "demand_gen": 7,
-          "product_marketing": 2,
-          "bdr_sdr": 2,
-          "none": 34
+          "other": 5,
+          "abm": 1,
+          "product_marketing": 1,
+          "demand_gen": 5,
+          "bdr_sdr": 1,
+          "none": 11
         },
         "20260219": {
           "founder": 21,
-          "other": 19,
-          "ae": 11,
-          "abm": 8,
-          "demand_gen": 11,
-          "product_marketing": 12,
+          "other": 10,
+          "abm": 6,
+          "product_marketing": 8,
+          "ae": 3,
+          "demand_gen": 9,
           "bdr_sdr": 2
         },
         "20260220": {
-          "founder": 13,
-          "other": 12,
-          "ae": 4,
+          "founder": 12,
+          "other": 6,
           "abm": 6,
-          "demand_gen": 8,
-          "product_marketing": 8,
-          "bdr_sdr": 1
+          "product_marketing": 4,
+          "ae": 3,
+          "demand_gen": 6
         },
         "20260221": {
           "founder": 2,
+          "abm": 2,
           "ae": 1,
-          "abm": 3,
           "demand_gen": 4
         },
         "20260222": {
           "founder": 1,
-          "other": 2,
-          "ae": 2,
           "bdr_sdr": 1
         },
         "20260223": {
           "founder": 4,
-          "other": 7,
-          "ae": 4,
-          "abm": 4,
-          "demand_gen": 5,
-          "product_marketing": 4,
+          "other": 3,
+          "abm": 3,
+          "product_marketing": 2,
+          "ae": 2,
+          "demand_gen": 4,
           "bdr_sdr": 1
         },
         "20260224": {
-          "founder": 7,
-          "other": 17,
-          "ae": 1,
+          "founder": 6,
+          "other": 10,
           "abm": 2,
-          "demand_gen": 3,
-          "product_marketing": 6,
-          "bdr_sdr": 2
+          "product_marketing": 5,
+          "ae": 1,
+          "demand_gen": 2
         },
         "20260225": {
           "founder": 3,
-          "other": 1,
-          "ae": 2,
-          "abm": 1,
-          "demand_gen": 1,
-          "product_marketing": 1,
-          "bdr_sdr": 2
+          "demand_gen": 1
         },
         "20260226": {
-          "founder": 1,
-          "other": 11,
-          "ae": 6,
-          "abm": 12,
-          "demand_gen": 3,
-          "product_marketing": 3,
-          "bdr_sdr": 3
+          "other": 7,
+          "abm": 10,
+          "product_marketing": 2,
+          "ae": 1,
+          "demand_gen": 3
         },
         "20260227": {
           "founder": 2,
-          "other": 1,
-          "ae": 2,
-          "abm": 5,
-          "demand_gen": 1,
-          "product_marketing": 2,
-          "bdr_sdr": 1
+          "abm": 2,
+          "product_marketing": 1,
+          "ae": 1
         },
         "20260228": {
           "other": 1,
           "bdr_sdr": 1
         },
-        "20260301": {
-          "ae": 1
-        },
         "20260302": {
           "founder": 3,
-          "other": 3,
-          "ae": 2,
-          "abm": 3,
-          "demand_gen": 7,
-          "product_marketing": 1
+          "other": 2,
+          "abm": 2,
+          "product_marketing": 1,
+          "demand_gen": 3
         },
         "20260303": {
-          "other": 5,
-          "ae": 1,
-          "abm": 3,
-          "demand_gen": 4,
+          "other": 1,
+          "abm": 1,
           "product_marketing": 1,
-          "bdr_sdr": 3
+          "demand_gen": 1
         },
         "20260304": {
-          "founder": 4,
+          "founder": 3,
           "other": 2,
-          "ae": 1,
-          "abm": 3,
-          "demand_gen": 5,
+          "abm": 2,
           "product_marketing": 6,
-          "bdr_sdr": 11
+          "demand_gen": 3,
+          "bdr_sdr": 1
         },
         "20260305": {
-          "other": 3,
+          "other": 1,
           "abm": 1,
-          "demand_gen": 2,
           "product_marketing": 1,
-          "bdr_sdr": 1
+          "demand_gen": 1
         },
         "20260306": {
           "founder": 4,
-          "other": 3,
-          "ae": 3,
-          "abm": 2,
-          "demand_gen": 2,
-          "product_marketing": 2
+          "other": 2,
+          "abm": 1,
+          "product_marketing": 1,
+          "ae": 1,
+          "demand_gen": 1
         },
         "20260307": {
-          "other": 1,
-          "product_marketing": 1
+          "other": 1
         },
         "20260308": {
           "founder": 2
         },
         "20260309": {
-          "founder": 1,
-          "other": 3,
-          "abm": 4,
-          "demand_gen": 2,
-          "product_marketing": 5
+          "other": 1,
+          "abm": 2,
+          "product_marketing": 4,
+          "demand_gen": 1
         },
         "20260310": {
           "founder": 2,
-          "other": 3,
-          "abm": 6,
-          "demand_gen": 4,
-          "product_marketing": 2
+          "other": 1,
+          "abm": 5,
+          "product_marketing": 2,
+          "demand_gen": 2
         },
         "20260311": {
           "founder": 3,
           "other": 2,
-          "ae": 9,
-          "abm": 2,
-          "demand_gen": 8,
-          "product_marketing": 6,
-          "bdr_sdr": 1
+          "abm": 1,
+          "product_marketing": 4,
+          "demand_gen": 4
         },
         "20260312": {
           "founder": 1,
-          "other": 3,
-          "ae": 3,
+          "other": 1,
           "abm": 2,
-          "demand_gen": 1,
-          "product_marketing": 1
+          "product_marketing": 1,
+          "ae": 1
         },
         "20260313": {
-          "ae": 2,
-          "abm": 2,
-          "demand_gen": 4,
-          "product_marketing": 1
+          "abm": 1,
+          "product_marketing": 1,
+          "demand_gen": 1
         },
         "20260316": {
           "founder": 1,
-          "other": 3,
-          "ae": 2,
+          "other": 1,
           "abm": 1,
-          "demand_gen": 4,
-          "product_marketing": 1
+          "ae": 2,
+          "demand_gen": 2
         },
         "20260317": {
           "founder": 4,
-          "ae": 1,
           "abm": 1,
           "demand_gen": 2
         },
         "20260318": {
-          "founder": 5,
-          "other": 2,
-          "ae": 3,
+          "founder": 4,
+          "other": 1,
           "abm": 1,
+          "ae": 1,
           "demand_gen": 2
         },
         "20260319": {
-          "other": 1,
-          "ae": 1,
           "product_marketing": 1
         },
         "20260320": {
-          "other": 1,
-          "ae": 2,
-          "abm": 1,
-          "demand_gen": 1
-        },
-        "20260321": {
-          "product_marketing": 1
+          "ae": 2
         },
         "20260323": {
           "founder": 2,
-          "other": 2,
+          "other": 1,
+          "abm": 1,
           "ae": 1,
-          "abm": 2,
-          "demand_gen": 3,
-          "bdr_sdr": 1
+          "demand_gen": 1
         },
         "20260324": {
-          "other": 1,
-          "ae": 2,
-          "abm": 1,
-          "demand_gen": 3,
-          "product_marketing": 1,
-          "bdr_sdr": 1
+          "product_marketing": 1
         },
         "20260325": {
-          "founder": 5,
-          "other": 4,
-          "ae": 3,
-          "abm": 2,
-          "demand_gen": 6,
-          "product_marketing": 2
+          "founder": 4,
+          "other": 3,
+          "abm": 1,
+          "product_marketing": 2,
+          "ae": 3
         },
         "20260326": {
           "founder": 7,
           "other": 1,
-          "ae": 2,
-          "abm": 7,
-          "demand_gen": 3,
-          "product_marketing": 3
+          "abm": 5,
+          "product_marketing": 2,
+          "ae": 1,
+          "demand_gen": 3
         },
         "20260327": {
           "founder": 2,
           "other": 3,
-          "abm": 3
+          "abm": 2
         },
         "20260328": {
-          "founder": 1,
           "abm": 1,
           "product_marketing": 1
         },
@@ -177375,332 +177329,317 @@
         "20260330": {
           "founder": 3,
           "other": 1,
-          "ae": 1,
-          "abm": 6,
-          "demand_gen": 1,
-          "product_marketing": 5
+          "abm": 4,
+          "product_marketing": 3
         },
         "20260331": {
-          "other": 3,
-          "ae": 1,
+          "other": 2,
           "abm": 1,
-          "demand_gen": 1,
-          "product_marketing": 1
+          "product_marketing": 1,
+          "ae": 1,
+          "demand_gen": 1
         },
         "20260401": {
           "founder": 2,
           "other": 3,
-          "ae": 4,
           "abm": 2,
-          "demand_gen": 1,
           "product_marketing": 4,
           "bdr_sdr": 2
         },
         "20260402": {
-          "founder": 7,
-          "other": 4,
-          "ae": 2,
+          "founder": 6,
+          "other": 2,
           "abm": 1,
-          "demand_gen": 1,
           "product_marketing": 1,
-          "bdr_sdr": 5
+          "bdr_sdr": 1
         },
         "20260403": {
-          "founder": 4,
+          "founder": 3,
           "other": 1,
-          "ae": 3,
           "abm": 2,
           "product_marketing": 1,
-          "bdr_sdr": 3
+          "ae": 1,
+          "bdr_sdr": 1
         },
         "20260404": {
           "other": 2,
+          "product_marketing": 1,
           "ae": 1,
-          "demand_gen": 1,
-          "product_marketing": 1
+          "demand_gen": 1
         },
         "20260405": {
-          "other": 1,
           "product_marketing": 1
         },
         "20260406": {
-          "other": 6,
-          "ae": 5,
-          "abm": 4,
-          "demand_gen": 1,
+          "other": 4,
+          "abm": 2,
           "product_marketing": 1,
-          "bdr_sdr": 4
+          "ae": 1,
+          "demand_gen": 1,
+          "bdr_sdr": 1
         },
         "20260407": {
-          "founder": 172,
-          "other": 51,
-          "ae": 43,
-          "abm": 46,
-          "demand_gen": 48,
-          "product_marketing": 44,
+          "founder": 171,
+          "other": 47,
+          "abm": 43,
+          "product_marketing": 43,
+          "ae": 35,
+          "demand_gen": 45,
           "bdr_sdr": 9
         },
         "20260408": {
-          "founder": 168,
-          "other": 52,
-          "ae": 42,
-          "abm": 53,
-          "demand_gen": 43,
-          "product_marketing": 67,
-          "bdr_sdr": 14
+          "founder": 166,
+          "other": 47,
+          "abm": 52,
+          "product_marketing": 64,
+          "ae": 35,
+          "demand_gen": 40,
+          "bdr_sdr": 13
         },
         "20260409": {
-          "founder": 55,
-          "other": 25,
-          "ae": 20,
-          "abm": 18,
-          "demand_gen": 14,
-          "product_marketing": 15,
+          "founder": 54,
+          "other": 23,
+          "abm": 17,
+          "product_marketing": 14,
+          "ae": 15,
+          "demand_gen": 12,
           "bdr_sdr": 3
         },
         "20260410": {
-          "founder": 25,
-          "other": 16,
-          "ae": 9,
-          "abm": 7,
-          "demand_gen": 18,
+          "founder": 24,
+          "other": 12,
+          "abm": 5,
           "product_marketing": 15,
-          "bdr_sdr": 5
+          "ae": 6,
+          "demand_gen": 16,
+          "bdr_sdr": 4
         },
         "20260411": {
-          "founder": 29,
+          "founder": 28,
           "other": 2,
-          "ae": 2,
           "abm": 3,
-          "demand_gen": 4,
           "product_marketing": 2,
+          "ae": 2,
+          "demand_gen": 4,
           "bdr_sdr": 2
         },
         "20260412": {
           "founder": 20,
           "other": 2,
-          "ae": 6,
           "abm": 2,
-          "demand_gen": 5,
           "product_marketing": 6,
+          "ae": 5,
+          "demand_gen": 5,
           "bdr_sdr": 5
         },
         "20260413": {
-          "founder": 38,
-          "other": 12,
-          "ae": 9,
+          "founder": 36,
+          "other": 11,
           "abm": 8,
-          "demand_gen": 15,
           "product_marketing": 9,
-          "bdr_sdr": 4
+          "ae": 9,
+          "demand_gen": 13,
+          "bdr_sdr": 3
         },
         "20260414": {
           "founder": 32,
-          "other": 13,
-          "ae": 9,
+          "other": 10,
           "abm": 7,
-          "demand_gen": 10,
-          "product_marketing": 13,
+          "product_marketing": 11,
+          "ae": 8,
+          "demand_gen": 8,
           "bdr_sdr": 2
         },
         "20260415": {
           "founder": 38,
-          "other": 13,
-          "ae": 10,
+          "other": 9,
           "abm": 10,
-          "demand_gen": 13,
-          "product_marketing": 17,
+          "product_marketing": 16,
+          "ae": 7,
+          "demand_gen": 12,
           "bdr_sdr": 6
         },
         "20260416": {
-          "founder": 24,
+          "founder": 23,
           "other": 12,
-          "ae": 13,
-          "abm": 8,
-          "demand_gen": 8,
+          "abm": 7,
           "product_marketing": 8,
-          "bdr_sdr": 5
+          "ae": 8,
+          "demand_gen": 5,
+          "bdr_sdr": 2
         },
         "20260417": {
-          "founder": 11,
-          "other": 6,
-          "ae": 4,
+          "founder": 10,
+          "other": 5,
           "abm": 7,
+          "product_marketing": 10,
+          "ae": 3,
           "demand_gen": 7,
-          "product_marketing": 11,
           "bdr_sdr": 1
         },
         "20260418": {
           "founder": 6,
-          "other": 4,
-          "ae": 2,
+          "other": 3,
           "abm": 2,
           "product_marketing": 4,
+          "ae": 2,
           "bdr_sdr": 2
         },
         "20260419": {
           "founder": 9,
           "other": 2,
           "abm": 1,
-          "demand_gen": 1,
           "product_marketing": 5,
-          "bdr_sdr": 1
+          "demand_gen": 1
         },
         "20260420": {
-          "founder": 20,
-          "other": 8,
-          "ae": 7,
-          "abm": 5,
-          "demand_gen": 4,
-          "product_marketing": 6,
-          "bdr_sdr": 2
+          "founder": 19,
+          "other": 7,
+          "abm": 4,
+          "product_marketing": 4,
+          "ae": 2,
+          "demand_gen": 3,
+          "bdr_sdr": 1
         },
         "20260421": {
           "founder": 12,
           "other": 2,
-          "ae": 5,
-          "abm": 3,
-          "demand_gen": 8,
-          "product_marketing": 5
+          "abm": 2,
+          "product_marketing": 5,
+          "ae": 3,
+          "demand_gen": 6
         },
         "20260422": {
-          "founder": 17,
-          "other": 12,
-          "ae": 5,
+          "founder": 16,
+          "other": 6,
           "abm": 4,
-          "demand_gen": 3,
-          "product_marketing": 6,
-          "bdr_sdr": 1
+          "product_marketing": 5,
+          "ae": 3,
+          "demand_gen": 3
         },
         "20260423": {
-          "founder": 15,
-          "other": 9,
-          "ae": 15,
+          "founder": 14,
+          "other": 6,
           "abm": 7,
-          "demand_gen": 6,
           "product_marketing": 6,
-          "bdr_sdr": 1
+          "ae": 13,
+          "demand_gen": 5
         },
         "20260424": {
           "founder": 11,
-          "other": 7,
-          "ae": 13,
-          "abm": 10,
-          "demand_gen": 1,
-          "product_marketing": 1,
-          "bdr_sdr": 2
+          "other": 4,
+          "abm": 9,
+          "ae": 8,
+          "bdr_sdr": 1
         },
         "20260425": {
           "founder": 4,
-          "demand_gen": 2,
-          "product_marketing": 2
+          "product_marketing": 2,
+          "demand_gen": 2
         },
         "20260426": {
           "founder": 7,
           "other": 3,
           "abm": 1,
-          "demand_gen": 1,
-          "product_marketing": 2
+          "product_marketing": 2,
+          "demand_gen": 1
         },
         "20260427": {
           "founder": 11,
-          "other": 10,
-          "ae": 4,
-          "abm": 3,
-          "demand_gen": 2,
-          "product_marketing": 6,
+          "other": 8,
+          "abm": 2,
+          "product_marketing": 5,
+          "ae": 1,
+          "demand_gen": 1,
           "bdr_sdr": 2
         },
         "20260428": {
           "founder": 5,
-          "other": 8,
-          "ae": 2,
-          "abm": 3,
-          "demand_gen": 8,
+          "other": 4,
+          "abm": 2,
           "product_marketing": 3,
-          "bdr_sdr": 2
+          "demand_gen": 7,
+          "bdr_sdr": 1
         },
         "20260429": {
           "founder": 8,
           "other": 7,
-          "ae": 8,
           "abm": 12,
-          "demand_gen": 6,
           "product_marketing": 10,
+          "ae": 7,
+          "demand_gen": 6,
           "bdr_sdr": 2
         },
         "20260430": {
           "founder": 12,
-          "other": 10,
-          "ae": 12,
-          "abm": 6,
-          "demand_gen": 10,
-          "product_marketing": 8,
-          "bdr_sdr": 5
+          "other": 3,
+          "abm": 5,
+          "product_marketing": 7,
+          "ae": 6,
+          "demand_gen": 9,
+          "bdr_sdr": 3
         },
         "20260501": {
           "founder": 3,
           "other": 7,
-          "ae": 2,
           "abm": 2,
-          "demand_gen": 2,
-          "product_marketing": 2
+          "product_marketing": 2,
+          "ae": 1,
+          "demand_gen": 1
         },
         "20260502": {
           "founder": 4,
-          "other": 5,
-          "ae": 1,
+          "other": 3,
           "abm": 2,
-          "product_marketing": 2
+          "product_marketing": 2,
+          "ae": 1
         },
         "20260503": {
-          "founder": 1,
           "other": 3,
-          "ae": 2,
           "abm": 4,
+          "ae": 2,
           "demand_gen": 2
         },
         "20260504": {
           "founder": 13,
           "other": 4,
-          "ae": 9,
-          "abm": 6,
-          "demand_gen": 4,
+          "abm": 4,
           "product_marketing": 4,
-          "bdr_sdr": 2
+          "ae": 9,
+          "demand_gen": 2,
+          "bdr_sdr": 1
         },
         "20260505": {
-          "founder": 3,
-          "other": 9,
-          "ae": 9,
-          "abm": 9,
-          "demand_gen": 2,
-          "product_marketing": 8,
-          "bdr_sdr": 2
+          "founder": 1,
+          "other": 4,
+          "abm": 7,
+          "product_marketing": 7,
+          "ae": 5,
+          "demand_gen": 1
         },
         "20260506": {
           "founder": 10,
-          "other": 7,
-          "ae": 4,
-          "abm": 6,
+          "other": 5,
+          "abm": 5,
+          "product_marketing": 2,
+          "ae": 3,
           "demand_gen": 2,
-          "product_marketing": 3,
           "bdr_sdr": 1
         },
         "20260507": {
           "founder": 11,
-          "other": 12,
-          "ae": 5,
-          "abm": 8,
-          "demand_gen": 6,
+          "other": 7,
+          "abm": 6,
           "product_marketing": 3,
-          "bdr_sdr": 5
+          "ae": 3,
+          "demand_gen": 5,
+          "bdr_sdr": 3
         },
         "20260508": {
           "founder": 7,
-          "other": 7,
-          "ae": 4,
+          "other": 5,
           "abm": 5,
+          "ae": 1,
           "demand_gen": 1,
           "bdr_sdr": 2
         },
@@ -177711,59 +177650,58 @@
         },
         "20260510": {
           "founder": 2,
-          "ae": 1,
           "abm": 3,
-          "product_marketing": 3
+          "product_marketing": 2,
+          "ae": 1
         },
         "20260511": {
-          "founder": 5,
-          "other": 7,
-          "ae": 10,
+          "founder": 4,
+          "other": 6,
           "abm": 6,
-          "demand_gen": 7,
           "product_marketing": 2,
+          "ae": 10,
+          "demand_gen": 6,
           "bdr_sdr": 1
         },
         "20260512": {
           "founder": 9,
-          "other": 2,
-          "ae": 6,
-          "abm": 10,
-          "demand_gen": 8,
+          "other": 1,
+          "abm": 8,
           "product_marketing": 4,
+          "ae": 6,
+          "demand_gen": 6,
           "bdr_sdr": 2
         },
         "20260513": {
           "founder": 7,
-          "other": 12,
-          "ae": 2,
+          "other": 7,
           "abm": 3,
-          "demand_gen": 1,
-          "product_marketing": 4
+          "product_marketing": 4,
+          "ae": 2,
+          "demand_gen": 1
         },
         "20260514": {
           "founder": 7,
-          "other": 10,
-          "ae": 10,
+          "other": 4,
           "abm": 6,
-          "demand_gen": 3,
-          "product_marketing": 1
+          "ae": 2,
+          "demand_gen": 3
         },
         "20260515": {
-          "founder": 5,
-          "other": 4,
-          "ae": 1,
-          "abm": 5,
-          "demand_gen": 2,
+          "founder": 4,
+          "other": 3,
+          "abm": 4,
           "product_marketing": 2,
+          "ae": 1,
+          "demand_gen": 2,
           "bdr_sdr": 2
         },
         "20260516": {
           "founder": 2,
           "other": 2,
-          "ae": 2,
           "abm": 2,
-          "product_marketing": 1
+          "product_marketing": 1,
+          "ae": 2
         },
         "20260517": {
           "founder": 5,
@@ -177772,43 +177710,42 @@
         },
         "20260518": {
           "founder": 1,
-          "other": 2,
-          "ae": 4,
+          "other": 1,
           "abm": 1,
-          "demand_gen": 4,
-          "product_marketing": 3
+          "product_marketing": 3,
+          "ae": 2,
+          "demand_gen": 2
         },
         "20260519": {
-          "founder": 6,
-          "other": 9,
-          "ae": 4,
+          "founder": 5,
+          "other": 5,
           "abm": 4,
-          "demand_gen": 4,
           "product_marketing": 1,
-          "bdr_sdr": 7
+          "ae": 4,
+          "demand_gen": 4,
+          "bdr_sdr": 3
         },
         "20260520": {
           "founder": 3,
-          "other": 13,
-          "ae": 11,
+          "other": 4,
           "abm": 2,
-          "demand_gen": 2,
-          "product_marketing": 3
+          "product_marketing": 2,
+          "ae": 5,
+          "demand_gen": 2
         },
         "20260521": {
-          "founder": 9,
-          "other": 4,
-          "ae": 12,
-          "abm": 5,
+          "founder": 8,
+          "abm": 4,
+          "product_marketing": 2,
+          "ae": 7,
           "demand_gen": 5,
-          "product_marketing": 3,
-          "bdr_sdr": 3
+          "bdr_sdr": 2
         },
         "20260522": {
           "founder": 5,
           "other": 6,
-          "ae": 5,
-          "bdr_sdr": 2
+          "ae": 4,
+          "bdr_sdr": 1
         },
         "20260523": {
           "product_marketing": 1
@@ -177821,158 +177758,151 @@
         "20260525": {
           "founder": 3,
           "other": 1,
-          "ae": 3,
           "abm": 1,
-          "demand_gen": 3,
           "product_marketing": 3,
+          "ae": 3,
+          "demand_gen": 3,
           "bdr_sdr": 1
         },
         "20260526": {
-          "founder": 9,
+          "founder": 8,
           "other": 4,
-          "ae": 10,
           "abm": 8,
-          "demand_gen": 2,
           "product_marketing": 4,
+          "ae": 3,
+          "demand_gen": 1,
           "bdr_sdr": 2
         },
         "20260527": {
           "founder": 3,
-          "other": 8,
-          "ae": 8,
-          "abm": 5,
+          "other": 5,
+          "abm": 4,
+          "product_marketing": 5,
+          "ae": 4,
           "demand_gen": 2,
-          "product_marketing": 6,
-          "bdr_sdr": 4
+          "bdr_sdr": 2
         },
         "20260528": {
           "founder": 9,
-          "other": 5,
-          "ae": 4,
-          "abm": 2,
-          "demand_gen": 5,
+          "other": 2,
+          "abm": 1,
           "product_marketing": 1,
+          "ae": 1,
+          "demand_gen": 4,
           "bdr_sdr": 1
         },
         "20260529": {
           "founder": 2,
           "other": 4,
-          "ae": 1,
           "abm": 1,
-          "product_marketing": 5,
+          "product_marketing": 2,
+          "ae": 1,
           "bdr_sdr": 1
         },
         "20260530": {
-          "ae": 1,
-          "abm": 1
+          "abm": 1,
+          "ae": 1
         },
         "20260531": {
           "founder": 6,
           "abm": 1,
-          "demand_gen": 2,
           "product_marketing": 1,
+          "demand_gen": 2,
           "bdr_sdr": 1
         },
         "20260601": {
           "founder": 5,
-          "other": 12,
-          "ae": 10,
-          "abm": 5,
-          "demand_gen": 4,
-          "product_marketing": 4,
-          "bdr_sdr": 4
+          "other": 6,
+          "abm": 4,
+          "product_marketing": 3,
+          "ae": 7,
+          "demand_gen": 2,
+          "bdr_sdr": 2
         },
         "20260602": {
           "founder": 8,
           "other": 4,
-          "ae": 7,
           "abm": 4,
-          "demand_gen": 4,
-          "product_marketing": 3,
+          "product_marketing": 1,
+          "ae": 4,
           "bdr_sdr": 2
         },
         "20260603": {
           "founder": 9,
-          "other": 9,
-          "ae": 8,
+          "other": 5,
           "abm": 3,
-          "demand_gen": 2,
           "product_marketing": 3,
-          "bdr_sdr": 4
+          "ae": 5,
+          "bdr_sdr": 1
         },
         "20260604": {
           "founder": 6,
-          "other": 6,
-          "ae": 5,
+          "other": 4,
           "abm": 3,
-          "demand_gen": 6,
           "product_marketing": 3,
-          "bdr_sdr": 2
+          "ae": 2,
+          "demand_gen": 5,
+          "bdr_sdr": 1
         },
         "20260605": {
           "founder": 5,
-          "other": 6,
-          "ae": 5,
+          "other": 3,
           "abm": 1,
-          "demand_gen": 3,
-          "product_marketing": 4,
-          "bdr_sdr": 1
+          "product_marketing": 3,
+          "ae": 2,
+          "demand_gen": 1
         },
         "20260606": {
           "founder": 1,
-          "ae": 2,
-          "abm": 2
+          "abm": 2,
+          "ae": 2
         },
         "20260607": {
           "founder": 4,
-          "ae": 2,
           "abm": 1,
-          "product_marketing": 1
+          "product_marketing": 1,
+          "ae": 2
         },
         "20260608": {
-          "founder": 4,
-          "other": 2,
-          "ae": 3,
+          "founder": 3,
+          "other": 1,
           "abm": 5,
-          "demand_gen": 1,
-          "product_marketing": 7
+          "product_marketing": 4,
+          "ae": 3,
+          "demand_gen": 1
         },
         "20260609": {
-          "founder": 5,
-          "other": 10,
-          "ae": 2,
-          "abm": 2,
-          "demand_gen": 7,
-          "product_marketing": 3
+          "founder": 4,
+          "other": 9,
+          "abm": 1,
+          "product_marketing": 1,
+          "demand_gen": 6
         },
         "20260610": {
           "founder": 3,
-          "other": 7,
-          "ae": 3,
+          "other": 6,
           "abm": 3,
-          "demand_gen": 1,
-          "product_marketing": 2
+          "product_marketing": 2,
+          "ae": 3
         },
         "20260611": {
           "founder": 2,
           "other": 5,
-          "ae": 2,
           "abm": 2,
-          "demand_gen": 2,
           "product_marketing": 3,
-          "bdr_sdr": 1
+          "ae": 1,
+          "demand_gen": 1
         },
         "20260612": {
           "founder": 2,
-          "other": 3,
+          "other": 1,
           "abm": 2,
-          "product_marketing": 1,
-          "bdr_sdr": 3
+          "product_marketing": 1
         },
         "20260613": {
           "founder": 2,
-          "demand_gen": 1,
           "product_marketing": 1,
+          "demand_gen": 1,
           "bdr_sdr": 2
         },
         "20260614": {
@@ -177981,155 +177911,146 @@
         },
         "20260615": {
           "founder": 2,
-          "other": 7,
-          "ae": 1,
-          "abm": 3,
-          "demand_gen": 5,
+          "other": 6,
           "product_marketing": 1,
-          "bdr_sdr": 2
+          "demand_gen": 3,
+          "bdr_sdr": 1
         },
         "20260616": {
-          "founder": 3,
-          "other": 6,
-          "ae": 4,
-          "abm": 3,
-          "demand_gen": 4,
-          "product_marketing": 1
+          "founder": 2,
+          "other": 1,
+          "abm": 2,
+          "product_marketing": 1,
+          "ae": 3,
+          "demand_gen": 2
         },
         "20260617": {
           "founder": 5,
-          "other": 8,
-          "ae": 2,
-          "abm": 4,
-          "product_marketing": 1,
+          "other": 5,
+          "abm": 1,
           "bdr_sdr": 1
         },
         "20260618": {
           "founder": 3,
           "other": 5,
-          "ae": 2,
           "abm": 4,
-          "demand_gen": 7
+          "ae": 2,
+          "demand_gen": 5
         },
         "20260619": {
           "founder": 5,
           "other": 2,
-          "ae": 1,
           "abm": 3,
-          "demand_gen": 4,
-          "product_marketing": 1
+          "product_marketing": 1,
+          "ae": 1,
+          "demand_gen": 3
         },
         "20260620": {
           "founder": 4,
-          "other": 1,
-          "ae": 1,
           "abm": 2,
-          "product_marketing": 1
+          "product_marketing": 1,
+          "ae": 1
         },
         "20260621": {
           "founder": 1,
           "other": 1,
-          "ae": 1,
-          "abm": 1
+          "abm": 1,
+          "ae": 1
         },
         "20260622": {
           "founder": 3,
           "other": 5,
-          "ae": 1,
           "abm": 1,
-          "demand_gen": 2,
           "product_marketing": 2,
-          "bdr_sdr": 1
+          "ae": 1,
+          "demand_gen": 2
         },
         "20260623": {
           "founder": 2,
-          "other": 5,
-          "ae": 6,
+          "other": 4,
           "abm": 7,
-          "demand_gen": 1,
           "product_marketing": 8,
+          "ae": 4,
+          "demand_gen": 1,
           "bdr_sdr": 1
         },
         "20260624": {
           "founder": 9,
           "other": 3,
-          "ae": 11,
           "abm": 8,
-          "demand_gen": 7,
-          "product_marketing": 2
+          "product_marketing": 2,
+          "ae": 10,
+          "demand_gen": 5
         },
         "20260625": {
           "founder": 18,
-          "other": 7,
-          "ae": 12,
-          "abm": 12,
-          "demand_gen": 10,
+          "other": 6,
+          "abm": 9,
           "product_marketing": 5,
+          "ae": 11,
+          "demand_gen": 9,
           "bdr_sdr": 4
         },
         "20260626": {
-          "founder": 20,
-          "other": 12,
-          "ae": 8,
+          "founder": 18,
+          "other": 10,
           "abm": 10,
-          "demand_gen": 7,
-          "product_marketing": 7,
+          "product_marketing": 5,
+          "ae": 7,
+          "demand_gen": 6,
           "bdr_sdr": 1
         },
         "20260627": {
           "founder": 6,
           "other": 1,
+          "product_marketing": 1,
           "ae": 2,
           "demand_gen": 1,
-          "product_marketing": 1,
           "bdr_sdr": 1
         },
         "20260628": {
-          "founder": 5,
+          "founder": 4,
           "other": 1,
           "abm": 3,
           "bdr_sdr": 1
         },
         "20260629": {
-          "founder": 8,
-          "other": 10,
-          "ae": 6,
-          "abm": 11,
-          "demand_gen": 2,
+          "founder": 7,
+          "other": 5,
+          "abm": 9,
           "product_marketing": 2,
+          "ae": 3,
           "bdr_sdr": 1
         },
         "20260630": {
           "founder": 9,
-          "other": 17,
-          "ae": 3,
-          "abm": 5,
-          "demand_gen": 8,
-          "product_marketing": 3,
-          "bdr_sdr": 1
+          "other": 12,
+          "abm": 4,
+          "product_marketing": 2,
+          "ae": 2,
+          "demand_gen": 6
         },
         "20260701": {
           "founder": 5,
-          "other": 8,
-          "ae": 3,
+          "other": 2,
           "abm": 1,
-          "demand_gen": 6,
           "product_marketing": 3,
-          "bdr_sdr": 4
+          "ae": 1,
+          "demand_gen": 5,
+          "bdr_sdr": 1
         },
         "20260702": {
           "founder": 1,
-          "other": 3,
-          "ae": 9,
+          "other": 1,
           "abm": 2,
-          "demand_gen": 2,
           "product_marketing": 1,
-          "bdr_sdr": 10
+          "ae": 2,
+          "bdr_sdr": 1
         },
         "20260703": {
           "founder": 2,
-          "ae": 3,
-          "product_marketing": 3
+          "product_marketing": 2,
+          "ae": 3
         },
         "20260704": {
           "founder": 2,
@@ -178142,99 +178063,89 @@
         },
         "20260706": {
           "founder": 5,
-          "other": 4,
-          "ae": 2,
+          "other": 3,
           "abm": 4,
-          "demand_gen": 3,
-          "product_marketing": 3,
-          "bdr_sdr": 2
+          "product_marketing": 1,
+          "demand_gen": 3
         },
         "20260707": {
-          "founder": 4,
-          "other": 10,
-          "ae": 13,
+          "founder": 2,
+          "other": 6,
           "abm": 4,
-          "demand_gen": 6,
           "product_marketing": 6,
-          "bdr_sdr": 2
+          "ae": 8,
+          "demand_gen": 4,
+          "bdr_sdr": 1
         },
         "20260708": {
-          "founder": 6,
-          "other": 13,
-          "ae": 4,
-          "abm": 6,
+          "founder": 5,
+          "other": 6,
+          "abm": 5,
+          "product_marketing": 3,
+          "ae": 1,
           "demand_gen": 4,
-          "product_marketing": 4,
-          "bdr_sdr": 5
+          "bdr_sdr": 3
         },
         "20260709": {
-          "founder": 3,
-          "other": 8,
-          "ae": 9,
+          "founder": 2,
+          "other": 4,
           "abm": 2,
-          "demand_gen": 8,
-          "product_marketing": 2,
-          "bdr_sdr": 3
+          "product_marketing": 1,
+          "ae": 2,
+          "demand_gen": 6
         },
         "20260710": {
           "founder": 5,
-          "other": 8,
-          "ae": 4,
+          "other": 3,
           "abm": 3,
-          "demand_gen": 3,
           "product_marketing": 1,
-          "bdr_sdr": 2
+          "ae": 3,
+          "demand_gen": 3
         },
         "20260711": {
           "founder": 2,
-          "ae": 5,
           "abm": 4,
-          "demand_gen": 3,
-          "product_marketing": 1
+          "product_marketing": 1,
+          "ae": 5,
+          "demand_gen": 3
         },
         "20260712": {
           "founder": 2,
-          "demand_gen": 1,
-          "product_marketing": 2
+          "product_marketing": 2,
+          "demand_gen": 1
         },
         "20260713": {
-          "other": 4,
-          "ae": 4,
-          "abm": 5,
-          "demand_gen": 3,
-          "product_marketing": 3
+          "other": 1,
+          "abm": 2,
+          "product_marketing": 1
         },
         "20260714": {
           "founder": 4,
-          "other": 7,
-          "ae": 2,
-          "abm": 2,
-          "product_marketing": 3
+          "other": 3,
+          "abm": 1,
+          "product_marketing": 2,
+          "ae": 2
         },
         "20260715": {
           "founder": 4,
-          "other": 4,
-          "ae": 2,
-          "abm": 5,
+          "abm": 4,
           "demand_gen": 2,
-          "product_marketing": 2,
           "bdr_sdr": 1
         },
         "20260716": {
           "founder": 1,
-          "other": 6,
-          "ae": 12,
+          "other": 1,
           "abm": 1,
+          "product_marketing": 6,
+          "ae": 1,
           "demand_gen": 4,
-          "product_marketing": 7,
-          "bdr_sdr": 8
+          "bdr_sdr": 2
         },
         "20260717": {
-          "other": 4,
-          "ae": 2,
-          "abm": 2,
-          "demand_gen": 1,
-          "product_marketing": 2
+          "other": 1,
+          "abm": 1,
+          "product_marketing": 2,
+          "demand_gen": 1
         },
         "20260718": {
           "founder": 2,
@@ -178247,98 +178158,86 @@
         },
         "20260720": {
           "founder": 3,
-          "other": 5,
-          "ae": 8,
+          "other": 1,
           "abm": 2,
-          "demand_gen": 3
+          "ae": 3,
+          "demand_gen": 2
         },
         "20260721": {
           "founder": 3,
-          "other": 5,
-          "ae": 7,
-          "abm": 2,
-          "demand_gen": 1,
+          "other": 3,
+          "abm": 1,
           "product_marketing": 1,
+          "ae": 5,
           "bdr_sdr": 1
         },
         "20260722": {
           "founder": 2,
-          "other": 6,
-          "ae": 6,
-          "abm": 2,
-          "demand_gen": 2,
-          "product_marketing": 2,
-          "bdr_sdr": 1
+          "other": 3,
+          "abm": 1,
+          "product_marketing": 1
         },
         "20260723": {
           "founder": 2,
-          "other": 3,
-          "ae": 6,
-          "abm": 4,
-          "product_marketing": 1,
-          "bdr_sdr": 5
+          "abm": 3,
+          "ae": 5,
+          "bdr_sdr": 1
         },
         "20260724": {
           "founder": 2,
-          "other": 7,
-          "ae": 3,
-          "abm": 4,
-          "demand_gen": 2,
+          "other": 5,
+          "abm": 2,
           "product_marketing": 1
         },
         "20260725": {
           "founder": 2,
           "other": 4,
-          "ae": 2,
-          "product_marketing": 2
+          "product_marketing": 2,
+          "ae": 2
         },
         "20260726": {
           "founder": 1,
-          "other": 1,
           "abm": 2
         },
         "20260727": {
           "founder": 4,
           "other": 2,
-          "ae": 4,
           "abm": 2,
-          "demand_gen": 2,
-          "product_marketing": 1,
+          "ae": 2,
+          "demand_gen": 1,
           "bdr_sdr": 1
         },
         "20260728": {
           "founder": 3,
-          "other": 5,
-          "ae": 4,
-          "abm": 3,
-          "demand_gen": 3,
+          "other": 3,
+          "abm": 2,
           "product_marketing": 1,
+          "demand_gen": 3,
           "bdr_sdr": 2
         },
         "20260729": {
           "founder": 3,
-          "other": 6,
-          "ae": 10,
-          "abm": 3,
-          "demand_gen": 1,
-          "product_marketing": 2
+          "other": 2,
+          "abm": 2,
+          "product_marketing": 2,
+          "ae": 5,
+          "demand_gen": 1
         },
         "20260730": {
           "founder": 6,
-          "other": 13,
-          "ae": 1,
+          "other": 9,
           "abm": 2,
-          "demand_gen": 4,
           "product_marketing": 4,
+          "ae": 1,
+          "demand_gen": 3,
           "bdr_sdr": 1
         },
         "20260731": {
           "founder": 4,
-          "other": 4,
-          "ae": 5,
+          "other": 3,
           "abm": 2,
-          "demand_gen": 1,
           "product_marketing": 2,
+          "ae": 4,
           "bdr_sdr": 2
         },
         "20260801": {
@@ -178346,88 +178245,78 @@
           "other": 1
         },
         "20260802": {
-          "other": 2,
+          "other": 1,
           "ae": 1,
           "bdr_sdr": 1
         },
         "20260803": {
-          "founder": 4,
-          "other": 2,
-          "abm": 3,
-          "bdr_sdr": 2
+          "founder": 2,
+          "other": 1
         },
         "20260804": {
           "founder": 3,
-          "other": 12,
+          "other": 8,
+          "product_marketing": 1,
           "ae": 7,
           "demand_gen": 3,
-          "product_marketing": 1,
           "bdr_sdr": 2
         },
         "20260805": {
           "founder": 1,
-          "other": 8,
-          "ae": 3,
+          "other": 2,
           "abm": 1,
-          "bdr_sdr": 8
+          "ae": 1,
+          "bdr_sdr": 1
         },
         "20260806": {
-          "founder": 4,
-          "other": 12,
-          "ae": 10,
-          "demand_gen": 2,
-          "bdr_sdr": 9
+          "founder": 2,
+          "other": 6,
+          "ae": 7
         },
         "20260807": {
-          "founder": 2,
-          "other": 7,
-          "ae": 4,
-          "product_marketing": 3,
-          "bdr_sdr": 4
+          "founder": 1,
+          "other": 5,
+          "product_marketing": 2,
+          "ae": 2
         },
         "20260808": {
           "founder": 4,
           "other": 2,
-          "ae": 1,
-          "product_marketing": 1
+          "product_marketing": 1,
+          "ae": 1
         },
         "20260809": {
-          "founder": 2,
-          "other": 1
+          "founder": 1
         },
         "20260810": {
           "founder": 2,
-          "other": 9,
-          "ae": 7,
-          "demand_gen": 2,
-          "bdr_sdr": 2
+          "other": 4,
+          "ae": 3,
+          "demand_gen": 2
         },
         "20260811": {
           "founder": 3,
-          "other": 13,
-          "ae": 7,
+          "other": 3,
           "abm": 1,
-          "demand_gen": 2,
-          "bdr_sdr": 12
+          "ae": 1,
+          "demand_gen": 1
         },
         "20260812": {
-          "founder": 7,
-          "other": 9,
-          "ae": 5,
-          "demand_gen": 2,
+          "founder": 6,
+          "other": 2,
           "product_marketing": 1,
-          "bdr_sdr": 6
+          "ae": 4,
+          "demand_gen": 2,
+          "bdr_sdr": 1
         },
         "20260813": {
-          "founder": 1,
-          "other": 3,
-          "ae": 2,
-          "demand_gen": 1,
-          "bdr_sdr": 1
+          "founder": 2,
+          "other": 2,
+          "demand_gen": 1
         }
       },
-      "regeneratedAt": "2026-08-13T18:53:33.821Z",
-      "regeneratedVia": "pull-data.mjs (REST segmentation, daily event totals, event-property group_by user_work_role)",
+      "regeneratedAt": "2026-08-13T19:45:58.780Z",
+      "regeneratedVia": "pull-data.mjs (REST segmentation, daily event totals, event-property group_by user_work_role, cohort-filtered to org-creators via s=userdata_cohort)",
       "periods": {
         "20260101_20260131": {},
         "20260201_20260228": {
@@ -178813,7 +178702,7 @@
       "20260813": 4
     },
     "companySetupDailyNote": "Daily unique [Onboarding] Company Setup Complete (PREVIOUS signup definition, org-creators only; internal excluded). Sum-of-daily per period. Regenerated each pull via REST segmentation (daily uniques, interval=1); history before the pull window is carried forward.",
-    "pulledAt": "2026-08-13T18:53:34.472Z"
+    "pulledAt": "2026-08-13T19:45:59.975Z"
   },
   "hubspot": {
     "meetings": [
@@ -179399,7 +179288,7 @@
       "source": "revenue-repo",
       "repo": "UncleAchoo/revenue-dashboard-official",
       "path": "stripe_data.json",
-      "pulledAt": "2026-08-13T18:53:28.510Z",
+      "pulledAt": "2026-08-13T19:45:50.146Z",
       "weekly": [
         {
           "week_ending": "2026-03-22",
@@ -179513,7 +179402,7 @@
         }
       ]
     },
-    "pulledAt": "2026-08-13T18:53:28.510Z"
+    "pulledAt": "2026-08-13T19:45:50.146Z"
   },
   "peec": {
     "pulledAt": "2026-08-13T18:53:09.000Z",

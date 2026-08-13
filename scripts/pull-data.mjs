@@ -263,7 +263,7 @@ function ampBasicAuth() {
 }
 function ymdCompact(s)  { return s.replaceAll('-', ''); } // 2026-04-27 → 20260427
 
-async function ampSegmentation({ event, start, end, metric = 'uniques', interval = 1 }) {
+async function ampSegmentation({ event, start, end, metric = 'uniques', interval = 1, segments = null }) {
   // The Dashboard REST API's top-level `g` param only accepts user properties.
   // For event-property group-by, the group_by descriptor goes INSIDE the
   // event spec's `group_by` array. Pass that via the `event` arg directly.
@@ -273,6 +273,10 @@ async function ampSegmentation({ event, start, end, metric = 'uniques', interval
   params.append('end', ymdCompact(end));
   params.append('m', metric);
   params.append('i', String(interval));
+  // Optional segment filter (`s`). Supports behavioral-cohort filtering via
+  // { prop: 'userdata_cohort', op: 'is', values: ['<cohortId>'] } — used to
+  // restrict the Team split to org-creators.
+  if (segments) params.append('s', JSON.stringify(segments));
   const url = `https://amplitude.com/api/2/events/segmentation?${params.toString()}`;
   const res = await fetch(url, { headers: { Authorization: ampBasicAuth() } });
   if (!res.ok) {
@@ -294,6 +298,16 @@ async function fetchAmplitude() {
   // with "mutiny" as a substring match, but listing both keeps our pull a
   // literal mirror of the chart's filter config.
   const emailFilter = { group_type: 'User', subprop_op: 'does not contain', subprop_key: 'email', subprop_type: 'event', subprop_value: ['mutinyhq', 'mutiny'] };
+
+  // Behavioral cohort "Ever completed [Onboarding] Company Setup Complete"
+  // (org-creators). Used to filter the Signups-by-Team split to users who set
+  // up a company — i.e. exclude invited teammates (who fire User Setup Complete
+  // but never Company Setup Complete). Created in Amplitude (app 263360); id
+  // taken from the cohort URL /audiences/mutiny/cohort/<id>. If this cohort is
+  // ever deleted/renamed the roles pull will error and carry forward the prior
+  // block (see the try/catch below) — recreate it and update the id here.
+  const ORG_CREATOR_COHORT_ID = 'xjt01ben';
+  const ORG_CREATOR_SEGMENT = [{ prop: 'userdata_cohort', op: 'is', values: [ORG_CREATOR_COHORT_ID] }];
 
   // 1) Daily SIGNUPS — COMPLETED signups. A "signup" = an [Onboarding] User
   // Setup Complete EVENT (the step both onboarding paths — create-an-org and
@@ -395,7 +409,7 @@ async function fetchAmplitude() {
       filters: [emailFilter],
       group_by: [{ type: 'event', value: 'user_work_role' }],
     };
-    const rd = await ampSegmentation({ event: roleEvent, start: WINDOW_START, end: WINDOW_END, interval: 1, metric: 'totals' });
+    const rd = await ampSegmentation({ event: roleEvent, start: WINDOW_START, end: WINDOW_END, interval: 1, metric: 'totals', segments: ORG_CREATOR_SEGMENT });
     const labels = (rd?.data?.seriesLabels ?? []).map(extractLabel);
     const groupSeries = rd?.data?.series ?? [];
     const buckets = rd?.data?.xValues ?? [];
@@ -410,13 +424,14 @@ async function fetchAmplitude() {
       if (Object.keys(m).length) rolesDaily[ymdCompact(day)] = m;
     });
     rolesFresh = {
-      basis: 'completer_work_role_event_prop_totals',
-      note: 'user_work_role event property on [Onboarding] User Setup Complete (EVENT TOTALS per role per day, internal emails excluded — same filter as dailySignups). \'none\' → the No role segment. Daily map: Σ over roles for a day equals dailySignups for that day, so summing over any window (incl. custom Reporting ranges) makes the team segments tie exactly to the signup KPI — no dedup, no scaling.',
+      basis: 'orgcreator_completer_work_role_event_prop_totals',
+      cohortId: ORG_CREATOR_COHORT_ID,
+      note: 'user_work_role event property on [Onboarding] User Setup Complete (EVENT TOTALS per role per day, internal emails excluded), FILTERED to the "Ever completed [Onboarding] Company Setup Complete" cohort (org-creators only — excludes invited teammates). \'none\' → the No role segment. Because of the cohort filter these totals are a SUBSET of dailySignups, so the Team split intentionally does NOT tie to the User Signups KPI (which still includes invited users).',
       daily: rolesDaily,
       regeneratedAt: new Date().toISOString(),
-      regeneratedVia: 'pull-data.mjs (REST segmentation, daily event totals, event-property group_by user_work_role)',
+      regeneratedVia: 'pull-data.mjs (REST segmentation, daily event totals, event-property group_by user_work_role, cohort-filtered to org-creators via s=userdata_cohort)',
     };
-    log(`  Amplitude: regenerated amplitude.roles.daily (${Object.keys(rolesDaily).length} days) from user_work_role event totals.`);
+    log(`  Amplitude: regenerated amplitude.roles.daily (${Object.keys(rolesDaily).length} days) from user_work_role event totals, filtered to org-creators (cohort ${ORG_CREATOR_COHORT_ID}).`);
   } catch (err) {
     log(`  Amplitude: roles regeneration failed (${err.message}) — will carry forward the previous roles block.`);
   }
