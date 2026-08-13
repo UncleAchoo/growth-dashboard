@@ -1250,14 +1250,16 @@ const CSC_BY_CHANNEL_MONTHLY_YTD = computeCscByChannelPeriodic(YTD_MONTHS_LIST);
 //   Marketing = ABM + Demand gen + Ops lead + Marketing other + Product mktg
 //   Other     = Founder + Other role + CRO
 //   No role   = the 'none' group (genuinely blank work role).
-// BASIS: amplitude.roles.daily is the SAME User Setup Complete events counted
-// by dailySignups, grouped by user_work_role as EVENT TOTALS per day. So for
-// every day Σ over roles === dailySignups[day], and summing the daily map over
-// any window's dates yields a role split whose four team segments sum EXACTLY
-// to the signup total for that window — no scaling, no dedup reconciliation.
-// This holds for custom Reporting ranges too (just another set of dates).
-// Falls back to all-No-role only if roles.daily is absent (e.g. data.json not
-// yet refreshed by pull-data).
+// BASIS: amplitude.roles.daily is User Setup Complete events grouped by
+// user_work_role as EVENT TOTALS per day, FILTERED (in pull-data, via an
+// Amplitude cohort) to org-creators — users who have also completed Company
+// Setup Complete. Invited teammates fire USC but never CSC, so they're excluded
+// here. Consequence: these totals are a SUBSET of dailySignups, so the Team
+// split intentionally does NOT sum to the User Signups KPI (which still counts
+// everyone). Totals for the card/bars come from the filtered role sums, not the
+// signup total. Summing the daily map over any window's dates (incl. custom
+// Reporting ranges) gives the org-creator role split for that window.
+// Falls back to an empty (zero) split if roles.daily is absent for the range.
 // ---------------------------------------------------------------------------
 const ROLES = dataJson.amplitude?.roles || {};
 const ROLES_BY_DATE = ROLES.daily || {};
@@ -1336,10 +1338,13 @@ function scaleRoleMap(roleMap) {
 }
 function computeTeamPeriodic(periods) {
   return periods.map((p) => {
-    const summed = p.dates.reduce((s, d) => s + (LIVE_SIGNUPS_BY_DATE[d] || 0), 0);
-    const t = teamSplit(roleMapForDates(p.dates), summed);
-    // Bar height = sum of the four segments; equals the summed-daily signup
-    // total exactly whenever roles.daily covers the period.
+    // Org-creators only: roles.daily is cohort-filtered (users who completed
+    // Company Setup Complete), so a period with no filtered role data shows an
+    // empty (zero) bar — we pass 0, NOT the signup total, so invited-only
+    // periods don't back-fill into "No role".
+    const t = teamSplit(roleMapForDates(p.dates), 0);
+    // Bar height = sum of the four filtered segments (org-creator completions
+    // in the period). Intentionally does NOT equal the signup total.
     const total = t.Sales + t.Marketing + t.Other + t['No role'];
     return {
       week: p.weekStartLabel ?? p.label,
@@ -5336,11 +5341,14 @@ export default function MutinyGrowthDashboard() {
           })))
         : TEAM_MONTHLY_YTD;
   const teamStackedTotal = teamStackedData.reduce((s, r) => s + (r.total || 0), 0);
-  const teamWindowTotal = is30d ? SIGNUPS_30D_DEDUP : isMtd ? SIGNUPS_MTD_DEDUP : isReporting ? SIGNUPS_REPORTING : SIGNUPS_YTD_DEDUP;
   const teamWindowDates = is30d ? STRICT_WINDOW_DATES : isMtd ? MTD_DATES_ARRAY : isReporting ? reportingDatesArray : YTD_DATES_ARRAY;
   const teamWindowRoles = roleMapForDates(teamWindowDates);
   const teamWindowRolesScaled = scaleRoleMap(teamWindowRoles);
-  const teamWinSplit    = teamSplit(teamWindowRoles, teamWindowTotal);
+  // Org-creators only: totals come from the cohort-filtered role sums (fallback
+  // 0), NOT the signup KPI — so the pie center + bars reflect org-creator
+  // completions and the card ties to itself, not to the User Signups tile.
+  const teamWinSplit    = teamSplit(teamWindowRoles, 0);
+  const teamWindowTotal = teamWinSplit.Sales + teamWinSplit.Marketing + teamWinSplit.Other + teamWinSplit['No role'];
   const teamPieData     = TEAM_DEFS.map((t) => ({ name: t.name, value: teamWinSplit[t.name], color: t.color }));
   const pieMeetings       = is30d ? SHARE_OF_SALES_MEETINGS       : isMtd ? SHARE_OF_SALES_MEETINGS_MTD      : isReporting ? SHARE_OF_SALES_MEETINGS_REPORTING      : SHARE_OF_SALES_MEETINGS_YTD;
   const pieMeetingsTotal  = is30d ? TOTAL_SALES_MEETINGS_CATEGORIZED : isMtd ? TOTAL_SALES_MEETINGS_CATEGORIZED_MTD : isReporting ? TOTAL_SALES_MEETINGS_CATEGORIZED_REPORTING : TOTAL_SALES_MEETINGS_CATEGORIZED_YTD;
@@ -5718,7 +5726,7 @@ export default function MutinyGrowthDashboard() {
           left; Visitor → Signup cumulative conversion line on the right. */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
         <TeamSplitCard
-          source="Amplitude · user_work_role"
+          source="Amplitude · user_work_role · org-creators only"
           pieDateRangeLabel={activeWindowLabel}
           pieData={teamPieData}
           pieTotal={teamWindowTotal}
@@ -5727,7 +5735,7 @@ export default function MutinyGrowthDashboard() {
           trendData={teamStackedData}
           trendTotal={teamStackedTotal}
           isReporting={isReporting}
-          infoTooltip={`Completed signups (User Setup Complete event count) grouped by the work role reported at setup completion (user_work_role event property). Sales = AE + BDR/SDR + Sales other. Marketing = ABM + Demand gen + Ops lead + Marketing other + Product mktg. Other = Founder + Other + CRO. No role = genuinely left blank (near-zero since Mar 2026; the property wasn't captured for the first setup-complete weeks of Feb 2026). These are raw event totals — the same events counted by the User Signups KPI, just grouped by role — so the four segments sum exactly to the signup total for the window (no dedup, no scaling), including custom Reporting ranges.`}
+          infoTooltip={`Org-creator completions only: User Setup Complete events, restricted to users who have also completed [Onboarding] Company Setup Complete (i.e. people who set up a company — invited teammates are excluded), grouped by the work role reported at setup completion (user_work_role event property). Sales = AE + BDR/SDR + Sales other. Marketing = ABM + Demand gen + Ops lead + Marketing other + Product mktg. Other = Founder + Other + CRO. No role = left blank. Because invited users are filtered out, these totals are a SUBSET of — and intentionally do NOT tie to — the User Signups KPI (which still counts everyone). Raw event totals, no dedup/scaling; the cohort filter is applied in pull-data via Amplitude's REST segmentation.`}
         />
         <VisitorSignupTrend
           data={ratioTrendData}
