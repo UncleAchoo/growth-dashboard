@@ -1,11 +1,11 @@
 {
-  "pulledAt": "2026-08-13T18:32:53.557Z",
+  "pulledAt": "2026-08-13T18:53:34.489Z",
   "window": {
     "start": "2026-01-01",
     "end": "2026-08-13"
   },
   "ga4": {
-    "pulledAt": "2026-08-13T18:32:47.673Z",
+    "pulledAt": "2026-08-13T18:53:27.765Z",
     "file1": [
       {
         "date": "20260320",
@@ -1006,8 +1006,8 @@
       {
         "date": "20260811",
         "totalUsers": 430,
-        "engagedSessions": 208,
-        "sessions": 435
+        "engagedSessions": 228,
+        "sessions": 434
       },
       {
         "date": "20260214",
@@ -1032,6 +1032,12 @@
         "totalUsers": 401,
         "engagedSessions": 189,
         "sessions": 408
+      },
+      {
+        "date": "20260812",
+        "totalUsers": 398,
+        "engagedSessions": 199,
+        "sessions": 400
       },
       {
         "date": "20260328",
@@ -1340,16 +1346,16 @@
         "sessions": 98
       },
       {
+        "date": "20260813",
+        "totalUsers": 93,
+        "engagedSessions": 24,
+        "sessions": 94
+      },
+      {
         "date": "20260801",
         "totalUsers": 84,
         "engagedSessions": 39,
         "sessions": 85
-      },
-      {
-        "date": "20260812",
-        "totalUsers": 30,
-        "engagedSessions": 16,
-        "sessions": 30
       }
     ],
     "file2": [
@@ -1649,6 +1655,12 @@
       },
       {
         "date": "20260731",
+        "channelGroup": "Direct",
+        "sourceMedium": "(direct) / (none)",
+        "eventCount": 6
+      },
+      {
+        "date": "20260812",
         "channelGroup": "Direct",
         "sourceMedium": "(direct) / (none)",
         "eventCount": 6
@@ -2203,6 +2215,18 @@
         "date": "20260810",
         "channelGroup": "Organic Search",
         "sourceMedium": "google / organic",
+        "eventCount": 2
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / organic",
+        "eventCount": 2
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "30mpc.com / referral",
         "eventCount": 2
       },
       {
@@ -2845,6 +2869,12 @@
         "date": "20260811",
         "channelGroup": "Referral",
         "sourceMedium": "app.rippling.com / referral",
+        "eventCount": 1
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "toolify / (not set)",
         "eventCount": 1
       }
     ],
@@ -4740,6 +4770,15 @@
         "totalUsers": 223
       },
       {
+        "date": "20260812",
+        "channelGroup": "Direct",
+        "sourceMedium": "(direct) / (none)",
+        "eventCount": 1394,
+        "engagedSessions": 113,
+        "sessions": 259,
+        "totalUsers": 259
+      },
+      {
         "date": "20260520",
         "channelGroup": "Organic Search",
         "sourceMedium": "google / organic",
@@ -4797,10 +4836,10 @@
         "date": "20260811",
         "channelGroup": "Direct",
         "sourceMedium": "(direct) / (none)",
-        "eventCount": 1347,
-        "engagedSessions": 107,
-        "sessions": 258,
-        "totalUsers": 257
+        "eventCount": 1355,
+        "engagedSessions": 118,
+        "sessions": 260,
+        "totalUsers": 259
       },
       {
         "date": "20260630",
@@ -5887,7 +5926,7 @@
         "channelGroup": "Organic Search",
         "sourceMedium": "google / organic",
         "eventCount": 687,
-        "engagedSessions": 62,
+        "engagedSessions": 70,
         "sessions": 103,
         "totalUsers": 101
       },
@@ -6232,6 +6271,15 @@
         "engagedSessions": 24,
         "sessions": 85,
         "totalUsers": 85
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / organic",
+        "eventCount": 534,
+        "engagedSessions": 55,
+        "sessions": 88,
+        "totalUsers": 87
       },
       {
         "date": "20260116",
@@ -6781,6 +6829,15 @@
         "engagedSessions": 31,
         "sessions": 51,
         "totalUsers": 50
+      },
+      {
+        "date": "20260813",
+        "channelGroup": "Direct",
+        "sourceMedium": "(direct) / (none)",
+        "eventCount": 296,
+        "engagedSessions": 13,
+        "sessions": 66,
+        "totalUsers": 66
       },
       {
         "date": "20260405",
@@ -7998,6 +8055,15 @@
         "totalUsers": 14
       },
       {
+        "date": "20260813",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / organic",
+        "eventCount": 94,
+        "engagedSessions": 7,
+        "sessions": 14,
+        "totalUsers": 14
+      },
+      {
         "date": "20260411",
         "channelGroup": "Referral",
         "sourceMedium": "mail.google.com / referral",
@@ -8023,15 +8089,6 @@
         "engagedSessions": 11,
         "sessions": 13,
         "totalUsers": 13
-      },
-      {
-        "date": "20260812",
-        "channelGroup": "Organic Search",
-        "sourceMedium": "google / organic",
-        "eventCount": 93,
-        "engagedSessions": 9,
-        "sessions": 12,
-        "totalUsers": 12
       },
       {
         "date": "20260422",
@@ -8934,15 +8991,6 @@
         "totalUsers": 13
       },
       {
-        "date": "20260812",
-        "channelGroup": "Direct",
-        "sourceMedium": "(direct) / (none)",
-        "eventCount": 62,
-        "engagedSessions": 7,
-        "sessions": 14,
-        "totalUsers": 14
-      },
-      {
         "date": "20260127",
         "channelGroup": "Referral",
         "sourceMedium": "chatgpt.com / referral",
@@ -8977,6 +9025,15 @@
         "engagedSessions": 2,
         "sessions": 4,
         "totalUsers": 4
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "MKT1 / event-newsletter",
+        "eventCount": 61,
+        "engagedSessions": 6,
+        "sessions": 8,
+        "totalUsers": 8
       },
       {
         "date": "20260216",
@@ -12847,6 +12904,15 @@
         "engagedSessions": 1,
         "sessions": 2,
         "totalUsers": 1
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "30mpc.com / referral",
+        "eventCount": 31,
+        "engagedSessions": 3,
+        "sessions": 5,
+        "totalUsers": 5
       },
       {
         "date": "20260106",
@@ -16998,6 +17064,24 @@
         "totalUsers": 2
       },
       {
+        "date": "20260812",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sourceMedium": "linkedin.com / referral",
+        "eventCount": 20,
+        "engagedSessions": 1,
+        "sessions": 3,
+        "totalUsers": 3
+      },
+      {
+        "date": "20260813",
+        "channelGroup": "AI Referrals",
+        "sourceMedium": "chatgpt.com / ai-assistant",
+        "eventCount": 20,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
         "date": "20260104",
         "channelGroup": "Referral",
         "sourceMedium": "workatastartup.com / referral",
@@ -18411,6 +18495,15 @@
         "totalUsers": 1
       },
       {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "teams.public.onecdn.static.microsoft / referral",
+        "eventCount": 18,
+        "engagedSessions": 2,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
         "date": "20260105",
         "channelGroup": "Organic Social",
         "sourceMedium": "linkedin / social",
@@ -19156,6 +19249,15 @@
         "engagedSessions": 4,
         "sessions": 4,
         "totalUsers": 4
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "app.rippling.com / referral",
+        "eventCount": 17,
+        "engagedSessions": 1,
+        "sessions": 3,
+        "totalUsers": 3
       },
       {
         "date": "20260102",
@@ -19966,6 +20068,15 @@
         "engagedSessions": 1,
         "sessions": 2,
         "totalUsers": 2
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "accounts.google.com / referral",
+        "eventCount": 16,
+        "engagedSessions": 2,
+        "sessions": 4,
+        "totalUsers": 4
       },
       {
         "date": "20260105",
@@ -22929,6 +23040,15 @@
         "totalUsers": 2
       },
       {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "tailscale.lightning.force.com / referral",
+        "eventCount": 13,
+        "engagedSessions": 2,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
         "date": "20260105",
         "channelGroup": "Referral",
         "sourceMedium": "workatastartup.com / referral",
@@ -24252,6 +24372,15 @@
         "totalUsers": 3
       },
       {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "toplinemedia.substack.com / referral",
+        "eventCount": 12,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
         "date": "20260102",
         "channelGroup": "Organic Social",
         "sourceMedium": "linkedin / social",
@@ -25555,6 +25684,24 @@
         "engagedSessions": 2,
         "sessions": 2,
         "totalUsers": 2
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sourceMedium": "linkedin / social",
+        "eventCount": 11,
+        "engagedSessions": 2,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "MKT1 / event",
+        "eventCount": 11,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
       },
       {
         "date": "20260102",
@@ -27166,6 +27313,24 @@
         "engagedSessions": 1,
         "sessions": 2,
         "totalUsers": 2
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "AI Referrals",
+        "sourceMedium": "chatgpt.com / ai-assistant",
+        "eventCount": 10,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "mail.google.com / referral",
+        "eventCount": 10,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
       },
       {
         "date": "20260102",
@@ -29511,6 +29676,42 @@
         "date": "20260811",
         "channelGroup": "Referral",
         "sourceMedium": "scrub.sourcescrub.com / referral",
+        "eventCount": 9,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "AI Referrals",
+        "sourceMedium": "claude.ai / ai-assistant",
+        "eventCount": 9,
+        "engagedSessions": 1,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "toolify / referral",
+        "eventCount": 9,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260813",
+        "channelGroup": "Referral",
+        "sourceMedium": "login.microsoftonline.com / referral",
+        "eventCount": 9,
+        "engagedSessions": 1,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
+        "date": "20260813",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "in.search.yahoo.com / referral",
         "eventCount": 9,
         "engagedSessions": 1,
         "sessions": 1,
@@ -31965,13 +32166,13 @@
         "totalUsers": 2
       },
       {
-        "date": "20260811",
-        "channelGroup": "Unassigned",
-        "sourceMedium": "(not set)",
+        "date": "20260812",
+        "channelGroup": "Email",
+        "sourceMedium": "substack / email",
         "eventCount": 8,
-        "engagedSessions": 0,
-        "sessions": 2,
-        "totalUsers": 2
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
       },
       {
         "date": "20260101",
@@ -34875,6 +35076,24 @@
         "date": "20260811",
         "channelGroup": "Referral",
         "sourceMedium": "substack.com / referral",
+        "eventCount": 7,
+        "engagedSessions": 1,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "(not set)",
+        "eventCount": 7,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260813",
+        "channelGroup": "Referral",
+        "sourceMedium": "cibil.com / referral",
         "eventCount": 7,
         "engagedSessions": 0,
         "sessions": 2,
@@ -38596,6 +38815,51 @@
         "engagedSessions": 1,
         "sessions": 1,
         "totalUsers": 1
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "bing / organic",
+        "eventCount": 6,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Organic Social - Reddit",
+        "sourceMedium": "reddit.com / referral",
+        "eventCount": 6,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "articulatecap.com / referral",
+        "eventCount": 6,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "toolify / (not set)",
+        "eventCount": 6,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260813",
+        "channelGroup": "Referral",
+        "sourceMedium": "accounts.google.com / referral",
+        "eventCount": 6,
+        "engagedSessions": 0,
+        "sessions": 2,
+        "totalUsers": 2
       },
       {
         "date": "20260102",
@@ -44918,10 +45182,19 @@
       {
         "date": "20260811",
         "channelGroup": "Unassigned",
-        "sourceMedium": "topstartups.io / ",
+        "sourceMedium": "topstartups.io / (not set)",
         "eventCount": 5,
         "engagedSessions": 0,
         "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260813",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "MKT1 / event-newsletter",
+        "eventCount": 5,
+        "engagedSessions": 0,
+        "sessions": 2,
         "totalUsers": 1
       },
       {
@@ -53700,6 +53973,60 @@
         "totalUsers": 1
       },
       {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "links.rediff.com / referral",
+        "eventCount": 4,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "statics.teams.cdn.office.net / referral",
+        "eventCount": 4,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "subscriptions.pstmrk.it / referral",
+        "eventCount": 4,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "ui-deref.de / referral",
+        "eventCount": 4,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "zasobygwp.pl / referral",
+        "eventCount": 4,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260813",
+        "channelGroup": "Referral",
+        "sourceMedium": "snowbiz.okta.com / referral",
+        "eventCount": 4,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
         "date": "20260102",
         "channelGroup": "Email",
         "sourceMedium": "nurture / email",
@@ -61811,7 +62138,25 @@
       {
         "date": "20260812",
         "channelGroup": "Referral",
+        "sourceMedium": "aimers.io / referral",
+        "eventCount": 3,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Referral",
         "sourceMedium": "yopmail.com / referral",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260813",
+        "channelGroup": "Referral",
+        "sourceMedium": "substack.com / referral",
         "eventCount": 3,
         "engagedSessions": 0,
         "sessions": 1,
@@ -65104,17 +65449,8 @@
       },
       {
         "date": "20260812",
-        "channelGroup": "AI Referrals",
-        "sourceMedium": "claude.ai / ai-assistant",
-        "eventCount": 2,
-        "engagedSessions": 0,
-        "sessions": 1,
-        "totalUsers": 1
-      },
-      {
-        "date": "20260812",
-        "channelGroup": "Organic Social - LinkedIn",
-        "sourceMedium": "linkedin.com / referral",
+        "channelGroup": "Email",
+        "sourceMedium": "hs_email / email",
         "eventCount": 2,
         "engagedSessions": 0,
         "sessions": 1,
@@ -65124,6 +65460,33 @@
         "date": "20260812",
         "channelGroup": "Referral",
         "sourceMedium": "substack.com / referral",
+        "eventCount": 2,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260812",
+        "channelGroup": "Referral",
+        "sourceMedium": "ycombinator.com / referral",
+        "eventCount": 2,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260813",
+        "channelGroup": "Email",
+        "sourceMedium": "substack / email",
+        "eventCount": 2,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20260813",
+        "channelGroup": "Referral",
+        "sourceMedium": "ycombinator.com / referral",
         "eventCount": 2,
         "engagedSessions": 0,
         "sessions": 1,
@@ -178063,7 +178426,7 @@
           "bdr_sdr": 1
         }
       },
-      "regeneratedAt": "2026-08-13T18:32:52.896Z",
+      "regeneratedAt": "2026-08-13T18:53:33.821Z",
       "regeneratedVia": "pull-data.mjs (REST segmentation, daily event totals, event-property group_by user_work_role)",
       "periods": {
         "20260101_20260131": {},
@@ -178450,7 +178813,7 @@
       "20260813": 4
     },
     "companySetupDailyNote": "Daily unique [Onboarding] Company Setup Complete (PREVIOUS signup definition, org-creators only; internal excluded). Sum-of-daily per period. Regenerated each pull via REST segmentation (daily uniques, interval=1); history before the pull window is carried forward.",
-    "pulledAt": "2026-08-13T18:32:53.542Z"
+    "pulledAt": "2026-08-13T18:53:34.472Z"
   },
   "hubspot": {
     "meetings": [
@@ -179036,7 +179399,7 @@
       "source": "revenue-repo",
       "repo": "UncleAchoo/revenue-dashboard-official",
       "path": "stripe_data.json",
-      "pulledAt": "2026-08-13T18:44:55.367Z",
+      "pulledAt": "2026-08-13T18:53:28.510Z",
       "weekly": [
         {
           "week_ending": "2026-03-22",
@@ -179150,16 +179513,16 @@
         }
       ]
     },
-    "pulledAt": "2026-08-13T18:32:48.467Z"
+    "pulledAt": "2026-08-13T18:53:28.510Z"
   },
   "peec": {
-    "pulledAt": "2026-08-12T14:34:31.000Z",
+    "pulledAt": "2026-08-13T18:53:09.000Z",
     "windowStart": "2026-04-23",
-    "windowEnd": "2026-08-11",
-    "visibility": 0.1553,
-    "mentionCount": 14844,
+    "windowEnd": "2026-08-12",
+    "visibility": 0.1555,
+    "mentionCount": 14940,
     "avgPosition": 2.9,
-    "competitorRank": 4,
+    "competitorRank": 3,
     "competitorTotal": 16,
     "topCompetitor": {
       "name": "Clay",
@@ -179169,37 +179532,37 @@
       {
         "topicId": "to_c7f0f067-a48f-4d0e-8676-a01f183e416c",
         "name": "Competitor Comparisons",
-        "visibility": 0.3755,
-        "mentions": 7931,
-        "responses": 3832
+        "visibility": 0.3744,
+        "mentions": 7955,
+        "responses": 3862
       },
       {
         "topicId": "to_1f306540-833c-4b81-9753-653c33a70cd7",
         "name": "ABM",
-        "visibility": 0.2569,
-        "mentions": 3057,
-        "responses": 5449
+        "visibility": 0.2572,
+        "mentions": 3087,
+        "responses": 5498
       },
       {
         "topicId": "to_8f9cecf0-a16c-49b7-af05-1c7f6fd5e684",
         "name": "Modern GTM tech stack",
         "visibility": 0.0753,
-        "mentions": 420,
-        "responses": 4594
+        "mentions": 423,
+        "responses": 4635
       },
       {
         "topicId": "to_89f3990a-c991-4a09-9852-23df929174d1",
         "name": "AI Sales Tools",
-        "visibility": 0.0847,
-        "mentions": 763,
-        "responses": 5917
+        "visibility": 0.0856,
+        "mentions": 776,
+        "responses": 5973
       },
       {
         "topicId": "to_180aec82-5c6e-4570-8787-7eefa5444185",
         "name": "AI Sales Enablement",
-        "visibility": 0.0793,
-        "mentions": 1012,
-        "responses": 5451
+        "visibility": 0.0804,
+        "mentions": 1033,
+        "responses": 5500
       },
       {
         "topicId": "to_65877128-3c62-43e5-a8cd-a26ad9740afc",
@@ -180319,6 +180682,16 @@
         "AI Sales Tools": 0.1636,
         "AI Sales Enablement": 0.14,
         "Outbound tools": 0
+      },
+      {
+        "date": "2026-08-12",
+        "visibility": 0.1828,
+        "Competitor Comparisons": 0.2333,
+        "ABM": 0.2857,
+        "Modern GTM tech stack": 0.0732,
+        "AI Sales Tools": 0.1786,
+        "AI Sales Enablement": 0.2041,
+        "Outbound tools": 0
       }
     ],
     "sources": {
@@ -181297,14 +181670,24 @@
             "AI Sales Enablement": 20,
             "Competitor Comparisons": 10,
             "Modern GTM tech stack": 10
+          },
+          {
+            "date": "2026-08-12",
+            "Total": 108,
+            "AI Sales Tools": 26,
+            "Assets": 26,
+            "AI Sales Enablement": 19,
+            "ABM": 17,
+            "Modern GTM tech stack": 11,
+            "Competitor Comparisons": 9
           }
         ],
         "metric": {
-          "retrievedPct": 0.2395,
-          "retrievalRate": 0.3531,
-          "citationRate": 1.6676,
-          "retrievalCount": 10238,
-          "citationCount": 11578
+          "retrievedPct": 0.241,
+          "retrievalRate": 0.3569,
+          "citationRate": 1.6647,
+          "retrievalCount": 10443,
+          "citationCount": 11738
         },
         "dailyStats": [
           {
@@ -182194,6 +182577,14 @@
             "citationRate": 1.3173,
             "retrievalCount": 171,
             "citationCount": 137
+          },
+          {
+            "date": "2026-08-12",
+            "retrievedPct": 0.403,
+            "retrievalRate": 0.7649,
+            "citationRate": 1.4815,
+            "retrievalCount": 205,
+            "citationCount": 160
           }
         ]
       }
@@ -182864,6 +183255,12 @@
         "visCount": 40,
         "visTotal": 273,
         "mentions": 100
+      },
+      {
+        "date": "2026-08-12",
+        "visCount": 49,
+        "visTotal": 268,
+        "mentions": 96
       }
     ]
   }
