@@ -101,6 +101,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260717,Direct,(direct) / (none),3
 20260806,Email,hs_automation / email,3
 20260811,Direct,(direct) / (none),3
+20260813,Direct,(direct) / (none),3
+20260814,Direct,(direct) / (none),3
 20260511,Organic Social,linkedin / social,2
 20260514,Referral,chatgpt.com / referral,2
 20260515,Direct,(direct) / (none),2
@@ -144,6 +146,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260810,Organic Search,google / organic,2
 20260812,Organic Search,google / organic,2
 20260812,Referral,30mpc.com / referral,2
+20260814,Organic Search,google / organic,2
 20260507,Organic Social,linkedin.com / referral,1
 20260508,Referral,mkt1-website / referral,1
 20260509,Direct,(direct) / (none),1
@@ -252,3 +255,6 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260809,Direct,(direct) / (none),1
 20260811,Referral,app.rippling.com / referral,1
 20260812,Unassigned,toolify / (not set),1
+20260813,Organic Search,google / organic,1
+20260817,Organic Search,bing / organic,1
+20260817,Organic Search,google / organic,1
