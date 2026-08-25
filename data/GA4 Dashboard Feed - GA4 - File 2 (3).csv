@@ -58,6 +58,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260630,Organic Search,google / organic,5
 20260704,Organic Social - Reddit,reddit.com / referral,5
 20260706,Direct,(direct) / (none),5
+20260819,Direct,(direct) / (none),5
 20260508,Direct,(direct) / (none),4
 20260508,Organic Search,google / organic,4
 20260509,Organic Search,google / organic,4
@@ -103,6 +104,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260811,Direct,(direct) / (none),3
 20260813,Direct,(direct) / (none),3
 20260814,Direct,(direct) / (none),3
+20260820,Direct,(direct) / (none),3
 20260511,Organic Social,linkedin / social,2
 20260514,Referral,chatgpt.com / referral,2
 20260515,Direct,(direct) / (none),2
@@ -149,6 +151,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260814,Organic Search,google / organic,2
 20260817,Direct,(direct) / (none),2
 20260817,Referral,track.pstmrk.it / referral,2
+20260819,Organic Search,google / organic,2
+20260824,Direct,(direct) / (none),2
 20260507,Organic Social,linkedin.com / referral,1
 20260508,Referral,mkt1-website / referral,1
 20260509,Direct,(direct) / (none),1
@@ -264,3 +268,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260818,Email,hs_email / email,1
 20260818,Organic Search,google / organic,1
 20260818,Referral,track.pstmrk.it / referral,1
+20260820,Organic Search,google / organic,1
+20260821,Direct,(direct) / (none),1
+20260821,Organic Search,google / organic,1
+20260822,Organic Search,google / organic,1
+20260824,Email,hs_email / email,1
