@@ -155,6 +155,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260824,Direct,(direct) / (none),2
 20260825,Direct,(direct) / (none),2
 20260825,Organic Search,google / organic,2
+20260826,Direct,(direct) / (none),2
 20260507,Organic Social,linkedin.com / referral,1
 20260508,Referral,mkt1-website / referral,1
 20260509,Direct,(direct) / (none),1
@@ -276,3 +277,4 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260822,Organic Search,google / organic,1
 20260824,Email,hs_email / email,1
 20260825,Referral,teams.public.onecdn.static.microsoft / referral,1
+20260826,Email,hs_email / email,1
