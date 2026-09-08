@@ -436,6 +436,45 @@ async function fetchAmplitude() {
     log(`  Amplitude: roles regeneration failed (${err.message}) — will carry forward the previous roles block.`);
   }
 
+  // 3b) Signups by Team — ALL USERS (no org-creator cohort). Same event +
+  // user_work_role group_by as (3) but WITHOUT the ORG_CREATOR_SEGMENT, so
+  // Σ_role daily[d] === dailySignups[d] for every day. Powers the by-role
+  // breakdown shown inside the User Signups KPI card (which counts everyone,
+  // invited teammates included). Kept separate from `roles` so the standalone
+  // "Org Creator Signups by Team" chart can stay cohort-filtered.
+  let rolesAllFresh = null;
+  try {
+    const roleEventAll = {
+      event_type: '[Onboarding] User Setup Complete',
+      filters: [emailFilter],
+      group_by: [{ type: 'event', value: 'user_work_role' }],
+    };
+    const rda = await ampSegmentation({ event: roleEventAll, start: WINDOW_START, end: WINDOW_END, interval: 1, metric: 'totals' });
+    const labelsAll = (rda?.data?.seriesLabels ?? []).map(extractLabel);
+    const groupSeriesAll = rda?.data?.series ?? [];
+    const bucketsAll = rda?.data?.xValues ?? [];
+    const rolesAllDaily = {};
+    bucketsAll.forEach((day, j) => {
+      const m = {};
+      labelsAll.forEach((lab, i) => {
+        const v = Number(groupSeriesAll[i]?.[j]) || 0;
+        if (!v || lab === 'user_work_role') return;
+        m[lab === '(none)' ? 'none' : lab] = v;
+      });
+      if (Object.keys(m).length) rolesAllDaily[ymdCompact(day)] = m;
+    });
+    rolesAllFresh = {
+      basis: 'all_users_work_role_event_prop_totals',
+      note: 'user_work_role event property on [Onboarding] User Setup Complete (EVENT TOTALS per role per day, internal emails excluded), ALL users — NO org-creator cohort filter. Σ_role daily[d] === dailySignups[d], so the KPI-card by-role breakdown ties to the User Signups KPI. \'none\' → the No role segment.',
+      daily: rolesAllDaily,
+      regeneratedAt: new Date().toISOString(),
+      regeneratedVia: 'pull-data.mjs (REST segmentation, daily event totals, event-property group_by user_work_role, no cohort filter)',
+    };
+    log(`  Amplitude: regenerated amplitude.rolesAll.daily (${Object.keys(rolesAllDaily).length} days) from user_work_role event totals, all users (no cohort).`);
+  } catch (err) {
+    log(`  Amplitude: rolesAll regeneration failed (${err.message}) — will carry forward the previous rolesAll block.`);
+  }
+
   // ---- Previous-method daily signups (amplitude.companySetupDaily) -------
   // Daily UNIQUE [Onboarding] Company Setup Complete (the pre-USC signup
   // definition — org-creators only, internal excluded). Unlike the dedup block,
@@ -482,6 +521,7 @@ async function fetchAmplitude() {
   // restore the deduplicated view.
   let dedup;
   let roles;
+  let rolesAll;
   let companySetupDaily;
   let companySetupDailyNote;
   try {
@@ -522,6 +562,22 @@ async function fetchAmplitude() {
           log('  Amplitude: carried forward existing amplitude.roles (REST regeneration failed).');
         }
       }
+      // ---- Signups by Team, ALL USERS (amplitude.rolesAll) ----------------
+      // Merge fresh daily role totals OVER the prior block's daily map so the
+      // re-pulled window refreshes while older history (before WINDOW_START)
+      // is preserved. Carry forward whole block if the fresh pull failed.
+      {
+        const prevRolesAll = prevData.amplitude?.rolesAll;
+        if (rolesAllFresh) {
+          rolesAll = {
+            ...rolesAllFresh,
+            daily: { ...(prevRolesAll?.daily || {}), ...rolesAllFresh.daily },
+          };
+        } else if (prevRolesAll) {
+          rolesAll = { ...prevRolesAll, _staleFromPrevRun: true };
+          log('  Amplitude: carried forward existing amplitude.rolesAll (REST regeneration failed).');
+        }
+      }
       // ---- Previous-method daily signups (amplitude.companySetupDaily) -----
       // Daily unique Company Setup Complete — the pre-USC signup definition,
       // used by the "Company signups by Channel (previous method)" chart.
@@ -540,13 +596,14 @@ async function fetchAmplitude() {
     }
   } catch { /* no prior dedup/roles/companySetupDaily to preserve */ }
   if (!roles && rolesFresh) roles = rolesFresh; // fresh pull, no prior data.json
+  if (!rolesAll && rolesAllFresh) rolesAll = rolesAllFresh; // fresh pull, no prior data.json
   if (!companySetupDaily && companySetupDailyFresh) { // fresh pull, no prior data.json
     companySetupDaily = companySetupDailyFresh;
     companySetupDailyNote = COMPANY_SETUP_DAILY_NOTE;
   }
 
   log(`  Amplitude ok: ${Object.values(dailySignups).reduce((a,b)=>a+b,0)} daily-signups across ${Object.keys(dailySignups).length} days, ${referralSources.length} unique referral_source values.`);
-  return { dailySignups, referralSources, ...(dedup ? { dedup } : {}), ...(roles ? { roles } : {}), ...(companySetupDaily ? { companySetupDaily, companySetupDailyNote } : {}), pulledAt: new Date().toISOString() };
+  return { dailySignups, referralSources, ...(dedup ? { dedup } : {}), ...(roles ? { roles } : {}), ...(rolesAll ? { rolesAll } : {}), ...(companySetupDaily ? { companySetupDaily, companySetupDailyNote } : {}), pulledAt: new Date().toISOString() };
 }
 
 // ===========================================================================

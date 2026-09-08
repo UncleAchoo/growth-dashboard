@@ -473,6 +473,122 @@ const MEETINGS_PRIOR30 = countMeetingsByFilter(inPrior30Window);
 const RATIO_PRIOR30    = SESSIONS_PRIOR30 > 0 ? (SIGNUPS_PRIOR30 / SESSIONS_PRIOR30) * 100 : 0;
 
 // ---------------------------------------------------------------------------
+// Current-quarter goal tracker (user signups vs. quarterly goal).
+// Mutiny's fiscal year is Feb-start, so quarters are:
+//   Q1 Feb-Apr · Q2 May-Jul · Q3 Aug-Oct · Q4 Nov-Jan.
+// The goal for the CURRENT quarter = the PREVIOUS full quarter's total signups
+// × 1.10 (+10%). "Today" is LIVE_END_DATE (the data pull date), so the tracker
+// rolls forward automatically each build and advances to the next quarter on
+// its own once the calendar crosses a boundary. Signups use the same raw
+// User-Setup-Complete daily totals as the KPI tiles, so the numbers tie out.
+// ---------------------------------------------------------------------------
+// Fiscal quarter containing date `d` → { q, startYear, startMonth (0-based) }.
+function fiscalQuarterOf(d) {
+  const m = d.getUTCMonth(); // 0=Jan … 11=Dec
+  const y = d.getUTCFullYear();
+  if (m >= 1 && m <= 3)  return { q: 1, sy: y,     sm: 1  }; // Feb–Apr
+  if (m >= 4 && m <= 6)  return { q: 2, sy: y,     sm: 4  }; // May–Jul
+  if (m >= 7 && m <= 9)  return { q: 3, sy: y,     sm: 7  }; // Aug–Oct
+  if (m === 0)           return { q: 4, sy: y - 1, sm: 10 }; // Jan → prior FY's Q4 (Nov start)
+  return { q: 4, sy: y, sm: 10 };                            // Nov–Dec
+}
+function quarterBounds(qInfo) {
+  const start = new Date(Date.UTC(qInfo.sy, qInfo.sm, 1));
+  const end   = new Date(Date.UTC(qInfo.sy, qInfo.sm + 3, 0)); // last day of the 3rd month
+  return { start, end, label: `Q${qInfo.q} ${start.getUTCFullYear()}` };
+}
+const _curQ  = quarterBounds(fiscalQuarterOf(LIVE_END_DATE));
+const _prevQ = quarterBounds(fiscalQuarterOf(addUTCDays(_curQ.start, -1)));
+// Sum raw daily signups over an inclusive [start,end] date range.
+function sumSignupsRange(startDate, endDate) {
+  let s = 0;
+  for (let d = new Date(startDate); d <= endDate; d = addUTCDays(d, 1)) {
+    s += (LIVE_SIGNUPS_BY_DATE[fmtYYYYMMDD(d)] || 0);
+  }
+  return s;
+}
+// Build a current-quarter goal tracker for any metric. `sumFn(start,end)`
+// returns the metric's total over an inclusive date range. Goal = the previous
+// full quarter's total × 1.10.
+function buildQuarterTracker(sumFn) {
+  const asOf        = LIVE_END_DATE < _curQ.end ? LIVE_END_DATE : _curQ.end; // cap at quarter end
+  const prevTotal   = sumFn(_prevQ.start, _prevQ.end);
+  const goal        = Math.round(prevTotal * 1.10);
+  const actual      = sumFn(_curQ.start, asOf);
+  const MS_DAY      = 86400000;
+  const daysElapsed = Math.round((asOf - _curQ.start) / MS_DAY) + 1;
+  const daysTotal   = Math.round((_curQ.end - _curQ.start) / MS_DAY) + 1;
+  const daysLeft    = Math.max(0, daysTotal - daysElapsed);
+  // Linear "expected by now" pace, and a run-rate projection to quarter end.
+  const expectedByNow = goal > 0 ? Math.round(goal * (daysElapsed / daysTotal)) : 0;
+  const projectedEOQ  = daysElapsed > 0 ? Math.round(actual / daysElapsed * daysTotal) : 0;
+  const pctOfGoal     = goal > 0 ? (actual / goal) * 100 : 0;
+  const pacePct       = daysTotal > 0 ? (daysElapsed / daysTotal) * 100 : 0;
+  // Status vs. linear pace (5% band around the expected-by-now line).
+  let status = 'on';
+  if (expectedByNow > 0) {
+    if (actual >= expectedByNow * 1.05)      status = 'ahead';
+    else if (actual <  expectedByNow * 0.95) status = 'behind';
+  }
+  return {
+    curLabel:  _curQ.label,
+    prevLabel: _prevQ.label,
+    rangeLabel: `${fmtMonDay(_curQ.start)} – ${fmtMonDay(_curQ.end)}, ${_curQ.end.getUTCFullYear()}`,
+    prevTotal, goal, actual, daysElapsed, daysTotal, daysLeft,
+    expectedByNow, projectedEOQ, pctOfGoal, pacePct, status,
+    asOfLabel: fmtMonDay(asOf),
+  };
+}
+const QUARTER_TRACKER          = buildQuarterTracker(sumSignupsRange);
+const QUARTER_TRACKER_MEETINGS = buildQuarterTracker((a, b) => countMeetingsRange(fmtYYYYMMDD(a), fmtYYYYMMDD(b)));
+
+// ---------------------------------------------------------------------------
+// Yearly quarterly-summary (the "Yearly" sub-view of the Quarterly pill).
+// Summarizes each fiscal quarter's headline metrics side by side. For now we
+// list Q2 and Q3 (FY26). The current/in-progress quarter is flagged partial
+// (QTD) and also carries a run-rate projection so a full-vs-partial quarter
+// can still be compared fairly.
+// ---------------------------------------------------------------------------
+function sumEngagedRange(startDate, endDate) {
+  let s = 0;
+  for (let d = new Date(startDate); d <= endDate; d = addUTCDays(d, 1)) {
+    s += (LIVE_ENGAGED_BY_DATE[fmtYYYYMMDD(d)] || 0);
+  }
+  return s;
+}
+function countMeetingsRange(startCompact, endCompact) {
+  return (dataJson.hubspot?.meetings || [])
+    .filter((m) => m.date >= startCompact && m.date <= endCompact).length;
+}
+const FISCAL_YEAR_LABEL = 'FY26';
+const QUARTER_YEAR_SUMMARY = [
+  { id: 'q2', label: 'Q2 2026', start: new Date(Date.UTC(2026, 4, 1)),  end: new Date(Date.UTC(2026, 6, 31)) },
+  { id: 'q3', label: 'Q3 2026', start: new Date(Date.UTC(2026, 7, 1)),  end: new Date(Date.UTC(2026, 9, 31)) },
+].map((q) => {
+  const partial   = LIVE_END_DATE < q.end;
+  const asOf      = partial ? LIVE_END_DATE : q.end;
+  const MS_DAY    = 86400000;
+  const daysElapsed = Math.max(1, Math.round((asOf - q.start) / MS_DAY) + 1);
+  const daysTotal   = Math.round((q.end - q.start) / MS_DAY) + 1;
+  const signups   = sumSignupsRange(q.start, asOf);
+  const sessions  = sumEngagedRange(q.start, asOf);
+  const meetings  = countMeetingsRange(fmtYYYYMMDD(q.start), fmtYYYYMMDD(asOf));
+  const ratio     = sessions > 0 ? (signups / sessions) * 100 : 0;
+  const proj      = (v) => Math.round(v / daysElapsed * daysTotal);
+  return {
+    ...q,
+    partial, daysElapsed, daysTotal,
+    asOfLabel: fmtMonDay(asOf),
+    rangeLabel: `${fmtMonDay(q.start)} – ${fmtMonDay(q.end)}`,
+    signups, sessions, meetings, ratio,
+    // Run-rate projections (equal to actuals for a completed quarter).
+    projSignups:  partial ? proj(signups)  : signups,
+    projSessions: partial ? proj(sessions) : sessions,
+    projMeetings: partial ? proj(meetings) : meetings,
+  };
+});
+
+// ---------------------------------------------------------------------------
 // Deduplicated signup totals (Amplitude `amplitude.dedup`).
 // The daily signup series counts a user once per active DAY, so summing it
 // across a window double-counts anyone active on multiple days (a user can
@@ -1263,15 +1379,22 @@ const CSC_BY_CHANNEL_MONTHLY_YTD = computeCscByChannelPeriodic(YTD_MONTHS_LIST);
 // ---------------------------------------------------------------------------
 const ROLES = dataJson.amplitude?.roles || {};
 const ROLES_BY_DATE = ROLES.daily || {};
+// All-users user_work_role totals (no org-creator cohort filter). Powers the
+// by-role breakdown inside the User Signups KPI card, which counts everyone —
+// so Σ_role === dailySignups and the breakdown ties to the KPI. The separate
+// "Org Creator Signups by Team" chart keeps using the cohort-filtered ROLES.
+const ROLES_ALL = dataJson.amplitude?.rolesAll || {};
+const ROLES_ALL_BY_DATE = ROLES_ALL.daily || {};
 // Sum per-role event totals over a set/array of YYYYMMDD dates → { role: n },
-// or null if no daily role data covers any of those dates.
-function roleMapForDates(dates) {
+// or null if no daily role data covers any of those dates. `source` defaults
+// to the org-creator-filtered map; pass ROLES_ALL_BY_DATE for the all-users map.
+function roleMapForDates(dates, source = ROLES_BY_DATE) {
   if (!dates) return null;
   const arr = Array.isArray(dates) ? dates : [...dates];
   const out = {};
   let any = false;
   for (const d of arr) {
-    const m = ROLES_BY_DATE[d];
+    const m = source[d];
     if (!m) continue;
     for (const [k, v] of Object.entries(m)) { out[k] = (out[k] || 0) + v; any = true; }
   }
@@ -1892,6 +2015,8 @@ const KpiCard = ({
   bgColor,
   accentColor,
   placeholder = false,
+  topRight = null,
+  valueAside = null,
 }) => {
   // Compact when there's no bottom slot (delta, sparkline, momNode). With a
   // bottom element the card needs more vertical room; otherwise tighten.
@@ -1938,7 +2063,7 @@ const KpiCard = ({
           </InfoTooltip>
         )}
       </div>
-      {placeholder && (
+      {placeholder ? (
         <span
           style={{
             fontFamily: FONT_CAPTION,
@@ -1953,22 +2078,24 @@ const KpiCard = ({
         >
           data pending
         </span>
-      )}
+      ) : topRight}
     </div>
 
-    <div
-      style={{
-        fontFamily: FONT_DISPLAY,
-        fontWeight: 400,
-        fontSize: 52,
-        lineHeight: 1,
-        color: C.black,
-        letterSpacing: '-0.03em',
-        fontVariantNumeric: 'tabular-nums',
-        marginTop: 6,
-      }}
-    >
-      {value}
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 14, marginTop: 6 }}>
+      <div
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontWeight: 400,
+          fontSize: 52,
+          lineHeight: 1,
+          color: C.black,
+          letterSpacing: '-0.03em',
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
+        {value}
+      </div>
+      {valueAside}
     </div>
     {dateRangeLabel && (
       <div
@@ -4948,7 +5075,7 @@ function TeamSplitCard({
   return (
     <section style={{ background: C.white, border: `1px solid ${C.black}`, borderRadius: 4, padding: '28px 32px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 2, gap: 12 }}>
-        <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 22, letterSpacing: '-0.02em', margin: 0 }}>User Signups by Team</h3>
+        <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 22, letterSpacing: '-0.02em', margin: 0 }}>Org Creator Signups by Team</h3>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
           <div style={{ display: 'inline-flex', border: `1px solid ${C.black}`, borderRadius: 999, overflow: 'hidden', fontFamily: FONT_BODY, fontSize: 10.5, fontWeight: 600 }}>
             {[
@@ -5073,6 +5200,95 @@ function TeamSplitCard({
 }
 
 // ---------------------------------------------------------------------------
+// Current-quarter goal tracker card (reused per metric in the Quarterly view).
+//   tracker  — object from buildQuarterTracker()
+//   title    — metric display name (e.g. "User Signups")
+//   noun     — short noun for the "… so far" stat (e.g. "Signups")
+//   basisNote — one sentence describing the metric's data source
+// ---------------------------------------------------------------------------
+function QuarterGoalCard({ tracker: T, title, noun, basisNote }) {
+  const fillPct = Math.max(0, Math.min(100, T.pctOfGoal));
+  const pacePct = Math.max(0, Math.min(100, T.pacePct));
+  const statusMeta = {
+    ahead:  { label: 'Ahead of pace', bg: C.lightGreen, fg: C.black, dot: C.green },
+    on:     { label: 'On pace',       bg: C.lightBlue,  fg: C.black, dot: C.blue },
+    behind: { label: 'Behind pace',   bg: C.lightRed,   fg: C.black, dot: C.red },
+  }[T.status];
+  const Stat = ({ label, value, sub }) => (
+    <div style={{ minWidth: 0 }}>
+      <div style={{ fontFamily: FONT_BODY, fontSize: 10.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', opacity: 0.55 }}>
+        {label}
+      </div>
+      <div style={{ fontFamily: FONT_MONO, fontSize: 18, fontWeight: 600, marginTop: 3, fontVariantNumeric: 'tabular-nums' }}>
+        {value}
+      </div>
+      {sub ? (
+        <div style={{ fontFamily: FONT_BODY, fontSize: 10.5, opacity: 0.55, marginTop: 1 }}>{sub}</div>
+      ) : null}
+    </div>
+  );
+  return (
+    <div style={{ background: C.white, border: `1px solid ${C.black}`, borderRadius: 4, padding: '24px 32px 26px', marginBottom: 24 }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+        <div>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.55 }}>
+            Current Quarter Goal
+          </div>
+          <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 24, letterSpacing: '-0.02em', margin: '4px 0 0' }}>
+            {T.curLabel} · {title}
+          </h3>
+          <div style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 11.5, opacity: 0.6, marginTop: 3 }}>
+            {T.rangeLabel} · through {T.asOfLabel}
+          </div>
+        </div>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: statusMeta.bg, border: `1px solid ${C.black}`, borderRadius: 999, padding: '5px 12px', fontFamily: FONT_BODY, fontSize: 12, fontWeight: 700, color: statusMeta.fg }}>
+          <span style={{ width: 9, height: 9, borderRadius: '50%', background: statusMeta.dot, border: `1px solid ${C.black}` }} />
+          {statusMeta.label}
+        </div>
+      </div>
+
+      {/* Big actual / goal + % */}
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginTop: 18, flexWrap: 'wrap' }}>
+        <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 44, lineHeight: 1, letterSpacing: '-0.03em' }}>
+          {T.actual.toLocaleString()}
+        </span>
+        <span style={{ fontFamily: FONT_BODY, fontSize: 16, opacity: 0.6 }}>/ {T.goal.toLocaleString()} goal</span>
+        <span style={{ fontFamily: FONT_MONO, fontSize: 16, fontWeight: 600, marginLeft: 'auto', fontVariantNumeric: 'tabular-nums' }}>
+          {T.pctOfGoal.toFixed(0)}% of goal
+        </span>
+      </div>
+
+      {/* Progress bar with pace marker */}
+      <div style={{ position: 'relative', marginTop: 12, marginBottom: 6 }}>
+        <div style={{ position: 'relative', height: 26, background: C.lightGrey, border: `1px solid ${C.black}`, borderRadius: 4, overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${fillPct}%`, background: C.purple, borderRight: fillPct > 0 && fillPct < 100 ? `1px solid ${C.black}` : 'none' }} />
+        </div>
+        <div title={`On-pace target through ${T.asOfLabel}: ${T.expectedByNow.toLocaleString()}`} style={{ position: 'absolute', top: -4, bottom: -4, left: `${pacePct}%`, width: 0, borderLeft: `2px dashed ${C.black}`, transform: 'translateX(-1px)' }} />
+        <div style={{ position: 'absolute', top: -18, left: `${pacePct}%`, transform: 'translateX(-50%)', fontFamily: FONT_BODY, fontSize: 9.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', opacity: 0.6 }}>
+          On-pace ({T.expectedByNow.toLocaleString()})
+        </div>
+      </div>
+
+      {/* Stats footer */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16, marginTop: 24, paddingTop: 18, borderTop: `1px solid ${C.lightGrey}` }}>
+        <Stat label={`${noun} so far`} value={T.actual.toLocaleString()} sub={`${T.daysElapsed} of ${T.daysTotal} days`} />
+        <Stat label="Quarterly goal" value={T.goal.toLocaleString()} sub={`${T.prevLabel} +10%`} />
+        <Stat label={`${T.prevLabel} total`} value={T.prevTotal.toLocaleString()} sub="previous quarter" />
+        <Stat label="Projected EOQ" value={T.projectedEOQ.toLocaleString()} sub={`${T.goal > 0 ? Math.round((T.projectedEOQ / T.goal) * 100) : 0}% of goal at run rate`} />
+        <Stat label="Days left" value={T.daysLeft.toLocaleString()} sub={`need ${Math.max(0, T.goal - T.actual).toLocaleString()} more`} />
+      </div>
+
+      <div style={{ fontFamily: FONT_BODY, fontSize: 10.5, opacity: 0.5, marginTop: 14, lineHeight: 1.5 }}>
+        Goal = previous quarter&rsquo;s total ({T.prevLabel}: {T.prevTotal.toLocaleString()}) × 1.10. {basisNote}{' '}
+        &ldquo;On-pace&rdquo; is the linear target for days elapsed; &ldquo;Projected EOQ&rdquo; extrapolates the current
+        daily run-rate to quarter end. This card always reflects the current quarter, whichever quarter is selected above.
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main dashboard
 // ---------------------------------------------------------------------------
 export default function MutinyGrowthDashboard() {
@@ -5086,7 +5302,15 @@ export default function MutinyGrowthDashboard() {
   //   "ytd" = Year to Date; monthly bars (Jan…current, current hatched)
   // Affects KPI tiles, top-of-funnel charts, and the two pies above the
   // "Programmatic Channel Analytics" divider. Sections below are unaffected.
+  //   "quarter" = Quarterly pill; a sub-selector picks a single quarter
+  //           (Q2/Q3 — drives the Reporting engine over that quarter's range)
+  //           or "year" (the quarterly-summary table + grouped bars).
   const [viewMode, setViewMode] = useState('30d');
+  // Which entry in the Quarterly sub-row is active: 'q2' | 'q3' | 'year'.
+  const [quarterSel, setQuarterSel] = useState('q3');
+  // In the Yearly summary, which metric's progress bars to show (table row is
+  // the selector): 'signups' | 'meetings'.
+  const [yearMetric, setYearMetric] = useState('signups');
 
   // Reporting Mode — user-pickable date range. Defaults to last 7 days
   // (today-6 → today, inclusive). When active, weekly charts keep their
@@ -5105,10 +5329,48 @@ export default function MutinyGrowthDashboard() {
     end:   fmtYYYYMMDDDash(_today),
   });
 
+  // Fiscal-quarter ranges for the Quarterly pill. Mutiny's fiscal year runs
+  // Feb-start, so Q2 = May 1 – Jul 31 and Q3 = Aug 1 – Oct 31. Each quarter's
+  // end is capped at "today" (LIVE_END_DATE) so an in-progress quarter reads
+  // as quarter-to-date (no empty future weeks) and rolls forward on rebuild.
+  //
+  // Note: Q2 begins May 1, which is BEFORE the Reporting manual-pick floor
+  // (May 7). That's intentional — selecting a quarter sets the true fiscal
+  // start programmatically; the caveat note below flags that GA4 traffic
+  // (reliable ~May 13) and referral_source channel attribution (May 8) are
+  // incomplete for the first ~2 weeks of Q2.
+  const QUARTER_PRESETS = [
+    { id: 'q2', label: 'Q2', fullLabel: 'Q2 2026', start: '2026-05-01', end: '2026-07-31' },
+    { id: 'q3', label: 'Q3', fullLabel: 'Q3 2026', start: '2026-08-01', end: '2026-10-31' },
+  ].map((q) => {
+    const todayDash = fmtYYYYMMDDDash(_today);
+    return { ...q, end: q.end > todayDash ? todayDash : q.end };
+  });
+
   const is30d = viewMode === '30d';
   const isMtd = viewMode === 'mtd';
   const isYtd = viewMode === 'ytd';
-  const isReporting = viewMode === 'reporting';
+  const isQuarter       = viewMode === 'quarter';
+  const isYear          = isQuarter && quarterSel === 'year';
+  const isQuarterSingle = isQuarter && quarterSel !== 'year';
+  // Single-quarter selection rides the existing Reporting date-range engine
+  // (its range = the quarter's range), so every reporting-aware chart/KPI
+  // just works. `isReporting` therefore means "custom date-range engine is
+  // active" — true for the Reporting pill AND for a selected quarter.
+  const isReporting = viewMode === 'reporting' || isQuarterSingle;
+
+  // Select an entry in the Quarterly sub-row. For a real quarter, point the
+  // reporting range at that quarter so the engine computes it.
+  const pickQuarter = (sel) => {
+    setViewMode('quarter');
+    setQuarterSel(sel);
+    if (sel !== 'year') {
+      const q = QUARTER_PRESETS.find((x) => x.id === sel);
+      if (q) setReportingRange({ start: q.start, end: q.end });
+    }
+  };
+  const activeQuarterName = quarterSel === 'q2' ? 'Q2 2026'
+    : quarterSel === 'q3' ? 'Q3 2026' : '';
 
   // ── Reporting Mode helpers ────────────────────────────────────────────
   // Parse "YYYY-MM-DD" date input into a UTC Date. Returns null if invalid.
@@ -5350,15 +5612,26 @@ export default function MutinyGrowthDashboard() {
   const teamWinSplit    = teamSplit(teamWindowRoles, 0);
   const teamWindowTotal = teamWinSplit.Sales + teamWinSplit.Marketing + teamWinSplit.Other + teamWinSplit['No role'];
   const teamPieData     = TEAM_DEFS.map((t) => ({ name: t.name, value: teamWinSplit[t.name], color: t.color }));
+  // All-users work-role split for the User Signups KPI card (no cohort filter).
+  // Scaled with largest-remainder so the four segments sum EXACTLY to the KPI
+  // window total (kpiSignups). When rolesAll and dailySignups come from the
+  // same pull this is a no-op (Σ_role already equals the KPI); the scaling only
+  // absorbs snapshot-timing/blank residuals so the card is always self-consistent.
+  const kpiRoleSplitRaw = teamSplit(roleMapForDates(teamWindowDates, ROLES_ALL_BY_DATE), 0);
+  const kpiRoleOrder    = ['Sales', 'Marketing', 'Other', 'No role'];
+  const _kpiRoleScaled  = scaleToTotal(kpiRoleOrder.map((k) => kpiRoleSplitRaw[k] || 0), kpiSignups);
+  const kpiRoleSplit    = Object.fromEntries(kpiRoleOrder.map((k, i) => [k, _kpiRoleScaled[i]]));
   const pieMeetings       = is30d ? SHARE_OF_SALES_MEETINGS       : isMtd ? SHARE_OF_SALES_MEETINGS_MTD      : isReporting ? SHARE_OF_SALES_MEETINGS_REPORTING      : SHARE_OF_SALES_MEETINGS_YTD;
   const pieMeetingsTotal  = is30d ? TOTAL_SALES_MEETINGS_CATEGORIZED : isMtd ? TOTAL_SALES_MEETINGS_CATEGORIZED_MTD : isReporting ? TOTAL_SALES_MEETINGS_CATEGORIZED_REPORTING : TOTAL_SALES_MEETINGS_CATEGORIZED_YTD;
   const activeWindowLabel = is30d
     ? 'Last 30 days'
     : isMtd
       ? `MTD · ${MTD_RANGE_LABEL}`
-      : isReporting
-        ? `Reporting · ${reportingRangeLabel}`
-        : `Year to Date · ${YTD_RANGE_LABEL}`;
+      : isQuarterSingle
+        ? `${activeQuarterName} · ${reportingRangeLabel}`
+        : isReporting
+          ? `Reporting · ${reportingRangeLabel}`
+          : `Year to Date · ${YTD_RANGE_LABEL}`;
   // Compact date-range label for inside each KPI card (no prefix).
   const kpiDateRangeLabel = is30d
     ? WINDOW.label
@@ -5465,12 +5738,16 @@ export default function MutinyGrowthDashboard() {
               { id: 'mtd',       label: 'MTD' },
               { id: 'ytd',       label: 'YTD' },
               { id: 'reporting', label: 'Reporting' },
+              { id: 'quarter',   label: 'Quarterly' },
             ].map((opt) => {
               const active = viewMode === opt.id;
+              const onClick = opt.id === 'quarter'
+                ? () => pickQuarter(quarterSel)
+                : () => setViewMode(opt.id);
               return (
                 <button
                   key={opt.id}
-                  onClick={() => setViewMode(opt.id)}
+                  onClick={onClick}
                   style={{
                     padding: '5px 14px',
                     background: active ? C.black : 'transparent',
@@ -5487,7 +5764,50 @@ export default function MutinyGrowthDashboard() {
               );
             })}
           </div>
-          {isReporting && (
+          {/* Quarterly sub-row: pick a quarter (Q2/Q3) or the Yearly summary. */}
+          {isQuarter && (
+            <div
+              style={{
+                display: 'inline-flex',
+                marginTop: 8,
+                marginLeft: 8,
+                border: `1px solid ${C.black}`,
+                borderRadius: 999,
+                overflow: 'hidden',
+                fontFamily: FONT_BODY,
+                fontSize: 11.5,
+                fontWeight: 600,
+              }}
+            >
+              {[
+                { id: 'q2',   label: 'Q2' },
+                { id: 'q3',   label: 'Q3' },
+                { id: 'year', label: 'Yearly' },
+              ].map((opt, i) => {
+                const active = quarterSel === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => pickQuarter(opt.id)}
+                    style={{
+                      padding: '4px 14px',
+                      background: active ? C.purple : 'transparent',
+                      color: active ? C.white : C.black,
+                      border: 'none',
+                      borderLeft: i > 0 ? `1px solid ${C.black}` : 'none',
+                      cursor: active ? 'default' : 'pointer',
+                      fontFamily: FONT_BODY,
+                      fontSize: 11.5,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {viewMode === 'reporting' && (
             <div
               style={{
                 display: 'flex',
@@ -5505,7 +5825,7 @@ export default function MutinyGrowthDashboard() {
                 <input
                   type="date"
                   value={reportingRange.start}
-                  min={REPORTING_FLOOR_DASH}
+                  min={reportingRange.start < REPORTING_FLOOR_DASH ? reportingRange.start : REPORTING_FLOOR_DASH}
                   max={reportingRange.end}
                   onChange={(e) => setReportingRange((r) => ({ ...r, start: e.target.value }))}
                   style={{
@@ -5590,14 +5910,46 @@ export default function MutinyGrowthDashboard() {
               </div>
             </div>
           )}
+          {/* Early-Q2 data caveat: shown whenever the active range (Reporting
+              or a selected quarter) reaches before GA4-reliable traffic
+              (~May 13, 2026). Q2 starts May 1, so visitor + channel numbers
+              understate the first ~2wks. */}
+          {isReporting && reportingRange.start < '2026-05-13' && (
+            <div
+              style={{
+                marginTop: 8,
+                maxWidth: 340,
+                marginLeft: 'auto',
+                padding: '6px 9px',
+                border: `1px solid ${C.red}`,
+                borderRadius: 4,
+                background: C.lightRed,
+                color: C.black,
+                fontFamily: FONT_BODY,
+                fontSize: 10.5,
+                lineHeight: 1.45,
+                textAlign: 'left',
+              }}
+            >
+              <strong>Heads up:</strong> this range starts before our attribution
+              instrumentation was fully live. Website Visitors (GA4) are reliable
+              only from May 13 and channel attribution (referral_source) from
+              May 8 — so early-May traffic and channel splits are understated.
+              Signups and sales meetings are unaffected.
+            </div>
+          )}
           <div style={{ opacity: 0.6, marginTop: 4, fontSize: 11 }}>
             {is30d
               ? WINDOW.label
               : isMtd
                 ? MTD_RANGE_LABEL
-                : isReporting
-                  ? reportingRangeLabel
-                  : YTD_RANGE_LABEL}
+                : isYear
+                  ? `${FISCAL_YEAR_LABEL} · by quarter`
+                  : isQuarterSingle
+                    ? `${activeQuarterName} · ${reportingRangeLabel}`
+                    : isReporting
+                      ? reportingRangeLabel
+                      : YTD_RANGE_LABEL}
           </div>
           <div style={{ opacity: 0.6, marginTop: 6, fontFamily: FONT_MONO, fontSize: 11 }}>
             Last updated: {new Date(LIVE_DATA_PULLED_AT).toLocaleString('en-US', {
@@ -5608,11 +5960,189 @@ export default function MutinyGrowthDashboard() {
         </div>
       </header>
 
+      {/* ── Yearly view: quarterly-summary table + grouped bar chart.
+          Replaces the funnel body when the Quarterly → Yearly sub-tab is
+          active. Q3 is in progress, so it's shown QTD with a run-rate
+          projection alongside for a fair full-vs-partial comparison. */}
+      {isYear && (() => {
+        const q2 = QUARTER_YEAR_SUMMARY.find((q) => q.id === 'q2');
+        const q3 = QUARTER_YEAR_SUMMARY.find((q) => q.id === 'q3');
+        const num = (n) => Math.round(n).toLocaleString();
+        const pct = (n) => `${n.toFixed(2)}%`;
+        const deltaPctStr = (cur, base) => {
+          if (!base) return '—';
+          const d = ((cur - base) / base) * 100;
+          return `${d >= 0 ? '+' : ''}${d.toFixed(0)}%`;
+        };
+        // Each metric's Q3 goal = its Q2 value × 1.10 (the same +10% QoQ target
+        // as the current-quarter goal tracker). Q3 shows actual (QTD) vs that
+        // goal and the % attained.
+        const metrics = [
+          { key: 'signups',  label: 'User Signups',        fmt: num, q2v: q2.signups,  q3v: q3.signups },
+          { key: 'meetings', label: 'Enterprise Talk to Sales Submissions', fmt: num, q2v: q2.meetings, q3v: q3.meetings },
+        ].map((m) => ({ ...m, goal: m.q2v * 1.10, pctOfGoal: m.q2v > 0 ? (m.q3v / (m.q2v * 1.10)) * 100 : 0 }));
+        const th = { textAlign: 'right', padding: '10px 14px', fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', opacity: 0.6, borderBottom: `2px solid ${C.black}` };
+        const td = { textAlign: 'right', padding: '12px 14px', fontFamily: FONT_MONO, fontSize: 15, fontVariantNumeric: 'tabular-nums', borderBottom: `1px solid ${C.lightGrey}` };
+        const LegendSwatch = ({ color, label }) => (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: FONT_BODY, fontSize: 11.5 }}>
+            <span style={{ width: 11, height: 11, background: color, border: `1px solid ${C.black}` }} />{label}
+          </span>
+        );
+        return (
+          <div style={{ marginBottom: 40 }}>
+            <div style={{ marginBottom: 6 }}>
+              <div style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.55 }}>
+                {FISCAL_YEAR_LABEL} · Quarterly Summary
+              </div>
+              <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 30, letterSpacing: '-0.02em', margin: '4px 0 0' }}>
+                Metrics by quarter
+              </h2>
+              <div style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 12, opacity: 0.6, marginTop: 4 }}>
+                {q2.label} ({q2.rangeLabel}, full) vs {q3.label} ({q3.rangeLabel}, quarter-to-date through {q3.asOfLabel})
+              </div>
+            </div>
+
+            {/* Comparison table */}
+            <div style={{ background: C.white, border: `1px solid ${C.black}`, borderRadius: 4, overflowX: 'auto', marginTop: 14 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 640 }}>
+                <thead>
+                  <tr>
+                    <th style={{ ...th, textAlign: 'left' }}>Metric</th>
+                    <th style={th}>{q2.label}<div style={{ fontWeight: 400, opacity: 0.7, textTransform: 'none', letterSpacing: 0 }}>full quarter</div></th>
+                    <th style={th}>{q3.label}<div style={{ fontWeight: 400, opacity: 0.7, textTransform: 'none', letterSpacing: 0 }}>actual / goal · QTD {q3.daysElapsed}/{q3.daysTotal}d</div></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {metrics.map((m) => {
+                    const active = yearMetric === m.key;
+                    return (
+                      <tr
+                        key={m.key}
+                        onClick={() => setYearMetric(m.key)}
+                        title={`Show ${m.label} progress bars`}
+                        style={{ cursor: 'pointer', background: active ? C.lightPurple : 'transparent' }}
+                      >
+                        <td style={{ ...td, textAlign: 'left', fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, borderLeft: `3px solid ${active ? C.purple : 'transparent'}` }}>
+                          {m.label}
+                        </td>
+                        <td style={td}>{m.fmt(m.q2v)}</td>
+                        <td style={td}>
+                          <div>{m.fmt(m.q3v)} <span style={{ opacity: 0.5 }}>/ {m.fmt(m.goal)}</span></div>
+                          <div style={{ fontFamily: FONT_BODY, fontSize: 11, opacity: 0.6, marginTop: 2 }}>{Math.round(m.pctOfGoal)}% of goal</div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Per-quarter progress bars for the metric selected in the table,
+                each styled like the current-quarter goal tracker: eyebrow +
+                big actual / goal + % of goal, a track whose right edge is the
+                goal, the actual as a solid fill, the run-rate projection as a
+                lighter extension, and a dashed on-pace marker. */}
+            {(() => {
+              const activeMetric = metrics.find((m) => m.key === yearMetric) || metrics[0];
+              const fieldActual = activeMetric.key === 'meetings' ? 'meetings' : 'signups';
+              const fieldProj   = activeMetric.key === 'meetings' ? 'projMeetings' : 'projSignups';
+              const bars = QUARTER_YEAR_SUMMARY.map((q) => ({
+                label:       q.label,
+                partial:     q.partial,
+                asOfLabel:   q.asOfLabel,
+                daysElapsed: q.daysElapsed,
+                daysTotal:   q.daysTotal,
+                actual:      q[fieldActual],
+                projected:   q.partial ? q[fieldProj] : q[fieldActual],
+                goal:        q.id === 'q3' ? activeMetric.goal : null,
+              }));
+              return (
+                <div style={{ background: C.white, border: `1px solid ${C.black}`, borderRadius: 4, padding: '24px 28px 22px', marginTop: 20 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+                    <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 22, letterSpacing: '-0.02em', margin: 0 }}>
+                      {activeMetric.label} by Quarter
+                    </h3>
+                    <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                      <LegendSwatch color={C.purple} label="Actual / QTD" />
+                      <LegendSwatch color={C.lightPurple} label="Projected" />
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: FONT_BODY, fontSize: 11.5 }}>
+                        <span style={{ width: 0, height: 13, borderLeft: `2px dashed ${C.black}` }} /> On-pace
+                      </span>
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 22, display: 'flex', flexDirection: 'column', gap: 30 }}>
+                    {bars.map((b) => {
+                      // Track's right edge = goal (in-progress quarter) or the
+                      // quarter's own total (completed quarter, no goal).
+                      const scaleMax   = (b.goal != null ? Math.max(b.goal, b.projected) : b.actual) || 1;
+                      const w          = (v) => `${Math.max(0, Math.min(100, (v / scaleMax) * 100))}%`;
+                      const pctOfGoal  = b.goal ? Math.round((b.actual / b.goal) * 100) : null;
+                      const onPace     = b.goal ? Math.round(b.goal * (b.daysElapsed / b.daysTotal)) : null;
+                      const onPacePct  = onPace != null ? (onPace / scaleMax) * 100 : null;
+                      return (
+                        <div key={b.label}>
+                          {/* Eyebrow */}
+                          <div style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.55 }}>
+                            {b.label}{b.partial ? ` · QTD through ${b.asOfLabel}` : ' · full quarter'}
+                          </div>
+                          {/* Big actual / goal + % of goal */}
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginTop: 4, flexWrap: 'wrap' }}>
+                            <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 30, lineHeight: 1, letterSpacing: '-0.03em' }}>
+                              {activeMetric.fmt(b.actual)}
+                            </span>
+                            {b.goal != null && (
+                              <span style={{ fontFamily: FONT_BODY, fontSize: 14, opacity: 0.6 }}>/ {activeMetric.fmt(b.goal)} goal</span>
+                            )}
+                            {pctOfGoal != null && (
+                              <span style={{ fontFamily: FONT_MONO, fontSize: 14, fontWeight: 600, marginLeft: 'auto', fontVariantNumeric: 'tabular-nums' }}>{pctOfGoal}% of goal</span>
+                            )}
+                          </div>
+                          {/* On-pace label */}
+                          {onPace != null && (
+                            <div style={{ position: 'relative', height: 12, marginTop: 8 }}>
+                              <div style={{ position: 'absolute', left: `${Math.max(0, Math.min(100, onPacePct))}%`, transform: 'translateX(-50%)', fontFamily: FONT_BODY, fontSize: 9.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', opacity: 0.6 }}>
+                                On-pace ({onPace.toLocaleString()})
+                              </div>
+                            </div>
+                          )}
+                          {/* Track */}
+                          <div style={{ position: 'relative', height: 26, marginTop: onPace != null ? 2 : 8, background: C.lightGrey, border: `1px solid ${C.black}`, borderRadius: 4, overflow: 'hidden' }}>
+                            {b.projected > b.actual && (
+                              <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: w(b.projected), background: C.lightPurple }} />
+                            )}
+                            <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: w(b.actual), background: C.purple, borderRight: b.projected > b.actual ? `1px solid ${C.black}` : 'none' }} />
+                          </div>
+                          {/* On-pace marker overlaid on the track */}
+                          {onPace != null && (
+                            <div style={{ position: 'relative', height: 0 }}>
+                              <div title={`On-pace target through ${b.asOfLabel}: ${onPace.toLocaleString()}`} style={{ position: 'absolute', left: `${Math.max(0, Math.min(100, onPacePct))}%`, top: -30, height: 30, borderLeft: `2px dashed ${C.black}`, transform: 'translateX(-1px)' }} />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 10.5, opacity: 0.5, marginTop: 20, lineHeight: 1.5 }}>
+                    {activeMetric.key === 'meetings'
+                      ? 'Enterprise Talk to Sales form submissions (HubSpot), test-filtered.'
+                      : 'Signups are raw [Onboarding] User Setup Complete totals (same basis as the KPIs).'}
+                    {' '}{q3.label} is quarter-to-date through {q3.asOfLabel}; the track&rsquo;s right edge is the goal
+                    ({q2.label} × 1.10), the lighter segment projects the current daily run-rate to quarter end, and
+                    &ldquo;on-pace&rdquo; is the linear target for days elapsed. {q2.label} is complete, so it shows its final total.
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        );
+      })()}
+
+      {!isYear && (<>
       {/* KPI cards */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
+          gridTemplateColumns: 'repeat(3, 1fr)',
           gap: 16,
           marginBottom: 40,
         }}
@@ -5625,6 +6155,27 @@ export default function MutinyGrowthDashboard() {
           bgColor={C.lightPurple}
           accentColor={C.purple}
           dateRangeLabel={kpiDateRangeLabel}
+          valueAside={
+            <div
+              style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 104 }}
+              title="Breakdown of these signups by the user_work_role property on the User Setup Complete event (all users). Sales = AE + BDR/SDR + Sales other. Marketing = ABM + Demand gen + Ops lead + Marketing other + Product mktg. Other = Founder + Other + CRO. No role = blank. The four segments sum to the User Signups total."
+            >
+              <div style={{ fontFamily: FONT_BODY, fontSize: 8.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', opacity: 0.5, marginBottom: 1 }}>
+                By work role
+              </div>
+              {TEAM_DEFS.map((t) => (
+                <div key={t.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, fontFamily: FONT_BODY, fontSize: 11, lineHeight: 1.35 }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, minWidth: 0 }}>
+                    <span style={{ width: 7, height: 7, borderRadius: 2, background: t.color, border: `1px solid ${C.black}`, flexShrink: 0 }} />
+                    {t.name}
+                  </span>
+                  <strong style={{ fontFamily: FONT_MONO, fontVariantNumeric: 'tabular-nums' }}>
+                    {(kpiRoleSplit[t.name] || 0).toLocaleString()}
+                  </strong>
+                </div>
+              ))}
+            </div>
+          }
           deltaNode={
             is30d && DELTA_30D.signups
               ? <Delta value={DELTA_30D.signups.raw} suffix="" precision={0} secondary={DELTA_30D.signups.pct} />
@@ -5652,23 +6203,6 @@ export default function MutinyGrowthDashboard() {
           deltaLabel={isReporting ? `vs prior ${reportingDays}d${reportingPriorRangeLabel ? ` · ${reportingPriorRangeLabel}` : ''}` : 'vs prior 30d'}
         />
         <KpiCard
-          label="Visitor → User Signup"
-          value={kpiRatio.toFixed(2) + '%'}
-          sublabel="Signups ÷ Engaged Sessions"
-          footnote="Cross-system ratio: Amplitude ÷ GA4, directional only."
-          bgColor={C.lightGreen}
-          accentColor={C.green}
-          dateRangeLabel={kpiDateRangeLabel}
-          deltaNode={
-            is30d && DELTA_30D.ratio
-              ? <Delta value={DELTA_30D.ratio.raw} suffix="pp" precision={2} secondary={DELTA_30D.ratio.pct} />
-              : isReporting && DELTA_REPORTING.ratio
-                ? <Delta value={DELTA_REPORTING.ratio.raw} suffix="pp" precision={2} secondary={DELTA_REPORTING.ratio.pct} />
-                : null
-          }
-          deltaLabel={isReporting ? `vs prior ${reportingDays}d${reportingPriorRangeLabel ? ` · ${reportingPriorRangeLabel}` : ''}` : 'vs prior 30d'}
-        />
-        <KpiCard
           label="Enterprise Talk to Sales Submissions"
           value={kpiMeetings.toLocaleString()}
           sublabel="Talk to Sales form fills · HubSpot"
@@ -5686,6 +6220,28 @@ export default function MutinyGrowthDashboard() {
           deltaLabel={isReporting ? `vs prior ${reportingDays}d${reportingPriorRangeLabel ? ` · ${reportingPriorRangeLabel}` : ''}` : 'vs prior 30d'}
         />
       </div>
+
+      {/* ── Current-quarter goal trackers — shown ONLY in the Quarterly view.
+          One card per metric (Enterprise Talk to Sales, then User Signups),
+          each reflecting the CURRENT fiscal quarter's progress vs. goal
+          (previous quarter × 1.10). Hidden on Q2 (a past quarter — the
+          current-quarter goal isn't relevant there). */}
+      {isQuarter && quarterSel !== 'q2' && (
+        <div style={{ marginBottom: 16 }}>
+          <QuarterGoalCard
+            tracker={QUARTER_TRACKER}
+            title="User Signups"
+            noun="Signups"
+            basisNote="Signups are raw [Onboarding] User Setup Complete event totals (same basis as the User Signups KPI)."
+          />
+          <QuarterGoalCard
+            tracker={QUARTER_TRACKER_MEETINGS}
+            title="Enterprise Talk to Sales Submissions"
+            noun="Submissions"
+            basisNote="Submissions are Talk to Sales form fills (HubSpot), test-filtered (same basis as the Enterprise Talk to Sales Submissions KPI)."
+          />
+        </div>
+      )}
 
       {/* ── Signups by Channel — full-width.
           Replaces the prior Top-of-funnel Signups column + the Customer
@@ -5956,6 +6512,21 @@ export default function MutinyGrowthDashboard() {
               >
                 All website visitors by attribution channel
               </div>
+            </div>
+          </div>
+          {/* Visitor → User Signup conversion for the active window */}
+          <div
+            style={{ textAlign: 'right', flexShrink: 0 }}
+            title="Visitor → User Signup: Signups ÷ Engaged Sessions over the selected window (Amplitude ÷ GA4, directional only)."
+          >
+            <div style={{ fontFamily: FONT_BODY, fontSize: 10.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', opacity: 0.55 }}>
+              Visitor → User Signup
+            </div>
+            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 32, lineHeight: 1, letterSpacing: '-0.03em', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>
+              {kpiRatio.toFixed(2)}%
+            </div>
+            <div style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 10.5, opacity: 0.55, marginTop: 3 }}>
+              Signups ÷ Engaged Sessions
             </div>
           </div>
         </div>
@@ -6963,6 +7534,7 @@ export default function MutinyGrowthDashboard() {
           </div>
         );
       })()}
+      </>)}
     </div>
   );
 }
