@@ -1,51 +1,51 @@
 {
- "pulledAt": "2026-09-14T13:49:22.000Z",
+ "pulledAt": "2026-09-16T17:49:27.000Z",
  "windowStart": "2026-04-23",
- "windowEnd": "2026-09-13",
- "visibility": 0.1584,
- "mentionCount": 18216,
- "avgPosition": 3.2,
+ "windowEnd": "2026-09-15",
+ "visibility": 0.159,
+ "mentionCount": 18486,
+ "avgPosition": 3.3,
  "competitorRank": 3,
  "competitorTotal": 16,
  "topCompetitor": {
   "name": "Clay",
-  "visibility": 0.1809
+  "visibility": 0.1818
  },
  "topics": [
   {
    "topicId": "to_c7f0f067-a48f-4d0e-8676-a01f183e416c",
    "name": "Competitor Comparisons",
-   "visibility": 0.3409,
-   "mentions": 8615,
-   "responses": 4905
+   "visibility": 0.3394,
+   "mentions": 8655,
+   "responses": 4971
   },
   {
    "topicId": "to_1f306540-833c-4b81-9753-653c33a70cd7",
    "name": "ABM",
-   "visibility": 0.2549,
-   "mentions": 4071,
-   "responses": 7112
+   "visibility": 0.2555,
+   "mentions": 4161,
+   "responses": 7212
   },
   {
    "topicId": "to_8f9cecf0-a16c-49b7-af05-1c7f6fd5e684",
    "name": "Modern GTM tech stack",
-   "visibility": 0.0724,
-   "mentions": 530,
-   "responses": 5964
+   "visibility": 0.0723,
+   "mentions": 536,
+   "responses": 6048
   },
   {
    "topicId": "to_89f3990a-c991-4a09-9852-23df929174d1",
    "name": "AI Sales Tools",
-   "visibility": 0.1082,
-   "mentions": 1282,
-   "responses": 7779
+   "visibility": 0.11,
+   "mentions": 1334,
+   "responses": 7893
   },
   {
    "topicId": "to_180aec82-5c6e-4570-8787-7eefa5444185",
    "name": "AI Sales Enablement",
-   "visibility": 0.1025,
-   "mentions": 1776,
-   "responses": 7115
+   "visibility": 0.1035,
+   "mentions": 1817,
+   "responses": 7216
   },
   {
    "topicId": "to_65877128-3c62-43e5-a8cd-a26ad9740afc",
@@ -1495,6 +1495,26 @@
    "AI Sales Tools": 0.25,
    "AI Sales Enablement": 0.2353,
    "Outbound tools": 0
+  },
+  {
+   "date": "2026-09-14",
+   "visibility": 0.1805,
+   "Competitor Comparisons": 0.2424,
+   "ABM": 0.2653,
+   "Modern GTM tech stack": 0.0714,
+   "AI Sales Tools": 0.193,
+   "AI Sales Enablement": 0.1373,
+   "Outbound tools": 0
+  },
+  {
+   "date": "2026-09-15",
+   "visibility": 0.2122,
+   "Competitor Comparisons": 0.2121,
+   "ABM": 0.3333,
+   "Modern GTM tech stack": 0.0476,
+   "AI Sales Tools": 0.2632,
+   "AI Sales Enablement": 0.22,
+   "Outbound tools": 0
   }
  ],
  "sources": {
@@ -2803,14 +2823,34 @@
      "ABM": 18,
      "Modern GTM tech stack": 10,
      "Competitor Comparisons": 9
+    },
+    {
+     "date": "2026-09-14",
+     "Total": 107,
+     "Assets": 26,
+     "AI Sales Tools": 24,
+     "AI Sales Enablement": 19,
+     "ABM": 18,
+     "Competitor Comparisons": 10,
+     "Modern GTM tech stack": 10
+    },
+    {
+     "date": "2026-09-15",
+     "Total": 119,
+     "AI Sales Tools": 30,
+     "Assets": 29,
+     "ABM": 21,
+     "AI Sales Enablement": 21,
+     "Competitor Comparisons": 10,
+     "Modern GTM tech stack": 8
     }
    ],
    "metric": {
-    "retrievedPct": 0.2709,
-    "retrievalRate": 0.4171,
-    "citationRate": 1.7977,
-    "retrievalCount": 15888,
-    "citationCount": 18552
+    "retrievedPct": 0.2729,
+    "retrievalRate": 0.421,
+    "citationRate": 1.8543,
+    "retrievalCount": 16269,
+    "citationCount": 19555
    },
    "dailyStats": [
     {
@@ -3964,6 +4004,22 @@
      "citationRate": 4.5701,
      "retrievalCount": 183,
      "citationCount": 489
+    },
+    {
+     "date": "2026-09-14",
+     "retrievedPct": 0.3863,
+     "retrievalRate": 0.6354,
+     "citationRate": 4.5607,
+     "retrievalCount": 176,
+     "citationCount": 488
+    },
+    {
+     "date": "2026-09-15",
+     "retrievedPct": 0.4281,
+     "retrievalRate": 0.7374,
+     "citationRate": 4.3277,
+     "retrievalCount": 205,
+     "citationCount": 515
     }
    ]
   }
@@ -4832,6 +4888,18 @@
    "visCount": 58,
    "visTotal": 278,
    "mentions": 131
+  },
+  {
+   "date": "2026-09-14",
+   "visCount": 50,
+   "visTotal": 277,
+   "mentions": 133
+  },
+  {
+   "date": "2026-09-15",
+   "visCount": 59,
+   "visTotal": 278,
+   "mentions": 137
   }
  ]
 }
