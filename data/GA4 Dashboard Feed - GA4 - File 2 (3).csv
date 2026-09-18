@@ -172,6 +172,9 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260904,Organic Search,google / organic,2
 20260909,Organic Search,google / organic,2
 20260915,Organic Search,google / organic,2
+20260916,Direct,(direct) / (none),2
+20260916,Organic Search,google / organic,2
+20260917,Direct,(direct) / (none),2
 20260507,Organic Social,linkedin.com / referral,1
 20260508,Referral,mkt1-website / referral,1
 20260509,Direct,(direct) / (none),1
@@ -308,4 +311,6 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260907,Organic Search,google / organic,1
 20260910,Direct,(direct) / (none),1
 20260911,Direct,(direct) / (none),1
-20260916,Organic Search,google / organic,1
+20260916,Referral,app.rippling.com / referral,1
+20260917,Organic Search,google / organic,1
+20260918,Referral,30mpc.com / referral,1
