@@ -1,9 +1,9 @@
 {
- "pulledAt": "2026-09-23T13:58:52.000Z",
+ "pulledAt": "2026-09-24T13:55:42.000Z",
  "windowStart": "2026-04-23",
- "windowEnd": "2026-09-22",
- "visibility": 0.1589,
- "mentionCount": 19049,
+ "windowEnd": "2026-09-23",
+ "visibility": 0.1587,
+ "mentionCount": 19117,
  "avgPosition": 3.3,
  "competitorRank": 3,
  "competitorTotal": 16,
@@ -15,37 +15,37 @@
   {
    "topicId": "to_c7f0f067-a48f-4d0e-8676-a01f183e416c",
    "name": "Competitor Comparisons",
-   "visibility": 0.3336,
-   "mentions": 8765,
-   "responses": 5198
+   "visibility": 0.3326,
+   "mentions": 8780,
+   "responses": 5231
   },
   {
    "topicId": "to_1f306540-833c-4b81-9753-653c33a70cd7",
    "name": "ABM",
-   "visibility": 0.2547,
-   "mentions": 4327,
-   "responses": 7566
+   "visibility": 0.2544,
+   "mentions": 4351,
+   "responses": 7617
   },
   {
    "topicId": "to_8f9cecf0-a16c-49b7-af05-1c7f6fd5e684",
    "name": "Modern GTM tech stack",
-   "visibility": 0.0711,
-   "mentions": 556,
-   "responses": 6342
+   "visibility": 0.071,
+   "mentions": 558,
+   "responses": 6384
   },
   {
    "topicId": "to_89f3990a-c991-4a09-9852-23df929174d1",
    "name": "AI Sales Tools",
-   "visibility": 0.1123,
-   "mentions": 1426,
-   "responses": 8290
+   "visibility": 0.1125,
+   "mentions": 1437,
+   "responses": 8347
   },
   {
    "topicId": "to_180aec82-5c6e-4570-8787-7eefa5444185",
    "name": "AI Sales Enablement",
    "visibility": 0.1051,
-   "mentions": 1926,
-   "responses": 7571
+   "mentions": 1936,
+   "responses": 7622
   },
   {
    "topicId": "to_65877128-3c62-43e5-a8cd-a26ad9740afc",
@@ -1585,6 +1585,16 @@
    "AI Sales Tools": 0.1053,
    "AI Sales Enablement": 0.1373,
    "Outbound tools": 0
+  },
+  {
+   "date": "2026-09-23",
+   "visibility": 0.129,
+   "Competitor Comparisons": 0.1818,
+   "ABM": 0.2157,
+   "Modern GTM tech stack": 0.0476,
+   "AI Sales Tools": 0.1404,
+   "AI Sales Enablement": 0.098,
+   "Outbound tools": 0
   }
  ],
  "sources": {
@@ -2983,14 +2993,24 @@
      "AI Sales Enablement": 13,
      "Competitor Comparisons": 10,
      "Modern GTM tech stack": 7
+    },
+    {
+     "date": "2026-09-23",
+     "Total": 91,
+     "Assets": 23,
+     "AI Sales Tools": 20,
+     "ABM": 18,
+     "AI Sales Enablement": 15,
+     "Competitor Comparisons": 9,
+     "Modern GTM tech stack": 6
     }
    ],
    "metric": {
-    "retrievedPct": 0.2759,
-    "retrievalRate": 0.4252,
-    "citationRate": 1.855,
-    "retrievalCount": 17258,
-    "citationCount": 20776
+    "retrievedPct": 0.2763,
+    "retrievalRate": 0.4257,
+    "citationRate": 1.8536,
+    "retrievalCount": 17396,
+    "citationCount": 20929
    },
    "dailyStats": [
     {
@@ -4216,6 +4236,14 @@
      "citationRate": 1.8495,
      "retrievalCount": 157,
      "citationCount": 172
+    },
+    {
+     "date": "2026-09-23",
+     "retrievedPct": 0.3262,
+     "retrievalRate": 0.4946,
+     "citationRate": 1.6813,
+     "retrievalCount": 138,
+     "citationCount": 153
     }
    ]
   }
@@ -5138,6 +5166,12 @@
    "visCount": 37,
    "visTotal": 277,
    "mentions": 62
+  },
+  {
+   "date": "2026-09-23",
+   "visCount": 36,
+   "visTotal": 279,
+   "mentions": 68
   }
  ]
 }
