@@ -62,6 +62,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260819,Direct,(direct) / (none),5
 20260827,Direct,(direct) / (none),5
 20260901,Direct,(direct) / (none),5
+20260925,Direct,(direct) / (none),5
 20260508,Direct,(direct) / (none),4
 20260508,Organic Search,google / organic,4
 20260509,Organic Search,google / organic,4
@@ -330,3 +331,6 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260923,Referral,teams.public.onecdn.static.microsoft / referral,1
 20260924,Referral,teams.public.onecdn.static.microsoft / referral,1
 20260924,Unassigned,copilot.com / ai-assistant,1
+20260925,Organic Search,bing / organic,1
+20260925,Organic Search,google / organic,1
+20260928,Organic Search,google / organic,1
