@@ -18,3 +18,6 @@ amplitude_signups_*.csv
 signups_list*.csv
 signups_by_channel*.csv
 hubspot_not_in*.csv
+
+# Beta signups export (contains names/emails) — only the stripped src/beta-signups.json is committed
+data/signups*.csv

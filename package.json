@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "pull-data": "node scripts/pull-data.mjs",
+    "ingest-signups": "node scripts/ingest-signups.mjs",
     "build": "npm run pull-data && vite build",
     "build:nodata": "vite build",
     "preview": "vite preview"
