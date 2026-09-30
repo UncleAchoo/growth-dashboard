@@ -63,6 +63,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260827,Direct,(direct) / (none),5
 20260901,Direct,(direct) / (none),5
 20260925,Direct,(direct) / (none),5
+20260928,Organic Search,google / organic,5
 20260508,Direct,(direct) / (none),4
 20260508,Organic Search,google / organic,4
 20260509,Organic Search,google / organic,4
@@ -180,6 +181,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260919,Direct,(direct) / (none),2
 20260924,Direct,(direct) / (none),2
 20260924,Organic Search,google / organic,2
+20260928,Direct,(direct) / (none),2
 20260507,Organic Social,linkedin.com / referral,1
 20260508,Referral,mkt1-website / referral,1
 20260509,Direct,(direct) / (none),1
@@ -333,4 +335,6 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260924,Unassigned,copilot.com / ai-assistant,1
 20260925,Organic Search,bing / organic,1
 20260925,Organic Search,google / organic,1
-20260928,Organic Search,google / organic,1
+20260928,Referral,30mpc.com / referral,1
+20260929,Direct,(direct) / (none),1
+20260929,Organic Search,google / organic,1
