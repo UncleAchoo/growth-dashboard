@@ -10,13 +10,15 @@
     "ingest-signups": "node scripts/ingest-signups.mjs",
     "build": "npm run pull-data && vite build",
     "build:nodata": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "pull-stripe": "node scripts/pull-stripe.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.379.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "recharts": "^2.12.7"
+    "recharts": "^2.12.7",
+    "stripe": "^22.6.2"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",

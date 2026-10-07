@@ -1,0 +1,15 @@
+{
+  "_note": "Curated enterprise corrections — always enterprise (no graduation date). Mirrors enterprise_customers.json in the stripe-dash repo; keep the two in sync. Match is on Mutiny app id (any Stripe customer.metadata value), never domain.",
+  "app_ids": [
+    { "name": "LaunchDarkly", "id": "ba5ff662-2924-4207-be8e-ae13d31c4dd3" },
+    { "name": "Niche", "id": "3cfb4a85-67da-4920-ab24-0f5ee38a9ab7" },
+    { "name": "Redwood Software", "id": "2ce48ab1-f2af-489a-a8a6-742b26ce642f" },
+    { "name": "Resolve", "id": "e7a54fd2-0419-4f0d-864b-e6f9b8e5ccc7" },
+    { "name": "Rippling", "id": "fe3f6b76-9104-41de-9092-b969a07a9a27" },
+    { "name": "Snowflake Trial", "id": "8a5da738-5cff-49e9-9ce2-59ddc4dc2700" },
+    { "name": "RQI Partners", "id": "e1af9fb7-38cb-4d2d-80c3-d764be867f48" },
+    { "name": "Tive", "id": "a4e367b1-462d-444c-b65f-f17b65a1bd4a" },
+    { "name": "Uber for Business", "id": "a2fc1c25-8e1a-4be0-b4d1-88d6e8aa4619" }
+  ],
+  "stripe_customer_ids": []
+}

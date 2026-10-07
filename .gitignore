@@ -21,3 +21,8 @@ hubspot_not_in*.csv
 
 # Beta signups export (contains names/emails) — only the stripped src/beta-signups.json is committed
 data/signups*.csv
+# Split-table Metabase exports (user_signups has names/emails)
+data/data-queries/
+
+# Stripe raw pulls + paying_companies (names/emails) — only the stripped src/beta-paying.json is committed
+data/stripe/

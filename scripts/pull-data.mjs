@@ -502,6 +502,34 @@ async function fetchAmplitude() {
   }
   const COMPANY_SETUP_DAILY_NOTE = 'Daily unique [Onboarding] Company Setup Complete (PREVIOUS signup definition, org-creators only; internal excluded). Sum-of-daily per period. Regenerated each pull via REST segmentation (daily uniques, interval=1); history before the pull window is carried forward.';
 
+  // ---- Accepted invites (amplitude.inviteAcceptedDaily) ------------------
+  // Daily unique "User Invitation Completed" — people who joined by accepting
+  // an invite. Used by the ?beta "Sign ups and conversion by channel" table to
+  // split the "No answer" row (invitees never see the "How did you hear about
+  // us?" question). NO internal-email filter, to match the Metabase signups the
+  // No-answer row is computed from (which include staff). Fresh window is
+  // merged over the prior series so older history survives; carried forward if
+  // the pull fails.
+  let inviteAcceptedDaily = null;
+  {
+    let fresh = null;
+    try {
+      const inv = await ampSegmentation({ event: { event_type: 'User Invitation Completed' }, start: WINDOW_START, end: WINDOW_END, interval: 1, metric: 'uniques' });
+      const s = inv?.data?.series?.[0] ?? [];
+      const x = inv?.data?.xValues ?? [];
+      if (x.length) {
+        fresh = {};
+        for (let i = 0; i < x.length; i++) fresh[ymdCompact(x[i])] = Number(s[i]) || 0;
+        log(`  Amplitude: pulled inviteAcceptedDaily (${x.length} days, ${Object.values(fresh).reduce((a, b) => a + b, 0)} accepted invites).`);
+      }
+    } catch (err) {
+      log(`  Amplitude: inviteAcceptedDaily pull failed (${err.message}) — will carry forward the previous series.`);
+    }
+    let prev = null;
+    try { prev = existsSync(OUT_PATH) ? JSON.parse(readFileSync(OUT_PATH, 'utf8')).amplitude?.inviteAcceptedDaily : null; } catch { /* none */ }
+    if (prev || fresh) inviteAcceptedDaily = { ...(prev || {}), ...(fresh || {}) };
+  }
+
   // ---- Deduplicated totals (amplitude.dedup) ----------------------------
   // The deduped headline KPI, per-bar totals, and cumulative-signups line read
   // from `amplitude.dedup` (true unique-user counts of the 4-event union at
@@ -603,7 +631,7 @@ async function fetchAmplitude() {
   }
 
   log(`  Amplitude ok: ${Object.values(dailySignups).reduce((a,b)=>a+b,0)} daily-signups across ${Object.keys(dailySignups).length} days, ${referralSources.length} unique referral_source values.`);
-  return { dailySignups, referralSources, ...(dedup ? { dedup } : {}), ...(roles ? { roles } : {}), ...(rolesAll ? { rolesAll } : {}), ...(companySetupDaily ? { companySetupDaily, companySetupDailyNote } : {}), pulledAt: new Date().toISOString() };
+  return { dailySignups, referralSources, ...(dedup ? { dedup } : {}), ...(roles ? { roles } : {}), ...(rolesAll ? { rolesAll } : {}), ...(companySetupDaily ? { companySetupDaily, companySetupDailyNote } : {}), ...(inviteAcceptedDaily ? { inviteAcceptedDaily } : {}), pulledAt: new Date().toISOString() };
 }
 
 // ===========================================================================
