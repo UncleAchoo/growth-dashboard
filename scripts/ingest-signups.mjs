@@ -94,10 +94,13 @@ const key = (userId, companyId) => `${userId}|${companyId}`;
 let signups;
 let source;
 let HAS_CO_NAME = false; // user_signups export carries company_name
+let AMP_EVENTS = null; // coverage of data/amplitude/signup_events.json, if pulled
+let INTERNAL_EXCLUDED = 0; // @mutinyhq.com signups dropped
 
 if (src.endsWith('.csv')) {
   // --- Legacy: one master CSV with first_* columns already computed ---------
-  const rows = readTable(src, ['created_at', 'self_selected_role', 'recorder_first_installed_at', 'calendar_first_connected_at', 'email_first_connected_at', 'first_meeting_recorded_at', 'first_email_or_asset_sent_at']);
+  const rows = readTable(src, ['created_at', 'self_selected_role', 'recorder_first_installed_at', 'calendar_first_connected_at', 'email_first_connected_at', 'first_meeting_recorded_at', 'first_email_or_asset_sent_at'])
+    .filter((r) => !/@mutinyhq\.com$/i.test((r.email || '').trim())); // no internal signups
   signups = rows.map((r) => ({
     d: day(r.created_at),
     role: r.self_selected_role || null,
@@ -126,7 +129,14 @@ if (src.endsWith('.csv')) {
     emails: newest('email_delivery_events_'),
   };
   const assetFile = files.filter((f) => f.startsWith('assets_published_')).sort().pop();
-  const base = readTable(T.signups, ['user_id', 'company_id', 'created_at', 'self_selected_role']);
+  // Internal signups are left out everywhere (Nick, Oct 7): any user whose
+  // email domain is @mutinyhq.com. Done before anything else, so internal
+  // users also don't count as a company's first signup, a paying user, etc.
+  const allRows = readTable(T.signups, ['user_id', 'company_id', 'created_at', 'self_selected_role', 'email']);
+  const isInternal = (r) => /@mutinyhq\.com$/i.test((r.email || '').trim());
+  const base = allRows.filter((r) => !isInternal(r));
+  INTERNAL_EXCLUDED = allRows.length - base.length;
+  console.log(`  excluded ${INTERNAL_EXCLUDED} internal signups (@mutinyhq.com)`);
   HAS_CO_NAME = base.length > 0 && 'company_name' in base[0];
   const installs = readTable(T.installs, ['user_id', 'company_id', 'installed_at']);
   const connections = readTable(T.connections, ['user_id', 'company_id', 'toolkit', 'connection_scope', 'connected_at']);
@@ -256,6 +266,76 @@ if (src.endsWith('.csv')) {
     }
   }
 
+  // Creator of each company = its earliest signup row (by created_at). Every
+  // later signup on that company "joined an existing company" (invited or not).
+  const creatorRow = new Map(); // company_id -> row
+  for (const r of base) {
+    if (!r.company_id) continue;
+    const cur = creatorRow.get(r.company_id);
+    if (!cur || r.created_at < cur.created_at) creatorRow.set(r.company_id, r);
+  }
+
+  // Per-person Amplitude events (npm run pull-amp-events): attach each Company
+  // Setup Complete (with its "How did you hear about us?" answer) and each
+  // accepted invite to the user's signup row closest in time (Amplitude
+  // user_id = Metabase user id; a user can have several company signups).
+  const ampFile = path.join(root, 'data/amplitude/signup_events.json');
+  const AMP_MATCH_DAYS = 3;
+  const evByRow = new Map(); // row -> { ref, csc, inv }
+  if (fs.existsSync(ampFile)) {
+    const amp = JSON.parse(fs.readFileSync(ampFile, 'utf8'));
+    const rowsByUid = new Map();
+    for (const r of base) (rowsByUid.get(r.user_id) || rowsByUid.set(r.user_id, []).get(r.user_id)).push(r);
+    const ms = (v) => Date.parse(String(v).replace(' ', 'T') + (/[zZ]|[+-]\d\d:?\d\d$/.test(v) ? '' : 'Z'));
+    // Metabase timestamps are US Pacific wall-clock time (Amplitude's are UTC):
+    // matched events sit ~7h (PDT) / 8h (PST) after the signup. Convert first.
+    const laOffsetMs = (utcMs) => {
+      const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).formatToParts(new Date(utcMs)).map((x) => [x.type, x.value]));
+      return Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute, +parts.second) - Math.floor(utcMs / 1000) * 1000;
+    };
+    const pacificToUtc = (v) => { const wall = ms(v); return wall - laOffsetMs(wall - laOffsetMs(wall)); };
+    // Which signup row an event belongs to (Nick's Oct 7 test, vince@rdy.vc:
+    // his answer landed on the company he JOINED, so he showed twice). A
+    // Company Setup Complete belongs to a company the user CREATED (first
+    // signup on it); an accepted invite to one they JOINED. Prefer those rows,
+    // then the closest in time.
+    const attach = (uid, t, kind, fn) => {
+      const rows = rowsByUid.get(uid);
+      if (!rows) return false;
+      const et = ms(t);
+      const fits = (r) => {
+        const isCreator = r.company_id && creatorRow.get(r.company_id) === r;
+        return kind === 'csc' ? isCreator : kind === 'inv' ? Boolean(r.company_id) && !isCreator : true;
+      };
+      let best = null;
+      let bestScore = Infinity;
+      for (const r of rows) {
+        const gap = Math.abs(et - pacificToUtc(r.created_at));
+        if (gap > AMP_MATCH_DAYS * 86400000) continue;
+        const score = (fits(r) ? 0 : 1e15) + gap; // role fit first, then time
+        if (score < bestScore) { best = r; bestScore = score; }
+      }
+      if (!best) return false;
+      fn(evByRow.get(best) || evByRow.set(best, {}).get(best));
+      return true;
+    };
+    let cscN = 0, cscHit = 0, invN = 0, invHit = 0;
+    const days = Object.keys(amp.days || {}).sort();
+    for (const d of days) {
+      for (const e of amp.days[d].csc || []) {
+        cscN += 1;
+        const ref = e.ref && e.ref !== '(none)' ? String(e.ref).trim() : null;
+        if (attach(e.uid, e.t, 'csc', (o) => { o.csc = 1; if (ref) o.ref = ref; })) cscHit += 1;
+      }
+      for (const e of amp.days[d].inv || []) {
+        invN += 1;
+        if (attach(e.uid, e.t, 'inv', (o) => { o.inv = 1; })) invHit += 1;
+      }
+    }
+    AMP_EVENTS = { firstDay: days[0] || null, lastDay: days[days.length - 1] || null, pulledAt: amp.pulledAt || null };
+    console.log(`  Amplitude per-person events ${days[0]} → ${days[days.length - 1]}: matched ${cscHit}/${cscN} company setups, ${invHit}/${invN} accepted invites to signups`);
+  }
+
   signups = base.map((r) => {
     const k = key(r.user_id, r.company_id);
     const d = day(r.created_at);
@@ -280,6 +360,14 @@ if (src.endsWith('.csv')) {
     // self-reported channel table. Uses the optional company_name column when
     // the user_signups export has it; otherwise only "no company at all".
     if (!r.company_id || (HAS_CO_NAME && !r.company_name)) s.nc = 1;
+    // Joined an existing company = the company already had an earlier signup
+    // (Nick, Oct 7: covers accepted invites AND joiners with no invite event).
+    else if (creatorRow.get(r.company_id) !== r) s.jx = 1;
+    // Per-person Amplitude: the signup's own answer + whether they accepted an invite.
+    const amp = evByRow.get(r);
+    if (amp?.ref) s.ref = amp.ref;
+    if (amp?.csc) s.csc = 1;
+    if (amp?.inv) s.inv = 1;
     // First return activity after the activation day (any distance; the
     // dashboard applies the 7-day window).
     const act = s.snd && s.pub ? minDay(s.snd, s.pub) : s.snd || s.pub;
@@ -293,7 +381,12 @@ if (src.endsWith('.csv')) {
     // profile (Nick, Oct 6). Nobody else's email is kept.
     // Same for signups that did any onboarding step (recorder, calendar, email),
     // so the per-step "who did it" lists can name them.
-    if (s.snd || s.pub || s.rec || s.cal || s.em) {
+    // And "Never completed" signups since Feb 16 (signup counts start then),
+    // for the clickable row in the channel table (Nick, Oct 7).
+    // ... and "Other" (created a company but no answer / invite in Amplitude),
+    // the channel table's other clickable row (Nick, Oct 7).
+    const otherRow = !s.nc && !s.jx && !s.ref && !s.inv && AMP_EVENTS;
+    if (s.snd || s.pub || s.rec || s.cal || s.em || ((s.nc || otherRow) && d >= '2026-02-16')) {
       s.uid = r.user_id;
       if (r.email) s.email = r.email;
     }
@@ -312,8 +405,73 @@ const json = {
   firstDate: signups[0]?.d,
   lastDate: signups[signups.length - 1]?.d,
   hasCompanyName: HAS_CO_NAME,
+  ampEvents: AMP_EVENTS,
+  internalExcluded: INTERNAL_EXCLUDED,
   signups,
 };
 fs.writeFileSync(out, JSON.stringify(json));
+
+// --- Credits (Nick, Oct 7): monthly credit usage per company + each company's
+// current credit allowance, for the "monthly credits used" chart under the
+// retention heat map. Written to src/beta-credits.json (no names/emails).
+// Only companies that buy credits (business / enterprise / trial plan, or an
+// add-on pack) are kept, to keep the file small.
+{
+  const qdir = src.endsWith('.csv') ? path.join(root, 'data/data-queries') : src;
+  const qfiles = fs.existsSync(qdir) ? fs.readdirSync(qdir).filter((f) => f.endsWith('.csv')) : [];
+  const usageFile = qfiles.filter((f) => f.startsWith('_customer_health__all_credit_usage')).sort().pop();
+  const allowFile = qfiles.filter((f) => f.startsWith('_customer_health__credit_allowance')).sort().pop();
+  const creditsOut = path.join(root, 'src/beta-credits.json');
+  if (usageFile && allowFile) {
+    const allowance = {};
+    // Every company that has ever paid through Stripe (src/beta-paying.json) is
+    // kept too — otherwise companies that later churned (now on the free plan,
+    // no add-on pack) lose their usage history and their past cycles read 0%.
+    const stripeCos = new Set();
+    try {
+      for (const c of JSON.parse(fs.readFileSync(path.join(root, 'src/beta-paying.json'), 'utf8')).customers || []) if (c.co) stripeCos.add(c.co);
+    } catch { /* no Stripe pull yet */ }
+    for (const r of readTable(path.join(qdir, allowFile), ['company_id', 'plan', 'active_allowance', 'addon_pack'])) {
+      const keep = ['business', 'enterprise', 'trial'].includes(r.plan) || Number(r.addon_pack) > 0 || stripeCos.has(r.company_id);
+      if (!r.company_id || !keep) continue;
+      // n = company name, for the credits details modal (company names only, no people).
+      allowance[r.company_id] = {
+        a: Number(r.active_allowance) || 0, plan: r.plan, n: r.company || null,
+        // Today's snapshot, for QA in the details modal.
+        u30: r.used_last_30d === '' ? null : Number(r.used_last_30d),
+        pctNow: r.pct_allowance_used === '' ? null : Number(r.pct_allowance_used),
+        exp: r.next_expiry || null,
+        man: r.manual_adjustment === '' ? null : Number(r.manual_adjustment), // one-off manual credits (in the allowance)
+        rew: r.reward_bonus === '' ? null : Number(r.reward_bonus),
+      };
+    }
+    // Stripe companies missing from the allowance export (e.g. deleted
+    // workspaces) still keep their usage; no allowance today (a: 0).
+    for (const co of stripeCos) if (!allowance[co]) allowance[co] = { a: 0, plan: null, n: null, missingFromAllowanceExport: true };
+    const usage = {};
+    const daily = {};
+    let lastDay = null;
+    for (const r of readTable(path.join(qdir, usageFile), ['company_id', 'usage_date', 'credits_used'])) {
+      if (/@mutinyhq\.com$/i.test((r.email || '').trim())) continue; // internal users' usage doesn't count (Nick, Oct 7)
+      const d = day(r.usage_date);
+      if (d && (!lastDay || d > lastDay)) lastDay = d;
+      if (!allowance[r.company_id] || !d) continue;
+      if (!allowance[r.company_id].n && r.company_name) allowance[r.company_id].n = r.company_name;
+      const m = d.slice(0, 7);
+      const u = usage[r.company_id] || (usage[r.company_id] = {});
+      u[m] = Math.round(((u[m] || 0) + (Number(r.credits_used) || 0)) * 100) / 100;
+      // Daily too, so usage can be summed per billing cycle (cycle-based charts).
+      const dd = daily[r.company_id] || (daily[r.company_id] = {});
+      dd[d] = Math.round(((dd[d] || 0) + (Number(r.credits_used) || 0)) * 100) / 100;
+    }
+    for (const dd of Object.values(daily)) for (const k of Object.keys(dd)) if (!dd[k]) delete dd[k];
+    const usageFirstDay = Object.values(daily).flatMap((dd) => Object.keys(dd)).sort()[0] || null;
+    fs.writeFileSync(creditsOut, JSON.stringify({ pulledAt: new Date().toISOString(), usageFile, allowanceFile: allowFile, usageFirstDay, usageLastDay: lastDay, allowance, usage, daily }));
+    console.log(`beta-credits: ${Object.keys(allowance).length} companies with an allowance, usage through ${lastDay} → ${path.relative(root, creditsOut)}`);
+  } else if (!fs.existsSync(creditsOut)) {
+    fs.writeFileSync(creditsOut, JSON.stringify({ pulledAt: null, allowance: {}, usage: {} }));
+    console.log('  no credit usage / allowance CSVs — wrote an empty src/beta-credits.json');
+  }
+}
 const n = (k) => signups.filter((s) => s[k]).length;
 console.log(`beta-signups: ${signups.length} signups ${json.firstDate} → ${json.lastDate} · rec ${n('rec')} cal ${n('cal')} em ${n('em')} mt ${n('mt')} snd ${n('snd')} pub ${n('pub')} ret ${n('ret')} ints ${n('ints')} → ${path.relative(root, out)}`);

@@ -22,7 +22,7 @@
 
 import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'node:fs';
 import Stripe from 'stripe';
-import { EPS, buildRows, payingPlgAt, toUnix } from './lib/stripe-paying.mjs';
+import { EPS, buildRows, payingPlgAt, toUnix, billingCycles } from './lib/stripe-paying.mjs';
 
 // --- Tiny inline dotenv loader (same as pull-data.mjs) ---------------------
 if (existsSync('.env.local')) {
@@ -257,13 +257,21 @@ async function main() {
 
   // Dashboard file: PLG + graduated timelines only (enterprise never counts as
   // a paying PLG logo). No names/emails — joined to signups on company_id.
+  const invByCus = new Map();
+  for (const iv of raw.invoices) if (iv.customer) (invByCus.get(iv.customer) || invByCus.set(iv.customer, []).get(iv.customer)).push(iv);
   const dash = rows.filter((r) => r.segment !== 'enterprise').map((r) => ({
     co: r.company_id,
     cus: r.stripe_customer_id,
     ...(r.segment === 'graduated' ? { grad: r.graduated_ts } : {}),
     ev: r.events.map((e) => [e.ts, e.mrr_after]),
+    cy: billingCycles(invByCus.get(r.stripe_customer_id)), // [start, end, renewal $, mid-cycle adds $]
   }));
-  writeFileSync(DASH_OUT, JSON.stringify({ pulledAt: new Date().toISOString(), historyStart: HISTORY_START_ISO, customers: dash }));
+  // --offline keeps the original Stripe pull time (the data didn't change).
+  let pulledAt = new Date().toISOString();
+  if (OFFLINE) {
+    try { pulledAt = JSON.parse(readFileSync(DASH_OUT, 'utf8')).pulledAt || pulledAt; } catch { /* first run */ }
+  }
+  writeFileSync(DASH_OUT, JSON.stringify({ pulledAt, historyStart: HISTORY_START_ISO, customers: dash }));
 
   // --- Summary (compare with the revenue dashboard's tiles) ---------------------
   const plgPaying = rows.filter((r) => r.segment === 'plg' && r.is_paying);

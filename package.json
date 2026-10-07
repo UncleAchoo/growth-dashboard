@@ -11,7 +11,8 @@
     "build": "npm run pull-data && vite build",
     "build:nodata": "vite build",
     "preview": "vite preview",
-    "pull-stripe": "node scripts/pull-stripe.mjs"
+    "pull-stripe": "node scripts/pull-stripe.mjs",
+    "pull-amp-events": "node scripts/pull-amp-events.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.379.0",

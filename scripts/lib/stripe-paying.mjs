@@ -196,3 +196,36 @@ export function payingPlgAt(row, ts) {
   if (row.segment === 'graduated' && ts >= row.graduated_ts) return false;
   return mrrAt(row.events, ts) > EPS;
 }
+
+// --- Billing cycles (for the cycle-based credits charts, Oct 7) -------------------
+// One entry per renewal invoice (subscription_create / subscription_cycle):
+//   [start, end, renewalNet$, addsNet$]
+// start/end = the main (non-proration, largest) line's service period; end is
+// exclusive (= next cycle's start). If a later cycle starts before this one
+// ends (plan change, cancel-and-restart), this one is cut at that start.
+// addsNet$ = mid-cycle charges (credit packs / manual invoices) paid inside the
+// cycle — they add credits to it. Amounts are pre-tax, post-discount dollars,
+// same as the MRR engine.
+export function billingCycles(custInvoices) {
+  const netOf = (iv) => ((iv.subtotal || 0) - (iv.discount_total || 0)) / 100;
+  const isRenewal = (iv) => iv.billing_reason === 'subscription_cycle' || iv.billing_reason === 'subscription_create';
+  const live = (custInvoices || []).filter((iv) => iv.status === 'paid' || iv.status === 'open');
+  const cycles = [];
+  for (const iv of live.filter(isRenewal)) {
+    const main = [...(iv.lines || [])].filter((l) => !l.proration).sort((a, b) => (b.amount || 0) - (a.amount || 0))[0];
+    let start = main?.period_start || iv.paid_at || iv.created;
+    let end = main?.period_end;
+    if (!end || end <= start) { const d = new Date(start * 1000); d.setUTCMonth(d.getUTCMonth() + 1); end = Math.floor(d / 1000); }
+    cycles.push([start, end, Math.max(0, netOf(iv)), 0]);
+  }
+  cycles.sort((a, b) => a[0] - b[0]);
+  for (let i = 0; i < cycles.length - 1; i++) if (cycles[i + 1][0] < cycles[i][1]) cycles[i][1] = cycles[i + 1][0];
+  for (const iv of live.filter((x) => !isRenewal(x))) {
+    const net = netOf(iv);
+    if (net <= 0) continue;
+    const ts = iv.paid_at || iv.created;
+    const c = cycles.find(([s, e]) => ts >= s && ts < e);
+    if (c) c[3] += net;
+  }
+  return cycles.filter(([s, e]) => e > s).map(([s, e, r, a]) => [s, e, Math.round(r * 100) / 100, Math.round(a * 100) / 100]);
+}

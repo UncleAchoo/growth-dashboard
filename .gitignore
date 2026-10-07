@@ -26,3 +26,6 @@ data/data-queries/
 
 # Stripe raw pulls + paying_companies (names/emails) — only the stripped src/beta-paying.json is committed
 data/stripe/
+
+# Per-person Amplitude events (user ids + answers) — only the stripped src/beta-signups.json is committed
+data/amplitude/

@@ -505,9 +505,10 @@ async function fetchAmplitude() {
   // ---- Accepted invites (amplitude.inviteAcceptedDaily) ------------------
   // Daily unique "User Invitation Completed" — people who joined by accepting
   // an invite. Used by the ?beta "Sign ups and conversion by channel" table to
-  // split the "No answer" row (invitees never see the "How did you hear about
-  // us?" question). NO internal-email filter, to match the Metabase signups the
-  // No-answer row is computed from (which include staff). Fresh window is
+  // show "Accepted an invite" as its own row (Nick, Oct 7: accepted an invite =
+  // this event fired; joining a teammate's company without it is separate).
+  // NO internal-email filter, to match the Metabase signups the table is
+  // computed from (which include staff). Fresh window is
   // merged over the prior series so older history survives; carried forward if
   // the pull fails.
   let inviteAcceptedDaily = null;
