@@ -3310,14 +3310,6 @@ export default function BetaDashboard() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
-  const currentUrl = (() => {
-    if (typeof window === 'undefined') return '/';
-    const u = new URL(window.location.href);
-    u.searchParams.delete('beta');
-    u.hash = '';
-    return u.pathname + u.search;
-  })();
-
   return (
     <ModelCtx.Provider value={M}>
     <UsersModalCtx.Provider value={setUsersModal}>
@@ -3336,8 +3328,9 @@ export default function BetaDashboard() {
             </h1>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
-            <a href={currentUrl} style={{ border: `1px solid ${C.black}`, borderRadius: 4, background: C.white, padding: '7px 12px', fontSize: 13, fontWeight: 600, color: C.black, textDecoration: 'none', boxShadow: `2px 2px 0 ${C.black}` }}>
-              View current dashboard
+            {/* One-page guide (public/dashboard-guide.pdf → copied next to index.html on build). */}
+            <a href="dashboard-guide.pdf" target="_blank" rel="noopener noreferrer" style={{ border: `1px solid ${C.black}`, borderRadius: 4, background: C.white, padding: '7px 12px', fontSize: 13, fontWeight: 600, color: C.black, textDecoration: 'none', boxShadow: `2px 2px 0 ${C.black}` }}>
+              How to read this dashboard ↗
             </a>
             <div style={{ border: `1px solid ${C.black}`, borderRadius: 4, background: C.lightBlue, padding: '9px 14px', fontSize: 13, lineHeight: 1.45 }}>
               <div style={{ color: C.muted }}>Reporting period</div>
