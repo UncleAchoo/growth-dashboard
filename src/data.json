@@ -246096,11 +246096,11 @@
       }
     ],
     "logos": {
-      "total": 122,
+      "total": 121,
       "source": "revenue-repo",
       "repo": "UncleAchoo/revenue-dashboard-official",
       "path": "stripe_data.json",
-      "pulledAt": "2026-10-07T16:21:17.612Z",
+      "pulledAt": "2026-10-08T01:24:59.051Z",
       "weekly": [
         {
           "week_ending": "2026-03-22",
@@ -246248,8 +246248,8 @@
           "partial": false
         },
         {
-          "week_ending": "2026-10-07",
-          "count": 122,
+          "week_ending": "2026-10-08",
+          "count": 121,
           "partial": true
         }
       ]
