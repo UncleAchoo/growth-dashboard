@@ -96,6 +96,8 @@ let source;
 let HAS_CO_NAME = false; // user_signups export carries company_name
 let AMP_EVENTS = null; // coverage of data/amplitude/signup_events.json, if pulled
 let INTERNAL_EXCLUDED = 0; // @mutinyhq.com signups dropped
+let MEETINGS_FROM = null; // first day in the meeting export (when meeting capture is tracked from)
+let EMAILS_FROM = null; // first day in the email delivery export
 
 if (src.endsWith('.csv')) {
   // --- Legacy: one master CSV with first_* columns already computed ---------
@@ -157,7 +159,9 @@ if (src.endsWith('.csv')) {
   const CAL = firstBy(connections, 'connected_at', (r) => r.toolkit === 'google_calendar');
   const EM = firstBy(connections, 'connected_at', (r) => r.toolkit === 'gmail');
   const MT = firstBy(meetings, 'occurred_at');
+  for (const r of meetings) { const d = day(r.occurred_at); if (d && (!MEETINGS_FROM || d < MEETINGS_FROM)) MEETINGS_FROM = d; }
   const SND = firstBy(emails, 'completed_at', (r) => r.action === 'send' || r.action === 'create_draft');
+  for (const r of emails) { const d = day(r.completed_at); if (d && (!EMAILS_FROM || d < EMAILS_FROM)) EMAILS_FROM = d; }
 
   // A user-level event (no company) is attached to that user's latest signup
   // created on or before the event day (or their first signup if all are later).
@@ -407,6 +411,8 @@ const json = {
   hasCompanyName: HAS_CO_NAME,
   ampEvents: AMP_EVENTS,
   internalExcluded: INTERNAL_EXCLUDED,
+  meetingsFrom: MEETINGS_FROM,
+  emailsFrom: EMAILS_FROM,
   signups,
 };
 fs.writeFileSync(out, JSON.stringify(json));
