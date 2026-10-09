@@ -246100,7 +246100,7 @@
       "source": "revenue-repo",
       "repo": "UncleAchoo/revenue-dashboard-official",
       "path": "stripe_data.json",
-      "pulledAt": "2026-10-08T19:33:11.584Z",
+      "pulledAt": "2026-10-09T01:31:54.290Z",
       "weekly": [
         {
           "week_ending": "2026-03-22",
@@ -246248,7 +246248,7 @@
           "partial": false
         },
         {
-          "week_ending": "2026-10-08",
+          "week_ending": "2026-10-09",
           "count": 121,
           "partial": true
         }
