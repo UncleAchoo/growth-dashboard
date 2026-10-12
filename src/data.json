@@ -252075,7 +252075,7 @@
       "source": "revenue-repo",
       "repo": "UncleAchoo/revenue-dashboard-official",
       "path": "stripe_data.json",
-      "pulledAt": "2026-10-12T15:07:03.729Z",
+      "pulledAt": "2026-10-12T21:54:14.444Z",
       "weekly": [
         {
           "week_ending": "2026-03-22",
@@ -252109,122 +252109,122 @@
         },
         {
           "week_ending": "2026-05-03",
-          "count": 80,
+          "count": 81,
           "partial": false
         },
         {
           "week_ending": "2026-05-10",
-          "count": 86,
+          "count": 87,
           "partial": false
         },
         {
           "week_ending": "2026-05-17",
-          "count": 91,
+          "count": 92,
           "partial": false
         },
         {
           "week_ending": "2026-05-24",
-          "count": 98,
+          "count": 99,
           "partial": false
         },
         {
           "week_ending": "2026-05-31",
-          "count": 101,
+          "count": 102,
           "partial": false
         },
         {
           "week_ending": "2026-06-07",
-          "count": 108,
+          "count": 109,
           "partial": false
         },
         {
           "week_ending": "2026-06-14",
-          "count": 115,
+          "count": 116,
           "partial": false
         },
         {
           "week_ending": "2026-06-21",
-          "count": 113,
+          "count": 114,
           "partial": false
         },
         {
           "week_ending": "2026-06-28",
-          "count": 118,
+          "count": 119,
           "partial": false
         },
         {
           "week_ending": "2026-07-05",
-          "count": 119,
-          "partial": false
-        },
-        {
-          "week_ending": "2026-07-12",
-          "count": 127,
-          "partial": false
-        },
-        {
-          "week_ending": "2026-07-19",
-          "count": 127,
-          "partial": false
-        },
-        {
-          "week_ending": "2026-07-26",
-          "count": 123,
-          "partial": false
-        },
-        {
-          "week_ending": "2026-08-02",
-          "count": 131,
-          "partial": false
-        },
-        {
-          "week_ending": "2026-08-09",
-          "count": 128,
-          "partial": false
-        },
-        {
-          "week_ending": "2026-08-16",
-          "count": 128,
-          "partial": false
-        },
-        {
-          "week_ending": "2026-08-23",
-          "count": 129,
-          "partial": false
-        },
-        {
-          "week_ending": "2026-08-30",
-          "count": 119,
-          "partial": false
-        },
-        {
-          "week_ending": "2026-09-06",
-          "count": 121,
-          "partial": false
-        },
-        {
-          "week_ending": "2026-09-13",
           "count": 120,
           "partial": false
         },
         {
-          "week_ending": "2026-09-20",
+          "week_ending": "2026-07-12",
+          "count": 128,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-07-19",
+          "count": 128,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-07-26",
+          "count": 124,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-08-02",
+          "count": 132,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-08-09",
+          "count": 129,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-08-16",
+          "count": 129,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-08-23",
+          "count": 130,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-08-30",
+          "count": 120,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-09-06",
+          "count": 122,
+          "partial": false
+        },
+        {
+          "week_ending": "2026-09-13",
           "count": 121,
           "partial": false
         },
         {
+          "week_ending": "2026-09-20",
+          "count": 122,
+          "partial": false
+        },
+        {
           "week_ending": "2026-09-27",
-          "count": 123,
+          "count": 124,
           "partial": false
         },
         {
           "week_ending": "2026-10-04",
-          "count": 123,
+          "count": 124,
           "partial": false
         },
         {
           "week_ending": "2026-10-11",
-          "count": 118,
+          "count": 119,
           "partial": false
         },
         {
