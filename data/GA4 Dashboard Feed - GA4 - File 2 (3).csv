@@ -87,6 +87,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260811,Organic Search,google / organic,4
 20261001,Direct,(direct) / (none),4
 20261006,Organic Search,google / organic,4
+20261008,Organic Search,google / organic,4
+20261011,Referral,framer.com / referral,4
 20260507,Organic Search,google / organic,3
 20260507,Referral,framer.com / referral,3
 20260510,Direct,(direct) / (none),3
@@ -121,6 +123,8 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20260924,Referral,30mpc.com / referral,3
 20260930,Organic Search,google / organic,3
 20261005,Direct,(direct) / (none),3
+20261007,Organic Search,google / organic,3
+20261010,Direct,(direct) / (none),3
 20260511,Organic Social,linkedin / social,2
 20260514,Referral,chatgpt.com / referral,2
 20260515,Direct,(direct) / (none),2
@@ -350,5 +354,7 @@ date,sessionPrimaryChannelGroup,sessionSourceMedium,eventCount
 20261003,Organic Search,google / organic,1
 20261005,Email,hs_automation / email,1
 20261005,Organic Search,google / organic,1
-20261006,Unassigned,(data not available),1
-20261007,Organic Search,google / organic,1
+20261006,Organic Search,bing / organic,1
+20261007,Direct,(direct) / (none),1
+20261008,Direct,(direct) / (none),1
+20261009,Organic Search,google / organic,1
