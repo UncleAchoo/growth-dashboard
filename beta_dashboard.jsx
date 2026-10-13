@@ -20,7 +20,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  ResponsiveContainer, ComposedChart, BarChart, LineChart, Bar, Line, Cell,
+  ResponsiveContainer, ComposedChart, BarChart, LineChart, Bar, Line, Cell, LabelList,
   XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
 import { ArrowUpRight, ArrowDownRight, ArrowRight, MousePointerClick, Info, Clock } from 'lucide-react';
@@ -71,6 +71,19 @@ const SIGNUPS = betaSignups.signups;
 const ENGAGED_BY_DATE = Object.fromEntries(
   dataJson.ga4.file1.map((r) => [`${r.date.slice(0, 4)}-${r.date.slice(4, 6)}-${r.date.slice(6)}`, r.engagedSessions]),
 );
+
+// High-intent engaged sessions (GA4 File 4): ONE aggregated daily number from
+// the high-intent page filter, so a session that hits several high-intent pages
+// counts once. Never rebuild this from the per-page File 5 — that double-counts.
+const gaISO4 = (d) => `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}`;
+const HIGH_INTENT_BY_DATE = Object.fromEntries((dataJson.ga4.file4 || []).map((r) => [gaISO4(r.date), r.highIntentEngagedSessions]));
+// First day File 4 has data; earlier days are "no data", not zero.
+const HIGH_INTENT_START = Object.keys(HIGH_INTENT_BY_DATE).sort()[0] || null;
+// Per-page high-intent views (GA4 File 5): engaged sessions per pagePath per
+// day. Page-level only: a session on several pages appears under each, so
+// these rows must NEVER be summed for reach (use File 4 for that).
+const HIGH_INTENT_PAGE_ROWS = (dataJson.ga4.file5 || []).map((r) => ({ d: gaISO4(r.date), path: r.pagePath, n: r.engagedSessions || 0 }));
+const HIGH_INTENT_PAGES = [...new Set(HIGH_INTENT_PAGE_ROWS.map((r) => r.path))].sort();
 
 const DATA_START = betaSignups.firstDate;
 const DATA_END = betaSignups.lastDate;
@@ -190,6 +203,17 @@ const sumEngaged = (a, b) => {
   for (let d = a; d <= b; d = addDays(d, 1)) s += ENGAGED_BY_DATE[d] || 0;
   return s;
 };
+// Sum high-intent engaged sessions over a range. null if File 4 doesn't cover
+// the whole range (missing or starts later), so the ratio shows "—", not 0.
+const sumHighIntent = (a, b) => {
+  if (!HIGH_INTENT_START || a < HIGH_INTENT_START) return null;
+  let s = 0;
+  for (let d = a; d <= b; d = addDays(d, 1)) s += HIGH_INTENT_BY_DATE[d] || 0;
+  return s;
+};
+// Weekly / window high-intent reach: sum sessions first, then divide. Never
+// average daily percentages.
+const hiReachOf = (hi, engaged) => (hi == null ? null : pct(hi, engaged));
 // Signup COUNTS start on SIGNUP_COUNT_START, same as the live dashboard (when
 // [Onboarding] User Setup Complete began firing). Earlier signups are still
 // kept in SIGNUPS: anything they do later (setup, meetings, sends, activation)
@@ -529,7 +553,13 @@ function buildModel(mode) {
     // sent/drafted or asset published), any time so far.
     const activated = curr.filter(actDate).length;
     const activatedPrev = prev.filter(actDate).length;
+    const highIntent = sumHighIntent(START, END);
+    const highIntentPrev = sumHighIntent(PRIOR_START, PRIOR_END);
     return {
+      highIntent,
+      highIntentPrev,
+      hiReach: hiReachOf(highIntent, visitors),
+      hiReachPrev: hiReachOf(highIntentPrev, visitorsPrev),
       signups: curr.length,
       signupsPrev: prev.length,
       visitors,
@@ -556,7 +586,8 @@ function buildModel(mode) {
       const visitors = sumEngaged(w.start, end);
       cumVisitors += visitors;
       cumSignups += list.length;
-      const row = { ...w, signups: list.length, visitors, cumVisitors, cumSignups, conv: pct(list.length, visitors) };
+      const highIntent = sumHighIntent(w.start, end);
+      const row = { ...w, signups: list.length, visitors, cumVisitors, cumSignups, conv: pct(list.length, visitors), highIntent, hiReach: hiReachOf(highIntent, visitors) };
       ROLES.forEach((r) => { row[r.key] = 0; });
       list.forEach((s) => { row[roleKey(s)] += 1; });
       ROLES.forEach((r) => { row[`${r.key}_pct`] = list.length ? (row[r.key] / list.length) * 100 : 0; });
@@ -1377,7 +1408,166 @@ function CumulativeVisitorsCard() {
   );
 }
 
-// High-intent visitor isn't defined yet — placeholder in the final layout.
+// Website visitor → high-intent visitor (Nick, Oct 13). Of all engaged
+// sessions, what share visited at least one hypothesized high-intent page
+// (pricing, customers, use cases — the filter lives in GA4 / Apps Script).
+//   numerator   ← GA4 File 4 highIntentEngagedSessions (deduped per session by GA4)
+//   denominator ← GA4 File 1 engagedSessions
+// Weekly reach = Σ high-intent ÷ Σ engaged × 100. Never average daily %s.
+function HighIntentReachCard() {
+  const M = useModel();
+  const { WEEKLY, WINDOW } = M;
+  const has = WINDOW.hiReach != null;
+  return (
+    <Card
+      accent={C.blue}
+      title="Website visitor → high-intent visitor"
+      question={(
+        <>
+          <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>What share of engaged visits reach a high-intent page?</span>
+          <span style={{ display: 'block', marginTop: 6 }}>Each week: engaged visits that viewed at least one high-intent page ÷ all engaged visits on the site. A visit counts once, even if it saw several high-intent pages. A rough read on how well the site steers engaged traffic toward buying-consideration content.</span>
+          <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), and use-case pages (/use-cases/…).</span>
+        </>
+      )}
+      footnote={`High-intent engaged sessions ÷ all GA4 engaged sessions for the same week (session counts summed first, then divided). High-intent = an engaged session that viewed at least one hypothesized high-intent page (pricing, customers, use cases); a session that hits several still counts once. GA4 tracking changed around Jul 20, when total engaged sessions dropped ~85%, so compare reach within, not across, that line. ${lineWeekNote(M)} No goal set yet.`}
+    >
+      <StatRow delta={has ? <Delta value={ptsDiff(WINDOW.hiReach, WINDOW.hiReachPrev)} suffix=" pts" /> : null}>
+        <Stat
+          label={`Reach · ${rangeLabel(M.START, M.END)}`}
+          value={has ? fmtPct(WINDOW.hiReach, 1) : '—'}
+          muted={!has}
+          explain={has ? `From ${rangeLabel(M.START, M.END)}, ${fmtInt(WINDOW.highIntent)} of ${fmtInt(WINDOW.visitors)} engaged visits reached a high-intent page — about ${fmtPct(WINDOW.hiReach, 1)}.` : undefined}
+        />
+        <Stat label="Goal" value="—" muted />
+      </StatRow>
+      <Legend items={[{ label: 'High-intent reach %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
+      <ResponsiveContainer width="100%" height={190}>
+        <LineChart data={WEEKLY} margin={chartMargin}>
+          {grid}
+          <XAxis {...xAxis} />
+          <YAxis {...yAxis} domain={[0, 'auto']} tickFormatter={(v) => `${v}%`} />
+          <Tooltip content={({ active, payload }) => active && payload?.length ? (
+            <TooltipBox title={weekTitle(payload[0].payload)} rows={[
+              { label: 'High-intent reach', value: payload[0].payload.hiReach == null ? '—' : fmtPct(payload[0].payload.hiReach, 1), color: C.black },
+              { label: 'High-intent sessions', value: payload[0].payload.highIntent == null ? '—' : fmtInt(payload[0].payload.highIntent) },
+              { label: 'Engaged sessions', value: fmtInt(payload[0].payload.visitors) },
+            ]} />
+          ) : null} />
+          <Line dataKey="hiReach" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} connectNulls={false} isAnimationActive={false} />
+        </LineChart>
+      </ResponsiveContainer>
+    </Card>
+  );
+}
+
+// High-intent pages viewed (Nick, Oct 13). For each individual URL in GA4
+// File 5 (every page under /pricing, /use-cases, /customers — subpages kept
+// separate): Σ page engaged sessions in the period ÷ Σ site engaged sessions
+// (File 1) in the same period × 100. Shares don't add to 100% and pages must
+// not be summed into folder reach (a session can view several pages). This is
+// page-level engaged-session reporting: GA4's page-dimension engagedSessions
+// isn't validated as equal to a session-scoped segment per URL.
+const PAGE_SECTIONS = [
+  { key: 'pricing', label: 'Pricing', rx: /^\/pricing/, color: C.purple },
+  { key: 'customers', label: 'Customers', rx: /^\/customers/, color: C.green },
+  { key: 'use-cases', label: 'Use cases', rx: /^\/use-cases/, color: C.blue },
+];
+const pageSection = (path) => PAGE_SECTIONS.find((s) => s.rx.test(path)) || { key: 'other', label: 'Other', color: C.lightGrey };
+const pageSessionsIn = (a, b) => {
+  const out = Object.fromEntries(HIGH_INTENT_PAGES.map((p) => [p, 0]));
+  HIGH_INTENT_PAGE_ROWS.forEach((r) => { if (r.d >= a && r.d <= b) out[r.path] += r.n; });
+  return out;
+};
+
+function HighIntentPagesCard() {
+  const M = useModel();
+  const engaged = sumEngaged(M.START, M.END);
+  const engagedPrev = sumEngaged(M.PRIOR_START, M.PRIOR_END);
+  const cur = pageSessionsIn(M.START, M.END);
+  const prev = pageSessionsIn(M.PRIOR_START, M.PRIOR_END);
+  const rows = HIGH_INTENT_PAGES
+    .map((path) => ({
+      path,
+      n: cur[path],
+      share: pct(cur[path], engaged),
+      sharePrev: M.noPrior ? null : pct(prev[path], engagedPrev),
+      color: pageSection(path).color,
+    }))
+    .filter((r) => r.n > 0)
+    .sort((a, b) => b.n - a.n || a.path.localeCompare(b.path));
+  const zero = HIGH_INTENT_PAGES.filter((p) => !cur[p]);
+  const top = rows[0];
+  const has = engaged > 0 && rows.length > 0;
+  return (
+    <div className="full">
+      <Card
+        accent={C.blue}
+        title="High-intent pages viewed"
+        question={(
+          <>
+            <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>Which high-intent pages draw the biggest share of engaged sessions?</span>
+            <span style={{ display: 'block', marginTop: 6 }}>For each page: engaged sessions that included a view of that page ÷ all engaged sessions on the site, for the selected period. The page can be viewed anywhere in the session, not just as the landing page.</span>
+            <span style={{ display: 'block', marginTop: 6 }}>Each URL is shown on its own (e.g. /use-cases/account-executives is separate from /use-cases). One session can view several pages and count under each, so the bars don't add up to the reach % above. Use that card for overall reach.</span>
+            <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), and use-case pages (/use-cases/…).</span>
+          </>
+        )}
+        footnote={`Page-level engaged-session reporting (GA4 page-path breakdown). For each URL: engaged sessions on that page ÷ all GA4 engaged sessions on the site, for ${rangeLabel(M.START, M.END)}. Every page under /pricing, /customers and /use-cases is listed on its own (e.g. /use-cases/account-executives is separate from /use-cases). Shares don't add up to 100% and shouldn't be added together: one session can view several pages, so it shows up under each. For overall reach, use the high-intent reach card above. GA4's per-page engaged sessions haven't been validated against a session-scoped segment per URL, so treat these as directional page-level numbers.`}
+      >
+        <StatRow>
+          <Stat
+            label={`Top page · ${rangeLabel(M.START, M.END)}`}
+            value={top ? top.path : '—'}
+            muted={!top}
+            explain={top ? `${top.path} had ${fmtInt(top.n)} engaged sessions, ${fmtPct(top.share, 1)} of the site's ${fmtInt(engaged)} engaged sessions.` : undefined}
+          />
+          <Stat
+            label="Pages with views"
+            value={`${rows.length} of ${HIGH_INTENT_PAGES.length}`}
+            muted={!has}
+            explain={`${rows.length} of the ${HIGH_INTENT_PAGES.length} tracked high-intent URLs had at least one engaged session from ${rangeLabel(M.START, M.END)}.`}
+          />
+        </StatRow>
+        <Legend items={PAGE_SECTIONS.map((s) => ({ label: s.label, color: s.color }))} />
+        {has ? (
+          <ResponsiveContainer width="100%" height={rows.length * 30 + 12}>
+            <BarChart data={rows} layout="vertical" margin={{ top: 4, right: 56, left: 0, bottom: 4 }} barCategoryGap={6}>
+              <CartesianGrid horizontal={false} stroke={C.grid} />
+              <XAxis type="number" tick={tick} tickLine={false} axisLine={{ stroke: C.black }} tickFormatter={(v) => `${v}%`} domain={[0, 'auto']} />
+              <YAxis type="category" dataKey="path" tick={{ ...tick, fontSize: 11.5 }} tickLine={false} axisLine={false} width={250} interval={0} />
+              <Tooltip cursor={cursor} content={({ active, payload }) => active && payload?.length ? (
+                <TooltipBox title={payload[0].payload.path} rows={[
+                  { label: 'Share of engaged sessions', value: fmtPct(payload[0].payload.share, 2), color: payload[0].payload.color },
+                  { label: 'Page engaged sessions', value: fmtInt(payload[0].payload.n) },
+                  { label: 'Site engaged sessions', value: fmtInt(engaged) },
+                  ...(M.noPrior ? [] : [{ label: `${M.prior[0].toUpperCase()}${M.prior.slice(1)}`, value: fmtPct(payload[0].payload.sharePrev, 2) }]),
+                ]} note={
+                  <div style={{ width: 250, whiteSpace: 'normal', lineHeight: 1.45, borderTop: `1px solid ${C.grid}`, paddingTop: 6, marginTop: 4 }}>
+                    Engaged sessions that viewed this page, as a share of all engaged sessions on the site in {rangeLabel(M.START, M.END)}. Sessions that saw several pages count under each, so shares don't add up.
+                  </div>
+                } />
+              ) : null} />
+              <Bar dataKey="share" isAnimationActive={false} stroke={C.black} strokeWidth={1} radius={[0, 2, 2, 0]}>
+                {rows.map((r) => <Cell key={r.path} fill={r.color} />)}
+                <LabelList dataKey="share" position="right" formatter={(v) => fmtPct(v, 1)} style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, fill: C.black }} />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <div style={{ height: 120, border: `1px dashed #BDBDBD`, borderRadius: 4, background: C.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 14, color: C.muted }}>
+            No high-intent page views in this period
+          </div>
+        )}
+        {zero.length > 0 && (
+          <div title={zero.join('\n')} style={{ marginTop: 10, fontFamily: FONT_BODY, fontSize: 12, color: C.muted }}>
+            {zero.length} other tracked page{zero.length === 1 ? '' : 's'} had no engaged sessions in this period (hover to list).
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+// High-intent → sign up isn't built yet — placeholder in the final layout.
 function HighIntentCard({ title, question, accent }) {
   const M = useModel();
   return (
@@ -1385,7 +1575,7 @@ function HighIntentCard({ title, question, accent }) {
       accent={accent}
       title={title}
       question={question}
-      footnote="“High-intent visitor” still needs a definition (e.g. viewed pricing, or clicked a sign up CTA). The chart fills in once it's set."
+      footnote="High-intent visitor is now defined (engaged session that viewed a high-intent page, see the reach card above). This chart still needs signups tied back to those sessions, which GA4 Files 1–5 don't provide yet."
     >
       <StatRow>
         <Stat label={`Conversion · ${rangeLabel(M.START, M.END)}`} value="—" muted />
@@ -3481,7 +3671,8 @@ function SectionsFor({ view }) {
         <Grid>
           <div className="full"><WebsiteVisitorsCard /></div>
           <VisitorToSignupCard />
-          <HighIntentCard accent={C.blue} title="Website visitor → high-intent visitor" question="What share of visitors show real buying intent?" />
+          <HighIntentReachCard />
+          <HighIntentPagesCard />
         </Grid>
         <StageHeader n={2} title="Sign up" subtitle="Visitors who create an account. The gate between anonymous and known." />
         <Grid>

@@ -122,6 +122,11 @@ function sniffGA4Report(filepath) {
   }
   if (!headerCells) return null;
 
+  // Files 4 / 5 (Apps Script, Oct 2026) have no channel column either, so they
+  // must be caught BEFORE the file1 fallback or they'd be read as File 1.
+  if (headerCells.includes('highintentengagedsessions')) return 'file4'; // date, highIntentEngagedSessions
+  if (headerCells.includes('pagepath')) return 'file5';                  // date, pagePath, engagedSessions
+
   const hasChannel =
     headerCells.includes('session default channel group') ||
     headerCells.includes('session mutiny - with ai referrals') ||
@@ -138,7 +143,7 @@ function sniffGA4Report(filepath) {
 // Walk data/, classify each CSV by filename pattern first, content sniff
 // second. Pick the most recent file (by mtime) per report category.
 function findGA4Files() {
-  const result = { file1: null, file2: null, file3: null, unknown: [], log: [] };
+  const result = { file1: null, file2: null, file3: null, file4: null, file5: null, unknown: [], log: [] };
   if (!existsSync(GA4_CSV_DIR)) return result;
 
   const allCsvs = readdirSync(GA4_CSV_DIR)
@@ -148,7 +153,7 @@ function findGA4Files() {
       return { name, path, mtime: statSync(path).mtimeMs };
     });
 
-  const byCategory = { file1: [], file2: [], file3: [] };
+  const byCategory = { file1: [], file2: [], file3: [], file4: [], file5: [] };
 
   for (const f of allCsvs) {
     let category = null;
@@ -177,7 +182,7 @@ function findGA4Files() {
     }
   }
 
-  for (const cat of ['file1', 'file2', 'file3']) {
+  for (const cat of ['file1', 'file2', 'file3', 'file4', 'file5']) {
     if (byCategory[cat].length === 0) continue;
     byCategory[cat].sort((a, b) => b.mtime - a.mtime);
     result[cat] = byCategory[cat][0];
@@ -249,9 +254,25 @@ async function fetchGA4() {
     totalUsers:      Number(f[6]) || 0,
   }));
 
+  // File 4: Date, High-intent engaged sessions — one aggregated daily number
+  // from GA4's high-intent page filter, so a session that hits several
+  // high-intent pages counts once. Optional (the ?beta card shows "—" without it).
+  const file4 = found.file4 ? parseGA4Csv(found.file4.path, (f) => ({
+    date:                      f[0],
+    highIntentEngagedSessions: Number(f[1]) || 0,
+  })) : [];
+  // File 5: Date, Page path, Engaged sessions — per-page breakdown of the same
+  // filter. Sessions repeat across pages, so never sum this for reach.
+  const file5 = found.file5 ? parseGA4Csv(found.file5.path, (f) => ({
+    date:            f[0],
+    pagePath:        f[1],
+    engagedSessions: Number(f[2]) || 0,
+  })) : [];
+  if (!found.file4) err('  WARN: no GA4 File 4 (high-intent engaged sessions) — high-intent card will be empty.');
+
   if (file1.length === 0) throw new Error(`GA4 file1 (${file1Csv.name}) had zero data rows.`);
-  log(`  GA4 ok (CSVs): file1=${file1.length} rows (${file1Csv.name}), file2=${file2.length} (${file2Csv.name}), file3=${file3.length} (${file3Csv.name}).`);
-  return { pulledAt: new Date().toISOString(), file1, file2, file3 };
+  log(`  GA4 ok (CSVs): file1=${file1.length} rows (${file1Csv.name}), file2=${file2.length} (${file2Csv.name}), file3=${file3.length} (${file3Csv.name}), file4=${file4.length} (${found.file4?.name || 'missing'}), file5=${file5.length} (${found.file5?.name || 'missing'}).`);
+  return { pulledAt: new Date().toISOString(), file1, file2, file3, file4, file5 };
 }
 
 // ===========================================================================

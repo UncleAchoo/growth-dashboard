@@ -81056,6 +81056,5506 @@
         "sessions": 1,
         "totalUsers": 1
       }
+    ],
+    "file4": [
+      {
+        "date": "20260407",
+        "highIntentEngagedSessions": 666
+      },
+      {
+        "date": "20260408",
+        "highIntentEngagedSessions": 465
+      },
+      {
+        "date": "20260415",
+        "highIntentEngagedSessions": 264
+      },
+      {
+        "date": "20260625",
+        "highIntentEngagedSessions": 245
+      },
+      {
+        "date": "20260409",
+        "highIntentEngagedSessions": 243
+      },
+      {
+        "date": "20260414",
+        "highIntentEngagedSessions": 212
+      },
+      {
+        "date": "20260410",
+        "highIntentEngagedSessions": 209
+      },
+      {
+        "date": "20260413",
+        "highIntentEngagedSessions": 192
+      },
+      {
+        "date": "20260416",
+        "highIntentEngagedSessions": 177
+      },
+      {
+        "date": "20260212",
+        "highIntentEngagedSessions": 162
+      },
+      {
+        "date": "20260626",
+        "highIntentEngagedSessions": 155
+      },
+      {
+        "date": "20260210",
+        "highIntentEngagedSessions": 154
+      },
+      {
+        "date": "20260209",
+        "highIntentEngagedSessions": 144
+      },
+      {
+        "date": "20260423",
+        "highIntentEngagedSessions": 132
+      },
+      {
+        "date": "20260427",
+        "highIntentEngagedSessions": 126
+      },
+      {
+        "date": "20260412",
+        "highIntentEngagedSessions": 122
+      },
+      {
+        "date": "20260417",
+        "highIntentEngagedSessions": 122
+      },
+      {
+        "date": "20260429",
+        "highIntentEngagedSessions": 116
+      },
+      {
+        "date": "20260629",
+        "highIntentEngagedSessions": 112
+      },
+      {
+        "date": "20260630",
+        "highIntentEngagedSessions": 112
+      },
+      {
+        "date": "20260424",
+        "highIntentEngagedSessions": 111
+      },
+      {
+        "date": "20260422",
+        "highIntentEngagedSessions": 108
+      },
+      {
+        "date": "20260428",
+        "highIntentEngagedSessions": 108
+      },
+      {
+        "date": "20260411",
+        "highIntentEngagedSessions": 105
+      },
+      {
+        "date": "20260420",
+        "highIntentEngagedSessions": 104
+      },
+      {
+        "date": "20260216",
+        "highIntentEngagedSessions": 99
+      },
+      {
+        "date": "20260713",
+        "highIntentEngagedSessions": 99
+      },
+      {
+        "date": "20260421",
+        "highIntentEngagedSessions": 97
+      },
+      {
+        "date": "20260706",
+        "highIntentEngagedSessions": 93
+      },
+      {
+        "date": "20260505",
+        "highIntentEngagedSessions": 91
+      },
+      {
+        "date": "20260714",
+        "highIntentEngagedSessions": 87
+      },
+      {
+        "date": "20260623",
+        "highIntentEngagedSessions": 86
+      },
+      {
+        "date": "20260504",
+        "highIntentEngagedSessions": 85
+      },
+      {
+        "date": "20260701",
+        "highIntentEngagedSessions": 85
+      },
+      {
+        "date": "20260709",
+        "highIntentEngagedSessions": 84
+      },
+      {
+        "date": "20260430",
+        "highIntentEngagedSessions": 83
+      },
+      {
+        "date": "20260520",
+        "highIntentEngagedSessions": 82
+      },
+      {
+        "date": "20260707",
+        "highIntentEngagedSessions": 82
+      },
+      {
+        "date": "20260514",
+        "highIntentEngagedSessions": 79
+      },
+      {
+        "date": "20260710",
+        "highIntentEngagedSessions": 77
+      },
+      {
+        "date": "20260511",
+        "highIntentEngagedSessions": 76
+      },
+      {
+        "date": "20260521",
+        "highIntentEngagedSessions": 76
+      },
+      {
+        "date": "20260603",
+        "highIntentEngagedSessions": 76
+      },
+      {
+        "date": "20260619",
+        "highIntentEngagedSessions": 76
+      },
+      {
+        "date": "20260226",
+        "highIntentEngagedSessions": 75
+      },
+      {
+        "date": "20260513",
+        "highIntentEngagedSessions": 75
+      },
+      {
+        "date": "20260211",
+        "highIntentEngagedSessions": 74
+      },
+      {
+        "date": "20260716",
+        "highIntentEngagedSessions": 74
+      },
+      {
+        "date": "20260227",
+        "highIntentEngagedSessions": 73
+      },
+      {
+        "date": "20260715",
+        "highIntentEngagedSessions": 73
+      },
+      {
+        "date": "20260506",
+        "highIntentEngagedSessions": 72
+      },
+      {
+        "date": "20260419",
+        "highIntentEngagedSessions": 70
+      },
+      {
+        "date": "20260616",
+        "highIntentEngagedSessions": 70
+      },
+      {
+        "date": "20260618",
+        "highIntentEngagedSessions": 70
+      },
+      {
+        "date": "20260512",
+        "highIntentEngagedSessions": 69
+      },
+      {
+        "date": "20260602",
+        "highIntentEngagedSessions": 69
+      },
+      {
+        "date": "20260610",
+        "highIntentEngagedSessions": 69
+      },
+      {
+        "date": "20260708",
+        "highIntentEngagedSessions": 69
+      },
+      {
+        "date": "20260519",
+        "highIntentEngagedSessions": 67
+      },
+      {
+        "date": "20260507",
+        "highIntentEngagedSessions": 65
+      },
+      {
+        "date": "20260624",
+        "highIntentEngagedSessions": 65
+      },
+      {
+        "date": "20260425",
+        "highIntentEngagedSessions": 64
+      },
+      {
+        "date": "20260426",
+        "highIntentEngagedSessions": 64
+      },
+      {
+        "date": "20260609",
+        "highIntentEngagedSessions": 64
+      },
+      {
+        "date": "20260617",
+        "highIntentEngagedSessions": 62
+      },
+      {
+        "date": "20260702",
+        "highIntentEngagedSessions": 62
+      },
+      {
+        "date": "20260217",
+        "highIntentEngagedSessions": 59
+      },
+      {
+        "date": "20260604",
+        "highIntentEngagedSessions": 58
+      },
+      {
+        "date": "20260213",
+        "highIntentEngagedSessions": 57
+      },
+      {
+        "date": "20260501",
+        "highIntentEngagedSessions": 57
+      },
+      {
+        "date": "20260518",
+        "highIntentEngagedSessions": 57
+      },
+      {
+        "date": "20260622",
+        "highIntentEngagedSessions": 57
+      },
+      {
+        "date": "20260204",
+        "highIntentEngagedSessions": 55
+      },
+      {
+        "date": "20260508",
+        "highIntentEngagedSessions": 55
+      },
+      {
+        "date": "20260608",
+        "highIntentEngagedSessions": 55
+      },
+      {
+        "date": "20260528",
+        "highIntentEngagedSessions": 53
+      },
+      {
+        "date": "20260224",
+        "highIntentEngagedSessions": 52
+      },
+      {
+        "date": "20260515",
+        "highIntentEngagedSessions": 51
+      },
+      {
+        "date": "20260611",
+        "highIntentEngagedSessions": 50
+      },
+      {
+        "date": "20260729",
+        "highIntentEngagedSessions": 49
+      },
+      {
+        "date": "20260215",
+        "highIntentEngagedSessions": 48
+      },
+      {
+        "date": "20260325",
+        "highIntentEngagedSessions": 48
+      },
+      {
+        "date": "20260406",
+        "highIntentEngagedSessions": 48
+      },
+      {
+        "date": "20260605",
+        "highIntentEngagedSessions": 48
+      },
+      {
+        "date": "20260627",
+        "highIntentEngagedSessions": 48
+      },
+      {
+        "date": "20260703",
+        "highIntentEngagedSessions": 48
+      },
+      {
+        "date": "20260730",
+        "highIntentEngagedSessions": 48
+      },
+      {
+        "date": "20260728",
+        "highIntentEngagedSessions": 47
+      },
+      {
+        "date": "20260402",
+        "highIntentEngagedSessions": 46
+      },
+      {
+        "date": "20260526",
+        "highIntentEngagedSessions": 46
+      },
+      {
+        "date": "20260223",
+        "highIntentEngagedSessions": 45
+      },
+      {
+        "date": "20260527",
+        "highIntentEngagedSessions": 45
+      },
+      {
+        "date": "20260615",
+        "highIntentEngagedSessions": 45
+      },
+      {
+        "date": "20260628",
+        "highIntentEngagedSessions": 45
+      },
+      {
+        "date": "20260723",
+        "highIntentEngagedSessions": 45
+      },
+      {
+        "date": "20260225",
+        "highIntentEngagedSessions": 42
+      },
+      {
+        "date": "20260803",
+        "highIntentEngagedSessions": 42
+      },
+      {
+        "date": "20260522",
+        "highIntentEngagedSessions": 41
+      },
+      {
+        "date": "20261006",
+        "highIntentEngagedSessions": 41
+      },
+      {
+        "date": "20260302",
+        "highIntentEngagedSessions": 40
+      },
+      {
+        "date": "20260326",
+        "highIntentEngagedSessions": 40
+      },
+      {
+        "date": "20260330",
+        "highIntentEngagedSessions": 40
+      },
+      {
+        "date": "20260331",
+        "highIntentEngagedSessions": 40
+      },
+      {
+        "date": "20260418",
+        "highIntentEngagedSessions": 40
+      },
+      {
+        "date": "20260503",
+        "highIntentEngagedSessions": 40
+      },
+      {
+        "date": "20260601",
+        "highIntentEngagedSessions": 40
+      },
+      {
+        "date": "20260205",
+        "highIntentEngagedSessions": 39
+      },
+      {
+        "date": "20260804",
+        "highIntentEngagedSessions": 39
+      },
+      {
+        "date": "20260218",
+        "highIntentEngagedSessions": 38
+      },
+      {
+        "date": "20260525",
+        "highIntentEngagedSessions": 38
+      },
+      {
+        "date": "20260717",
+        "highIntentEngagedSessions": 38
+      },
+      {
+        "date": "20260219",
+        "highIntentEngagedSessions": 37
+      },
+      {
+        "date": "20260529",
+        "highIntentEngagedSessions": 37
+      },
+      {
+        "date": "20260206",
+        "highIntentEngagedSessions": 36
+      },
+      {
+        "date": "20260510",
+        "highIntentEngagedSessions": 36
+      },
+      {
+        "date": "20260324",
+        "highIntentEngagedSessions": 35
+      },
+      {
+        "date": "20260401",
+        "highIntentEngagedSessions": 35
+      },
+      {
+        "date": "20260403",
+        "highIntentEngagedSessions": 35
+      },
+      {
+        "date": "20260502",
+        "highIntentEngagedSessions": 35
+      },
+      {
+        "date": "20260612",
+        "highIntentEngagedSessions": 35
+      },
+      {
+        "date": "20260620",
+        "highIntentEngagedSessions": 35
+      },
+      {
+        "date": "20260220",
+        "highIntentEngagedSessions": 34
+      },
+      {
+        "date": "20260705",
+        "highIntentEngagedSessions": 34
+      },
+      {
+        "date": "20260722",
+        "highIntentEngagedSessions": 34
+      },
+      {
+        "date": "20260509",
+        "highIntentEngagedSessions": 33
+      },
+      {
+        "date": "20260811",
+        "highIntentEngagedSessions": 32
+      },
+      {
+        "date": "20260812",
+        "highIntentEngagedSessions": 32
+      },
+      {
+        "date": "20260922",
+        "highIntentEngagedSessions": 32
+      },
+      {
+        "date": "20260923",
+        "highIntentEngagedSessions": 32
+      },
+      {
+        "date": "20260930",
+        "highIntentEngagedSessions": 32
+      },
+      {
+        "date": "20260721",
+        "highIntentEngagedSessions": 31
+      },
+      {
+        "date": "20260727",
+        "highIntentEngagedSessions": 31
+      },
+      {
+        "date": "20260312",
+        "highIntentEngagedSessions": 30
+      },
+      {
+        "date": "20261007",
+        "highIntentEngagedSessions": 30
+      },
+      {
+        "date": "20260208",
+        "highIntentEngagedSessions": 29
+      },
+      {
+        "date": "20260516",
+        "highIntentEngagedSessions": 29
+      },
+      {
+        "date": "20260704",
+        "highIntentEngagedSessions": 29
+      },
+      {
+        "date": "20260805",
+        "highIntentEngagedSessions": 29
+      },
+      {
+        "date": "20260305",
+        "highIntentEngagedSessions": 28
+      },
+      {
+        "date": "20260524",
+        "highIntentEngagedSessions": 28
+      },
+      {
+        "date": "20261002",
+        "highIntentEngagedSessions": 28
+      },
+      {
+        "date": "20260327",
+        "highIntentEngagedSessions": 27
+      },
+      {
+        "date": "20260720",
+        "highIntentEngagedSessions": 27
+      },
+      {
+        "date": "20260724",
+        "highIntentEngagedSessions": 27
+      },
+      {
+        "date": "20260731",
+        "highIntentEngagedSessions": 27
+      },
+      {
+        "date": "20261001",
+        "highIntentEngagedSessions": 27
+      },
+      {
+        "date": "20261008",
+        "highIntentEngagedSessions": 27
+      },
+      {
+        "date": "20260303",
+        "highIntentEngagedSessions": 26
+      },
+      {
+        "date": "20260323",
+        "highIntentEngagedSessions": 26
+      },
+      {
+        "date": "20260924",
+        "highIntentEngagedSessions": 26
+      },
+      {
+        "date": "20260929",
+        "highIntentEngagedSessions": 26
+      },
+      {
+        "date": "20261005",
+        "highIntentEngagedSessions": 25
+      },
+      {
+        "date": "20261009",
+        "highIntentEngagedSessions": 25
+      },
+      {
+        "date": "20260517",
+        "highIntentEngagedSessions": 24
+      },
+      {
+        "date": "20260523",
+        "highIntentEngagedSessions": 24
+      },
+      {
+        "date": "20260607",
+        "highIntentEngagedSessions": 24
+      },
+      {
+        "date": "20260711",
+        "highIntentEngagedSessions": 24
+      },
+      {
+        "date": "20260921",
+        "highIntentEngagedSessions": 24
+      },
+      {
+        "date": "20260928",
+        "highIntentEngagedSessions": 24
+      },
+      {
+        "date": "20260310",
+        "highIntentEngagedSessions": 23
+      },
+      {
+        "date": "20260317",
+        "highIntentEngagedSessions": 23
+      },
+      {
+        "date": "20260910",
+        "highIntentEngagedSessions": 23
+      },
+      {
+        "date": "20260916",
+        "highIntentEngagedSessions": 23
+      },
+      {
+        "date": "20261012",
+        "highIntentEngagedSessions": 23
+      },
+      {
+        "date": "20260319",
+        "highIntentEngagedSessions": 22
+      },
+      {
+        "date": "20260825",
+        "highIntentEngagedSessions": 22
+      },
+      {
+        "date": "20260925",
+        "highIntentEngagedSessions": 22
+      },
+      {
+        "date": "20260309",
+        "highIntentEngagedSessions": 21
+      },
+      {
+        "date": "20260530",
+        "highIntentEngagedSessions": 21
+      },
+      {
+        "date": "20260606",
+        "highIntentEngagedSessions": 21
+      },
+      {
+        "date": "20260827",
+        "highIntentEngagedSessions": 21
+      },
+      {
+        "date": "20260404",
+        "highIntentEngagedSessions": 20
+      },
+      {
+        "date": "20260621",
+        "highIntentEngagedSessions": 20
+      },
+      {
+        "date": "20260902",
+        "highIntentEngagedSessions": 20
+      },
+      {
+        "date": "20260318",
+        "highIntentEngagedSessions": 19
+      },
+      {
+        "date": "20260405",
+        "highIntentEngagedSessions": 19
+      },
+      {
+        "date": "20260807",
+        "highIntentEngagedSessions": 19
+      },
+      {
+        "date": "20260821",
+        "highIntentEngagedSessions": 19
+      },
+      {
+        "date": "20260826",
+        "highIntentEngagedSessions": 19
+      },
+      {
+        "date": "20260203",
+        "highIntentEngagedSessions": 18
+      },
+      {
+        "date": "20260304",
+        "highIntentEngagedSessions": 18
+      },
+      {
+        "date": "20260311",
+        "highIntentEngagedSessions": 18
+      },
+      {
+        "date": "20260329",
+        "highIntentEngagedSessions": 18
+      },
+      {
+        "date": "20260810",
+        "highIntentEngagedSessions": 18
+      },
+      {
+        "date": "20260814",
+        "highIntentEngagedSessions": 18
+      },
+      {
+        "date": "20260817",
+        "highIntentEngagedSessions": 18
+      },
+      {
+        "date": "20260819",
+        "highIntentEngagedSessions": 18
+      },
+      {
+        "date": "20260901",
+        "highIntentEngagedSessions": 18
+      },
+      {
+        "date": "20260316",
+        "highIntentEngagedSessions": 17
+      },
+      {
+        "date": "20260818",
+        "highIntentEngagedSessions": 17
+      },
+      {
+        "date": "20260908",
+        "highIntentEngagedSessions": 17
+      },
+      {
+        "date": "20260909",
+        "highIntentEngagedSessions": 17
+      },
+      {
+        "date": "20260914",
+        "highIntentEngagedSessions": 17
+      },
+      {
+        "date": "20260320",
+        "highIntentEngagedSessions": 16
+      },
+      {
+        "date": "20260824",
+        "highIntentEngagedSessions": 16
+      },
+      {
+        "date": "20260904",
+        "highIntentEngagedSessions": 16
+      },
+      {
+        "date": "20260915",
+        "highIntentEngagedSessions": 16
+      },
+      {
+        "date": "20260301",
+        "highIntentEngagedSessions": 15
+      },
+      {
+        "date": "20260531",
+        "highIntentEngagedSessions": 15
+      },
+      {
+        "date": "20260712",
+        "highIntentEngagedSessions": 15
+      },
+      {
+        "date": "20260806",
+        "highIntentEngagedSessions": 15
+      },
+      {
+        "date": "20260820",
+        "highIntentEngagedSessions": 15
+      },
+      {
+        "date": "20260903",
+        "highIntentEngagedSessions": 15
+      },
+      {
+        "date": "20260614",
+        "highIntentEngagedSessions": 14
+      },
+      {
+        "date": "20260813",
+        "highIntentEngagedSessions": 14
+      },
+      {
+        "date": "20260214",
+        "highIntentEngagedSessions": 13
+      },
+      {
+        "date": "20260306",
+        "highIntentEngagedSessions": 13
+      },
+      {
+        "date": "20260308",
+        "highIntentEngagedSessions": 13
+      },
+      {
+        "date": "20260313",
+        "highIntentEngagedSessions": 13
+      },
+      {
+        "date": "20260613",
+        "highIntentEngagedSessions": 13
+      },
+      {
+        "date": "20260802",
+        "highIntentEngagedSessions": 13
+      },
+      {
+        "date": "20261003",
+        "highIntentEngagedSessions": 13
+      },
+      {
+        "date": "20260228",
+        "highIntentEngagedSessions": 12
+      },
+      {
+        "date": "20260828",
+        "highIntentEngagedSessions": 12
+      },
+      {
+        "date": "20260911",
+        "highIntentEngagedSessions": 12
+      },
+      {
+        "date": "20260926",
+        "highIntentEngagedSessions": 12
+      },
+      {
+        "date": "20260927",
+        "highIntentEngagedSessions": 12
+      },
+      {
+        "date": "20260725",
+        "highIntentEngagedSessions": 11
+      },
+      {
+        "date": "20260917",
+        "highIntentEngagedSessions": 11
+      },
+      {
+        "date": "20261013",
+        "highIntentEngagedSessions": 11
+      },
+      {
+        "date": "20260809",
+        "highIntentEngagedSessions": 10
+      },
+      {
+        "date": "20260831",
+        "highIntentEngagedSessions": 10
+      },
+      {
+        "date": "20260207",
+        "highIntentEngagedSessions": 9
+      },
+      {
+        "date": "20260221",
+        "highIntentEngagedSessions": 9
+      },
+      {
+        "date": "20260222",
+        "highIntentEngagedSessions": 9
+      },
+      {
+        "date": "20260718",
+        "highIntentEngagedSessions": 9
+      },
+      {
+        "date": "20260726",
+        "highIntentEngagedSessions": 9
+      },
+      {
+        "date": "20260801",
+        "highIntentEngagedSessions": 9
+      },
+      {
+        "date": "20260808",
+        "highIntentEngagedSessions": 9
+      },
+      {
+        "date": "20260830",
+        "highIntentEngagedSessions": 9
+      },
+      {
+        "date": "20261011",
+        "highIntentEngagedSessions": 9
+      },
+      {
+        "date": "20260315",
+        "highIntentEngagedSessions": 8
+      },
+      {
+        "date": "20260918",
+        "highIntentEngagedSessions": 8
+      },
+      {
+        "date": "20260307",
+        "highIntentEngagedSessions": 7
+      },
+      {
+        "date": "20260328",
+        "highIntentEngagedSessions": 7
+      },
+      {
+        "date": "20260719",
+        "highIntentEngagedSessions": 7
+      },
+      {
+        "date": "20261004",
+        "highIntentEngagedSessions": 7
+      },
+      {
+        "date": "20260321",
+        "highIntentEngagedSessions": 6
+      },
+      {
+        "date": "20260815",
+        "highIntentEngagedSessions": 6
+      },
+      {
+        "date": "20260907",
+        "highIntentEngagedSessions": 6
+      },
+      {
+        "date": "20260913",
+        "highIntentEngagedSessions": 6
+      },
+      {
+        "date": "20260816",
+        "highIntentEngagedSessions": 5
+      },
+      {
+        "date": "20261010",
+        "highIntentEngagedSessions": 5
+      },
+      {
+        "date": "20260314",
+        "highIntentEngagedSessions": 4
+      },
+      {
+        "date": "20260322",
+        "highIntentEngagedSessions": 4
+      },
+      {
+        "date": "20260906",
+        "highIntentEngagedSessions": 4
+      },
+      {
+        "date": "20260912",
+        "highIntentEngagedSessions": 4
+      },
+      {
+        "date": "20260822",
+        "highIntentEngagedSessions": 3
+      },
+      {
+        "date": "20260829",
+        "highIntentEngagedSessions": 2
+      },
+      {
+        "date": "20260905",
+        "highIntentEngagedSessions": 2
+      },
+      {
+        "date": "20260202",
+        "highIntentEngagedSessions": 1
+      },
+      {
+        "date": "20260823",
+        "highIntentEngagedSessions": 1
+      },
+      {
+        "date": "20260919",
+        "highIntentEngagedSessions": 1
+      },
+      {
+        "date": "20260920",
+        "highIntentEngagedSessions": 1
+      }
+    ],
+    "file5": [
+      {
+        "date": "20260407",
+        "pagePath": "/pricing",
+        "engagedSessions": 539
+      },
+      {
+        "date": "20260408",
+        "pagePath": "/pricing",
+        "engagedSessions": 382
+      },
+      {
+        "date": "20260415",
+        "pagePath": "/pricing",
+        "engagedSessions": 216
+      },
+      {
+        "date": "20260407",
+        "pagePath": "/customers",
+        "engagedSessions": 208
+      },
+      {
+        "date": "20260409",
+        "pagePath": "/pricing",
+        "engagedSessions": 197
+      },
+      {
+        "date": "20260414",
+        "pagePath": "/pricing",
+        "engagedSessions": 178
+      },
+      {
+        "date": "20260410",
+        "pagePath": "/pricing",
+        "engagedSessions": 173
+      },
+      {
+        "date": "20260625",
+        "pagePath": "/pricing",
+        "engagedSessions": 156
+      },
+      {
+        "date": "20260413",
+        "pagePath": "/pricing",
+        "engagedSessions": 155
+      },
+      {
+        "date": "20260416",
+        "pagePath": "/pricing",
+        "engagedSessions": 148
+      },
+      {
+        "date": "20260408",
+        "pagePath": "/customers",
+        "engagedSessions": 147
+      },
+      {
+        "date": "20260209",
+        "pagePath": "/customers",
+        "engagedSessions": 129
+      },
+      {
+        "date": "20260212",
+        "pagePath": "/customers",
+        "engagedSessions": 121
+      },
+      {
+        "date": "20260423",
+        "pagePath": "/pricing",
+        "engagedSessions": 111
+      },
+      {
+        "date": "20260626",
+        "pagePath": "/pricing",
+        "engagedSessions": 106
+      },
+      {
+        "date": "20260412",
+        "pagePath": "/pricing",
+        "engagedSessions": 104
+      },
+      {
+        "date": "20260210",
+        "pagePath": "/customers",
+        "engagedSessions": 103
+      },
+      {
+        "date": "20260417",
+        "pagePath": "/pricing",
+        "engagedSessions": 99
+      },
+      {
+        "date": "20260216",
+        "pagePath": "/customers",
+        "engagedSessions": 97
+      },
+      {
+        "date": "20260427",
+        "pagePath": "/pricing",
+        "engagedSessions": 97
+      },
+      {
+        "date": "20260429",
+        "pagePath": "/pricing",
+        "engagedSessions": 91
+      },
+      {
+        "date": "20260411",
+        "pagePath": "/pricing",
+        "engagedSessions": 89
+      },
+      {
+        "date": "20260428",
+        "pagePath": "/pricing",
+        "engagedSessions": 89
+      },
+      {
+        "date": "20260409",
+        "pagePath": "/customers",
+        "engagedSessions": 82
+      },
+      {
+        "date": "20260424",
+        "pagePath": "/pricing",
+        "engagedSessions": 82
+      },
+      {
+        "date": "20260629",
+        "pagePath": "/pricing",
+        "engagedSessions": 82
+      },
+      {
+        "date": "20260415",
+        "pagePath": "/customers",
+        "engagedSessions": 81
+      },
+      {
+        "date": "20260421",
+        "pagePath": "/pricing",
+        "engagedSessions": 81
+      },
+      {
+        "date": "20260420",
+        "pagePath": "/pricing",
+        "engagedSessions": 79
+      },
+      {
+        "date": "20260422",
+        "pagePath": "/pricing",
+        "engagedSessions": 79
+      },
+      {
+        "date": "20260226",
+        "pagePath": "/customers",
+        "engagedSessions": 74
+      },
+      {
+        "date": "20260227",
+        "pagePath": "/customers",
+        "engagedSessions": 73
+      },
+      {
+        "date": "20260630",
+        "pagePath": "/pricing",
+        "engagedSessions": 73
+      },
+      {
+        "date": "20260504",
+        "pagePath": "/pricing",
+        "engagedSessions": 71
+      },
+      {
+        "date": "20260505",
+        "pagePath": "/pricing",
+        "engagedSessions": 71
+      },
+      {
+        "date": "20260430",
+        "pagePath": "/pricing",
+        "engagedSessions": 68
+      },
+      {
+        "date": "20260414",
+        "pagePath": "/customers",
+        "engagedSessions": 60
+      },
+      {
+        "date": "20260625",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 60
+      },
+      {
+        "date": "20260217",
+        "pagePath": "/customers",
+        "engagedSessions": 59
+      },
+      {
+        "date": "20260410",
+        "pagePath": "/customers",
+        "engagedSessions": 58
+      },
+      {
+        "date": "20260514",
+        "pagePath": "/pricing",
+        "engagedSessions": 57
+      },
+      {
+        "date": "20260419",
+        "pagePath": "/pricing",
+        "engagedSessions": 56
+      },
+      {
+        "date": "20260506",
+        "pagePath": "/pricing",
+        "engagedSessions": 56
+      },
+      {
+        "date": "20260520",
+        "pagePath": "/pricing",
+        "engagedSessions": 56
+      },
+      {
+        "date": "20260603",
+        "pagePath": "/customers",
+        "engagedSessions": 55
+      },
+      {
+        "date": "20260619",
+        "pagePath": "/pricing",
+        "engagedSessions": 55
+      },
+      {
+        "date": "20260413",
+        "pagePath": "/customers",
+        "engagedSessions": 54
+      },
+      {
+        "date": "20260204",
+        "pagePath": "/customers",
+        "engagedSessions": 53
+      },
+      {
+        "date": "20260521",
+        "pagePath": "/pricing",
+        "engagedSessions": 53
+      },
+      {
+        "date": "20260512",
+        "pagePath": "/pricing",
+        "engagedSessions": 52
+      },
+      {
+        "date": "20260513",
+        "pagePath": "/pricing",
+        "engagedSessions": 52
+      },
+      {
+        "date": "20260706",
+        "pagePath": "/pricing",
+        "engagedSessions": 52
+      },
+      {
+        "date": "20260224",
+        "pagePath": "/customers",
+        "engagedSessions": 51
+      },
+      {
+        "date": "20260610",
+        "pagePath": "/pricing",
+        "engagedSessions": 51
+      },
+      {
+        "date": "20260211",
+        "pagePath": "/customers",
+        "engagedSessions": 50
+      },
+      {
+        "date": "20260507",
+        "pagePath": "/pricing",
+        "engagedSessions": 50
+      },
+      {
+        "date": "20260625",
+        "pagePath": "/customers",
+        "engagedSessions": 50
+      },
+      {
+        "date": "20260425",
+        "pagePath": "/pricing",
+        "engagedSessions": 49
+      },
+      {
+        "date": "20260511",
+        "pagePath": "/pricing",
+        "engagedSessions": 49
+      },
+      {
+        "date": "20260616",
+        "pagePath": "/customers",
+        "engagedSessions": 49
+      },
+      {
+        "date": "20260714",
+        "pagePath": "/pricing",
+        "engagedSessions": 49
+      },
+      {
+        "date": "20260519",
+        "pagePath": "/pricing",
+        "engagedSessions": 48
+      },
+      {
+        "date": "20260701",
+        "pagePath": "/pricing",
+        "engagedSessions": 48
+      },
+      {
+        "date": "20260713",
+        "pagePath": "/pricing",
+        "engagedSessions": 48
+      },
+      {
+        "date": "20260426",
+        "pagePath": "/pricing",
+        "engagedSessions": 47
+      },
+      {
+        "date": "20260709",
+        "pagePath": "/pricing",
+        "engagedSessions": 47
+      },
+      {
+        "date": "20260609",
+        "pagePath": "/pricing",
+        "engagedSessions": 46
+      },
+      {
+        "date": "20260623",
+        "pagePath": "/pricing",
+        "engagedSessions": 46
+      },
+      {
+        "date": "20260625",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 46
+      },
+      {
+        "date": "20260416",
+        "pagePath": "/customers",
+        "engagedSessions": 45
+      },
+      {
+        "date": "20260424",
+        "pagePath": "/customers",
+        "engagedSessions": 45
+      },
+      {
+        "date": "20260427",
+        "pagePath": "/customers",
+        "engagedSessions": 45
+      },
+      {
+        "date": "20260508",
+        "pagePath": "/pricing",
+        "engagedSessions": 45
+      },
+      {
+        "date": "20260707",
+        "pagePath": "/pricing",
+        "engagedSessions": 45
+      },
+      {
+        "date": "20260710",
+        "pagePath": "/pricing",
+        "engagedSessions": 45
+      },
+      {
+        "date": "20260213",
+        "pagePath": "/customers",
+        "engagedSessions": 44
+      },
+      {
+        "date": "20260223",
+        "pagePath": "/customers",
+        "engagedSessions": 44
+      },
+      {
+        "date": "20260501",
+        "pagePath": "/pricing",
+        "engagedSessions": 44
+      },
+      {
+        "date": "20260602",
+        "pagePath": "/pricing",
+        "engagedSessions": 44
+      },
+      {
+        "date": "20260618",
+        "pagePath": "/pricing",
+        "engagedSessions": 44
+      },
+      {
+        "date": "20260429",
+        "pagePath": "/customers",
+        "engagedSessions": 43
+      },
+      {
+        "date": "20260225",
+        "pagePath": "/customers",
+        "engagedSessions": 42
+      },
+      {
+        "date": "20260713",
+        "pagePath": "/customers",
+        "engagedSessions": 42
+      },
+      {
+        "date": "20260518",
+        "pagePath": "/pricing",
+        "engagedSessions": 41
+      },
+      {
+        "date": "20260627",
+        "pagePath": "/pricing",
+        "engagedSessions": 41
+      },
+      {
+        "date": "20260701",
+        "pagePath": "/customers",
+        "engagedSessions": 41
+      },
+      {
+        "date": "20260716",
+        "pagePath": "/pricing",
+        "engagedSessions": 41
+      },
+      {
+        "date": "20260302",
+        "pagePath": "/customers",
+        "engagedSessions": 40
+      },
+      {
+        "date": "20260417",
+        "pagePath": "/customers",
+        "engagedSessions": 40
+      },
+      {
+        "date": "20260623",
+        "pagePath": "/customers",
+        "engagedSessions": 40
+      },
+      {
+        "date": "20260625",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 40
+      },
+      {
+        "date": "20260715",
+        "pagePath": "/pricing",
+        "engagedSessions": 40
+      },
+      {
+        "date": "20260603",
+        "pagePath": "/pricing",
+        "engagedSessions": 39
+      },
+      {
+        "date": "20260422",
+        "pagePath": "/customers",
+        "engagedSessions": 38
+      },
+      {
+        "date": "20260622",
+        "pagePath": "/pricing",
+        "engagedSessions": 38
+      },
+      {
+        "date": "20260625",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 38
+      },
+      {
+        "date": "20260626",
+        "pagePath": "/customers",
+        "engagedSessions": 38
+      },
+      {
+        "date": "20260218",
+        "pagePath": "/customers",
+        "engagedSessions": 37
+      },
+      {
+        "date": "20260219",
+        "pagePath": "/customers",
+        "engagedSessions": 37
+      },
+      {
+        "date": "20260515",
+        "pagePath": "/pricing",
+        "engagedSessions": 37
+      },
+      {
+        "date": "20260526",
+        "pagePath": "/pricing",
+        "engagedSessions": 37
+      },
+      {
+        "date": "20260608",
+        "pagePath": "/pricing",
+        "engagedSessions": 37
+      },
+      {
+        "date": "20260617",
+        "pagePath": "/customers",
+        "engagedSessions": 37
+      },
+      {
+        "date": "20260617",
+        "pagePath": "/pricing",
+        "engagedSessions": 37
+      },
+      {
+        "date": "20260626",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 37
+      },
+      {
+        "date": "20260630",
+        "pagePath": "/customers",
+        "engagedSessions": 37
+      },
+      {
+        "date": "20260205",
+        "pagePath": "/customers",
+        "engagedSessions": 36
+      },
+      {
+        "date": "20260423",
+        "pagePath": "/customers",
+        "engagedSessions": 36
+      },
+      {
+        "date": "20260528",
+        "pagePath": "/pricing",
+        "engagedSessions": 36
+      },
+      {
+        "date": "20260602",
+        "pagePath": "/customers",
+        "engagedSessions": 36
+      },
+      {
+        "date": "20260604",
+        "pagePath": "/pricing",
+        "engagedSessions": 36
+      },
+      {
+        "date": "20260624",
+        "pagePath": "/pricing",
+        "engagedSessions": 36
+      },
+      {
+        "date": "20260527",
+        "pagePath": "/pricing",
+        "engagedSessions": 35
+      },
+      {
+        "date": "20260618",
+        "pagePath": "/customers",
+        "engagedSessions": 35
+      },
+      {
+        "date": "20260630",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 35
+      },
+      {
+        "date": "20260220",
+        "pagePath": "/customers",
+        "engagedSessions": 34
+      },
+      {
+        "date": "20260325",
+        "pagePath": "/pricing",
+        "engagedSessions": 34
+      },
+      {
+        "date": "20260420",
+        "pagePath": "/customers",
+        "engagedSessions": 34
+      },
+      {
+        "date": "20260520",
+        "pagePath": "/customers",
+        "engagedSessions": 34
+      },
+      {
+        "date": "20260529",
+        "pagePath": "/pricing",
+        "engagedSessions": 34
+      },
+      {
+        "date": "20260706",
+        "pagePath": "/customers",
+        "engagedSessions": 34
+      },
+      {
+        "date": "20260406",
+        "pagePath": "/pricing",
+        "engagedSessions": 33
+      },
+      {
+        "date": "20260418",
+        "pagePath": "/pricing",
+        "engagedSessions": 33
+      },
+      {
+        "date": "20260421",
+        "pagePath": "/customers",
+        "engagedSessions": 33
+      },
+      {
+        "date": "20260513",
+        "pagePath": "/customers",
+        "engagedSessions": 33
+      },
+      {
+        "date": "20260604",
+        "pagePath": "/customers",
+        "engagedSessions": 33
+      },
+      {
+        "date": "20260702",
+        "pagePath": "/pricing",
+        "engagedSessions": 33
+      },
+      {
+        "date": "20260708",
+        "pagePath": "/pricing",
+        "engagedSessions": 33
+      },
+      {
+        "date": "20260206",
+        "pagePath": "/customers",
+        "engagedSessions": 32
+      },
+      {
+        "date": "20260412",
+        "pagePath": "/customers",
+        "engagedSessions": 32
+      },
+      {
+        "date": "20260502",
+        "pagePath": "/pricing",
+        "engagedSessions": 32
+      },
+      {
+        "date": "20260505",
+        "pagePath": "/customers",
+        "engagedSessions": 32
+      },
+      {
+        "date": "20260511",
+        "pagePath": "/customers",
+        "engagedSessions": 32
+      },
+      {
+        "date": "20260514",
+        "pagePath": "/customers",
+        "engagedSessions": 32
+      },
+      {
+        "date": "20260605",
+        "pagePath": "/pricing",
+        "engagedSessions": 32
+      },
+      {
+        "date": "20260610",
+        "pagePath": "/customers",
+        "engagedSessions": 32
+      },
+      {
+        "date": "20260611",
+        "pagePath": "/customers",
+        "engagedSessions": 32
+      },
+      {
+        "date": "20260703",
+        "pagePath": "/pricing",
+        "engagedSessions": 32
+      },
+      {
+        "date": "20260428",
+        "pagePath": "/customers",
+        "engagedSessions": 31
+      },
+      {
+        "date": "20260616",
+        "pagePath": "/pricing",
+        "engagedSessions": 31
+      },
+      {
+        "date": "20260630",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 31
+      },
+      {
+        "date": "20260215",
+        "pagePath": "/customers",
+        "engagedSessions": 30
+      },
+      {
+        "date": "20260312",
+        "pagePath": "/customers",
+        "engagedSessions": 30
+      },
+      {
+        "date": "20260411",
+        "pagePath": "/customers",
+        "engagedSessions": 30
+      },
+      {
+        "date": "20260521",
+        "pagePath": "/customers",
+        "engagedSessions": 30
+      },
+      {
+        "date": "20260525",
+        "pagePath": "/pricing",
+        "engagedSessions": 30
+      },
+      {
+        "date": "20260326",
+        "pagePath": "/pricing",
+        "engagedSessions": 29
+      },
+      {
+        "date": "20260402",
+        "pagePath": "/pricing",
+        "engagedSessions": 29
+      },
+      {
+        "date": "20260426",
+        "pagePath": "/customers",
+        "engagedSessions": 29
+      },
+      {
+        "date": "20260503",
+        "pagePath": "/pricing",
+        "engagedSessions": 29
+      },
+      {
+        "date": "20260601",
+        "pagePath": "/pricing",
+        "engagedSessions": 29
+      },
+      {
+        "date": "20260619",
+        "pagePath": "/customers",
+        "engagedSessions": 29
+      },
+      {
+        "date": "20260629",
+        "pagePath": "/customers",
+        "engagedSessions": 29
+      },
+      {
+        "date": "20260305",
+        "pagePath": "/customers",
+        "engagedSessions": 28
+      },
+      {
+        "date": "20260519",
+        "pagePath": "/customers",
+        "engagedSessions": 28
+      },
+      {
+        "date": "20260608",
+        "pagePath": "/customers",
+        "engagedSessions": 28
+      },
+      {
+        "date": "20260609",
+        "pagePath": "/customers",
+        "engagedSessions": 28
+      },
+      {
+        "date": "20260707",
+        "pagePath": "/customers",
+        "engagedSessions": 28
+      },
+      {
+        "date": "20260510",
+        "pagePath": "/pricing",
+        "engagedSessions": 27
+      },
+      {
+        "date": "20260522",
+        "pagePath": "/pricing",
+        "engagedSessions": 27
+      },
+      {
+        "date": "20260611",
+        "pagePath": "/pricing",
+        "engagedSessions": 27
+      },
+      {
+        "date": "20260615",
+        "pagePath": "/customers",
+        "engagedSessions": 27
+      },
+      {
+        "date": "20260626",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 27
+      },
+      {
+        "date": "20260630",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 27
+      },
+      {
+        "date": "20260713",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 27
+      },
+      {
+        "date": "20260210",
+        "pagePath": "/use-cases/abm-campaigns",
+        "engagedSessions": 26
+      },
+      {
+        "date": "20260303",
+        "pagePath": "/customers",
+        "engagedSessions": 26
+      },
+      {
+        "date": "20260323",
+        "pagePath": "/customers",
+        "engagedSessions": 26
+      },
+      {
+        "date": "20260324",
+        "pagePath": "/customers",
+        "engagedSessions": 26
+      },
+      {
+        "date": "20260330",
+        "pagePath": "/pricing",
+        "engagedSessions": 26
+      },
+      {
+        "date": "20260406",
+        "pagePath": "/customers",
+        "engagedSessions": 26
+      },
+      {
+        "date": "20260509",
+        "pagePath": "/pricing",
+        "engagedSessions": 26
+      },
+      {
+        "date": "20260512",
+        "pagePath": "/customers",
+        "engagedSessions": 26
+      },
+      {
+        "date": "20260706",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 26
+      },
+      {
+        "date": "20260710",
+        "pagePath": "/customers",
+        "engagedSessions": 26
+      },
+      {
+        "date": "20260713",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 26
+      },
+      {
+        "date": "20260714",
+        "pagePath": "/customers",
+        "engagedSessions": 26
+      },
+      {
+        "date": "20260730",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 26
+      },
+      {
+        "date": "20260210",
+        "pagePath": "/use-cases/increase-website-conversion",
+        "engagedSessions": 25
+      },
+      {
+        "date": "20260402",
+        "pagePath": "/customers",
+        "engagedSessions": 25
+      },
+      {
+        "date": "20260504",
+        "pagePath": "/customers",
+        "engagedSessions": 25
+      },
+      {
+        "date": "20260506",
+        "pagePath": "/customers",
+        "engagedSessions": 25
+      },
+      {
+        "date": "20260518",
+        "pagePath": "/customers",
+        "engagedSessions": 25
+      },
+      {
+        "date": "20260622",
+        "pagePath": "/customers",
+        "engagedSessions": 25
+      },
+      {
+        "date": "20260628",
+        "pagePath": "/pricing",
+        "engagedSessions": 25
+      },
+      {
+        "date": "20260701",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 25
+      },
+      {
+        "date": "20260701",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 25
+      },
+      {
+        "date": "20260702",
+        "pagePath": "/customers",
+        "engagedSessions": 25
+      },
+      {
+        "date": "20260717",
+        "pagePath": "/pricing",
+        "engagedSessions": 25
+      },
+      {
+        "date": "20260515",
+        "pagePath": "/customers",
+        "engagedSessions": 24
+      },
+      {
+        "date": "20260615",
+        "pagePath": "/pricing",
+        "engagedSessions": 24
+      },
+      {
+        "date": "20260624",
+        "pagePath": "/customers",
+        "engagedSessions": 24
+      },
+      {
+        "date": "20260629",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 24
+      },
+      {
+        "date": "20260706",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 24
+      },
+      {
+        "date": "20260331",
+        "pagePath": "/pricing",
+        "engagedSessions": 23
+      },
+      {
+        "date": "20260605",
+        "pagePath": "/customers",
+        "engagedSessions": 23
+      },
+      {
+        "date": "20260728",
+        "pagePath": "/pricing",
+        "engagedSessions": 23
+      },
+      {
+        "date": "20260730",
+        "pagePath": "/customers",
+        "engagedSessions": 23
+      },
+      {
+        "date": "20260212",
+        "pagePath": "/use-cases/abm-campaigns",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260310",
+        "pagePath": "/customers",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260317",
+        "pagePath": "/customers",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260331",
+        "pagePath": "/customers",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260401",
+        "pagePath": "/pricing",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260419",
+        "pagePath": "/customers",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260425",
+        "pagePath": "/customers",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260507",
+        "pagePath": "/customers",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260524",
+        "pagePath": "/pricing",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260620",
+        "pagePath": "/pricing",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260629",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260701",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260714",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260714",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260716",
+        "pagePath": "/customers",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260730",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20261006",
+        "pagePath": "/pricing",
+        "engagedSessions": 22
+      },
+      {
+        "date": "20260309",
+        "pagePath": "/customers",
+        "engagedSessions": 21
+      },
+      {
+        "date": "20260319",
+        "pagePath": "/customers",
+        "engagedSessions": 21
+      },
+      {
+        "date": "20260403",
+        "pagePath": "/pricing",
+        "engagedSessions": 21
+      },
+      {
+        "date": "20260430",
+        "pagePath": "/customers",
+        "engagedSessions": 21
+      },
+      {
+        "date": "20260612",
+        "pagePath": "/pricing",
+        "engagedSessions": 21
+      },
+      {
+        "date": "20260716",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 21
+      },
+      {
+        "date": "20260723",
+        "pagePath": "/pricing",
+        "engagedSessions": 21
+      },
+      {
+        "date": "20260803",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 21
+      },
+      {
+        "date": "20260811",
+        "pagePath": "/pricing",
+        "engagedSessions": 21
+      },
+      {
+        "date": "20260208",
+        "pagePath": "/customers",
+        "engagedSessions": 20
+      },
+      {
+        "date": "20260325",
+        "pagePath": "/customers",
+        "engagedSessions": 20
+      },
+      {
+        "date": "20260501",
+        "pagePath": "/customers",
+        "engagedSessions": 20
+      },
+      {
+        "date": "20260707",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 20
+      },
+      {
+        "date": "20260709",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 20
+      },
+      {
+        "date": "20260723",
+        "pagePath": "/customers",
+        "engagedSessions": 20
+      },
+      {
+        "date": "20260729",
+        "pagePath": "/pricing",
+        "engagedSessions": 20
+      },
+      {
+        "date": "20260729",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 20
+      },
+      {
+        "date": "20260930",
+        "pagePath": "/pricing",
+        "engagedSessions": 20
+      },
+      {
+        "date": "20260212",
+        "pagePath": "/use-cases/increase-website-conversion",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260326",
+        "pagePath": "/customers",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260401",
+        "pagePath": "/customers",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260516",
+        "pagePath": "/pricing",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260522",
+        "pagePath": "/customers",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260523",
+        "pagePath": "/pricing",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260528",
+        "pagePath": "/customers",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260607",
+        "pagePath": "/pricing",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260629",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260701",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260715",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260716",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260728",
+        "pagePath": "/customers",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260729",
+        "pagePath": "/customers",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260803",
+        "pagePath": "/customers",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260805",
+        "pagePath": "/pricing",
+        "engagedSessions": 19
+      },
+      {
+        "date": "20260203",
+        "pagePath": "/customers",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260304",
+        "pagePath": "/customers",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260311",
+        "pagePath": "/customers",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260318",
+        "pagePath": "/customers",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260403",
+        "pagePath": "/customers",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260517",
+        "pagePath": "/pricing",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260612",
+        "pagePath": "/customers",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260624",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260630",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260703",
+        "pagePath": "/customers",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260704",
+        "pagePath": "/pricing",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260708",
+        "pagePath": "/customers",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260728",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260803",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260812",
+        "pagePath": "/pricing",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260922",
+        "pagePath": "/pricing",
+        "engagedSessions": 18
+      },
+      {
+        "date": "20260316",
+        "pagePath": "/customers",
+        "engagedSessions": 17
+      },
+      {
+        "date": "20260330",
+        "pagePath": "/customers",
+        "engagedSessions": 17
+      },
+      {
+        "date": "20260623",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 17
+      },
+      {
+        "date": "20260702",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 17
+      },
+      {
+        "date": "20260703",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 17
+      },
+      {
+        "date": "20260709",
+        "pagePath": "/customers",
+        "engagedSessions": 17
+      },
+      {
+        "date": "20260709",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 17
+      },
+      {
+        "date": "20260709",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 17
+      },
+      {
+        "date": "20260710",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 17
+      },
+      {
+        "date": "20260714",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 17
+      },
+      {
+        "date": "20260715",
+        "pagePath": "/customers",
+        "engagedSessions": 17
+      },
+      {
+        "date": "20260716",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 17
+      },
+      {
+        "date": "20260728",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 17
+      },
+      {
+        "date": "20260803",
+        "pagePath": "/pricing",
+        "engagedSessions": 17
+      },
+      {
+        "date": "20260804",
+        "pagePath": "/pricing",
+        "engagedSessions": 17
+      },
+      {
+        "date": "20260418",
+        "pagePath": "/customers",
+        "engagedSessions": 16
+      },
+      {
+        "date": "20260508",
+        "pagePath": "/customers",
+        "engagedSessions": 16
+      },
+      {
+        "date": "20260510",
+        "pagePath": "/customers",
+        "engagedSessions": 16
+      },
+      {
+        "date": "20260526",
+        "pagePath": "/customers",
+        "engagedSessions": 16
+      },
+      {
+        "date": "20260624",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 16
+      },
+      {
+        "date": "20260703",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 16
+      },
+      {
+        "date": "20260705",
+        "pagePath": "/pricing",
+        "engagedSessions": 16
+      },
+      {
+        "date": "20260711",
+        "pagePath": "/pricing",
+        "engagedSessions": 16
+      },
+      {
+        "date": "20260713",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 16
+      },
+      {
+        "date": "20260727",
+        "pagePath": "/pricing",
+        "engagedSessions": 16
+      },
+      {
+        "date": "20260804",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 16
+      },
+      {
+        "date": "20260921",
+        "pagePath": "/pricing",
+        "engagedSessions": 16
+      },
+      {
+        "date": "20260923",
+        "pagePath": "/pricing",
+        "engagedSessions": 16
+      },
+      {
+        "date": "20260924",
+        "pagePath": "/pricing",
+        "engagedSessions": 16
+      },
+      {
+        "date": "20261002",
+        "pagePath": "/pricing",
+        "engagedSessions": 16
+      },
+      {
+        "date": "20260301",
+        "pagePath": "/customers",
+        "engagedSessions": 15
+      },
+      {
+        "date": "20260327",
+        "pagePath": "/customers",
+        "engagedSessions": 15
+      },
+      {
+        "date": "20260620",
+        "pagePath": "/customers",
+        "engagedSessions": 15
+      },
+      {
+        "date": "20260623",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 15
+      },
+      {
+        "date": "20260626",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 15
+      },
+      {
+        "date": "20260707",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 15
+      },
+      {
+        "date": "20260722",
+        "pagePath": "/pricing",
+        "engagedSessions": 15
+      },
+      {
+        "date": "20260723",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 15
+      },
+      {
+        "date": "20260729",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 15
+      },
+      {
+        "date": "20260730",
+        "pagePath": "/pricing",
+        "engagedSessions": 15
+      },
+      {
+        "date": "20261005",
+        "pagePath": "/pricing",
+        "engagedSessions": 15
+      },
+      {
+        "date": "20261008",
+        "pagePath": "/pricing",
+        "engagedSessions": 15
+      },
+      {
+        "date": "20260320",
+        "pagePath": "/customers",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260327",
+        "pagePath": "/pricing",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260516",
+        "pagePath": "/customers",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260527",
+        "pagePath": "/customers",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260601",
+        "pagePath": "/customers",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260626",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260703",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260706",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260706",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260707",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260708",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260710",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260714",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260717",
+        "pagePath": "/customers",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260721",
+        "pagePath": "/pricing",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260722",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260727",
+        "pagePath": "/customers",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260825",
+        "pagePath": "/pricing",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260923",
+        "pagePath": "/customers",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20261007",
+        "pagePath": "/pricing",
+        "engagedSessions": 14
+      },
+      {
+        "date": "20260211",
+        "pagePath": "/use-cases/increase-website-conversion",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260306",
+        "pagePath": "/customers",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260308",
+        "pagePath": "/customers",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260404",
+        "pagePath": "/customers",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260405",
+        "pagePath": "/pricing",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260503",
+        "pagePath": "/customers",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260624",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260628",
+        "pagePath": "/customers",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260705",
+        "pagePath": "/customers",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260715",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260720",
+        "pagePath": "/pricing",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260721",
+        "pagePath": "/customers",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260721",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260722",
+        "pagePath": "/customers",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260722",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260724",
+        "pagePath": "/pricing",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260728",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260729",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260731",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260929",
+        "pagePath": "/pricing",
+        "engagedSessions": 13
+      },
+      {
+        "date": "20260313",
+        "pagePath": "/customers",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260324",
+        "pagePath": "/pricing",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260530",
+        "pagePath": "/pricing",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260531",
+        "pagePath": "/pricing",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260606",
+        "pagePath": "/customers",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260606",
+        "pagePath": "/pricing",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260621",
+        "pagePath": "/pricing",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260623",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260624",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260628",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260708",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260710",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260713",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260715",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260716",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260804",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260817",
+        "pagePath": "/pricing",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260821",
+        "pagePath": "/pricing",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260901",
+        "pagePath": "/pricing",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260902",
+        "pagePath": "/pricing",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260928",
+        "pagePath": "/pricing",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260930",
+        "pagePath": "/customers",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20261001",
+        "pagePath": "/pricing",
+        "engagedSessions": 12
+      },
+      {
+        "date": "20260524",
+        "pagePath": "/customers",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260530",
+        "pagePath": "/customers",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260623",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260627",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260628",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260629",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260702",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260703",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260704",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260707",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260715",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260720",
+        "pagePath": "/customers",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260721",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260723",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260727",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260731",
+        "pagePath": "/pricing",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260731",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260804",
+        "pagePath": "/customers",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260810",
+        "pagePath": "/pricing",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260826",
+        "pagePath": "/pricing",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260827",
+        "pagePath": "/pricing",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260910",
+        "pagePath": "/pricing",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260925",
+        "pagePath": "/pricing",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20261012",
+        "pagePath": "/pricing",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20260211",
+        "pagePath": "/use-cases/abm-campaigns",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260228",
+        "pagePath": "/customers",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260329",
+        "pagePath": "/customers",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260329",
+        "pagePath": "/pricing",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260405",
+        "pagePath": "/customers",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260509",
+        "pagePath": "/customers",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260607",
+        "pagePath": "/customers",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260614",
+        "pagePath": "/pricing",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260621",
+        "pagePath": "/customers",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260704",
+        "pagePath": "/customers",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260705",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260709",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260720",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260731",
+        "pagePath": "/customers",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260811",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260814",
+        "pagePath": "/pricing",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260926",
+        "pagePath": "/pricing",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20261007",
+        "pagePath": "/customers",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20261009",
+        "pagePath": "/pricing",
+        "engagedSessions": 10
+      },
+      {
+        "date": "20260207",
+        "pagePath": "/customers",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260209",
+        "pagePath": "/use-cases/increase-website-conversion",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260213",
+        "pagePath": "/use-cases/abm-campaigns",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260215",
+        "pagePath": "/use-cases/abm-campaigns",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260215",
+        "pagePath": "/use-cases/increase-website-conversion",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260221",
+        "pagePath": "/customers",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260517",
+        "pagePath": "/customers",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260523",
+        "pagePath": "/customers",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260613",
+        "pagePath": "/customers",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260627",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260627",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260627",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260710",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260712",
+        "pagePath": "/pricing",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260724",
+        "pagePath": "/customers",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260803",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260807",
+        "pagePath": "/pricing",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260820",
+        "pagePath": "/pricing",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260902",
+        "pagePath": "/customers",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260908",
+        "pagePath": "/pricing",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260914",
+        "pagePath": "/pricing",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260922",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260930",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20261006",
+        "pagePath": "/customers",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20261006",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 9
+      },
+      {
+        "date": "20260214",
+        "pagePath": "/customers",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260222",
+        "pagePath": "/customers",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260315",
+        "pagePath": "/customers",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260525",
+        "pagePath": "/customers",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260627",
+        "pagePath": "/customers",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260628",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260702",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260704",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260708",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260720",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260724",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260724",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260724",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260727",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260728",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260813",
+        "pagePath": "/pricing",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260818",
+        "pagePath": "/pricing",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260819",
+        "pagePath": "/pricing",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260903",
+        "pagePath": "/pricing",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260911",
+        "pagePath": "/pricing",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260916",
+        "pagePath": "/customers",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260916",
+        "pagePath": "/pricing",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260922",
+        "pagePath": "/customers",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260924",
+        "pagePath": "/customers",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260928",
+        "pagePath": "/customers",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260929",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260930",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20261001",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20261012",
+        "pagePath": "/customers",
+        "engagedSessions": 8
+      },
+      {
+        "date": "20260307",
+        "pagePath": "/customers",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260404",
+        "pagePath": "/pricing",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260529",
+        "pagePath": "/customers",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260704",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260704",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260705",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260708",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260711",
+        "pagePath": "/customers",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260712",
+        "pagePath": "/customers",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260729",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260731",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260804",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260805",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260806",
+        "pagePath": "/customers",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260806",
+        "pagePath": "/pricing",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260808",
+        "pagePath": "/pricing",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260811",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260812",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260819",
+        "pagePath": "/customers",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260824",
+        "pagePath": "/pricing",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260827",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260904",
+        "pagePath": "/customers",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260909",
+        "pagePath": "/customers",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260915",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260921",
+        "pagePath": "/customers",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260923",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260925",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260927",
+        "pagePath": "/pricing",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20261003",
+        "pagePath": "/pricing",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20261007",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20261008",
+        "pagePath": "/customers",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20261011",
+        "pagePath": "/pricing",
+        "engagedSessions": 7
+      },
+      {
+        "date": "20260209",
+        "pagePath": "/use-cases/abm-campaigns",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260321",
+        "pagePath": "/customers",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260502",
+        "pagePath": "/customers",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260628",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260705",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260717",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260717",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260718",
+        "pagePath": "/customers",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260725",
+        "pagePath": "/pricing",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260726",
+        "pagePath": "/pricing",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260801",
+        "pagePath": "/pricing",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260802",
+        "pagePath": "/pricing",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260802",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260804",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260805",
+        "pagePath": "/customers",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260807",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260809",
+        "pagePath": "/pricing",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260810",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260811",
+        "pagePath": "/customers",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260812",
+        "pagePath": "/customers",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260812",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260820",
+        "pagePath": "/customers",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260821",
+        "pagePath": "/customers",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260824",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260825",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260827",
+        "pagePath": "/customers",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260910",
+        "pagePath": "/customers",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260916",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260925",
+        "pagePath": "/customers",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260929",
+        "pagePath": "/customers",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20261002",
+        "pagePath": "/customers",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20261002",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20261003",
+        "pagePath": "/customers",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20261004",
+        "pagePath": "/pricing",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20261005",
+        "pagePath": "/use-cases/sales-enablement",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20261008",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20261009",
+        "pagePath": "/customers",
+        "engagedSessions": 6
+      },
+      {
+        "date": "20260208",
+        "pagePath": "/use-cases/abm-campaigns",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260531",
+        "pagePath": "/customers",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260614",
+        "pagePath": "/customers",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260702",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260705",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260722",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260724",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260730",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260730",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260802",
+        "pagePath": "/customers",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260803",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260819",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260825",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260828",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260831",
+        "pagePath": "/pricing",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260904",
+        "pagePath": "/pricing",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260904",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260909",
+        "pagePath": "/pricing",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260910",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260915",
+        "pagePath": "/pricing",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260918",
+        "pagePath": "/pricing",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260923",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260928",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260928",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260929",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260930",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20261001",
+        "pagePath": "/customers",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20261001",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20261002",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20261005",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20261009",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20261013",
+        "pagePath": "/pricing",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20261013",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 5
+      },
+      {
+        "date": "20260208",
+        "pagePath": "/use-cases/increase-website-conversion",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260314",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260322",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260328",
+        "pagePath": "/pricing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260613",
+        "pagePath": "/pricing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260711",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260711",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260718",
+        "pagePath": "/pricing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260718",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260720",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260723",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260723",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260725",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260726",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260727",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260731",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260802",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260805",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260807",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260808",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260810",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260810",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260814",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260814",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260815",
+        "pagePath": "/pricing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260817",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260817",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260818",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260826",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260830",
+        "pagePath": "/pricing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260831",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260901",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260902",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260903",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260908",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260908",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260908",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260909",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260910",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260914",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260915",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260915",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260916",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260917",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260918",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260921",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260924",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260925",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260927",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20261006",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20261006",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20261007",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20261008",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20261009",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20261009",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20261010",
+        "pagePath": "/pricing",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20261013",
+        "pagePath": "/customers",
+        "engagedSessions": 4
+      },
+      {
+        "date": "20260213",
+        "pagePath": "/use-cases/increase-website-conversion",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260328",
+        "pagePath": "/customers",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260717",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260718",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260718",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260718",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260719",
+        "pagePath": "/pricing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260719",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260719",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260720",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260725",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260725",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260801",
+        "pagePath": "/customers",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260801",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260806",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260806",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260807",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260809",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260810",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260811",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260812",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260812",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260813",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260814",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260816",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260818",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260818",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260824",
+        "pagePath": "/customers",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260825",
+        "pagePath": "/customers",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260825",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260826",
+        "pagePath": "/customers",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260827",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260828",
+        "pagePath": "/customers",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260828",
+        "pagePath": "/pricing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260828",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260830",
+        "pagePath": "/customers",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260830",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260831",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260902",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260906",
+        "pagePath": "/pricing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260907",
+        "pagePath": "/customers",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260911",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260912",
+        "pagePath": "/pricing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260913",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260916",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260917",
+        "pagePath": "/customers",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260917",
+        "pagePath": "/pricing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260917",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260923",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260926",
+        "pagePath": "/customers",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260928",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260929",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260930",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20261001",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20261002",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20261005",
+        "pagePath": "/customers",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20261011",
+        "pagePath": "/customers",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20261012",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20261012",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 3
+      },
+      {
+        "date": "20260204",
+        "pagePath": "/use-cases/ppc-landing-pages",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260205",
+        "pagePath": "/use-cases/increase-website-conversion",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260206",
+        "pagePath": "/use-cases/abm-campaigns",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260206",
+        "pagePath": "/use-cases/increase-website-conversion",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260214",
+        "pagePath": "/pricing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260216",
+        "pagePath": "/pricing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260218",
+        "pagePath": "/pricing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260228",
+        "pagePath": "/pricing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260320",
+        "pagePath": "/pricing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260711",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260712",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260712",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260712",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260717",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260719",
+        "pagePath": "/customers",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260719",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260721",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260725",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260726",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260801",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260801",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260802",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260805",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260806",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260808",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260809",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260810",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260811",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260813",
+        "pagePath": "/customers",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260813",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260814",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260815",
+        "pagePath": "/customers",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260816",
+        "pagePath": "/pricing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260816",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260816",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260818",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260819",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260820",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260820",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260821",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260822",
+        "pagePath": "/pricing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260824",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260825",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260826",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260826",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260826",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260828",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260829",
+        "pagePath": "/pricing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260831",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260901",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260901",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260901",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260902",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260903",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260904",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260905",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260907",
+        "pagePath": "/pricing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260909",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260909",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260910",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260911",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260911",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260913",
+        "pagePath": "/pricing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260914",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260914",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260915",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260917",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260918",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260918",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260921",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260921",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260922",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260922",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260924",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260924",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260924",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260927",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260928",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20261001",
+        "pagePath": "/use-cases/sales-enablement",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20261001",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20261003",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20261005",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20261006",
+        "pagePath": "/use-cases/sales-enablement",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20261007",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20261011",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20261011",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20261012",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20261012",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20261013",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20260202",
+        "pagePath": "/customers",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260205",
+        "pagePath": "/use-cases/abm-campaigns",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260211",
+        "pagePath": "/pricing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260212",
+        "pagePath": "/pricing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260213",
+        "pagePath": "/pricing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260214",
+        "pagePath": "/use-cases/ab-testing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260214",
+        "pagePath": "/use-cases/increase-website-conversion",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260214",
+        "pagePath": "/use-cases/ppc-landing-pages",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260222",
+        "pagePath": "/pricing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260223",
+        "pagePath": "/customers/snowflake",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260224",
+        "pagePath": "/pricing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260226",
+        "pagePath": "/pricing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260310",
+        "pagePath": "/pricing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260313",
+        "pagePath": "/use-cases/ppc-landing-pages",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260317",
+        "pagePath": "/pricing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260318",
+        "pagePath": "/pricing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260319",
+        "pagePath": "/pricing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260322",
+        "pagePath": "/customers/brex",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260328",
+        "pagePath": "/customers/docsend-doubles-website-conversion-rate-in-less-than-a-year",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260413",
+        "pagePath": "/use-cases/sales/account-executive",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260417",
+        "pagePath": "/use-cases/abm",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260423",
+        "pagePath": "/use-cases/abm",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260501",
+        "pagePath": "/use-cases/sales",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260504",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260525",
+        "pagePath": "/customers/snowflake",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260528",
+        "pagePath": "/use-cases/ppc-landing-pages",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260602",
+        "pagePath": "/use-cases/sales",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260616",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260617",
+        "pagePath": "/customers/amplitude",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260617",
+        "pagePath": "/use-cases/ppc-landing-pages",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260618",
+        "pagePath": "/use-cases/ppc-landing-pages",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260701",
+        "pagePath": "/customers/brex",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260711",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260712",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260713",
+        "pagePath": "/use-cases/account-executivesclay",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260721",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260722",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260725",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260726",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260726",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260727",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260802",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260805",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260807",
+        "pagePath": "/customers",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260807",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260808",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260808",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260813",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260813",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260814",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260815",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260816",
+        "pagePath": "/customers",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260816",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260817",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260817",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260818",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260820",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260821",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260822",
+        "pagePath": "/customers",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260822",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260822",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260823",
+        "pagePath": "/pricing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260825",
+        "pagePath": "/use-cases/ppc-landing-pages",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260827",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260827",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260829",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260830",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260831",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260831",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260902",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260903",
+        "pagePath": "/customers",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260904",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260904",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260905",
+        "pagePath": "/pricing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260905",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260905",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260906",
+        "pagePath": "/customers",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260906",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260906",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260906",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260907",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260907",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260908",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260909",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260910",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260911",
+        "pagePath": "/customers",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260911",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260912",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260912",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260913",
+        "pagePath": "/customers",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260914",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260914",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260915",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260916",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260917",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260918",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260919",
+        "pagePath": "/pricing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260920",
+        "pagePath": "/pricing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260921",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260922",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260923",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260926",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260927",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20260929",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261002",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261003",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261004",
+        "pagePath": "/customers",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261004",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261004",
+        "pagePath": "/use-cases/sales-enablement",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261005",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261006",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261007",
+        "pagePath": "/use-cases/sales-enablement",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261008",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261008",
+        "pagePath": "/use-cases/sales-enablement",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261008",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261009",
+        "pagePath": "/use-cases/sales-enablement",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261009",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261010",
+        "pagePath": "/customers",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261010",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261011",
+        "pagePath": "/use-cases/sales-leaders",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261012",
+        "pagePath": "/use-cases/sales-enablement",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261013",
+        "pagePath": "/use-cases/account-executives",
+        "engagedSessions": 1
+      }
     ]
   },
   "amplitude": {
