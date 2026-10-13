@@ -1272,7 +1272,7 @@ function PlgFunnel({ view, setView }) {
       <div className="beta-funnel-line" style={{ gridTemplateColumns: 'minmax(110px,0.8fr) minmax(0,1.4fr) minmax(110px,0.8fr) minmax(0,1.4fr) minmax(110px,0.8fr)', gap: 12 }}>
         <FunnelNode label="Website visitors" value={fmtInt(W.visitors)} sub="GA4 engaged sessions" />
         <FunnelStep id="signup" view={view} setView={setView} label="Visitor → sign up" rate={fmtPct(W.conv, 1)} delta={<Delta value={ptsDiff(W.conv, W.convPrev)} suffix=" pts" size={12} />} />
-        <FunnelNode label="User sign ups" value={fmtInt(W.signups)} sub="Every signup, incl. repeats" />
+        <FunnelNode label="User sign ups" value={fmtInt(W.signups)} />
         <FunnelStep id="activation" view={view} setView={setView} label="Sign up → activated" rate={fmtPct(W.actConv, 1)} delta={<Delta value={ptsDiff(W.actConv, W.actConvPrev)} suffix=" pts" size={12} />} />
         <FunnelNode label="Activated" value={fmtInt(W.activated)} sub="Email sent or asset published" />
       </div>
