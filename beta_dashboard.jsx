@@ -1504,9 +1504,10 @@ function HighIntentPagesCard() {
       sharePrev: M.noPrior ? null : pct(prev[path], engagedPrev),
       color: pageSection(path).color,
     }))
-    .filter((r) => r.n > 0)
+    // Hide anything that would read 0.0% (Nick, Oct 13): no sessions, or too
+    // few to round up to 0.1% of the site's engaged sessions.
+    .filter((r) => r.n > 0 && r.share != null && r.share >= 0.05)
     .sort((a, b) => b.n - a.n || a.path.localeCompare(b.path));
-  const zero = HIGH_INTENT_PAGES.filter((p) => !cur[p]);
   const top = rows[0];
   const has = engaged > 0 && rows.length > 0;
   return (
@@ -1522,7 +1523,7 @@ function HighIntentPagesCard() {
             <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), and use-case pages (/use-cases/…).</span>
           </>
         )}
-        footnote={`Page-level engaged-session reporting (GA4 page-path breakdown). For each URL: engaged sessions on that page ÷ all GA4 engaged sessions on the site, for ${rangeLabel(M.START, M.END)}. Every page under /pricing, /customers and /use-cases is listed on its own (e.g. /use-cases/account-executives is separate from /use-cases). Shares don't add up to 100% and shouldn't be added together: one session can view several pages, so it shows up under each. For overall reach, use the high-intent reach card above. GA4's per-page engaged sessions haven't been validated against a session-scoped segment per URL, so treat these as directional page-level numbers.`}
+        footnote={`Page-level engaged-session reporting (GA4 page-path breakdown). For each URL: engaged sessions on that page ÷ all GA4 engaged sessions on the site, for ${rangeLabel(M.START, M.END)}. Every page under /pricing, /customers and /use-cases is listed on its own (e.g. /use-cases/account-executives is separate from /use-cases); pages that round to 0% of engaged sessions in the period are hidden. Shares don't add up to 100% and shouldn't be added together: one session can view several pages, so it shows up under each. For overall reach, use the high-intent reach card above. GA4's per-page engaged sessions haven't been validated against a session-scoped segment per URL, so treat these as directional page-level numbers.`}
       >
         <StatRow>
           <Stat
@@ -1532,10 +1533,10 @@ function HighIntentPagesCard() {
             explain={top ? `${top.path} had ${fmtInt(top.n)} engaged sessions, ${fmtPct(top.share, 1)} of the site's ${fmtInt(engaged)} engaged sessions.` : undefined}
           />
           <Stat
-            label="Pages with views"
+            label="Pages shown"
             value={`${rows.length} of ${HIGH_INTENT_PAGES.length}`}
             muted={!has}
-            explain={`${rows.length} of the ${HIGH_INTENT_PAGES.length} tracked high-intent URLs had at least one engaged session from ${rangeLabel(M.START, M.END)}.`}
+            explain={`${rows.length} of the ${HIGH_INTENT_PAGES.length} tracked high-intent URLs reached at least 0.1% of engaged sessions from ${rangeLabel(M.START, M.END)}. The rest round to 0% and are hidden.`}
           />
         </StatRow>
         <Legend items={PAGE_SECTIONS.map((s) => ({ label: s.label, color: s.color }))} />
@@ -1566,11 +1567,6 @@ function HighIntentPagesCard() {
         ) : (
           <div style={{ height: 120, border: `1px dashed #BDBDBD`, borderRadius: 4, background: C.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 14, color: C.muted }}>
             No high-intent page views in this period
-          </div>
-        )}
-        {zero.length > 0 && (
-          <div title={zero.join('\n')} style={{ marginTop: 10, fontFamily: FONT_BODY, fontSize: 12, color: C.muted }}>
-            {zero.length} other tracked page{zero.length === 1 ? '' : 's'} had no engaged sessions in this period (hover to list).
           </div>
         )}
       </Card>
