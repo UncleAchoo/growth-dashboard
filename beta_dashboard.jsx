@@ -21,7 +21,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   ResponsiveContainer, ComposedChart, BarChart, LineChart, Bar, Line, Cell, LabelList,
-  XAxis, YAxis, CartesianGrid, Tooltip,
+  XAxis, YAxis, CartesianGrid, Tooltip, ReferenceArea,
 } from 'recharts';
 import { ArrowUpRight, ArrowDownRight, ArrowRight, MousePointerClick, Info, Clock } from 'lucide-react';
 import dataJson from './src/data.json';
@@ -1096,6 +1096,92 @@ function Legend({ items, style, vertical }) {
   );
 }
 
+// Drag-to-zoom (Nick, Oct 13). Drop-in for <ResponsiveContainer> around any
+// time-series chart: click and drag horizontally to zoom into that range
+// (drag again inside it to zoom further); "Reset zoom" restores the full range.
+// Works by slicing the chart's `data` (and any per-point <Cell>s inside a <Bar>,
+// so striped in-progress bars stay aligned). A drag never fires the chart's
+// onClick (the week / day user lists). Zoom resets when the data changes
+// (e.g. a different reporting period).
+const flatKids = (kids) => React.Children.toArray(kids).flatMap((k) => (React.isValidElement(k) && k.type === React.Fragment ? flatKids(k.props.children) : [k]));
+function ZoomContainer({ height, children }) {
+  const chart = React.Children.only(children);
+  const full = chart.props.data || [];
+  const keyOf = (r) => (r ? r.label ?? r.d ?? r.start ?? r.key ?? '' : '');
+  const sig = `${full.length}|${keyOf(full[0])}|${keyOf(full[full.length - 1])}`;
+  const [range, setRange] = useState(null); // [a, b] indices into `full`
+  const [drag, setDrag] = useState(null); // { i0, l0, i1, l1 } indices into the shown data
+  const dragged = React.useRef(false);
+  useEffect(() => { setRange(null); setDrag(null); }, [sig]);
+  const off = range ? range[0] : 0;
+  const data = range ? full.slice(range[0], range[1] + 1) : full;
+  const idx = (e) => (e && e.activeTooltipIndex != null && e.activeTooltipIndex >= 0 ? +e.activeTooltipIndex : null);
+
+  const onMouseDown = (e) => {
+    const i = idx(e);
+    dragged.current = false;
+    if (i != null) setDrag({ i0: i, l0: e.activeLabel, i1: i, l1: e.activeLabel });
+  };
+  const onMouseMove = (e) => {
+    if (!drag) return;
+    const i = idx(e);
+    if (i == null || i === drag.i1) return;
+    if (i !== drag.i0) dragged.current = true;
+    setDrag({ ...drag, i1: i, l1: e.activeLabel });
+  };
+  const onMouseUp = () => {
+    if (drag && drag.i0 !== drag.i1) {
+      const a = Math.min(drag.i0, drag.i1);
+      const b = Math.max(drag.i0, drag.i1);
+      setRange([off + a, off + b]);
+    }
+    setDrag(null);
+  };
+  const origClick = chart.props.onClick;
+  const onClick = (...args) => {
+    if (dragged.current) { dragged.current = false; return; }
+    if (origClick) origClick(...args);
+  };
+
+  const kids = flatKids(chart.props.children).map((el) => {
+    if (!range || !React.isValidElement(el) || el.type !== Bar) return el;
+    const inner = React.Children.toArray(el.props.children);
+    const cells = inner.filter((c) => c.type === Cell);
+    if (cells.length !== full.length) return el;
+    return React.cloneElement(el, {}, [...cells.slice(range[0], range[1] + 1), ...inner.filter((c) => c.type !== Cell)]);
+  });
+  // ReferenceArea must point at an existing y-axis (some charts use named ids).
+  const yAxis = flatKids(chart.props.children).find((el) => React.isValidElement(el) && el.type === YAxis);
+  const yAxisId = yAxis?.props.yAxisId ?? 0;
+  if (drag && drag.i0 !== drag.i1) {
+    kids.push(<ReferenceArea key="__zoom" yAxisId={yAxisId} x1={drag.l0} x2={drag.l1} fill={C.purple} fillOpacity={0.12} stroke={C.purple} strokeOpacity={0.4} ifOverflow="visible" />);
+  }
+  const zoomed = React.cloneElement(chart, { data, onMouseDown, onMouseMove, onMouseUp, onMouseLeave: () => setDrag(null), onClick }, kids);
+  return (
+    <div style={{ position: 'relative', userSelect: 'none' }}>
+      {range && (
+        <button
+          type="button"
+          onClick={() => { setRange(null); setDrag(null); }}
+          style={{ position: 'absolute', top: -4, right: 0, zIndex: 2, border: `1px solid ${C.black}`, borderRadius: 999, background: C.white, cursor: 'pointer', fontFamily: FONT_BODY, fontSize: 11, fontWeight: 600, padding: '2px 10px' }}
+        >
+          Reset zoom · {periodBound(data[0])} – {periodBound(data[data.length - 1])}
+        </button>
+      )}
+      <ResponsiveContainer width="100%" height={height}>{zoomed}</ResponsiveContainer>
+    </div>
+  );
+}
+// Label for a zoom bound: the row's x label (dates for daily rows).
+const periodBound = (r) => (r?.d ? monDay(r.d) : r?.label ?? '');
+
+// Hidden-category state for the channel charts' legend toggles.
+function useHiddenSet() {
+  const [hidden, setHidden] = useState(() => new Set());
+  const toggle = (label) => setHidden((prev) => { const n = new Set(prev); if (n.has(label)) n.delete(label); else n.add(label); return n; });
+  return { hidden, toggle, showAll: () => setHidden(new Set()) };
+}
+
 // Chart with its legend in a column on the right (Nick, Oct 8). On narrow
 // screens the legend wraps below the chart.
 function SideLegend({ legend, children }) {
@@ -1108,22 +1194,39 @@ function SideLegend({ legend, children }) {
 }
 
 // Right-hand legend with each row's count and share of the total (Nick, Oct 8).
-function LegendTable({ title, items, total, unit }) {
+// Optional category toggles (Nick, Oct 13): pass `hidden` (a Set of labels) and
+// `onToggle(label)` and each row becomes a show/hide switch for its series.
+// Counts and % in the table always cover every category.
+function LegendTable({ title, items, total, unit, hidden, onToggle, onShowAll }) {
   const cell = { ...tabular, fontFamily: FONT_BODY, fontSize: 11.5, lineHeight: '15px', textAlign: 'right', whiteSpace: 'nowrap' };
+  const toggles = Boolean(onToggle);
+  const anyHidden = toggles && hidden && hidden.size > 0;
   return (
     <div>
-      {title && <div style={{ ...eyebrow, fontSize: 10, marginBottom: 10 }}>{title}</div>}
+      {title && <div style={{ ...eyebrow, fontSize: 10, marginBottom: toggles ? 4 : 10 }}>{title}</div>}
+      {toggles && (
+        <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.muted, marginBottom: 10 }}>
+          Click a category to hide or show it.
+          {anyHidden && <button type="button" onClick={onShowAll} style={{ marginLeft: 6, border: 'none', background: 'none', padding: 0, cursor: 'pointer', fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, color: C.purple, textDecoration: 'underline', textUnderlineOffset: 2 }}>Show all</button>}
+        </div>
+      )}
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) auto auto', columnGap: 12, rowGap: 7, alignItems: 'center' }}>
-        {items.map((it) => (
-          <React.Fragment key={it.label}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, minWidth: 0, fontFamily: FONT_BODY, fontSize: 11.5, lineHeight: '15px', color: C.muted }}>
-              <span style={{ flexShrink: 0, width: 10, height: 10, borderRadius: 2, background: it.color, border: `1px solid ${C.black}` }} />
-              {it.label}
-            </span>
-            <span style={{ ...cell, color: C.black, fontWeight: 700 }}>{fmtInt(it.n)}</span>
-            <span style={{ ...cell, color: C.muted, minWidth: 30 }}>{fmtPct(pct(it.n, total), 0)}</span>
-          </React.Fragment>
-        ))}
+        {items.map((it) => {
+          const off = toggles && hidden?.has(it.label);
+          const rowStyle = { opacity: off ? 0.4 : 1, ...(toggles ? { cursor: 'pointer' } : {}) };
+          const click = toggles ? () => onToggle(it.label) : undefined;
+          const title = toggles ? (off ? `Show ${it.label}` : `Hide ${it.label}`) : undefined;
+          return (
+            <React.Fragment key={it.label}>
+              <span onClick={click} title={title} role={toggles ? 'button' : undefined} aria-pressed={toggles ? !off : undefined} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, minWidth: 0, fontFamily: FONT_BODY, fontSize: 11.5, lineHeight: '15px', color: C.muted, ...rowStyle }}>
+                <span style={{ flexShrink: 0, width: 10, height: 10, borderRadius: 2, background: off ? C.white : it.color, border: `1px solid ${C.black}` }} />
+                <span style={off ? { textDecoration: 'line-through' } : undefined}>{it.label}</span>
+              </span>
+              <span onClick={click} title={title} style={{ ...cell, color: C.black, fontWeight: 700, ...rowStyle }}>{fmtInt(it.n)}</span>
+              <span onClick={click} title={title} style={{ ...cell, color: C.muted, minWidth: 30, ...rowStyle }}>{fmtPct(pct(it.n, total), 0)}</span>
+            </React.Fragment>
+          );
+        })}
         <span style={{ fontFamily: FONT_BODY, fontSize: 11.5, fontWeight: 700, borderTop: `1px solid ${C.black}`, paddingTop: 6 }}>Total {unit}</span>
         <span style={{ ...cell, fontWeight: 700, borderTop: `1px solid ${C.black}`, paddingTop: 6 }}>{fmtInt(total)}</span>
         <span style={{ ...cell, color: C.muted, borderTop: `1px solid ${C.black}`, paddingTop: 6 }}>100%</span>
@@ -1363,7 +1466,7 @@ function WebsiteVisitorsCard() {
         <Stat label="Goal" value="—" muted />
       </StatRow>
       <Legend items={[{ label: 'Engaged sessions (weekly)', color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
-      <ResponsiveContainer width="100%" height={190}>
+      <ZoomContainer height={190}>
         <LineChart data={VISITOR_LINE} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
@@ -1374,7 +1477,7 @@ function WebsiteVisitorsCard() {
           <Line dataKey="visitorsFull" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} isAnimationActive={false} />
           <Line dataKey="visitorsPartial" stroke={C.black} strokeWidth={2} strokeDasharray="2 4" dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} legendType="none" isAnimationActive={false} />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -1394,7 +1497,7 @@ function VisitorToSignupCard() {
         <Stat label="Goal" value="—" muted />
       </StatRow>
       <Legend items={[{ label: 'Actual %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
-      <ResponsiveContainer width="100%" height={190}>
+      <ZoomContainer height={190}>
         <LineChart data={WEEKLY} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
@@ -1408,7 +1511,7 @@ function VisitorToSignupCard() {
           ) : null} />
           <Line dataKey="conv" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} isAnimationActive={false} />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -1430,7 +1533,7 @@ function CumulativeVisitorsCard() {
         <Stat label="Vs goal" value="—" muted />
       </StatRow>
       <Legend items={[{ label: 'Cumulative actual', color: C.black, line: true }, { label: 'Cumulative goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
-      <ResponsiveContainer width="100%" height={190}>
+      <ZoomContainer height={190}>
         <LineChart data={WEEKLY} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
@@ -1443,7 +1546,7 @@ function CumulativeVisitorsCard() {
           ) : null} />
           <Line dataKey="cumVisitors" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.purple, stroke: C.black }} isAnimationActive={false} />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -1481,7 +1584,7 @@ function HighIntentReachCard() {
         <Stat label="Goal" value="—" muted />
       </StatRow>
       <Legend items={[{ label: 'High-intent reach %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
-      <ResponsiveContainer width="100%" height={190}>
+      <ZoomContainer height={190}>
         <LineChart data={WEEKLY} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
@@ -1495,7 +1598,7 @@ function HighIntentReachCard() {
           ) : null} />
           <Line dataKey="hiReach" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} connectNulls={false} isAnimationActive={false} />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -1639,7 +1742,7 @@ function HighIntentToSignupCard() {
         <Stat label="Goal" value="—" muted />
       </StatRow>
       <Legend items={[{ label: 'Actual %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
-      <ResponsiveContainer width="100%" height={190}>
+      <ZoomContainer height={190}>
         <LineChart data={WEEKLY} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
@@ -1654,7 +1757,7 @@ function HighIntentToSignupCard() {
           ) : null} />
           <Line dataKey="hiConv" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.purple, stroke: C.black }} connectNulls={false} isAnimationActive={false} />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -1665,6 +1768,10 @@ function VisitorsByChannelCard() {
   const monthly = M.MONTHLY_COLS;
   const data = monthly ? M.CHANNEL_MONTHLY : M.CHANNEL_WEEKLY;
   const order = [...CHANNELS].sort((a, b) => CH30.sessions[b.key] - CH30.sessions[a.key]);
+  // Legend rows toggle channels on/off (Nick, Oct 13).
+  const H = useHiddenSet();
+  const shown = CHANNELS.filter((c) => !H.hidden.has(c.key));
+  const shownTotal = (row) => shown.reduce((t, c) => t + (row[c.key] || 0), 0);
   return (
     <div className="full">
       <Card
@@ -1682,9 +1789,12 @@ function VisitorsByChannelCard() {
             unit="visitors"
             total={CH30.total}
             items={order.map((c) => ({ label: c.key, color: c.color, n: CH30.sessions[c.key] }))}
+            hidden={H.hidden}
+            onToggle={H.toggle}
+            onShowAll={H.showAll}
           />
         )}>
-        <ResponsiveContainer width="100%" height={420}>
+        <ZoomContainer height={420}>
           <BarChart data={data} margin={chartMargin} barCategoryGap="22%">
             {hatchDefs(CHANNELS.map((c) => c.color))}
             {grid}
@@ -1693,20 +1803,20 @@ function VisitorsByChannelCard() {
             <Tooltip cursor={cursor} content={({ active, payload }) => active && payload?.length ? (
               <TooltipBox
                 title={monthly ? payload[0].payload.title : weekTitle(payload[0].payload)}
-                rows={[...CHANNELS].reverse().filter((c) => payload[0].payload[c.key]).map((c) => ({
+                rows={[...shown].reverse().filter((c) => payload[0].payload[c.key]).map((c) => ({
                   label: c.key, color: c.color,
                   value: `${fmtInt(payload[0].payload[c.key])} · ${fmtPct(pct(payload[0].payload[c.key], payload[0].payload.total), 0)}`,
                 }))}
-                note={`${fmtInt(payload[0].payload.total)} engaged sessions`}
+                note={H.hidden.size ? `${fmtInt(shownTotal(payload[0].payload))} of ${fmtInt(payload[0].payload.total)} engaged sessions shown (% = share of all)` : `${fmtInt(payload[0].payload.total)} engaged sessions`}
               />
             ) : null} />
-            {CHANNELS.map((c) => (
+            {shown.map((c) => (
               <Bar key={c.key} dataKey={c.key} stackId="ch" stroke={C.black} strokeWidth={0.5} isAnimationActive={false}>
                 {data.map((w) => <Cell key={w.start} fill={w.partial ? `url(#${hatchId(c.color)})` : c.color} />)}
               </Bar>
             ))}
           </BarChart>
-        </ResponsiveContainer>
+        </ZoomContainer>
         </SideLegend>
       </Card>
     </div>
@@ -1764,17 +1874,17 @@ function Sparkline({ values, color, width = 120, height = 28 }) {
 
 // Growth view (Nick, Oct 8): each channel's share of the week's sign ups,
 // week by week, for the weeks in the reporting period + the week in progress.
-function ChannelShareLines({ M, weekly, legend }) {
+function ChannelShareLines({ M, weekly, legend, hidden }) {
   const weeks = weekly.filter((w) => w.end >= M.START);
   const data = weeks.map((w) => {
     const row = { ...w };
     SR_STACK.forEach((b) => { row[`${b.name}__pct`] = w.total ? ((w[b.name] || 0) / w.total) * 100 : 0; });
     return row;
   });
-  const lines = SR_STACK.filter((b) => weeks.some((w) => w[b.name]));
+  const lines = SR_STACK.filter((b) => weeks.some((w) => w[b.name]) && !hidden?.has(b.name));
   return (
     <SideLegend legend={legend}>
-      <ResponsiveContainer width="100%" height={420}>
+      <ZoomContainer height={420}>
         <LineChart data={data} margin={chartMargin}>
           <CartesianGrid vertical={false} stroke={C.grid} strokeDasharray="4 4" />
           <XAxis {...xAxis} />
@@ -1798,7 +1908,7 @@ function ChannelShareLines({ M, weekly, legend }) {
             />
           ))}
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </SideLegend>
   );
 }
@@ -1874,6 +1984,10 @@ function SignupsByChannelCard() {
   const M = useModel();
   const { END, SELF_REPORTED, SELF_REPORTED_WEEKLY, SELF_REPORTED_MONTHLY, START, WINDOW } = M;
   const monthly = M.MONTHLY_COLS; // Fiscal YTD: monthly columns (Nick, Oct 13)
+  // Legend rows toggle categories on/off in the chart + Growth views (Nick, Oct 13).
+  const H = useHiddenSet();
+  const shownStack = SR_STACK.filter((b) => !H.hidden.has(b.name));
+  const shownTotal = (row) => shownStack.reduce((t, b) => t + (row[b.name] || 0), 0);
   const SR = SELF_REPORTED;
   const total = WINDOW.signups;
   const openUsers = useUsersModal();
@@ -1916,12 +2030,15 @@ function SignupsByChannelCard() {
           <ViewToggle value={view} onChange={setView} options={[{ value: 'chart', label: monthly ? 'Monthly chart' : 'Weekly chart' }, { value: 'table', label: 'Table' }, { value: 'growth', label: 'Growth' }]} />
         </div>
         {view === 'growth' ? (
-          <ChannelShareLines M={M} weekly={weekly} legend={(
+          <ChannelShareLines M={M} weekly={weekly} hidden={H.hidden} legend={(
             <LegendTable
               title={`${M.label} · ${rangeLabel(START, END)}`}
               unit="sign ups"
               total={SR.total}
               items={SR_STACK.map((b) => ({ label: b.name, color: b.color, n: srValue(SR, b.name) })).sort((a, b) => b.n - a.n)}
+              hidden={H.hidden}
+              onToggle={H.toggle}
+              onShowAll={H.showAll}
             />
           )} />
         ) : view === 'chart' ? (
@@ -1932,9 +2049,12 @@ function SignupsByChannelCard() {
                 unit="sign ups"
                 total={SR.total}
                 items={SR_STACK.map((b) => ({ label: b.name, color: b.color, n: srValue(SR, b.name) })).sort((a, b) => b.n - a.n)}
+                hidden={H.hidden}
+                onToggle={H.toggle}
+                onShowAll={H.showAll}
               />
             )}>
-            <ResponsiveContainer width="100%" height={420}>
+            <ZoomContainer height={420}>
               <BarChart data={cols} margin={chartMargin} barCategoryGap="22%">
                 {hatchDefs(SR_STACK.map((b) => b.color))}
                 {grid}
@@ -1943,20 +2063,20 @@ function SignupsByChannelCard() {
                 <Tooltip cursor={cursor} content={({ active, payload }) => active && payload?.length ? (
                   <TooltipBox
                     title={periodTitle(payload[0].payload)}
-                    rows={[...SR_STACK].reverse().filter((b) => payload[0].payload[b.name]).map((b) => ({
+                    rows={[...shownStack].reverse().filter((b) => payload[0].payload[b.name]).map((b) => ({
                       label: b.name, color: b.color,
                       value: `${fmtInt(payload[0].payload[b.name])} · ${fmtPct(pct(payload[0].payload[b.name], payload[0].payload.total), 1)}`,
                     }))}
-                    note={`${fmtInt(payload[0].payload.total)} sign ups`}
+                    note={H.hidden.size ? `${fmtInt(shownTotal(payload[0].payload))} of ${fmtInt(payload[0].payload.total)} sign ups shown (% = share of all)` : `${fmtInt(payload[0].payload.total)} sign ups`}
                   />
                 ) : null} />
-                {SR_STACK.map((b) => (
+                {shownStack.map((b) => (
                   <Bar key={b.name} dataKey={b.name} stackId="sr" stroke={C.black} strokeWidth={0.5} isAnimationActive={false}>
                     {cols.map((w) => <Cell key={w.start} fill={w.partial ? `url(#${hatchId(b.color)})` : b.color} />)}
                   </Bar>
                 ))}
               </BarChart>
-            </ResponsiveContainer>
+            </ZoomContainer>
             </SideLegend>
           </>
         ) : (
@@ -2036,7 +2156,7 @@ function CumulativeSignupsCard() {
           <Stat label="Vs goal" value="—" muted />
         </StatRow>
         <Legend items={[{ label: 'Cumulative actual', color: C.black, line: true }, { label: 'Cumulative goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
-        <ResponsiveContainer width="100%" height={220}>
+        <ZoomContainer height={220}>
           <LineChart data={WEEKLY} margin={chartMargin}>
             {grid}
             <XAxis {...xAxis} />
@@ -2049,7 +2169,7 @@ function CumulativeSignupsCard() {
             ) : null} />
             <Line dataKey="cumSignups" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.purple, stroke: C.black }} isAnimationActive={false} />
           </LineChart>
-        </ResponsiveContainer>
+        </ZoomContainer>
       </Card>
     </div>
   );
@@ -2069,7 +2189,7 @@ function NewSignupsCard() {
         <Stat label={`Signups · ${rangeLabel(M.START, M.END)}`} value={fmtInt(WINDOW.signups)} explain={`${fmtInt(WINDOW.signups)} signups from ${rangeLabel(M.START, M.END)}.`} sub={<Delta value={pctChange(WINDOW.signups, WINDOW.signupsPrev)} size={12} />} />
       </StatRow>
       <Legend items={[{ label: 'Signups (bars)', color: C.purple }, { label: 'Visitor → signup % (line)', color: C.black, line: true }]} />
-      <ResponsiveContainer width="100%" height={190}>
+      <ZoomContainer height={190}>
         <ComposedChart data={WEEKLY} margin={chartMargin}>
           {hatchDefs([C.purple])}
           {grid}
@@ -2091,7 +2211,7 @@ function NewSignupsCard() {
           </Bar>
           <Line yAxisId="p" dataKey="conv" stroke={C.black} strokeWidth={2} dot={{ r: 3, fill: C.black }} isAnimationActive={false} />
         </ComposedChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -2114,7 +2234,7 @@ function RoleMixCard() {
         style={{ margin: '8px 0 6px' }}
         items={ROLES.map((r) => ({ label: r.label, color: r.color, value: fmtPct(pct(WINDOW.roleCounts[r.key], total), 0) }))}
       />
-      <ResponsiveContainer width="100%" height={190}>
+      <ZoomContainer height={190}>
         <BarChart data={WEEKLY} margin={chartMargin} barCategoryGap="20%">
           {grid}
           <XAxis {...xAxis} />
@@ -2133,7 +2253,7 @@ function RoleMixCard() {
             <Bar key={r.key} dataKey={`${r.key}_pct`} stackId="role" fill={r.color} stroke={C.black} strokeWidth={0.5} isAnimationActive={false} />
           ))}
         </BarChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -2169,7 +2289,7 @@ function CompletedSetupCard() {
         { label: 'All 3 steps', color: C.purple, line: true, weight: 3 },
         ...STEPS.map((st) => ({ label: st.label, color: st.color, line: true, dashed: true })),
       ]} />
-      <ResponsiveContainer width="100%" height={190}>
+      <ZoomContainer height={190}>
         <LineChart data={WEEKLY} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
@@ -2192,7 +2312,7 @@ function CompletedSetupCard() {
           ))}
           <Line dataKey="setupAll" stroke={C.purple} strokeWidth={3} dot={{ r: 3, fill: C.purple, stroke: C.black, strokeWidth: 1 }} isAnimationActive={false} />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -2211,7 +2331,7 @@ function ActivationCard({ stepKey, title, question, rateLabel, cohortNoun, convN
       </StatRow>
       {extra}
       <Legend items={[{ label: 'Conversion % (line)', color: C.black, line: true }, { label: `${Cohort} (cohort size, bars)`, color: C.lightPurple }]} />
-      <ResponsiveContainer width="100%" height={190}>
+      <ZoomContainer height={190}>
         <ComposedChart data={weekly} margin={chartMargin}>
           {hatchDefs([C.purple])}
           {grid}
@@ -2233,7 +2353,7 @@ function ActivationCard({ stepKey, title, question, rateLabel, cohortNoun, convN
           </Bar>
           <Line yAxisId="p" dataKey="rate" stroke={C.black} strokeWidth={2} dot={{ r: 3.5, fill: C.purple, stroke: C.black, strokeWidth: 1 }} connectNulls={false} isAnimationActive={false} />
         </ComposedChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -2276,7 +2396,7 @@ function Daily7Card({ seriesKey, title, question, accent, verb, milestone, modal
         { label: 'Daily %', color: 'rgba(154,154,154,0.3)' },
         { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true },
       ]} />
-      <ResponsiveContainer width="100%" height={210}>
+      <ZoomContainer height={210}>
         <LineChart data={series.daily.filter((x) => x.d >= M.WEEKS[0].start)} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (x) => ({ ...modal, title: dayTitle(x), subtitle: `${fmtInt(x.a)} of ${fmtInt(x.n)} signups ${verb} within ${CONV_WINDOW_DAYS} days${x.mature ? '' : ' (window still open)'}`, users: x.list }))}>
           {grid}
           <XAxis {...xAxis} dataKey="d" ticks={series.ticks.filter((t) => t >= M.WEEKS[0].start)} tickFormatter={monDay} />
@@ -2293,7 +2413,7 @@ function Daily7Card({ seriesKey, title, question, accent, verb, milestone, modal
           <Line dataKey="rateImm" stroke="transparent" dot={{ r: 2.5, fill: '#9A9A9A', fillOpacity: 0.12, stroke: 'none' }} activeDot={{ r: 4, fill: '#D9D9D9', stroke: C.black }} isAnimationActive={false} legendType="none" />
           <Line dataKey="roll" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: accent, stroke: C.black }} connectNulls={false} isAnimationActive={false} />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -2330,7 +2450,7 @@ function ActivatedUsersCard() {
       </StatRow>
       <ListUsersButton n={A.curr} label={`activated in the ${M.long}`} onClick={() => openUsers({ title: 'Activated users', subtitle: `activated ${rangeLabel(START, END)}`, users: A.currList, summary: { label: `Activated · ${rangeLabel(START, END)}`, value: fmtInt(A.curr), sub: `${fmtInt(A.email)} by email · ${fmtInt(A.asset)} by asset · ${fmtInt(A.now.cum)} activated to date` } })} />
       <Legend items={[{ label: 'Cumulative actual', color: C.black, line: true }, { label: 'Cumulative goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
-      <ResponsiveContainer width="100%" height={190}>
+      <ZoomContainer height={190}>
         <LineChart data={A.weekly} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ title: 'Activated users', subtitle: `activated week of ${row.range}`, users: row.list }))}>
           {grid}
           <XAxis {...xAxis} />
@@ -2346,7 +2466,7 @@ function ActivatedUsersCard() {
           ) : null} />
           <Line dataKey="cum" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.green, stroke: C.black }} isAnimationActive={false} />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -2380,7 +2500,7 @@ function ActivatedByTypeCard() {
           style={{ margin: '8px 0 6px' }}
           items={ACT_TYPES.map((t) => ({ label: t.label, color: t.color, value: fmtPct(pct(A[t.key], A.curr), 0) }))}
         />
-        <ResponsiveContainer width="100%" height={240}>
+        <ZoomContainer height={240}>
           <BarChart data={cols} margin={chartMargin} barCategoryGap="22%" style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ title: 'Activated users', subtitle: `activated ${periodPhrase(row)}`, users: row.list }))}>
             {hatchDefs(ACT_TYPES.map((t) => t.color))}
             {grid}
@@ -2402,7 +2522,7 @@ function ActivatedByTypeCard() {
               </Bar>
             ))}
           </BarChart>
-        </ResponsiveContainer>
+        </ZoomContainer>
       </Card>
     </div>
   );
@@ -2501,7 +2621,7 @@ function MilestoneCumulativeCard({ field, trackedFrom, modal, accent, title, que
       </StatRow>
       <ListUsersButton n={currList.length} label={`${did} in the ${M.long}`} onClick={() => openUsers({ ...modal, title: listTitle, subtitle: `${rangeLabel(START, END)}, within ${CONV_WINDOW_DAYS} days of signing up`, users: currList, summary })} />
       <Legend items={[{ label: 'Cumulative actual', color: C.black, line: true }, { label: 'Cumulative goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
-      <ResponsiveContainer width="100%" height={210}>
+      <ZoomContainer height={210}>
         <LineChart data={weekly} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ ...modal, title: listTitle, subtitle: `week of ${row.range}`, users: row.list }))}>
           {grid}
           <XAxis {...xAxis} />
@@ -2514,7 +2634,7 @@ function MilestoneCumulativeCard({ field, trackedFrom, modal, accent, title, que
           ) : null} />
           <Line dataKey="cum" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: accent, stroke: C.black }} isAnimationActive={false} />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -2582,7 +2702,7 @@ function OnboardedUsersCard() {
       </StatRow>
       <ListUsersButton n={O.curr} label={`completed onboarding in the ${M.long}`} onClick={() => openUsers({ ...ONB_MODAL, title: 'Completed onboarding', subtitle: `completed ${rangeLabel(START, END)}`, users: O.currList, summary: { label: `Completed onboarding · ${rangeLabel(START, END)}`, value: fmtInt(O.curr), sub: `${fmtInt(O.now.cum)} completed onboarding to date` } })} />
       <Legend items={[{ label: 'Cumulative actual', color: C.black, line: true }, { label: 'Cumulative goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
-      <ResponsiveContainer width="100%" height={190}>
+      <ZoomContainer height={190}>
         <LineChart data={O.weekly} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ ...ONB_MODAL, title: 'Completed onboarding', subtitle: `completed week of ${row.range}`, users: row.list }))}>
           {grid}
           <XAxis {...xAxis} />
@@ -2596,7 +2716,7 @@ function OnboardedUsersCard() {
           ) : null} />
           <Line dataKey="cum" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.purple, stroke: C.black }} isAnimationActive={false} />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -2629,7 +2749,7 @@ function ActivatedToReturnedCard() {
       </StatRow>
       <ListUsersButton n={R.curr.k} label={`returned within ${RETURN_DAYS} days`} onClick={() => openUsers({ ...RET_MODAL, title: 'Returned users', subtitle: `activated ${rangeLabel(R.curr.from, R.curr.to)} · ${fmtInt(R.curr.k)} of ${fmtInt(R.curr.n)} returned`, users: R.curr.retList, summary: { label: `Conversion · activated ${periodLabel}`, value: R.curr.n ? fmtPct(R.curr.rate, 1) : '—', sub: R.curr.n ? `${fmtInt(R.curr.k)} of ${fmtInt(R.curr.n)} activated${R.curr.open ? ` · ${fmtInt(R.curr.open)} still in their ${RETURN_DAYS} days` : ''}` : `All ${fmtInt(R.curr.open)} are still in their ${RETURN_DAYS}-day window` } })} />
       <Legend items={[{ label: 'Actual %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
-      <ResponsiveContainer width="100%" height={210}>
+      <ZoomContainer height={210}>
         <LineChart data={R.weekly} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ ...RET_MODAL, title: 'Returned users', subtitle: `activated week of ${row.range} · ${fmtInt(row.k)} of ${fmtInt(row.n)} returned${row.mature ? '' : ' (window still open)'}`, users: row.retList }))}>
           {grid}
           <XAxis {...xAxis} />
@@ -2644,7 +2764,7 @@ function ActivatedToReturnedCard() {
           <Line dataKey="rateFull" stroke={C.black} strokeWidth={2.5} dot={{ r: 2.5, fill: C.black }} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} connectNulls={false} isAnimationActive={false} />
           <Line dataKey="rateOpen" stroke={C.black} strokeWidth={2} strokeDasharray="3 4" dot={false} activeDot={{ r: 4, fill: '#D9D9D9', stroke: C.black }} connectNulls={false} isAnimationActive={false} legendType="none" />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -2674,7 +2794,7 @@ function WeeklyReturnedUsersCard() {
       </StatRow>
       {c.n > 0 && <ListUsersButton n={c.k} label={`returned (activated ${periodLabel})`} onClick={() => openUsers({ ...RET_MODAL, title: 'Returned users', subtitle: `activated ${rangeLabel(c.from, c.to)} · ${fmtInt(c.k)} of ${fmtInt(c.n)} returned`, users: c.retList, summary: { label: `Returned · activated ${periodLabel}`, value: fmtInt(c.k), sub: `of ${fmtInt(c.n)} activated${c.open ? ` · ${fmtInt(c.open)} still open` : ''}` } })} />}
       <Legend items={[{ label: 'Actual', color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
-      <ResponsiveContainer width="100%" height={210}>
+      <ZoomContainer height={210}>
         <LineChart data={R.weekly} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ ...RET_MODAL, title: 'Returned users', subtitle: `activated week of ${row.range} · ${fmtInt(row.k)} of ${fmtInt(row.n)} returned${row.mature ? '' : ' (window still open)'}`, users: row.retList }))}>
           {grid}
           <XAxis {...xAxis} />
@@ -2689,7 +2809,7 @@ function WeeklyReturnedUsersCard() {
           <Line dataKey="kFull" stroke={C.black} strokeWidth={2.5} dot={{ r: 2.5, fill: C.black }} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} connectNulls={false} isAnimationActive={false} />
           <Line dataKey="kOpen" stroke={C.black} strokeWidth={2} strokeDasharray="3 4" dot={false} activeDot={{ r: 4, fill: '#D9D9D9', stroke: C.black }} connectNulls={false} isAnimationActive={false} legendType="none" />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -2876,7 +2996,7 @@ function SignupToPaidCard() {
         <Stat label="Goal" value="—" muted />
       </StatRow>
       <Legend items={[{ label: 'Actual %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
-      <ResponsiveContainer width="100%" height={200}>
+      <ZoomContainer height={200}>
         <LineChart data={weeks} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
@@ -2890,7 +3010,7 @@ function SignupToPaidCard() {
           ) : null} />
           <Line dataKey="conv" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.green, stroke: C.black }} isAnimationActive={false} />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -2917,7 +3037,7 @@ function Act2ToPaidCard() {
         <Stat label="Goal" value="—" muted />
       </StatRow>
       <Legend items={[{ label: '1+ activated → paid', color: C.black, line: true }]} />
-      <ResponsiveContainer width="100%" height={200}>
+      <ZoomContainer height={200}>
         <LineChart data={weeks} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
@@ -2931,7 +3051,7 @@ function Act2ToPaidCard() {
           ) : null} />
           <Line dataKey="act2Conv" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.purple, stroke: C.black }} isAnimationActive={false} />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -2953,7 +3073,7 @@ function PayingCompaniesCard() {
         <Stat label="PLG ARR" value={`$${fmtInt(Math.round(now.arr))}`} explain={`Those companies pay $${fmtInt(Math.round(now.arr / 12))} a month in total, so $${fmtInt(Math.round(now.arr))} a year.`} />
       </StatRow>
       <Legend items={[{ label: 'Paying companies (end of week)', color: C.black, line: true }]} />
-      <ResponsiveContainer width="100%" height={200}>
+      <ZoomContainer height={200}>
         <LineChart data={weeks} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
@@ -2966,7 +3086,7 @@ function PayingCompaniesCard() {
           ) : null} />
           <Line dataKey="companies" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.green, stroke: C.black }} isAnimationActive={false} />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -2988,7 +3108,7 @@ function TotalPayingUsersCard() {
         <Stat label="Vs goal" value="—" muted />
       </StatRow>
       <Legend items={[{ label: 'Paying users (end of week)', color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
-      <ResponsiveContainer width="100%" height={220}>
+      <ZoomContainer height={220}>
         <LineChart data={weeks} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
@@ -3002,7 +3122,7 @@ function TotalPayingUsersCard() {
           ) : null} />
           <Line dataKey="users" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.purple, stroke: C.black }} isAnimationActive={false} />
         </LineChart>
-      </ResponsiveContainer>
+      </ZoomContainer>
     </Card>
   );
 }
@@ -3206,7 +3326,7 @@ function ReturningPredictsPaidCard() {
           <Stat label="Lift" value={now.lift == null ? '—' : `${now.lift.toFixed(1)}×`} explain={now.lift == null ? null : `Companies with 2+ returning users were ${now.lift.toFixed(1)} times as likely to start paying.`} />
         </StatRow>
         <Legend items={[{ label: '2+ returning users', color: C.black, line: true }, { label: 'Fewer than 2', color: '#9A9A9A', line: true, dashed: true }]} />
-        <ResponsiveContainer width="100%" height={220}>
+        <ZoomContainer height={220}>
           <LineChart data={weeks} margin={chartMargin}>
             {grid}
             <XAxis {...xAxis} />
@@ -3221,7 +3341,7 @@ function ReturningPredictsPaidCard() {
             <Line dataKey="t" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.green, stroke: C.black }} isAnimationActive={false} connectNulls />
             <Line dataKey="c" stroke="#9A9A9A" strokeWidth={2} strokeDasharray="5 4" dot={false} isAnimationActive={false} connectNulls />
           </LineChart>
-        </ResponsiveContainer>
+        </ZoomContainer>
       </Card>
     </div>
   );
@@ -3606,7 +3726,7 @@ function CreditsUsedCard() {
           </StatRow>
         )}
         <Legend style={{ margin: '14px 0 6px' }} items={[...CREDIT_BANDS.map((b) => ({ label: b.label, color: b.color })), { label: 'Average % (line)', color: C.black, line: true }]} />
-        <ResponsiveContainer width="100%" height={260}>
+        <ZoomContainer height={260}>
           <ComposedChart data={D.columns} margin={chartMargin} barCategoryGap="26%" style={{ cursor: 'pointer' }} onClick={(e) => { if (barClicked.current) { barClicked.current = false; return; } const col = e?.activePayload?.[0]?.payload; if (col) open(col); }}>
             {grid}
             <XAxis {...xAxis} />
@@ -3631,7 +3751,7 @@ function CreditsUsedCard() {
             ))}
             <Line yAxisId="p" dataKey="avgLine" stroke={C.black} strokeWidth={2.5} dot={{ r: 3, fill: C.black }} isAnimationActive={false} />
           </ComposedChart>
-        </ResponsiveContainer>
+        </ZoomContainer>
       </Card>
     </div>
   );
