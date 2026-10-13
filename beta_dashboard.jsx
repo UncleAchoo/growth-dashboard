@@ -220,6 +220,10 @@ const hiReachOf = (hi, engaged) => (hi == null ? null : pct(hi, engaged));
 // still counts — only the signup metric itself ignores them.
 const SIGNUP_COUNT_START = '2026-02-16';
 const signupsIn = (a, b) => SIGNUPS.filter((s) => s.d >= SIGNUP_COUNT_START && inRange(s.d, a, b));
+// Company creators: the signup created a new company — not joining an existing
+// one (jx: accepted invite or teammate's company) and not left without a
+// company (nc). Same rule as the channel table's "company creators".
+const isCreator = (s) => !s.jx && !s.nc;
 const COUNTED_SIGNUPS = SIGNUPS.filter((s) => s.d >= SIGNUP_COUNT_START).length;
 const pctChange = (curr, prev) => (prev ? ((curr - prev) / prev) * 100 : null);
 const pct = (n, d) => (d ? (n / d) * 100 : null);
@@ -560,6 +564,13 @@ function buildModel(mode) {
       highIntentPrev,
       hiReach: hiReachOf(highIntent, visitors),
       hiReachPrev: hiReachOf(highIntentPrev, visitorsPrev),
+      // High-intent visitor → sign up (Nick, Oct 13): COMPANY-CREATOR signups
+      // ÷ high-intent engaged sessions (File 4). Creators only, so invitees /
+      // teammates joining an existing company don't inflate it.
+      creators: curr.filter(isCreator).length,
+      creatorsPrev: prev.filter(isCreator).length,
+      hiConv: highIntent == null ? null : pct(curr.filter(isCreator).length, highIntent),
+      hiConvPrev: highIntentPrev == null ? null : pct(prev.filter(isCreator).length, highIntentPrev),
       signups: curr.length,
       signupsPrev: prev.length,
       visitors,
@@ -587,7 +598,7 @@ function buildModel(mode) {
       cumVisitors += visitors;
       cumSignups += list.length;
       const highIntent = sumHighIntent(w.start, end);
-      const row = { ...w, signups: list.length, visitors, cumVisitors, cumSignups, conv: pct(list.length, visitors), highIntent, hiReach: hiReachOf(highIntent, visitors) };
+      const row = { ...w, signups: list.length, visitors, cumVisitors, cumSignups, conv: pct(list.length, visitors), highIntent, hiReach: hiReachOf(highIntent, visitors), creators: list.filter(isCreator).length, hiConv: highIntent == null ? null : pct(list.filter(isCreator).length, highIntent) };
       ROLES.forEach((r) => { row[r.key] = 0; });
       list.forEach((s) => { row[roleKey(s)] += 1; });
       ROLES.forEach((r) => { row[`${r.key}_pct`] = list.length ? (row[r.key] / list.length) * 100 : 0; });
@@ -1567,24 +1578,56 @@ function HighIntentPagesCard() {
   );
 }
 
-// High-intent → sign up isn't built yet — placeholder in the final layout.
-function HighIntentCard({ title, question, accent }) {
+// High-intent visitor → sign up (Nick, Oct 13): same calculation as
+// Website visitor → sign up, with high-intent engaged sessions (GA4 File 4)
+// replacing all engaged sessions. Weekly signups ÷ weekly high-intent sessions.
+// A ratio of two weekly totals, not a tracked path: signups aren't joined to
+// the sessions they came from.
+function HighIntentToSignupCard() {
   const M = useModel();
+  const { WEEKLY, WINDOW } = M;
+  const has = WINDOW.hiConv != null;
   return (
     <Card
-      accent={accent}
-      title={title}
-      question={question}
-      footnote="High-intent visitor is now defined (engaged session that viewed a high-intent page, see the reach card above). This chart still needs signups tied back to those sessions, which GA4 Files 1–5 don't provide yet."
+      accent={C.purple}
+      title="High-intent visitor → sign up"
+      question={(
+        <>
+          <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>Do high-intent visitors create an account?</span>
+          <span style={{ display: 'block', marginTop: 6 }}>Each week: company-creator signups ÷ engaged sessions that viewed at least one high-intent page.</span>
+          <span style={{ display: 'block', marginTop: 6 }}>Only signups that created a new company count. People accepting an invite or joining a teammate's company, and signups that never set up a company, are left out, since they mostly don't arrive through the website.</span>
+          <span style={{ display: 'block', marginTop: 6 }}>It's a ratio of two weekly totals, not a tracked path: a signup counts whether or not that person saw a high-intent page.</span>
+          <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), and use-case pages (/use-cases/…).</span>
+        </>
+      )}
+      footnote={`Company-creator signups ÷ GA4 high-intent engaged sessions for the same week (each total summed first, then divided). Company creator = the signup created a new company; accepted invites, people joining a teammate's existing company, and signups that never set up a company are excluded. Repeat signups by the same person still count if each created a company; internal (@mutinyhq.com) signups are left out. Signups aren't linked to the sessions they came from, so this compares two weekly totals rather than following people from a high-intent page to signup, and it can run high. GA4 tracking changed around Jul 20, so compare within, not across, that line. ${lineWeekNote(M)} No goal set yet.`}
     >
-      <StatRow>
-        <Stat label={`Conversion · ${rangeLabel(M.START, M.END)}`} value="—" muted />
+      <StatRow delta={has ? <Delta value={ptsDiff(WINDOW.hiConv, WINDOW.hiConvPrev)} suffix=" pts" /> : null}>
+        <Stat
+          label={`Conversion · ${rangeLabel(M.START, M.END)}`}
+          value={has ? fmtPct(WINDOW.hiConv, 1) : '—'}
+          muted={!has}
+          explain={has ? `From ${rangeLabel(M.START, M.END)}, ${fmtInt(WINDOW.creators)} company-creator signups (of ${fmtInt(WINDOW.signups)} total) vs ${fmtInt(WINDOW.highIntent)} high-intent engaged sessions — about ${fmtPct(WINDOW.hiConv, 1)}.` : undefined}
+        />
         <Stat label="Goal" value="—" muted />
       </StatRow>
       <Legend items={[{ label: 'Actual %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
-      <div style={{ height: 190, border: `1px dashed #BDBDBD`, borderRadius: 4, background: C.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 14, color: C.muted }}>
-        Definition coming
-      </div>
+      <ResponsiveContainer width="100%" height={190}>
+        <LineChart data={WEEKLY} margin={chartMargin}>
+          {grid}
+          <XAxis {...xAxis} />
+          <YAxis {...yAxis} domain={[0, 'auto']} tickFormatter={(v) => `${v}%`} />
+          <Tooltip content={({ active, payload }) => active && payload?.length ? (
+            <TooltipBox title={weekTitle(payload[0].payload)} rows={[
+              { label: 'High-intent → sign up', value: fmtPct(payload[0].payload.hiConv, 1), color: C.black },
+              { label: 'Company-creator signups', value: fmtInt(payload[0].payload.creators) },
+              { label: 'High-intent sessions', value: fmtInt(payload[0].payload.highIntent) },
+              { label: 'All signups (for reference)', value: fmtInt(payload[0].payload.signups) },
+            ]} />
+          ) : null} />
+          <Line dataKey="hiConv" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.purple, stroke: C.black }} connectNulls={false} isAnimationActive={false} />
+        </LineChart>
+      </ResponsiveContainer>
     </Card>
   );
 }
@@ -3676,7 +3719,7 @@ function SectionsFor({ view }) {
         </Grid>
         <StageHeader n={2} title="Sign up" subtitle="Visitors who create an account. The gate between anonymous and known." />
         <Grid>
-          <HighIntentCard accent={C.purple} title="High-intent visitor → sign up" question="Do high-intent visitors create an account?" />
+          <HighIntentToSignupCard />
           <CumulativeSignupsCard />
         </Grid>
         <StageHeader title="Channel deep dive" subtitle="Which channels bring visitors, and which of them convert." />
