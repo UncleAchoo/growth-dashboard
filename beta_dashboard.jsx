@@ -549,6 +549,21 @@ function buildModel(mode) {
   const W = makeWindow(mode);
   const { END, START, PRIOR_START, PRIOR_END, WEEKS, WEEKS_CUR } = W;
 
+  // Rule of thumb (Nick, Oct 13): in Fiscal YTD every COLUMN chart is monthly
+  // (~37 weekly bars are unreadable); line charts stay weekly. MONTHS = calendar
+  // months from the period start to the latest data day; the month in progress
+  // is `partial` (drawn striped). `last` = the month's last day with data.
+  const MONTHLY_COLS = mode === 'ytd';
+  const MONTHS = [];
+  for (let m = START.slice(0, 7); m <= DATA_END.slice(0, 7); m = addMonthsISO(`${m}-01`, 1).slice(0, 7)) {
+    const first = `${m}-01` < START ? START : `${m}-01`;
+    const monthEnd = addDays(addMonthsISO(`${m}-01`, 1), -1);
+    const partial = monthEnd > DATA_END;
+    const last = partial ? DATA_END : monthEnd;
+    const name = `${MON[+m.slice(5, 7) - 1]} ${m.slice(0, 4)}`;
+    MONTHS.push({ start: first, end: monthEnd, last, label: MON[+m.slice(5, 7) - 1], monthly: true, partial, clipped: false, range: rangeLabel(first, last), title: `${name}${partial ? ` (to ${monDay(DATA_END)}, in progress)` : ''}` });
+  }
+
   // --- Derived series -----------------------------------------------------------
   const WINDOW = (() => {
     const curr = signupsIn(START, END);
@@ -632,6 +647,7 @@ function buildModel(mode) {
     curr: activationStats(step, START, END),
     prev: activationStats(step, PRIOR_START, PRIOR_END),
     weekly: WEEKS.map((w) => ({ ...w, ...activationStats(step, w.start, w.partial ? DATA_END : w.end) })),
+    monthly: MONTHS.map((p) => ({ ...p, ...activationStats(step, p.start, p.last) })),
   }]));
 
   const MEETING_ANY_30D = signupsIn(START, END).filter((s) => s.mt).length;
@@ -671,6 +687,8 @@ function buildModel(mode) {
       now: cumAsOf(DATA_END),
       atPriorEnd: cumAsOf(PRIOR_END),
       weekly,
+      // Monthly columns for Fiscal YTD (Activated by type of first action).
+      monthly: MONTHS.map((p) => { const list = activatedIn(p.start, p.last); return { ...p, n: list.length, list, ...split(list) }; }),
     };
   })();
 
@@ -732,20 +750,10 @@ function buildModel(mode) {
     const s = sumByChannel(GA_SESSIONS, w.start, w.partial ? DATA_END : w.end);
     return { ...w, ...s, total: sumVals(s) };
   });
-  // Calendar months from the period start (used by Fiscal YTD: Nick, Oct 7 —
-  // monthly columns read better than ~37 weekly bars).
-  const CHANNEL_MONTHLY = (() => {
-    const out = [];
-    for (let m = START.slice(0, 7); m <= DATA_END.slice(0, 7); m = addMonthsISO(`${m}-01`, 1).slice(0, 7)) {
-      const first = `${m}-01` < START ? START : `${m}-01`;
-      const monthEnd = addDays(addMonthsISO(`${m}-01`, 1), -1);
-      const partial = monthEnd > DATA_END;
-      const last = partial ? DATA_END : monthEnd;
-      const sums = sumByChannel(GA_SESSIONS, first, last);
-      out.push({ start: m, label: MON[+m.slice(5, 7) - 1], partial, title: `${MON[+m.slice(5, 7) - 1]} ${m.slice(0, 4)}${partial ? ` (to ${monDay(DATA_END)}, in progress)` : ''}`, ...sums, total: sumVals(sums) });
-    }
-    return out;
-  })();
+  const CHANNEL_MONTHLY = MONTHS.map((p) => {
+    const sums = sumByChannel(GA_SESSIONS, p.start, p.last);
+    return { ...p, ...sums, total: sumVals(sums) };
+  });
 
   const CH30 = (() => {
     const sessions = sumByChannel(GA_SESSIONS, START, END);
@@ -762,6 +770,7 @@ function buildModel(mode) {
   // Same split per week, for the stacked-column view of the channel table.
   const SELF_REPORTED_PREV = selfReportedIn(PRIOR_START, PRIOR_END);
   const SELF_REPORTED_WEEKLY = WEEKS_CUR.map((w) => ({ ...w, ...selfReportedIn(w.start, w.partial ? DATA_END : w.end) }));
+  const SELF_REPORTED_MONTHLY = MONTHS.map((p) => ({ ...p, ...selfReportedIn(p.start, p.last) }));
 
   const VISITOR_LINE = WEEKLY.map((w, i) => {
     const next = WEEKLY[i + 1];
@@ -772,7 +781,7 @@ function buildModel(mode) {
     };
   });
 
-  return { ...W, WINDOW, WEEKLY, ACT, MEETING_ANY_30D, ACTIVATED, ONBOARDED, RETURNED, CHANNEL_WEEKLY, CHANNEL_MONTHLY, CH30, WTD_STATS, SELF_REPORTED, SELF_REPORTED_PREV, SELF_REPORTED_WEEKLY, VISITOR_LINE };
+  return { ...W, MONTHLY_COLS, MONTHS, WINDOW, WEEKLY, ACT, MEETING_ANY_30D, ACTIVATED, ONBOARDED, RETURNED, CHANNEL_WEEKLY, CHANNEL_MONTHLY, CH30, WTD_STATS, SELF_REPORTED, SELF_REPORTED_PREV, SELF_REPORTED_WEEKLY, SELF_REPORTED_MONTHLY, VISITOR_LINE };
 }
 const MODELS = Object.fromEntries(Object.keys(MODES).map((m) => [m, buildModel(m)]));
 const ModelCtx = React.createContext(MODELS[DEFAULT_MODE]);
@@ -1205,6 +1214,11 @@ function TooltipBox({ title, rows, note }) {
   );
 }
 const weekTitle = (w) => `Week of ${w.range}${w.partial ? ' (in progress)' : w.clipped ? ' (first days of the period)' : ''}`;
+// Column charts switch to months in Fiscal YTD (M.MONTHLY_COLS); these keep
+// titles / modal subtitles / footnotes right for either grain.
+const periodTitle = (p) => (p.monthly ? p.title : weekTitle(p));
+const periodPhrase = (p) => (p.monthly ? `in ${p.title}` : `week of ${p.range}`);
+const colNote = (M) => (M.MONTHLY_COLS ? 'Fiscal YTD shows monthly columns; the faintly striped one is the month in progress.' : barWeekNote(M));
 const cursor = { fill: 'rgba(167,59,245,0.06)' };
 
 // ===========================================================================
@@ -1648,7 +1662,7 @@ function HighIntentToSignupCard() {
 function VisitorsByChannelCard() {
   const M = useModel();
   const { CH30 } = M;
-  const monthly = M.mode === 'ytd';
+  const monthly = M.MONTHLY_COLS;
   const data = monthly ? M.CHANNEL_MONTHLY : M.CHANNEL_WEEKLY;
   const order = [...CHANNELS].sort((a, b) => CH30.sessions[b.key] - CH30.sessions[a.key]);
   return (
@@ -1858,7 +1872,8 @@ function ChannelGrowthTable({ M, th, td }) {
 
 function SignupsByChannelCard() {
   const M = useModel();
-  const { END, SELF_REPORTED, SELF_REPORTED_WEEKLY, START, WINDOW } = M;
+  const { END, SELF_REPORTED, SELF_REPORTED_WEEKLY, SELF_REPORTED_MONTHLY, START, WINDOW } = M;
+  const monthly = M.MONTHLY_COLS; // Fiscal YTD: monthly columns (Nick, Oct 13)
   const SR = SELF_REPORTED;
   const total = WINDOW.signups;
   const openUsers = useUsersModal();
@@ -1882,9 +1897,10 @@ function SignupsByChannelCard() {
   ].sort((a, b) => b.n - a.n));
   const maxN = Math.max(...rows.map((r) => r.n || 0), 1);
 
-  const weekly = SELF_REPORTED_WEEKLY.map((w) => ({
-    ...w, ...w.counts, [SR_INVITED.name]: w.invited, [SR_JOINED.name]: w.joined, [SR_NEVER.name]: w.never, [SR_OTHER.name]: w.other,
-  }));
+  const flat = (w) => ({ ...w, ...w.counts, [SR_INVITED.name]: w.invited, [SR_JOINED.name]: w.joined, [SR_NEVER.name]: w.never, [SR_OTHER.name]: w.other });
+  const weekly = SELF_REPORTED_WEEKLY.map(flat);
+  // Column chart data: months in Fiscal YTD, weeks otherwise. (Growth view is a line chart, stays weekly.)
+  const cols = monthly ? SELF_REPORTED_MONTHLY.map(flat) : weekly;
   const th = { ...eyebrow, fontSize: 10, padding: '10px 14px', textAlign: 'right', whiteSpace: 'nowrap', borderBottom: `1px solid ${C.black}`, background: C.paper };
   const td = { ...tabular, fontFamily: FONT_BODY, fontSize: 13.5, padding: '11px 14px', textAlign: 'right', borderBottom: `1px solid ${C.lightGrey}`, whiteSpace: 'nowrap' };
   const soon = <span style={{ color: '#B5B5B5' }}>—</span>;
@@ -1893,11 +1909,11 @@ function SignupsByChannelCard() {
       <Card
         accent={C.purple}
         title="Sign ups and conversion by channel"
-        question={`Self-reported “How did you hear about us?” · ${view === 'chart' ? 'weekly' : view === 'growth' ? 'share of sign ups, weekly' : `${M.label} · ${rangeLabel(START, END)}`}`}
-        footnote={`${SR.perSignup ? `Every signup in the period (Metabase) is looked up in Amplitude by user id and put in exactly one row: its own “How did you hear about us?” answer (referral_source, bucketed with the same rules as the live dashboard's “User signups by Channel”); otherwise Accepted an invite (fired “User Invitation Completed”); otherwise Joined a teammate's company (its company already had a signup, no invite event); otherwise Never completed (no workspace, or one never named; click the row to list them); otherwise Other (created a company but no answer in Amplitude). Only company setup asks the question, so joiners are never asked. Rows add up to Overall. Internal (@mutinyhq.com) signups are left out, like the rest of this page.` : `Channel = the signup's self-reported answer (Amplitude referral_source daily totals), bucketed with the same rules as the live dashboard's “User signups by Channel”. Only company setup asks the question. Accepted an invite = Amplitude “User Invitation Completed” (daily unique users). Joined a teammate's company = signups on a company that already had an earlier signup (Metabase), minus the accepted invites. No answer is split into Never completed (no workspace, or one never named; click the row to list them) and Other (what's left). Answers are daily totals here, not per person, so the split is approximate — run npm run pull-amp-events for exact per-signup rows.`} Overall = all Metabase signups in the window, matching the rest of this page.${view === 'table' ? ` Sign up → activated = share of the row's signups in the period that have activated (email sent/drafted or asset published) so far, same as the funnel. ${SR.perSignup ? `Every row is exact: it's the share of that row's signups that have activated (hover a cell for the count).` : `It's filled in only where we know each signup's group: the two joiner rows share one rate (${fmtPct(SR.actJoined.rate, 1)}, ${fmtInt(SR.actJoined.k)} of ${fmtInt(SR.actJoined.n)}) because invites vs teammates is only an Amplitude total; channel rows need each person's answer (run npm run pull-amp-events) — together, company creators (the people who were asked) activated at ${fmtPct(SR.actCreators.rate, 1)} (${fmtInt(SR.actCreators.k)} of ${fmtInt(SR.actCreators.n)}).`}` : ''}${view === 'growth' ? ` Growth: each channel's share of that week's sign ups, for the weeks in the reporting period; the last point is the week in progress. Hover a week for counts.` : view === 'chart' ? ' Faintly striped bar = week in progress.' : ' Activated → paid comes from stripe-dash.'}`}
+        question={`Self-reported “How did you hear about us?” · ${view === 'chart' ? (monthly ? 'monthly' : 'weekly') : view === 'growth' ? 'share of sign ups, weekly' : `${M.label} · ${rangeLabel(START, END)}`}`}
+        footnote={`${SR.perSignup ? `Every signup in the period (Metabase) is looked up in Amplitude by user id and put in exactly one row: its own “How did you hear about us?” answer (referral_source, bucketed with the same rules as the live dashboard's “User signups by Channel”); otherwise Accepted an invite (fired “User Invitation Completed”); otherwise Joined a teammate's company (its company already had a signup, no invite event); otherwise Never completed (no workspace, or one never named; click the row to list them); otherwise Other (created a company but no answer in Amplitude). Only company setup asks the question, so joiners are never asked. Rows add up to Overall. Internal (@mutinyhq.com) signups are left out, like the rest of this page.` : `Channel = the signup's self-reported answer (Amplitude referral_source daily totals), bucketed with the same rules as the live dashboard's “User signups by Channel”. Only company setup asks the question. Accepted an invite = Amplitude “User Invitation Completed” (daily unique users). Joined a teammate's company = signups on a company that already had an earlier signup (Metabase), minus the accepted invites. No answer is split into Never completed (no workspace, or one never named; click the row to list them) and Other (what's left). Answers are daily totals here, not per person, so the split is approximate — run npm run pull-amp-events for exact per-signup rows.`} Overall = all Metabase signups in the window, matching the rest of this page.${view === 'table' ? ` Sign up → activated = share of the row's signups in the period that have activated (email sent/drafted or asset published) so far, same as the funnel. ${SR.perSignup ? `Every row is exact: it's the share of that row's signups that have activated (hover a cell for the count).` : `It's filled in only where we know each signup's group: the two joiner rows share one rate (${fmtPct(SR.actJoined.rate, 1)}, ${fmtInt(SR.actJoined.k)} of ${fmtInt(SR.actJoined.n)}) because invites vs teammates is only an Amplitude total; channel rows need each person's answer (run npm run pull-amp-events) — together, company creators (the people who were asked) activated at ${fmtPct(SR.actCreators.rate, 1)} (${fmtInt(SR.actCreators.k)} of ${fmtInt(SR.actCreators.n)}).`}` : ''}${view === 'growth' ? ` Growth: each channel's share of that week's sign ups, for the weeks in the reporting period; the last point is the week in progress. Hover a week for counts.` : view === 'chart' ? ` ${monthly ? 'Fiscal YTD shows monthly columns; the faintly striped one is the month in progress.' : 'Faintly striped bar = week in progress.'}` : ' Activated → paid comes from stripe-dash.'}`}
       >
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
-          <ViewToggle value={view} onChange={setView} options={[{ value: 'chart', label: 'Weekly chart' }, { value: 'table', label: 'Table' }, { value: 'growth', label: 'Growth' }]} />
+          <ViewToggle value={view} onChange={setView} options={[{ value: 'chart', label: monthly ? 'Monthly chart' : 'Weekly chart' }, { value: 'table', label: 'Table' }, { value: 'growth', label: 'Growth' }]} />
         </div>
         {view === 'growth' ? (
           <ChannelShareLines M={M} weekly={weekly} legend={(
@@ -1919,14 +1935,14 @@ function SignupsByChannelCard() {
               />
             )}>
             <ResponsiveContainer width="100%" height={420}>
-              <BarChart data={weekly} margin={chartMargin} barCategoryGap="22%">
+              <BarChart data={cols} margin={chartMargin} barCategoryGap="22%">
                 {hatchDefs(SR_STACK.map((b) => b.color))}
                 {grid}
                 <XAxis {...xAxis} />
                 <YAxis {...yAxis} allowDecimals={false} />
                 <Tooltip cursor={cursor} content={({ active, payload }) => active && payload?.length ? (
                   <TooltipBox
-                    title={weekTitle(payload[0].payload)}
+                    title={periodTitle(payload[0].payload)}
                     rows={[...SR_STACK].reverse().filter((b) => payload[0].payload[b.name]).map((b) => ({
                       label: b.name, color: b.color,
                       value: `${fmtInt(payload[0].payload[b.name])} · ${fmtPct(pct(payload[0].payload[b.name], payload[0].payload.total), 1)}`,
@@ -1936,7 +1952,7 @@ function SignupsByChannelCard() {
                 ) : null} />
                 {SR_STACK.map((b) => (
                   <Bar key={b.name} dataKey={b.name} stackId="sr" stroke={C.black} strokeWidth={0.5} isAnimationActive={false}>
-                    {weekly.map((w) => <Cell key={w.start} fill={w.partial ? `url(#${hatchId(b.color)})` : b.color} />)}
+                    {cols.map((w) => <Cell key={w.start} fill={w.partial ? `url(#${hatchId(b.color)})` : b.color} />)}
                   </Bar>
                 ))}
               </BarChart>
@@ -2184,10 +2200,12 @@ function CompletedSetupCard() {
 function ActivationCard({ stepKey, title, question, rateLabel, cohortNoun, convNoun, footnote, extra, accent }) {
   const M = useModel();
   const { ACT } = M;
-  const { curr, prev, weekly } = ACT[stepKey];
+  const { curr, prev, weekly: wk, monthly: mo } = ACT[stepKey];
+  // Fiscal YTD: monthly columns (Nick, Oct 13).
+  const weekly = M.MONTHLY_COLS ? mo : wk;
   const Cohort = cohortNoun[0].toUpperCase() + cohortNoun.slice(1);
   return (
-    <Card title={title} question={question} footnote={footnote} accent={accent}>
+    <Card title={title} question={question} footnote={M.MONTHLY_COLS ? `${footnote} Fiscal YTD groups by month instead of week; the faintly striped column is the month in progress.` : footnote} accent={accent}>
       <StatRow delta={<Delta value={ptsDiff(curr.rate, prev.rate)} suffix=" pts" />}>
         <Stat label={rateLabel} value={fmtPct(curr.rate, 1)} sub={`${curr.conv} of ${curr.n} ${cohortNoun} · ${rangeLabel(M.START, M.END)}`} />
       </StatRow>
@@ -2202,7 +2220,7 @@ function ActivationCard({ stepKey, title, question, rateLabel, cohortNoun, convN
           <YAxis yAxisId="n" orientation="right" {...yAxis} allowDecimals={false} />
           <Tooltip cursor={cursor} content={({ active, payload }) => active && payload?.length ? (
             <TooltipBox
-              title={weekTitle(payload[0].payload)}
+              title={periodTitle(payload[0].payload)}
               rows={[
                 { label: 'Conversion', value: fmtPct(payload[0].payload.rate), color: C.black },
                 { label: convNoun, value: fmtInt(payload[0].payload.conv) },
@@ -2343,6 +2361,7 @@ function ActivatedByTypeCard() {
   const M = useModel();
   const { ACTIVATED, START, END } = M;
   const A = ACTIVATED;
+  const cols = M.MONTHLY_COLS ? A.monthly : A.weekly; // Fiscal YTD: monthly (Nick, Oct 13)
   const openUsers = useUsersModal();
   return (
     <div className="full">
@@ -2350,7 +2369,7 @@ function ActivatedByTypeCard() {
         accent={C.green}
         title="Activated by type of first action"
         question="Do users activate by sending an email or by publishing an asset?"
-        footnote={`Users who activated in each week, split by what they did first: sent (or drafted) an email, or published an asset. If both happened on the same day, it counts as email. Email sends are only tracked from Sep 4, so earlier weeks are all assets. ${barWeekNote(M)} Click a bar to list that week's users.`}
+        footnote={`Users who activated in each ${M.MONTHLY_COLS ? 'month' : 'week'}, split by what they did first: sent (or drafted) an email, or published an asset. If both happened on the same day, it counts as email. Email sends are only tracked from Sep 4, so earlier weeks are all assets. ${colNote(M)} Click a bar to list that ${M.MONTHLY_COLS ? 'month' : 'week'}'s users.`}
       >
         <StatRow delta={<Delta value={pctChange(A.curr, A.prev)} />}>
           <Stat label={`Activated · ${rangeLabel(M.START, M.END)}`} value={fmtInt(A.curr)} explain={`${fmtInt(A.curr)} users activated for the first time from ${rangeLabel(START, END)}: ${fmtInt(A.email)} by sending an email, ${fmtInt(A.asset)} by publishing an asset.`} />
@@ -2362,14 +2381,14 @@ function ActivatedByTypeCard() {
           items={ACT_TYPES.map((t) => ({ label: t.label, color: t.color, value: fmtPct(pct(A[t.key], A.curr), 0) }))}
         />
         <ResponsiveContainer width="100%" height={240}>
-          <BarChart data={A.weekly} margin={chartMargin} barCategoryGap="22%" style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ title: 'Activated users', subtitle: `activated week of ${row.range}`, users: row.list }))}>
+          <BarChart data={cols} margin={chartMargin} barCategoryGap="22%" style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ title: 'Activated users', subtitle: `activated ${periodPhrase(row)}`, users: row.list }))}>
             {hatchDefs(ACT_TYPES.map((t) => t.color))}
             {grid}
             <XAxis {...xAxis} />
             <YAxis {...yAxis} allowDecimals={false} />
             <Tooltip cursor={cursor} content={({ active, payload }) => active && payload?.length ? (
               <TooltipBox
-                title={weekTitle(payload[0].payload)}
+                title={periodTitle(payload[0].payload)}
                 rows={[...ACT_TYPES].reverse().map((t) => ({
                   label: t.label, color: t.color,
                   value: `${fmtInt(payload[0].payload[t.key])} · ${fmtPct(pct(payload[0].payload[t.key], payload[0].payload.n), 0)}`,
@@ -2379,7 +2398,7 @@ function ActivatedByTypeCard() {
             ) : null} />
             {ACT_TYPES.map((t) => (
               <Bar key={t.key} dataKey={t.key} stackId="type" stroke={C.black} strokeWidth={0.5} isAnimationActive={false}>
-                {A.weekly.map((w) => <Cell key={w.start} fill={w.partial ? `url(#${hatchId(t.color)})` : t.color} />)}
+                {cols.map((w) => <Cell key={w.start} fill={w.partial ? `url(#${hatchId(t.color)})` : t.color} />)}
               </Bar>
             ))}
           </BarChart>
