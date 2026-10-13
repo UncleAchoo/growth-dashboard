@@ -211,6 +211,10 @@ const sumHighIntent = (a, b) => {
   for (let d = a; d <= b; d = addDays(d, 1)) s += HIGH_INTENT_BY_DATE[d] || 0;
   return s;
 };
+// Window version: if the period starts before File 4 does (Fiscal YTD starts
+// Feb 1, File 4 on Feb 2), start BOTH numerator and denominator on File 4's
+// first day instead of showing "—". null only if the period ends before it.
+const hiWindowStart = (a, b) => (!HIGH_INTENT_START || b < HIGH_INTENT_START ? null : a < HIGH_INTENT_START ? HIGH_INTENT_START : a);
 // Weekly / window high-intent reach: sum sessions first, then divide. Never
 // average daily percentages.
 const hiReachOf = (hi, engaged) => (hi == null ? null : pct(hi, engaged));
@@ -557,20 +561,31 @@ function buildModel(mode) {
     // sent/drafted or asset published), any time so far.
     const activated = curr.filter(actDate).length;
     const activatedPrev = prev.filter(actDate).length;
-    const highIntent = sumHighIntent(START, END);
-    const highIntentPrev = sumHighIntent(PRIOR_START, PRIOR_END);
+    // High-intent window: clamped to File 4's first day (see hiWindowStart);
+    // engaged sessions and signups use the same clamped range.
+    const hiStart = hiWindowStart(START, END);
+    const hiStartPrev = hiWindowStart(PRIOR_START, PRIOR_END);
+    const highIntent = hiStart ? sumHighIntent(hiStart, END) : null;
+    const highIntentPrev = hiStartPrev ? sumHighIntent(hiStartPrev, PRIOR_END) : null;
+    const hiVisitors = hiStart ? sumEngaged(hiStart, END) : null;
+    const hiVisitorsPrev = hiStartPrev ? sumEngaged(hiStartPrev, PRIOR_END) : null;
+    const hiCreators = hiStart ? signupsIn(hiStart, END).filter(isCreator).length : null;
+    const hiCreatorsPrev = hiStartPrev ? signupsIn(hiStartPrev, PRIOR_END).filter(isCreator).length : null;
     return {
+      hiStart,
       highIntent,
       highIntentPrev,
-      hiReach: hiReachOf(highIntent, visitors),
-      hiReachPrev: hiReachOf(highIntentPrev, visitorsPrev),
+      hiVisitors,
+      hiCreators,
+      hiReach: hiReachOf(highIntent, hiVisitors),
+      hiReachPrev: hiReachOf(highIntentPrev, hiVisitorsPrev),
       // High-intent visitor → sign up (Nick, Oct 13): COMPANY-CREATOR signups
       // ÷ high-intent engaged sessions (File 4). Creators only, so invitees /
       // teammates joining an existing company don't inflate it.
       creators: curr.filter(isCreator).length,
       creatorsPrev: prev.filter(isCreator).length,
-      hiConv: highIntent == null ? null : pct(curr.filter(isCreator).length, highIntent),
-      hiConvPrev: highIntentPrev == null ? null : pct(prev.filter(isCreator).length, highIntentPrev),
+      hiConv: highIntent == null ? null : pct(hiCreators, highIntent),
+      hiConvPrev: highIntentPrev == null ? null : pct(hiCreatorsPrev, highIntentPrev),
       signups: curr.length,
       signupsPrev: prev.length,
       visitors,
@@ -1444,10 +1459,10 @@ function HighIntentReachCard() {
     >
       <StatRow delta={has ? <Delta value={ptsDiff(WINDOW.hiReach, WINDOW.hiReachPrev)} suffix=" pts" /> : null}>
         <Stat
-          label={`Reach · ${rangeLabel(M.START, M.END)}`}
+          label={`Reach · ${rangeLabel(WINDOW.hiStart || M.START, M.END)}`}
           value={has ? fmtPct(WINDOW.hiReach, 1) : '—'}
           muted={!has}
-          explain={has ? `From ${rangeLabel(M.START, M.END)}, ${fmtInt(WINDOW.highIntent)} of ${fmtInt(WINDOW.visitors)} engaged visits reached a high-intent page — about ${fmtPct(WINDOW.hiReach, 1)}.` : undefined}
+          explain={has ? `From ${rangeLabel(WINDOW.hiStart, M.END)}, ${fmtInt(WINDOW.highIntent)} of ${fmtInt(WINDOW.hiVisitors)} engaged visits reached a high-intent page — about ${fmtPct(WINDOW.hiReach, 1)}.${WINDOW.hiStart !== M.START ? ` Starts ${monDay(WINDOW.hiStart)}, the first day of high-intent data.` : ''}` : undefined}
         />
         <Stat label="Goal" value="—" muted />
       </StatRow>
@@ -1492,9 +1507,11 @@ const pageSessionsIn = (a, b) => {
 
 function HighIntentPagesCard() {
   const M = useModel();
-  const engaged = sumEngaged(M.START, M.END);
+  // Clamp to File 5's first day like the reach card (Fiscal YTD starts Feb 1).
+  const pStart = HIGH_INTENT_START && M.START < HIGH_INTENT_START ? HIGH_INTENT_START : M.START;
+  const engaged = sumEngaged(pStart, M.END);
   const engagedPrev = sumEngaged(M.PRIOR_START, M.PRIOR_END);
-  const cur = pageSessionsIn(M.START, M.END);
+  const cur = pageSessionsIn(pStart, M.END);
   const prev = pageSessionsIn(M.PRIOR_START, M.PRIOR_END);
   const rows = HIGH_INTENT_PAGES
     .map((path) => ({
@@ -1523,11 +1540,11 @@ function HighIntentPagesCard() {
             <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), and use-case pages (/use-cases/…).</span>
           </>
         )}
-        footnote={`Page-level engaged-session reporting (GA4 page-path breakdown). For each URL: engaged sessions on that page ÷ all GA4 engaged sessions on the site, for ${rangeLabel(M.START, M.END)}. Every page under /pricing, /customers and /use-cases is listed on its own (e.g. /use-cases/account-executives is separate from /use-cases); pages that round to 0% of engaged sessions in the period are hidden. Shares don't add up to 100% and shouldn't be added together: one session can view several pages, so it shows up under each. For overall reach, use the high-intent reach card above. GA4's per-page engaged sessions haven't been validated against a session-scoped segment per URL, so treat these as directional page-level numbers.`}
+        footnote={`Page-level engaged-session reporting (GA4 page-path breakdown). For each URL: engaged sessions on that page ÷ all GA4 engaged sessions on the site, for ${rangeLabel(pStart, M.END)}. Every page under /pricing, /customers and /use-cases is listed on its own (e.g. /use-cases/account-executives is separate from /use-cases); pages that round to 0% of engaged sessions in the period are hidden. Shares don't add up to 100% and shouldn't be added together: one session can view several pages, so it shows up under each. For overall reach, use the high-intent reach card above. GA4's per-page engaged sessions haven't been validated against a session-scoped segment per URL, so treat these as directional page-level numbers.`}
       >
         <StatRow>
           <Stat
-            label={`Top page · ${rangeLabel(M.START, M.END)}`}
+            label={`Top page · ${rangeLabel(pStart, M.END)}`}
             value={top ? top.path : '—'}
             muted={!top}
             explain={top ? `${top.path} had ${fmtInt(top.n)} engaged sessions, ${fmtPct(top.share, 1)} of the site's ${fmtInt(engaged)} engaged sessions.` : undefined}
@@ -1536,7 +1553,7 @@ function HighIntentPagesCard() {
             label="Pages shown"
             value={`${rows.length} of ${HIGH_INTENT_PAGES.length}`}
             muted={!has}
-            explain={`${rows.length} of the ${HIGH_INTENT_PAGES.length} tracked high-intent URLs reached at least 0.1% of engaged sessions from ${rangeLabel(M.START, M.END)}. The rest round to 0% and are hidden.`}
+            explain={`${rows.length} of the ${HIGH_INTENT_PAGES.length} tracked high-intent URLs reached at least 0.1% of engaged sessions from ${rangeLabel(pStart, M.END)}. The rest round to 0% and are hidden.`}
           />
         </StatRow>
         <Legend items={PAGE_SECTIONS.map((s) => ({ label: s.label, color: s.color }))} />
@@ -1554,7 +1571,7 @@ function HighIntentPagesCard() {
                   ...(M.noPrior ? [] : [{ label: `${M.prior[0].toUpperCase()}${M.prior.slice(1)}`, value: fmtPct(payload[0].payload.sharePrev, 2) }]),
                 ]} note={
                   <div style={{ width: 250, whiteSpace: 'normal', lineHeight: 1.45, borderTop: `1px solid ${C.grid}`, paddingTop: 6, marginTop: 4 }}>
-                    Engaged sessions that viewed this page, as a share of all engaged sessions on the site in {rangeLabel(M.START, M.END)}. Sessions that saw several pages count under each, so shares don't add up.
+                    Engaged sessions that viewed this page, as a share of all engaged sessions on the site in {rangeLabel(pStart, M.END)}. Sessions that saw several pages count under each, so shares don't add up.
                   </div>
                 } />
               ) : null} />
@@ -1600,10 +1617,10 @@ function HighIntentToSignupCard() {
     >
       <StatRow delta={has ? <Delta value={ptsDiff(WINDOW.hiConv, WINDOW.hiConvPrev)} suffix=" pts" /> : null}>
         <Stat
-          label={`Conversion · ${rangeLabel(M.START, M.END)}`}
+          label={`Conversion · ${rangeLabel(WINDOW.hiStart || M.START, M.END)}`}
           value={has ? fmtPct(WINDOW.hiConv, 1) : '—'}
           muted={!has}
-          explain={has ? `From ${rangeLabel(M.START, M.END)}, ${fmtInt(WINDOW.creators)} company-creator signups (of ${fmtInt(WINDOW.signups)} total) vs ${fmtInt(WINDOW.highIntent)} high-intent engaged sessions — about ${fmtPct(WINDOW.hiConv, 1)}.` : undefined}
+          explain={has ? `From ${rangeLabel(WINDOW.hiStart, M.END)}, ${fmtInt(WINDOW.hiCreators)} company-creator signups vs ${fmtInt(WINDOW.highIntent)} high-intent engaged sessions — about ${fmtPct(WINDOW.hiConv, 1)}.${WINDOW.hiStart !== M.START ? ` Starts ${monDay(WINDOW.hiStart)}, the first day of high-intent data.` : ''}` : undefined}
         />
         <Stat label="Goal" value="—" muted />
       </StatRow>
