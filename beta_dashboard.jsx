@@ -23,7 +23,7 @@ import {
   ResponsiveContainer, ComposedChart, BarChart, LineChart, Bar, Line, Cell, LabelList,
   XAxis, YAxis, CartesianGrid, Tooltip, ReferenceArea,
 } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, ArrowRight, MousePointerClick, Info, Clock, ChevronDown } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, MousePointerClick, Info, Clock, ChevronDown } from 'lucide-react';
 import dataJson from './src/data.json';
 import betaSignups from './src/beta-signups.json';
 import betaPaying from './src/beta-paying.json';
@@ -1424,24 +1424,31 @@ const PAGE_CSS = `.beta-grid{display:grid;grid-template-columns:repeat(2,minmax(
 .beta-grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width: 1100px){.beta-grid.cols-3{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .beta-funnel-line{display:grid;align-items:stretch}
+.bf-groups{display:flex;align-items:stretch}
+.bf-group{flex:1 1 0;min-width:0;display:flex;flex-direction:column}
+.bf-group-co{margin-left:-16px}
+.bf-group:first-child .bf-head{margin-right:28px}
+.bf-group-co .bf-head{padding-left:38px}
+.bf-head{display:flex;align-items:baseline;gap:4px 10px;flex-wrap:wrap;line-height:16px;padding:0 30px 8px 0;margin-bottom:14px;border-bottom:1px solid #CFCFCF;min-width:0}
+.bf-row{flex:1;display:flex;align-items:stretch}
+.bf-chev{all:unset;box-sizing:border-box;flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:22px 36px 22px 42px;background:${C.lightGrey};color:${C.black};clip-path:polygon(0 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,0 100%,22px 50%);transition:background 120ms}
+.bf-chev + .bf-chev{margin-left:-16px}
+.bf-group:first-child .bf-chev:first-child{padding-left:24px;clip-path:polygon(0 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,0 100%);border-radius:4px 0 0 4px}
+.bf-group-co .bf-chev:last-child{padding-right:24px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,22px 50%)}
+button.bf-chev{cursor:pointer}
+button.bf-chev:hover{background:${C.lightPurple}}
+button.bf-chev[aria-pressed=true]{background:${C.purple}}
+button.bf-chev:focus-visible{box-shadow:inset 0 0 0 3px ${C.black}}}
+@media (max-width: 1180px){.bf-groups{flex-direction:column;gap:20px}.bf-group-co{margin-left:0}.bf-group:first-child .bf-head{margin-right:0}.bf-group-co .bf-head{padding-left:0}.bf-group-co .bf-chev:first-child{padding-left:24px;clip-path:polygon(0 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,0 100%)}.bf-group:first-child .bf-chev:last-child{padding-right:24px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,22px 50%)}}
+@media (max-width: 760px){.bf-row{flex-direction:column;gap:8px}.bf-groups .bf-chev{clip-path:none!important;margin-left:0!important;padding:18px 20px!important;border-radius:4px!important}.bf-head,.bf-group-co .bf-head{padding:0 0 8px}}
 .beta-cw{position:relative;display:inline-flex;align-items:center;gap:3px;vertical-align:middle;padding:1px 6px;border-radius:4px;color:${C.muted};font-family:${FONT_BODY};font-size:12px;font-weight:600;cursor:pointer;transition:background 120ms,color 120ms;white-space:nowrap}
 .beta-cw:hover,.beta-cw:focus-within{background:${C.paper};color:${C.black}}
 .beta-cw select{all:unset;cursor:pointer;font:inherit;color:inherit}
 .beta-cw select:focus-visible{outline:none}
 .beta-cw:has(select:focus-visible){outline:2px solid ${C.purple};outline-offset:1px}
-.beta-funnel-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));column-gap:16px;row-gap:16px;align-items:stretch}
-.bf-head{display:flex;align-items:baseline;align-content:flex-end;gap:4px 10px;flex-wrap:wrap;line-height:16px;padding-bottom:8px;border-bottom:1px solid #CFCFCF;grid-row:1;min-width:0}
-.bf-head-users{grid-column:1 / 6}
-.bf-head-co{grid-column:6 / 9}
-@media (max-width: 1180px){.beta-funnel-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.bf-head-users{grid-column:1 / -1}.bf-head-co{grid-column:1 / -1;grid-row:3;margin-top:16px}}
-@media (max-width: 760px){.beta-funnel-grid{grid-template-columns:minmax(0,1fr)}.bf-head{grid-row:auto}.bf-head-co{grid-row:auto}}
 .beta-note-btn{all:unset;cursor:pointer;display:inline-flex;padding:2px;border-radius:999px;color:${C.black};transition:opacity 120ms}
 .beta-note-btn:hover{opacity:0.8 !important}
 .beta-note-btn:focus-visible{outline:2px solid ${C.purple};outline-offset:2px}
-.beta-step{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;min-width:0}
-.beta-step:focus-visible{outline:2px solid ${C.purple};outline-offset:3px}
-.beta-step:hover .beta-step-bar{background:#BDBDBD}
-.beta-step[aria-pressed="true"]:hover .beta-step-bar{background:${C.purple}}
 @media (max-width: 900px){.beta-grid{grid-template-columns:minmax(0,1fr);gap:24px}}
 @media (max-width: 760px){.beta-funnel-line{grid-template-columns:minmax(0,1fr)!important;gap:14px!important}.beta-funnel-arrow{display:none!important}}`;
 const Grid = ({ children, cols }) => <div className={`beta-grid${cols === 3 ? ' cols-3' : ''}`}>{children}</div>;
@@ -1518,50 +1525,31 @@ const readHashView = () => {
   return VIEWS[h] ? h : DEFAULT_VIEW;
 };
 
-function FunnelNode({ label, value, sub, dim }) {
+// Chevron funnel bar (Nick, Oct 15): one row of arrow-shaped cells, each a
+// stage with its count and a white chip for the step conversion. The selected
+// stage fills purple (black text — brand rule: white text only on black).
+function FunnelChip({ rate, of, delta }) {
   return (
-    <div style={{ minWidth: 0, padding: '2px 0', textAlign: 'center' }}>
-      {/* Label box reserves two lines and bottom-aligns, so every value in the row sits on one baseline. */}
-      <div style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 700, lineHeight: 1.25, minHeight: '2.5em', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', color: dim ? C.muted : C.black }}>{label}</div>
-      <div style={{ ...tabular, fontFamily: FONT_DISPLAY, fontSize: 30, lineHeight: 1.1, letterSpacing: '-0.03em', marginTop: 4, color: dim ? '#B5B5B5' : C.black }}>{value}</div>
-      {sub && <div style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 11.5, color: C.muted, marginTop: 2 }}>{sub}</div>}
-    </div>
+    <span className="bf-chip" style={{ ...tabular, display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', alignSelf: 'flex-start', background: C.white, border: `1px solid ${C.black}`, borderRadius: 14, padding: '4px 12px', fontFamily: FONT_BODY, fontSize: 13, lineHeight: 1.3, color: C.black }}>
+      <b>{rate}</b><span>{of}</span>
+      {delta && <><span aria-hidden style={{ width: 1, alignSelf: 'stretch', background: C.lightGrey }} />{delta}</>}
+    </span>
   );
 }
 
-// Non-clickable cell with the same frame as FunnelStep (content area + bar slot +
-// label slot, both invisible) so every cell in the row lines up.
-function FunnelStatic({ children }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '0 6px 10px' }}>{children}</div>
-      <div aria-hidden style={{ height: 3 }} />
-      <div aria-hidden style={{ ...eyebrow, fontSize: 10.5, marginTop: 8, visibility: 'hidden' }}>&nbsp;</div>
-    </div>
+function FunnelCell({ id, view, setView, label, value, chip, dim }) {
+  const selected = id != null && view === id;
+  const body = (
+    <>
+      <div style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 700, lineHeight: 1.25 }}>{label}</div>
+      <div style={{ ...tabular, fontFamily: FONT_DISPLAY, fontSize: 44, lineHeight: 1, letterSpacing: '-0.03em', margin: '10px 0 12px', color: dim ? 'rgba(0,0,0,0.3)' : C.black }}>{value}</div>
+      {chip}
+    </>
   );
-}
-
-// A clickable step: arrow + conversion chip + delta, with a selection bar and label under it.
-function FunnelStep({ id, view, setView, label, rate, delta, children }) {
-  const selected = view === id;
+  if (id == null) return <div className="bf-chev">{body}</div>;
   return (
-    <button type="button" className="beta-step" aria-pressed={selected} onClick={() => setView(id)} title={`Show ${VIEWS[id].title} charts`}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: children ? 'flex-start' : 'center', gap: 4, padding: '0 6px 10px' }}>
-        {children || (
-          <>
-            <ArrowRight size={22} strokeWidth={2.5} color={C.black} />
-            <span style={{
-              ...tabular, fontFamily: FONT_BODY, fontSize: 18, fontWeight: 700, padding: '3px 10px', borderRadius: 4,
-              border: `1px solid ${C.black}`, background: C.lightPurple, color: C.black,
-            }}>
-              {rate}
-            </span>
-            {delta}
-          </>
-        )}
-      </div>
-      <div className="beta-step-bar" style={{ height: selected ? 4 : 3, borderRadius: 2, background: selected ? C.purple : C.lightGrey, transition: 'background 120ms' }} />
-      <div style={{ ...eyebrow, fontSize: 10.5, marginTop: 8, color: C.black, textAlign: 'center' }}>{label}</div>
+    <button type="button" className="bf-chev" aria-pressed={selected} onClick={() => setView(id)} title={`Show ${VIEWS[id].title} charts`}>
+      {body}
     </button>
   );
 }
@@ -1570,9 +1558,10 @@ function PlgFunnel({ view, setView }) {
   const M = useModel();
   const { END, START, WINDOW } = M;
   const W = WINDOW;
+  const P = PAYING ? PAYING.asOf(M.END) : null;
   return (
     <section style={{ background: C.white, border: `1px solid ${C.black}`, borderRadius: 4, padding: '28px 32px 30px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 26 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 22 }}>
         <div style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 700 }}>
           PLG funnel at a glance
           <span style={{ fontWeight: 400, color: C.muted, marginLeft: 10 }}>{M.label} · {rangeLabel(START, END)}</span>
@@ -1584,39 +1573,40 @@ function PlgFunnel({ view, setView }) {
           )}
         </div>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: C.black, color: C.white, borderRadius: 999, padding: '5px 12px', fontFamily: FONT_BODY, fontSize: 12, fontWeight: 600 }}>
-          <MousePointerClick size={14} /> Click a step to see its charts
+          <MousePointerClick size={14} /> Click a stage to see its charts
         </span>
       </div>
 
-      {/* One row, 8 equal columns: users (5) | companies (3). Each group gets a
-          header with a rule spanning its columns. 5 + 3 lines below 1180px, 1 column below 760px. */}
-      <div className="beta-funnel-grid">
-        <div className="bf-head bf-head-users"><span style={eyebrow}>Users</span></div>
-        <FunnelStatic><FunnelNode label="Website visitors" value={fmtInt(W.visitors)} sub={`GA4 sessions${W.convAdjScaled ? ` · ${fmtInt(Math.round(W.visitorsAdj))} adjusted for the cookie banner` : ''}`} /></FunnelStatic>
-        <FunnelStep id="signup" view={view} setView={setView} label="Visitor → completed sign up" rate={fmtPct(W.convAdj, 1)} delta={<Delta value={ptsDiff(W.convAdj, W.convAdjPrev)} suffix=" pts" size={12} />} />
-        <FunnelStatic><FunnelNode label="Completed sign ups" value={fmtInt(W.signups)} /></FunnelStatic>
-        <FunnelStep id="activation" view={view} setView={setView} label="Completed sign up → activated" rate={fmtPct(W.actConv, 1)} delta={<Delta value={ptsDiff(W.actConv, W.actConvPrev)} suffix=" pts" size={12} />} />
-        <FunnelStatic><FunnelNode label="Activated" value={fmtInt(W.activated)} sub="Email sent or asset published" /></FunnelStatic>
-
-        <div className="bf-head bf-head-co">
-          <span style={eyebrow}>Companies</span>
-          <span style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 12, color: C.muted }}>{PAYING ? 'Paid + retained from Stripe · expanding soon' : 'From stripe-dash — coming soon'}</span>
+      {/* Two groups (users | companies), each a header rule + 3 chevrons. One row on
+          wide screens, a row per group below 1180px, stacked boxes below 760px. */}
+      <div className="bf-groups">
+        <div className="bf-group">
+          <div className="bf-head"><span style={eyebrow}>Users</span></div>
+          <div className="bf-row">
+            <FunnelCell label="Website visitors" value={fmtInt(W.visitors)} />
+            <FunnelCell id="signup" view={view} setView={setView} label="Completed sign ups" value={fmtInt(W.signups)}
+              chip={<FunnelChip rate={fmtPct(W.convAdj, 1)} of="of visitors" delta={<Delta value={ptsDiff(W.convAdj, W.convAdjPrev)} suffix=" pts" size={12} />} />} />
+            <FunnelCell id="activation" view={view} setView={setView} label="Activated" value={fmtInt(W.activated)}
+              chip={<FunnelChip rate={fmtPct(W.actConv, 1)} of="of sign ups" delta={<Delta value={ptsDiff(W.actConv, W.actConvPrev)} suffix=" pts" size={12} />} />} />
+          </div>
         </div>
-        {[
-          { id: 'paid', label: 'Paid companies' },
-          { id: 'retained', label: 'Retained companies' },
-          { id: 'expanding', label: 'Expanding companies' },
-        ].map((s) => (
-          <FunnelStep key={s.id} id={s.id} view={view} setView={setView} label={VIEWS[s.id].short}>
-            <div style={{ alignSelf: 'stretch' }}>
-              {s.id === 'retained' && RETENTION
-                ? <FunnelNode label="Retained companies" value={fmtPct(RETENTION.m1Rate, 1)} sub="Month-1 retention · Stripe" />
-                : s.id === 'paid' && PAYING
-                ? <FunnelNode label="Paying companies" value={fmtInt(PAYING.asOf(M.END).companies)} sub={`PLG · as of ${monDay(PAYING.asOf(M.END).day)} · ${fmtInt(PAYING.asOf(M.END).users)} paying users · ${fmtPct(PAYING.asOf(M.END).conv, 1)} sign up → paid`} />
-                : <FunnelNode label={s.label} value="—" sub="Not connected yet" />}
-            </div>
-          </FunnelStep>
-        ))}
+        <div className="bf-group bf-group-co">
+          <div className="bf-head">
+            <span style={eyebrow}>Companies</span>
+            <span style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 12, color: C.muted }}>{PAYING ? 'Paid + retained from Stripe · expanding soon' : 'From stripe-dash — coming soon'}</span>
+          </div>
+          <div className="bf-row">
+            {P
+              ? <FunnelCell id="paid" view={view} setView={setView} label="Paying companies" value={fmtInt(P.companies)}
+                  chip={<FunnelChip rate={fmtPct(P.conv, 1)} of="sign up → paid" />} />
+              : <FunnelCell id="paid" view={view} setView={setView} label="Paying companies" value="—" dim />}
+            {RETENTION
+              ? <FunnelCell id="retained" view={view} setView={setView} label="Retained companies" value={fmtPct(RETENTION.m1Rate, 1)}
+                  chip={<FunnelChip rate={`${fmtInt(RETENTION.m1Kept)} of ${fmtInt(RETENTION.m1Base)}`} of="kept past month 1" />} />
+              : <FunnelCell id="retained" view={view} setView={setView} label="Retained companies" value="—" dim />}
+            <FunnelCell id="expanding" view={view} setView={setView} label="Expanding companies" value="—" dim />
+          </div>
+        </div>
       </div>
     </section>
   );
