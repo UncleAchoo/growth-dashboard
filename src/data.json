@@ -5,7 +5,9 @@
     "end": "2026-10-13"
   },
   "ga4": {
-    "pulledAt": "2026-10-13T14:39:28.518Z",
+    "pulledAt": "2026-10-14T16:35:21.613Z",
+    "source": "master-feed.xlsx",
+    "feedRefreshedAt": "2026-10-14T16:21:20.302Z",
     "file1": [
       {
         "date": "20260320",
@@ -686,6 +688,12 @@
         "sessions": 3046
       },
       {
+        "date": "20261013",
+        "totalUsers": 2996,
+        "engagedSessions": 475,
+        "sessions": 2959
+      },
+      {
         "date": "20260604",
         "totalUsers": 2978,
         "engagedSessions": 803,
@@ -802,8 +810,8 @@
       {
         "date": "20261012",
         "totalUsers": 1237,
-        "engagedSessions": 292,
-        "sessions": 1245
+        "engagedSessions": 322,
+        "sessions": 1247
       },
       {
         "date": "20260516",
@@ -1628,6 +1636,12 @@
         "sessions": 120
       },
       {
+        "date": "20261014",
+        "totalUsers": 118,
+        "engagedSessions": 44,
+        "sessions": 118
+      },
+      {
         "date": "20260725",
         "totalUsers": 117,
         "engagedSessions": 66,
@@ -1668,12 +1682,6 @@
         "totalUsers": 96,
         "engagedSessions": 40,
         "sessions": 98
-      },
-      {
-        "date": "20261013",
-        "totalUsers": 96,
-        "engagedSessions": 43,
-        "sessions": 96
       },
       {
         "date": "20260830",
@@ -2038,6 +2046,12 @@
         "eventCount": 6
       },
       {
+        "date": "20261013",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / organic",
+        "eventCount": 6
+      },
+      {
         "date": "20260511",
         "channelGroup": "Organic Search",
         "sourceMedium": "google / organic",
@@ -2117,6 +2131,12 @@
       },
       {
         "date": "20261006",
+        "channelGroup": "Direct",
+        "sourceMedium": "(direct) / (none)",
+        "eventCount": 5
+      },
+      {
+        "date": "20261013",
         "channelGroup": "Direct",
         "sourceMedium": "(direct) / (none)",
         "eventCount": 5
@@ -2491,6 +2511,12 @@
         "date": "20261012",
         "channelGroup": "Direct",
         "sourceMedium": "(direct) / (none)",
+        "eventCount": 3
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "bing / organic",
         "eventCount": 3
       },
       {
@@ -2899,12 +2925,6 @@
         "date": "20261001",
         "channelGroup": "Organic Search",
         "sourceMedium": "google / organic",
-        "eventCount": 2
-      },
-      {
-        "date": "20261013",
-        "channelGroup": "Direct",
-        "sourceMedium": "(direct) / (none)",
         "eventCount": 2
       },
       {
@@ -3896,6 +3916,24 @@
         "channelGroup": "Organic Search",
         "sourceMedium": "google / organic",
         "eventCount": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "claude / (none)",
+        "eventCount": 1
+      },
+      {
+        "date": "20261014",
+        "channelGroup": "Direct",
+        "sourceMedium": "(direct) / (none)",
+        "eventCount": 1
+      },
+      {
+        "date": "20261014",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / organic",
+        "eventCount": 1
       }
     ],
     "file3": [
@@ -4863,6 +4901,15 @@
         "totalUsers": 2992
       },
       {
+        "date": "20261013",
+        "channelGroup": "Direct",
+        "sourceMedium": "(direct) / (none)",
+        "eventCount": 13636,
+        "engagedSessions": 341,
+        "sessions": 2776,
+        "totalUsers": 2786
+      },
+      {
         "date": "20260501",
         "channelGroup": "Direct",
         "sourceMedium": "(direct) / (none)",
@@ -5091,10 +5138,10 @@
         "date": "20261012",
         "channelGroup": "Direct",
         "sourceMedium": "(direct) / (none)",
-        "eventCount": 5078,
-        "engagedSessions": 193,
-        "sessions": 1061,
-        "totalUsers": 1059
+        "eventCount": 5083,
+        "engagedSessions": 204,
+        "sessions": 1062,
+        "totalUsers": 1060
       },
       {
         "date": "20261001",
@@ -6978,6 +7025,15 @@
         "totalUsers": 183
       },
       {
+        "date": "20261013",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / organic",
+        "eventCount": 865,
+        "engagedSessions": 88,
+        "sessions": 145,
+        "totalUsers": 143
+      },
+      {
         "date": "20260303",
         "channelGroup": "Organic Search",
         "sourceMedium": "google / organic",
@@ -7581,6 +7637,15 @@
         "totalUsers": 86
       },
       {
+        "date": "20261012",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / organic",
+        "eventCount": 628,
+        "engagedSessions": 74,
+        "sessions": 110,
+        "totalUsers": 108
+      },
+      {
         "date": "20260517",
         "channelGroup": "Direct",
         "sourceMedium": "(direct) / (none)",
@@ -7588,15 +7653,6 @@
         "engagedSessions": 43,
         "sessions": 130,
         "totalUsers": 130
-      },
-      {
-        "date": "20261012",
-        "channelGroup": "Organic Search",
-        "sourceMedium": "google / organic",
-        "eventCount": 626,
-        "engagedSessions": 60,
-        "sessions": 110,
-        "totalUsers": 108
       },
       {
         "date": "20260723",
@@ -8481,6 +8537,15 @@
         "totalUsers": 66
       },
       {
+        "date": "20261014",
+        "channelGroup": "Direct",
+        "sourceMedium": "(direct) / (none)",
+        "eventCount": 369,
+        "engagedSessions": 26,
+        "sessions": 89,
+        "totalUsers": 89
+      },
+      {
         "date": "20260110",
         "channelGroup": "Direct",
         "sourceMedium": "(direct) / (none)",
@@ -8623,15 +8688,6 @@
         "engagedSessions": 40,
         "sessions": 70,
         "totalUsers": 68
-      },
-      {
-        "date": "20261013",
-        "channelGroup": "Direct",
-        "sourceMedium": "(direct) / (none)",
-        "eventCount": 334,
-        "engagedSessions": 24,
-        "sessions": 70,
-        "totalUsers": 70
       },
       {
         "date": "20260308",
@@ -10101,6 +10157,15 @@
         "totalUsers": 13
       },
       {
+        "date": "20261014",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / organic",
+        "eventCount": 98,
+        "engagedSessions": 13,
+        "sessions": 19,
+        "totalUsers": 19
+      },
+      {
         "date": "20260219",
         "channelGroup": "Organic Social",
         "sourceMedium": "t.co / referral",
@@ -10362,6 +10427,15 @@
         "totalUsers": 11
       },
       {
+        "date": "20261013",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "(not set)",
+        "eventCount": 85,
+        "engagedSessions": 0,
+        "sessions": 46,
+        "totalUsers": 46
+      },
+      {
         "date": "20260423",
         "channelGroup": "Organic Social",
         "sourceMedium": "t.co / referral",
@@ -10405,15 +10479,6 @@
         "engagedSessions": 11,
         "sessions": 19,
         "totalUsers": 19
-      },
-      {
-        "date": "20261013",
-        "channelGroup": "Organic Search",
-        "sourceMedium": "google / organic",
-        "eventCount": 83,
-        "engagedSessions": 12,
-        "sessions": 17,
-        "totalUsers": 17
       },
       {
         "date": "20260213",
@@ -10864,6 +10929,15 @@
         "engagedSessions": 7,
         "sessions": 14,
         "totalUsers": 14
+      },
+      {
+        "date": "20261014",
+        "channelGroup": "Referral",
+        "sourceMedium": "framer.com / referral",
+        "eventCount": 69,
+        "engagedSessions": 1,
+        "sessions": 2,
+        "totalUsers": 2
       },
       {
         "date": "20260218",
@@ -13071,6 +13145,15 @@
         "totalUsers": 6
       },
       {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "framer.com / referral",
+        "eventCount": 42,
+        "engagedSessions": 6,
+        "sessions": 7,
+        "totalUsers": 6
+      },
+      {
         "date": "20260204",
         "channelGroup": "Referral",
         "sourceMedium": "mail.google.com / referral",
@@ -13536,6 +13619,15 @@
         "eventCount": 39,
         "engagedSessions": 4,
         "sessions": 5,
+        "totalUsers": 5
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "bing / organic",
+        "eventCount": 39,
+        "engagedSessions": 2,
+        "sessions": 6,
         "totalUsers": 5
       },
       {
@@ -15294,6 +15386,15 @@
         "totalUsers": 4
       },
       {
+        "date": "20261013",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "claude / ",
+        "eventCount": 32,
+        "engagedSessions": 2,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
         "date": "20260104",
         "channelGroup": "Referral",
         "sourceMedium": "cbinsights.com / referral",
@@ -17038,6 +17139,15 @@
         "engagedSessions": 3,
         "sessions": 3,
         "totalUsers": 3
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sourceMedium": "linkedin / social",
+        "eventCount": 27,
+        "engagedSessions": 4,
+        "sessions": 6,
+        "totalUsers": 6
       },
       {
         "date": "20260113",
@@ -19893,6 +20003,15 @@
         "totalUsers": 5
       },
       {
+        "date": "20261013",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sourceMedium": "linkedin.com / referral",
+        "eventCount": 21,
+        "engagedSessions": 4,
+        "sessions": 4,
+        "totalUsers": 4
+      },
+      {
         "date": "20260105",
         "channelGroup": "Referral",
         "sourceMedium": "gemini.google.com / referral",
@@ -22233,15 +22352,6 @@
         "totalUsers": 3
       },
       {
-        "date": "20261012",
-        "channelGroup": "Unassigned",
-        "sourceMedium": "(not set)",
-        "eventCount": 18,
-        "engagedSessions": 0,
-        "sessions": 5,
-        "totalUsers": 5
-      },
-      {
         "date": "20260105",
         "channelGroup": "Organic Social",
         "sourceMedium": "linkedin / social",
@@ -23140,6 +23250,15 @@
         "engagedSessions": 1,
         "sessions": 1,
         "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "teams.public.onecdn.static.microsoft / referral",
+        "eventCount": 17,
+        "engagedSessions": 3,
+        "sessions": 3,
+        "totalUsers": 3
       },
       {
         "date": "20260102",
@@ -24103,6 +24222,15 @@
         "engagedSessions": 2,
         "sessions": 2,
         "totalUsers": 2
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "accounts.google.com / referral",
+        "eventCount": 16,
+        "engagedSessions": 2,
+        "sessions": 3,
+        "totalUsers": 3
       },
       {
         "date": "20260105",
@@ -25099,7 +25227,7 @@
         "channelGroup": "Referral",
         "sourceMedium": "teams.public.onecdn.static.microsoft / referral",
         "eventCount": 15,
-        "engagedSessions": 1,
+        "engagedSessions": 3,
         "sessions": 4,
         "totalUsers": 4
       },
@@ -26191,6 +26319,15 @@
         "engagedSessions": 1,
         "sessions": 2,
         "totalUsers": 2
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "app.rippling.com / referral",
+        "eventCount": 14,
+        "engagedSessions": 2,
+        "sessions": 3,
+        "totalUsers": 3
       },
       {
         "date": "20260106",
@@ -29095,7 +29232,7 @@
         "channelGroup": "Organic Search",
         "sourceMedium": "bing / organic",
         "eventCount": 12,
-        "engagedSessions": 2,
+        "engagedSessions": 3,
         "sessions": 3,
         "totalUsers": 3
       },
@@ -29107,6 +29244,15 @@
         "engagedSessions": 2,
         "sessions": 2,
         "totalUsers": 2
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "chatgpt / ",
+        "eventCount": 12,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
       },
       {
         "date": "20260102",
@@ -30709,6 +30855,24 @@
         "engagedSessions": 1,
         "sessions": 1,
         "totalUsers": 1
+      },
+      {
+        "date": "20261012",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "(not set)",
+        "eventCount": 11,
+        "engagedSessions": 0,
+        "sessions": 3,
+        "totalUsers": 3
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "figma.okta.com / referral",
+        "eventCount": 11,
+        "engagedSessions": 2,
+        "sessions": 2,
+        "totalUsers": 2
       },
       {
         "date": "20260102",
@@ -32716,6 +32880,15 @@
         "engagedSessions": 1,
         "sessions": 3,
         "totalUsers": 3
+      },
+      {
+        "date": "20261014",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sourceMedium": "linkedin.com / referral",
+        "eventCount": 10,
+        "engagedSessions": 2,
+        "sessions": 2,
+        "totalUsers": 2
       },
       {
         "date": "20260102",
@@ -38678,11 +38851,47 @@
       {
         "date": "20261012",
         "channelGroup": "Unassigned",
-        "sourceMedium": "topstartups.io / ",
+        "sourceMedium": "topstartups.io / (not set)",
         "eventCount": 8,
         "engagedSessions": 1,
         "sessions": 2,
         "totalUsers": 2
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "app.asana.com / referral",
+        "eventCount": 8,
+        "engagedSessions": 2,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "campfirelabs.co / referral",
+        "eventCount": 8,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "fivetran.lightning.force.com / referral",
+        "eventCount": 8,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "hotmail / ",
+        "eventCount": 8,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
       },
       {
         "date": "20260101",
@@ -42400,15 +42609,6 @@
         "engagedSessions": 2,
         "sessions": 2,
         "totalUsers": 1
-      },
-      {
-        "date": "20261013",
-        "channelGroup": "Referral",
-        "sourceMedium": "framer.com / referral",
-        "eventCount": 7,
-        "engagedSessions": 3,
-        "sessions": 3,
-        "totalUsers": 3
       },
       {
         "date": "20260102",
@@ -47039,7 +47239,16 @@
       {
         "date": "20261013",
         "channelGroup": "Referral",
-        "sourceMedium": "figma.okta.com / referral",
+        "sourceMedium": "mailmodo.com / referral",
+        "eventCount": 6,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "ycombinator.com / referral",
         "eventCount": 6,
         "engagedSessions": 1,
         "sessions": 1,
@@ -54448,7 +54657,7 @@
         "channelGroup": "Referral",
         "sourceMedium": "elephas.app / referral",
         "eventCount": 5,
-        "engagedSessions": 0,
+        "engagedSessions": 1,
         "sessions": 1,
         "totalUsers": 1
       },
@@ -54463,8 +54672,62 @@
       },
       {
         "date": "20261013",
+        "channelGroup": "AI Referrals",
+        "sourceMedium": "gemini.google.com / ai-assistant",
+        "eventCount": 5,
+        "engagedSessions": 0,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
+        "date": "20261013",
         "channelGroup": "Referral",
         "sourceMedium": "app.raindrop.io / referral",
+        "eventCount": 5,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "euna.clickup.com / referral",
+        "eventCount": 5,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "research.contrary.com / referral",
+        "eventCount": 5,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "sequoiacap.com / referral",
+        "eventCount": 5,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261014",
+        "channelGroup": "AI Referrals",
+        "sourceMedium": "claude.ai / ai-assistant",
+        "eventCount": 5,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261014",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sourceMedium": "linkedin / social",
         "eventCount": 5,
         "engagedSessions": 1,
         "sessions": 1,
@@ -66085,7 +66348,7 @@
         "channelGroup": "Unassigned",
         "sourceMedium": "ecosia.org / organic",
         "eventCount": 4,
-        "engagedSessions": 0,
+        "engagedSessions": 1,
         "sessions": 1,
         "totalUsers": 1
       },
@@ -66095,6 +66358,78 @@
         "sourceMedium": "ntp.msn.com / referral",
         "eventCount": 4,
         "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "aigccjzk.yunysr.com / referral",
+        "eventCount": 4,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "dwavesys.my.idaptive.app / referral",
+        "eventCount": 4,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "gatekeeperapp.net / referral",
+        "eventCount": 4,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "myapps.microsoft.com / referral",
+        "eventCount": 4,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "outlook.office.com / referral",
+        "eventCount": 4,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "billing.stripe.com / referral",
+        "eventCount": 4,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "facebook.com / referral",
+        "eventCount": 4,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261014",
+        "channelGroup": "Referral",
+        "sourceMedium": "growjo.com / referral",
+        "eventCount": 4,
+        "engagedSessions": 0,
         "sessions": 1,
         "totalUsers": 1
       },
@@ -76595,7 +76930,88 @@
       {
         "date": "20261013",
         "channelGroup": "Referral",
+        "sourceMedium": "arc.net / referral",
+        "eventCount": 3,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
         "sourceMedium": "elephas.app / referral",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "parker.candidatelabs.com / referral",
+        "eventCount": 3,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Referral",
+        "sourceMedium": "zi.lightning.force.com / referral",
+        "eventCount": 3,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "ecosia.org / organic",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "topaitoolsreview / ",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "topstartups.io / ",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261014",
+        "channelGroup": "Referral",
+        "sourceMedium": "uncorkcapital.com / referral",
+        "eventCount": 3,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261014",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "(not set)",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261014",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "segmentio / docs",
         "eventCount": 3,
         "engagedSessions": 0,
         "sessions": 1,
@@ -80509,8 +80925,17 @@
       },
       {
         "date": "20261013",
-        "channelGroup": "Organic Search",
-        "sourceMedium": "bing / organic",
+        "channelGroup": "Referral",
+        "sourceMedium": "accounts.google.ca / referral",
+        "eventCount": 2,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "claude / (none)",
         "eventCount": 2,
         "engagedSessions": 1,
         "sessions": 1,
@@ -81055,6 +81480,15 @@
         "engagedSessions": 0,
         "sessions": 1,
         "totalUsers": 1
+      },
+      {
+        "date": "20261013",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "topstartups.io / (none)",
+        "eventCount": 1,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
       }
     ],
     "file4": [
@@ -81321,6 +81755,10 @@
       {
         "date": "20260702",
         "highIntentEngagedSessions": 62
+      },
+      {
+        "date": "20261013",
+        "highIntentEngagedSessions": 60
       },
       {
         "date": "20260217",
@@ -81935,10 +82373,6 @@
         "highIntentEngagedSessions": 11
       },
       {
-        "date": "20261013",
-        "highIntentEngagedSessions": 11
-      },
-      {
         "date": "20260809",
         "highIntentEngagedSessions": 10
       },
@@ -82048,6 +82482,10 @@
       },
       {
         "date": "20260822",
+        "highIntentEngagedSessions": 3
+      },
+      {
+        "date": "20261014",
         "highIntentEngagedSessions": 3
       },
       {
@@ -82782,6 +83220,11 @@
         "engagedSessions": 31
       },
       {
+        "date": "20261013",
+        "pagePath": "/pricing",
+        "engagedSessions": 31
+      },
+      {
         "date": "20260215",
         "pagePath": "/customers",
         "engagedSessions": 30
@@ -83063,6 +83506,11 @@
       },
       {
         "date": "20260730",
+        "pagePath": "/customers",
+        "engagedSessions": 23
+      },
+      {
+        "date": "20261013",
         "pagePath": "/customers",
         "engagedSessions": 23
       },
@@ -83612,6 +84060,11 @@
         "engagedSessions": 15
       },
       {
+        "date": "20261013",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 15
+      },
+      {
         "date": "20260320",
         "pagePath": "/customers",
         "engagedSessions": 14
@@ -84044,6 +84497,11 @@
       {
         "date": "20261012",
         "pagePath": "/pricing",
+        "engagedSessions": 11
+      },
+      {
+        "date": "20261013",
+        "pagePath": "/use-cases/account-executives",
         "engagedSessions": 11
       },
       {
@@ -84913,12 +85371,7 @@
       },
       {
         "date": "20261013",
-        "pagePath": "/pricing",
-        "engagedSessions": 5
-      },
-      {
-        "date": "20261013",
-        "pagePath": "/use-cases/account-based-marketing",
+        "pagePath": "/use-cases/sales-leaders",
         "engagedSessions": 5
       },
       {
@@ -85199,11 +85652,6 @@
       {
         "date": "20261010",
         "pagePath": "/pricing",
-        "engagedSessions": 4
-      },
-      {
-        "date": "20261013",
-        "pagePath": "/customers",
         "engagedSessions": 4
       },
       {
@@ -85943,7 +86391,12 @@
       },
       {
         "date": "20261013",
-        "pagePath": "/use-cases/sales-leaders",
+        "pagePath": "/use-cases/marketing-leaders",
+        "engagedSessions": 2
+      },
+      {
+        "date": "20261014",
+        "pagePath": "/pricing",
         "engagedSessions": 2
       },
       {
@@ -86552,11 +87005,2639 @@
         "engagedSessions": 1
       },
       {
-        "date": "20261013",
+        "date": "20261014",
+        "pagePath": "/customers",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261014",
+        "pagePath": "/use-cases/account-based-marketing",
+        "engagedSessions": 1
+      },
+      {
+        "date": "20261014",
         "pagePath": "/use-cases/account-executives",
         "engagedSessions": 1
       }
-    ]
+    ],
+    "file6": [
+      {
+        "isoWeek": "202612",
+        "channelGroup": "Direct",
+        "activeUsers": 199658
+      },
+      {
+        "isoWeek": "202615",
+        "channelGroup": "Direct",
+        "activeUsers": 77074
+      },
+      {
+        "isoWeek": "202613",
+        "channelGroup": "Direct",
+        "activeUsers": 75972
+      },
+      {
+        "isoWeek": "202617",
+        "channelGroup": "Direct",
+        "activeUsers": 58418
+      },
+      {
+        "isoWeek": "202616",
+        "channelGroup": "Direct",
+        "activeUsers": 54457
+      },
+      {
+        "isoWeek": "202614",
+        "channelGroup": "Direct",
+        "activeUsers": 49578
+      },
+      {
+        "isoWeek": "202629",
+        "channelGroup": "Direct",
+        "activeUsers": 46703
+      },
+      {
+        "isoWeek": "202626",
+        "channelGroup": "Direct",
+        "activeUsers": 42141
+      },
+      {
+        "isoWeek": "202628",
+        "channelGroup": "Direct",
+        "activeUsers": 37706
+      },
+      {
+        "isoWeek": "202618",
+        "channelGroup": "Direct",
+        "activeUsers": 36813
+      },
+      {
+        "isoWeek": "202619",
+        "channelGroup": "Direct",
+        "activeUsers": 36087
+      },
+      {
+        "isoWeek": "202624",
+        "channelGroup": "Direct",
+        "activeUsers": 34959
+      },
+      {
+        "isoWeek": "202611",
+        "channelGroup": "Direct",
+        "activeUsers": 34862
+      },
+      {
+        "isoWeek": "202625",
+        "channelGroup": "Direct",
+        "activeUsers": 34521
+      },
+      {
+        "isoWeek": "202610",
+        "channelGroup": "Direct",
+        "activeUsers": 30976
+      },
+      {
+        "isoWeek": "202621",
+        "channelGroup": "Direct",
+        "activeUsers": 29951
+      },
+      {
+        "isoWeek": "202627",
+        "channelGroup": "Direct",
+        "activeUsers": 28046
+      },
+      {
+        "isoWeek": "202620",
+        "channelGroup": "Direct",
+        "activeUsers": 26596
+      },
+      {
+        "isoWeek": "202623",
+        "channelGroup": "Direct",
+        "activeUsers": 22485
+      },
+      {
+        "isoWeek": "202608",
+        "channelGroup": "Direct",
+        "activeUsers": 19302
+      },
+      {
+        "isoWeek": "202622",
+        "channelGroup": "Direct",
+        "activeUsers": 18686
+      },
+      {
+        "isoWeek": "202609",
+        "channelGroup": "Direct",
+        "activeUsers": 18532
+      },
+      {
+        "isoWeek": "202607",
+        "channelGroup": "Direct",
+        "activeUsers": 12174
+      },
+      {
+        "isoWeek": "202642",
+        "channelGroup": "Direct",
+        "activeUsers": 3879
+      },
+      {
+        "isoWeek": "202640",
+        "channelGroup": "Direct",
+        "activeUsers": 3669
+      },
+      {
+        "isoWeek": "202616",
+        "channelGroup": "Unassigned",
+        "activeUsers": 2986
+      },
+      {
+        "isoWeek": "202639",
+        "channelGroup": "Direct",
+        "activeUsers": 2980
+      },
+      {
+        "isoWeek": "202641",
+        "channelGroup": "Direct",
+        "activeUsers": 2963
+      },
+      {
+        "isoWeek": "202606",
+        "channelGroup": "Direct",
+        "activeUsers": 2851
+      },
+      {
+        "isoWeek": "202605",
+        "channelGroup": "Direct",
+        "activeUsers": 2545
+      },
+      {
+        "isoWeek": "202615",
+        "channelGroup": "Organic Social",
+        "activeUsers": 2272
+      },
+      {
+        "isoWeek": "202615",
+        "channelGroup": "Organic Search",
+        "activeUsers": 2171
+      },
+      {
+        "isoWeek": "202630",
+        "channelGroup": "Direct",
+        "activeUsers": 2096
+      },
+      {
+        "isoWeek": "202631",
+        "channelGroup": "Direct",
+        "activeUsers": 1800
+      },
+      {
+        "isoWeek": "202632",
+        "channelGroup": "Direct",
+        "activeUsers": 1720
+      },
+      {
+        "isoWeek": "202616",
+        "channelGroup": "Organic Search",
+        "activeUsers": 1594
+      },
+      {
+        "isoWeek": "202607",
+        "channelGroup": "Organic Social",
+        "activeUsers": 1512
+      },
+      {
+        "isoWeek": "202633",
+        "channelGroup": "Direct",
+        "activeUsers": 1500
+      },
+      {
+        "isoWeek": "202634",
+        "channelGroup": "Direct",
+        "activeUsers": 1365
+      },
+      {
+        "isoWeek": "202617",
+        "channelGroup": "Organic Search",
+        "activeUsers": 1304
+      },
+      {
+        "isoWeek": "202619",
+        "channelGroup": "Organic Search",
+        "activeUsers": 1244
+      },
+      {
+        "isoWeek": "202618",
+        "channelGroup": "Organic Search",
+        "activeUsers": 1231
+      },
+      {
+        "isoWeek": "202635",
+        "channelGroup": "Direct",
+        "activeUsers": 1220
+      },
+      {
+        "isoWeek": "202620",
+        "channelGroup": "Organic Search",
+        "activeUsers": 1134
+      },
+      {
+        "isoWeek": "202638",
+        "channelGroup": "Direct",
+        "activeUsers": 1103
+      },
+      {
+        "isoWeek": "202636",
+        "channelGroup": "Direct",
+        "activeUsers": 1060
+      },
+      {
+        "isoWeek": "202604",
+        "channelGroup": "Direct",
+        "activeUsers": 1058
+      },
+      {
+        "isoWeek": "202624",
+        "channelGroup": "Unassigned",
+        "activeUsers": 1023
+      },
+      {
+        "isoWeek": "202626",
+        "channelGroup": "Organic Search",
+        "activeUsers": 1016
+      },
+      {
+        "isoWeek": "202637",
+        "channelGroup": "Direct",
+        "activeUsers": 985
+      },
+      {
+        "isoWeek": "202623",
+        "channelGroup": "Organic Search",
+        "activeUsers": 971
+      },
+      {
+        "isoWeek": "202628",
+        "channelGroup": "Organic Search",
+        "activeUsers": 968
+      },
+      {
+        "isoWeek": "202621",
+        "channelGroup": "Organic Search",
+        "activeUsers": 967
+      },
+      {
+        "isoWeek": "202627",
+        "channelGroup": "Organic Search",
+        "activeUsers": 922
+      },
+      {
+        "isoWeek": "202624",
+        "channelGroup": "Organic Search",
+        "activeUsers": 911
+      },
+      {
+        "isoWeek": "202622",
+        "channelGroup": "Organic Search",
+        "activeUsers": 904
+      },
+      {
+        "isoWeek": "202625",
+        "channelGroup": "Organic Search",
+        "activeUsers": 890
+      },
+      {
+        "isoWeek": "202629",
+        "channelGroup": "Organic Search",
+        "activeUsers": 864
+      },
+      {
+        "isoWeek": "202607",
+        "channelGroup": "Organic Search",
+        "activeUsers": 848
+      },
+      {
+        "isoWeek": "202603",
+        "channelGroup": "Direct",
+        "activeUsers": 837
+      },
+      {
+        "isoWeek": "202602",
+        "channelGroup": "Direct",
+        "activeUsers": 776
+      },
+      {
+        "isoWeek": "202609",
+        "channelGroup": "Organic Search",
+        "activeUsers": 753
+      },
+      {
+        "isoWeek": "202615",
+        "channelGroup": "Email",
+        "activeUsers": 753
+      },
+      {
+        "isoWeek": "202616",
+        "channelGroup": "Organic Social",
+        "activeUsers": 727
+      },
+      {
+        "isoWeek": "202608",
+        "channelGroup": "Organic Search",
+        "activeUsers": 726
+      },
+      {
+        "isoWeek": "202610",
+        "channelGroup": "Organic Search",
+        "activeUsers": 716
+      },
+      {
+        "isoWeek": "202614",
+        "channelGroup": "Unassigned",
+        "activeUsers": 711
+      },
+      {
+        "isoWeek": "202611",
+        "channelGroup": "Organic Search",
+        "activeUsers": 667
+      },
+      {
+        "isoWeek": "202606",
+        "channelGroup": "Organic Search",
+        "activeUsers": 628
+      },
+      {
+        "isoWeek": "202603",
+        "channelGroup": "Organic Search",
+        "activeUsers": 594
+      },
+      {
+        "isoWeek": "202613",
+        "channelGroup": "Organic Search",
+        "activeUsers": 592
+      },
+      {
+        "isoWeek": "202605",
+        "channelGroup": "Organic Search",
+        "activeUsers": 581
+      },
+      {
+        "isoWeek": "202612",
+        "channelGroup": "Organic Search",
+        "activeUsers": 570
+      },
+      {
+        "isoWeek": "202640",
+        "channelGroup": "Organic Search",
+        "activeUsers": 565
+      },
+      {
+        "isoWeek": "202604",
+        "channelGroup": "Organic Search",
+        "activeUsers": 560
+      },
+      {
+        "isoWeek": "202601",
+        "channelGroup": "Direct",
+        "activeUsers": 555
+      },
+      {
+        "isoWeek": "202602",
+        "channelGroup": "Organic Search",
+        "activeUsers": 525
+      },
+      {
+        "isoWeek": "202614",
+        "channelGroup": "Organic Search",
+        "activeUsers": 506
+      },
+      {
+        "isoWeek": "202641",
+        "channelGroup": "Organic Search",
+        "activeUsers": 502
+      },
+      {
+        "isoWeek": "202630",
+        "channelGroup": "Organic Search",
+        "activeUsers": 458
+      },
+      {
+        "isoWeek": "202639",
+        "channelGroup": "Organic Search",
+        "activeUsers": 439
+      },
+      {
+        "isoWeek": "202616",
+        "channelGroup": "Referral",
+        "activeUsers": 434
+      },
+      {
+        "isoWeek": "202631",
+        "channelGroup": "Organic Search",
+        "activeUsers": 409
+      },
+      {
+        "isoWeek": "202615",
+        "channelGroup": "Referral",
+        "activeUsers": 408
+      },
+      {
+        "isoWeek": "202632",
+        "channelGroup": "Organic Search",
+        "activeUsers": 373
+      },
+      {
+        "isoWeek": "202633",
+        "channelGroup": "Organic Search",
+        "activeUsers": 360
+      },
+      {
+        "isoWeek": "202634",
+        "channelGroup": "Organic Search",
+        "activeUsers": 310
+      },
+      {
+        "isoWeek": "202638",
+        "channelGroup": "Organic Search",
+        "activeUsers": 298
+      },
+      {
+        "isoWeek": "202625",
+        "channelGroup": "Unassigned",
+        "activeUsers": 289
+      },
+      {
+        "isoWeek": "202635",
+        "channelGroup": "Organic Search",
+        "activeUsers": 288
+      },
+      {
+        "isoWeek": "202617",
+        "channelGroup": "Organic Social",
+        "activeUsers": 287
+      },
+      {
+        "isoWeek": "202636",
+        "channelGroup": "Organic Search",
+        "activeUsers": 287
+      },
+      {
+        "isoWeek": "202637",
+        "channelGroup": "Organic Search",
+        "activeUsers": 285
+      },
+      {
+        "isoWeek": "202617",
+        "channelGroup": "Referral",
+        "activeUsers": 252
+      },
+      {
+        "isoWeek": "202626",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 241
+      },
+      {
+        "isoWeek": "202618",
+        "channelGroup": "Organic Social",
+        "activeUsers": 228
+      },
+      {
+        "isoWeek": "202608",
+        "channelGroup": "Referral",
+        "activeUsers": 227
+      },
+      {
+        "isoWeek": "202642",
+        "channelGroup": "Organic Search",
+        "activeUsers": 227
+      },
+      {
+        "isoWeek": "202626",
+        "channelGroup": "Referral",
+        "activeUsers": 226
+      },
+      {
+        "isoWeek": "202628",
+        "channelGroup": "Referral",
+        "activeUsers": 218
+      },
+      {
+        "isoWeek": "202609",
+        "channelGroup": "Organic Social",
+        "activeUsers": 205
+      },
+      {
+        "isoWeek": "202620",
+        "channelGroup": "Referral",
+        "activeUsers": 204
+      },
+      {
+        "isoWeek": "202619",
+        "channelGroup": "Referral",
+        "activeUsers": 199
+      },
+      {
+        "isoWeek": "202627",
+        "channelGroup": "Referral",
+        "activeUsers": 187
+      },
+      {
+        "isoWeek": "202618",
+        "channelGroup": "Referral",
+        "activeUsers": 183
+      },
+      {
+        "isoWeek": "202623",
+        "channelGroup": "Referral",
+        "activeUsers": 183
+      },
+      {
+        "isoWeek": "202609",
+        "channelGroup": "Referral",
+        "activeUsers": 176
+      },
+      {
+        "isoWeek": "202629",
+        "channelGroup": "Referral",
+        "activeUsers": 171
+      },
+      {
+        "isoWeek": "202640",
+        "channelGroup": "Referral",
+        "activeUsers": 167
+      },
+      {
+        "isoWeek": "202624",
+        "channelGroup": "Referral",
+        "activeUsers": 161
+      },
+      {
+        "isoWeek": "202641",
+        "channelGroup": "Referral",
+        "activeUsers": 161
+      },
+      {
+        "isoWeek": "202610",
+        "channelGroup": "Referral",
+        "activeUsers": 160
+      },
+      {
+        "isoWeek": "202621",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 159
+      },
+      {
+        "isoWeek": "202608",
+        "channelGroup": "Organic Social",
+        "activeUsers": 156
+      },
+      {
+        "isoWeek": "202619",
+        "channelGroup": "Organic Social",
+        "activeUsers": 155
+      },
+      {
+        "isoWeek": "202625",
+        "channelGroup": "Referral",
+        "activeUsers": 148
+      },
+      {
+        "isoWeek": "202606",
+        "channelGroup": "Referral",
+        "activeUsers": 140
+      },
+      {
+        "isoWeek": "202614",
+        "channelGroup": "Referral",
+        "activeUsers": 139
+      },
+      {
+        "isoWeek": "202611",
+        "channelGroup": "Referral",
+        "activeUsers": 134
+      },
+      {
+        "isoWeek": "202638",
+        "channelGroup": "Referral",
+        "activeUsers": 131
+      },
+      {
+        "isoWeek": "202639",
+        "channelGroup": "Referral",
+        "activeUsers": 127
+      },
+      {
+        "isoWeek": "202603",
+        "channelGroup": "Referral",
+        "activeUsers": 126
+      },
+      {
+        "isoWeek": "202602",
+        "channelGroup": "Referral",
+        "activeUsers": 124
+      },
+      {
+        "isoWeek": "202604",
+        "channelGroup": "Referral",
+        "activeUsers": 124
+      },
+      {
+        "isoWeek": "202628",
+        "channelGroup": "Email",
+        "activeUsers": 124
+      },
+      {
+        "isoWeek": "202634",
+        "channelGroup": "Referral",
+        "activeUsers": 124
+      },
+      {
+        "isoWeek": "202621",
+        "channelGroup": "Referral",
+        "activeUsers": 122
+      },
+      {
+        "isoWeek": "202613",
+        "channelGroup": "Organic Social",
+        "activeUsers": 121
+      },
+      {
+        "isoWeek": "202622",
+        "channelGroup": "Referral",
+        "activeUsers": 121
+      },
+      {
+        "isoWeek": "202601",
+        "channelGroup": "Organic Search",
+        "activeUsers": 120
+      },
+      {
+        "isoWeek": "202612",
+        "channelGroup": "Referral",
+        "activeUsers": 119
+      },
+      {
+        "isoWeek": "202607",
+        "channelGroup": "Referral",
+        "activeUsers": 115
+      },
+      {
+        "isoWeek": "202613",
+        "channelGroup": "Referral",
+        "activeUsers": 112
+      },
+      {
+        "isoWeek": "202633",
+        "channelGroup": "Referral",
+        "activeUsers": 110
+      },
+      {
+        "isoWeek": "202605",
+        "channelGroup": "Referral",
+        "activeUsers": 108
+      },
+      {
+        "isoWeek": "202616",
+        "channelGroup": "Email",
+        "activeUsers": 108
+      },
+      {
+        "isoWeek": "202635",
+        "channelGroup": "Referral",
+        "activeUsers": 105
+      },
+      {
+        "isoWeek": "202610",
+        "channelGroup": "Organic Social",
+        "activeUsers": 104
+      },
+      {
+        "isoWeek": "202609",
+        "channelGroup": "Email",
+        "activeUsers": 103
+      },
+      {
+        "isoWeek": "202632",
+        "channelGroup": "Referral",
+        "activeUsers": 101
+      },
+      {
+        "isoWeek": "202636",
+        "channelGroup": "Referral",
+        "activeUsers": 101
+      },
+      {
+        "isoWeek": "202612",
+        "channelGroup": "Organic Social",
+        "activeUsers": 100
+      },
+      {
+        "isoWeek": "202627",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 100
+      },
+      {
+        "isoWeek": "202620",
+        "channelGroup": "Organic Social",
+        "activeUsers": 99
+      },
+      {
+        "isoWeek": "202630",
+        "channelGroup": "Referral",
+        "activeUsers": 95
+      },
+      {
+        "isoWeek": "202625",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 91
+      },
+      {
+        "isoWeek": "202633",
+        "channelGroup": "Email",
+        "activeUsers": 88
+      },
+      {
+        "isoWeek": "202637",
+        "channelGroup": "Referral",
+        "activeUsers": 84
+      },
+      {
+        "isoWeek": "202626",
+        "channelGroup": "Unassigned",
+        "activeUsers": 80
+      },
+      {
+        "isoWeek": "202628",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 80
+      },
+      {
+        "isoWeek": "202621",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 77
+      },
+      {
+        "isoWeek": "202617",
+        "channelGroup": "Unassigned",
+        "activeUsers": 75
+      },
+      {
+        "isoWeek": "202629",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 75
+      },
+      {
+        "isoWeek": "202615",
+        "channelGroup": "Unassigned",
+        "activeUsers": 72
+      },
+      {
+        "isoWeek": "202622",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 72
+      },
+      {
+        "isoWeek": "202623",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 71
+      },
+      {
+        "isoWeek": "202610",
+        "channelGroup": "Email",
+        "activeUsers": 70
+      },
+      {
+        "isoWeek": "202611",
+        "channelGroup": "Organic Social",
+        "activeUsers": 70
+      },
+      {
+        "isoWeek": "202626",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 70
+      },
+      {
+        "isoWeek": "202642",
+        "channelGroup": "Referral",
+        "activeUsers": 70
+      },
+      {
+        "isoWeek": "202631",
+        "channelGroup": "Referral",
+        "activeUsers": 67
+      },
+      {
+        "isoWeek": "202614",
+        "channelGroup": "Organic Social",
+        "activeUsers": 65
+      },
+      {
+        "isoWeek": "202619",
+        "channelGroup": "Unassigned",
+        "activeUsers": 65
+      },
+      {
+        "isoWeek": "202625",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 65
+      },
+      {
+        "isoWeek": "202642",
+        "channelGroup": "Unassigned",
+        "activeUsers": 62
+      },
+      {
+        "isoWeek": "202626",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 61
+      },
+      {
+        "isoWeek": "202611",
+        "channelGroup": "Email",
+        "activeUsers": 60
+      },
+      {
+        "isoWeek": "202624",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 60
+      },
+      {
+        "isoWeek": "202632",
+        "channelGroup": "Email",
+        "activeUsers": 60
+      },
+      {
+        "isoWeek": "202608",
+        "channelGroup": "Email",
+        "activeUsers": 58
+      },
+      {
+        "isoWeek": "202623",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 58
+      },
+      {
+        "isoWeek": "202625",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 57
+      },
+      {
+        "isoWeek": "202634",
+        "channelGroup": "Unassigned",
+        "activeUsers": 57
+      },
+      {
+        "isoWeek": "202620",
+        "channelGroup": "Unassigned",
+        "activeUsers": 56
+      },
+      {
+        "isoWeek": "202620",
+        "channelGroup": "Email",
+        "activeUsers": 55
+      },
+      {
+        "isoWeek": "202621",
+        "channelGroup": "Unassigned",
+        "activeUsers": 54
+      },
+      {
+        "isoWeek": "202622",
+        "channelGroup": "Unassigned",
+        "activeUsers": 54
+      },
+      {
+        "isoWeek": "202629",
+        "channelGroup": "Unassigned",
+        "activeUsers": 52
+      },
+      {
+        "isoWeek": "202608",
+        "channelGroup": "Unassigned",
+        "activeUsers": 51
+      },
+      {
+        "isoWeek": "202634",
+        "channelGroup": "Email",
+        "activeUsers": 51
+      },
+      {
+        "isoWeek": "202622",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 50
+      },
+      {
+        "isoWeek": "202623",
+        "channelGroup": "Unassigned",
+        "activeUsers": 50
+      },
+      {
+        "isoWeek": "202638",
+        "channelGroup": "Unassigned",
+        "activeUsers": 49
+      },
+      {
+        "isoWeek": "202628",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 45
+      },
+      {
+        "isoWeek": "202628",
+        "channelGroup": "Unassigned",
+        "activeUsers": 45
+      },
+      {
+        "isoWeek": "202602",
+        "channelGroup": "Unassigned",
+        "activeUsers": 44
+      },
+      {
+        "isoWeek": "202627",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 44
+      },
+      {
+        "isoWeek": "202610",
+        "channelGroup": "Unassigned",
+        "activeUsers": 42
+      },
+      {
+        "isoWeek": "202628",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 42
+      },
+      {
+        "isoWeek": "202601",
+        "channelGroup": "Referral",
+        "activeUsers": 41
+      },
+      {
+        "isoWeek": "202640",
+        "channelGroup": "Unassigned",
+        "activeUsers": 40
+      },
+      {
+        "isoWeek": "202641",
+        "channelGroup": "Unassigned",
+        "activeUsers": 39
+      },
+      {
+        "isoWeek": "202627",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 38
+      },
+      {
+        "isoWeek": "202605",
+        "channelGroup": "Unassigned",
+        "activeUsers": 37
+      },
+      {
+        "isoWeek": "202606",
+        "channelGroup": "Unassigned",
+        "activeUsers": 36
+      },
+      {
+        "isoWeek": "202619",
+        "channelGroup": "Email",
+        "activeUsers": 36
+      },
+      {
+        "isoWeek": "202609",
+        "channelGroup": "Unassigned",
+        "activeUsers": 35
+      },
+      {
+        "isoWeek": "202618",
+        "channelGroup": "Unassigned",
+        "activeUsers": 35
+      },
+      {
+        "isoWeek": "202629",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 35
+      },
+      {
+        "isoWeek": "202640",
+        "channelGroup": "Email",
+        "activeUsers": 35
+      },
+      {
+        "isoWeek": "202627",
+        "channelGroup": "Unassigned",
+        "activeUsers": 34
+      },
+      {
+        "isoWeek": "202624",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 33
+      },
+      {
+        "isoWeek": "202632",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 33
+      },
+      {
+        "isoWeek": "202639",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 33
+      },
+      {
+        "isoWeek": "202604",
+        "channelGroup": "Unassigned",
+        "activeUsers": 32
+      },
+      {
+        "isoWeek": "202602",
+        "channelGroup": "Organic Social",
+        "activeUsers": 31
+      },
+      {
+        "isoWeek": "202606",
+        "channelGroup": "Organic Social",
+        "activeUsers": 31
+      },
+      {
+        "isoWeek": "202612",
+        "channelGroup": "Unassigned",
+        "activeUsers": 31
+      },
+      {
+        "isoWeek": "202640",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 31
+      },
+      {
+        "isoWeek": "202630",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 30
+      },
+      {
+        "isoWeek": "202631",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 30
+      },
+      {
+        "isoWeek": "202639",
+        "channelGroup": "Unassigned",
+        "activeUsers": 30
+      },
+      {
+        "isoWeek": "202607",
+        "channelGroup": "Unassigned",
+        "activeUsers": 29
+      },
+      {
+        "isoWeek": "202613",
+        "channelGroup": "Unassigned",
+        "activeUsers": 29
+      },
+      {
+        "isoWeek": "202624",
+        "channelGroup": "Email",
+        "activeUsers": 29
+      },
+      {
+        "isoWeek": "202603",
+        "channelGroup": "Unassigned",
+        "activeUsers": 27
+      },
+      {
+        "isoWeek": "202611",
+        "channelGroup": "Unassigned",
+        "activeUsers": 27
+      },
+      {
+        "isoWeek": "202614",
+        "channelGroup": "Email",
+        "activeUsers": 27
+      },
+      {
+        "isoWeek": "202639",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 27
+      },
+      {
+        "isoWeek": "202641",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 27
+      },
+      {
+        "isoWeek": "202642",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 27
+      },
+      {
+        "isoWeek": "202633",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 25
+      },
+      {
+        "isoWeek": "202640",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 24
+      },
+      {
+        "isoWeek": "202617",
+        "channelGroup": "Email",
+        "activeUsers": 23
+      },
+      {
+        "isoWeek": "202621",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 23
+      },
+      {
+        "isoWeek": "202635",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 23
+      },
+      {
+        "isoWeek": "202636",
+        "channelGroup": "Unassigned",
+        "activeUsers": 23
+      },
+      {
+        "isoWeek": "202641",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 23
+      },
+      {
+        "isoWeek": "202631",
+        "channelGroup": "Unassigned",
+        "activeUsers": 22
+      },
+      {
+        "isoWeek": "202634",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 22
+      },
+      {
+        "isoWeek": "202637",
+        "channelGroup": "Unassigned",
+        "activeUsers": 22
+      },
+      {
+        "isoWeek": "202620",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 21
+      },
+      {
+        "isoWeek": "202632",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 21
+      },
+      {
+        "isoWeek": "202605",
+        "channelGroup": "Organic Social",
+        "activeUsers": 20
+      },
+      {
+        "isoWeek": "202622",
+        "channelGroup": "Email",
+        "activeUsers": 20
+      },
+      {
+        "isoWeek": "202625",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 20
+      },
+      {
+        "isoWeek": "202633",
+        "channelGroup": "Unassigned",
+        "activeUsers": 20
+      },
+      {
+        "isoWeek": "202630",
+        "channelGroup": "Unassigned",
+        "activeUsers": 19
+      },
+      {
+        "isoWeek": "202604",
+        "channelGroup": "Organic Social",
+        "activeUsers": 18
+      },
+      {
+        "isoWeek": "202636",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 18
+      },
+      {
+        "isoWeek": "202632",
+        "channelGroup": "Unassigned",
+        "activeUsers": 17
+      },
+      {
+        "isoWeek": "202635",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 17
+      },
+      {
+        "isoWeek": "202627",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 16
+      },
+      {
+        "isoWeek": "202634",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 16
+      },
+      {
+        "isoWeek": "202637",
+        "channelGroup": "Email",
+        "activeUsers": 16
+      },
+      {
+        "isoWeek": "202622",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 15
+      },
+      {
+        "isoWeek": "202625",
+        "channelGroup": "Email",
+        "activeUsers": 15
+      },
+      {
+        "isoWeek": "202635",
+        "channelGroup": "Unassigned",
+        "activeUsers": 15
+      },
+      {
+        "isoWeek": "202637",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 15
+      },
+      {
+        "isoWeek": "202637",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 15
+      },
+      {
+        "isoWeek": "202626",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 14
+      },
+      {
+        "isoWeek": "202630",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 14
+      },
+      {
+        "isoWeek": "202630",
+        "channelGroup": "Email",
+        "activeUsers": 14
+      },
+      {
+        "isoWeek": "202633",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 14
+      },
+      {
+        "isoWeek": "202638",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 14
+      },
+      {
+        "isoWeek": "202601",
+        "channelGroup": "Unassigned",
+        "activeUsers": 13
+      },
+      {
+        "isoWeek": "202612",
+        "channelGroup": "Email",
+        "activeUsers": 13
+      },
+      {
+        "isoWeek": "202613",
+        "channelGroup": "Email",
+        "activeUsers": 13
+      },
+      {
+        "isoWeek": "202618",
+        "channelGroup": "Email",
+        "activeUsers": 13
+      },
+      {
+        "isoWeek": "202624",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 13
+      },
+      {
+        "isoWeek": "202636",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 13
+      },
+      {
+        "isoWeek": "202623",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 12
+      },
+      {
+        "isoWeek": "202629",
+        "channelGroup": "Email",
+        "activeUsers": 12
+      },
+      {
+        "isoWeek": "202603",
+        "channelGroup": "Organic Social",
+        "activeUsers": 11
+      },
+      {
+        "isoWeek": "202631",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 11
+      },
+      {
+        "isoWeek": "202638",
+        "channelGroup": "Email",
+        "activeUsers": 11
+      },
+      {
+        "isoWeek": "202641",
+        "channelGroup": "Email",
+        "activeUsers": 11
+      },
+      {
+        "isoWeek": "202606",
+        "channelGroup": "Email",
+        "activeUsers": 10
+      },
+      {
+        "isoWeek": "202621",
+        "channelGroup": "Email",
+        "activeUsers": 10
+      },
+      {
+        "isoWeek": "202623",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 10
+      },
+      {
+        "isoWeek": "202638",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 10
+      },
+      {
+        "isoWeek": "202602",
+        "channelGroup": "Email",
+        "activeUsers": 9
+      },
+      {
+        "isoWeek": "202607",
+        "channelGroup": "Email",
+        "activeUsers": 9
+      },
+      {
+        "isoWeek": "202604",
+        "channelGroup": "Email",
+        "activeUsers": 8
+      },
+      {
+        "isoWeek": "202621",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 8
+      },
+      {
+        "isoWeek": "202622",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 8
+      },
+      {
+        "isoWeek": "202626",
+        "channelGroup": "Email",
+        "activeUsers": 8
+      },
+      {
+        "isoWeek": "202631",
+        "channelGroup": "Email",
+        "activeUsers": 8
+      },
+      {
+        "isoWeek": "202635",
+        "channelGroup": "Email",
+        "activeUsers": 8
+      },
+      {
+        "isoWeek": "202642",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 8
+      },
+      {
+        "isoWeek": "202629",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 7
+      },
+      {
+        "isoWeek": "202603",
+        "channelGroup": "Email",
+        "activeUsers": 6
+      },
+      {
+        "isoWeek": "202620",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 6
+      },
+      {
+        "isoWeek": "202628",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 6
+      },
+      {
+        "isoWeek": "202630",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 6
+      },
+      {
+        "isoWeek": "202639",
+        "channelGroup": "Email",
+        "activeUsers": 6
+      },
+      {
+        "isoWeek": "202601",
+        "channelGroup": "Organic Social",
+        "activeUsers": 5
+      },
+      {
+        "isoWeek": "202601",
+        "channelGroup": "Email",
+        "activeUsers": 4
+      },
+      {
+        "isoWeek": "202605",
+        "channelGroup": "Email",
+        "activeUsers": 4
+      },
+      {
+        "isoWeek": "202608",
+        "channelGroup": "Organic Video",
+        "activeUsers": 4
+      },
+      {
+        "isoWeek": "202619",
+        "channelGroup": "Paid Other",
+        "activeUsers": 4
+      },
+      {
+        "isoWeek": "202620",
+        "channelGroup": "Paid Other",
+        "activeUsers": 4
+      },
+      {
+        "isoWeek": "202623",
+        "channelGroup": "Email",
+        "activeUsers": 4
+      },
+      {
+        "isoWeek": "202624",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 4
+      },
+      {
+        "isoWeek": "202627",
+        "channelGroup": "Email",
+        "activeUsers": 4
+      },
+      {
+        "isoWeek": "202632",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 4
+      },
+      {
+        "isoWeek": "202636",
+        "channelGroup": "Email",
+        "activeUsers": 4
+      },
+      {
+        "isoWeek": "202605",
+        "channelGroup": "Paid Social",
+        "activeUsers": 3
+      },
+      {
+        "isoWeek": "202617",
+        "channelGroup": "Organic Video",
+        "activeUsers": 3
+      },
+      {
+        "isoWeek": "202620",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 3
+      },
+      {
+        "isoWeek": "202636",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 3
+      },
+      {
+        "isoWeek": "202641",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 3
+      },
+      {
+        "isoWeek": "202603",
+        "channelGroup": "Paid Social",
+        "activeUsers": 2
+      },
+      {
+        "isoWeek": "202610",
+        "channelGroup": "Paid Social",
+        "activeUsers": 2
+      },
+      {
+        "isoWeek": "202613",
+        "channelGroup": "Paid Social",
+        "activeUsers": 2
+      },
+      {
+        "isoWeek": "202620",
+        "channelGroup": "Paid Social",
+        "activeUsers": 2
+      },
+      {
+        "isoWeek": "202633",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 2
+      },
+      {
+        "isoWeek": "202634",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 2
+      },
+      {
+        "isoWeek": "202638",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 2
+      },
+      {
+        "isoWeek": "202640",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 2
+      },
+      {
+        "isoWeek": "202640",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 2
+      },
+      {
+        "isoWeek": "202602",
+        "channelGroup": "Paid Search",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202602",
+        "channelGroup": "Paid Social",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202607",
+        "channelGroup": "Paid Other",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202607",
+        "channelGroup": "Paid Social",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202609",
+        "channelGroup": "Paid Search",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202609",
+        "channelGroup": "Paid Social",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202610",
+        "channelGroup": "Organic Video",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202611",
+        "channelGroup": "Paid Social",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202612",
+        "channelGroup": "Paid Social",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202613",
+        "channelGroup": "Paid Search",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202615",
+        "channelGroup": "Organic Video",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202616",
+        "channelGroup": "Paid Social",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202619",
+        "channelGroup": "Organic Video",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202620",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202630",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202631",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202632",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202633",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202636",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202637",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202639",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202639",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 1
+      },
+      {
+        "isoWeek": "202641",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 1
+      }
+    ],
+    "file7": [
+      {
+        "yearMonth": "202603",
+        "channelGroup": "Direct",
+        "activeUsers": 354694
+      },
+      {
+        "yearMonth": "202604",
+        "channelGroup": "Direct",
+        "activeUsers": 257039
+      },
+      {
+        "yearMonth": "202606",
+        "channelGroup": "Direct",
+        "activeUsers": 148920
+      },
+      {
+        "yearMonth": "202605",
+        "channelGroup": "Direct",
+        "activeUsers": 115110
+      },
+      {
+        "yearMonth": "202607",
+        "channelGroup": "Direct",
+        "activeUsers": 99836
+      },
+      {
+        "yearMonth": "202602",
+        "channelGroup": "Direct",
+        "activeUsers": 52079
+      },
+      {
+        "yearMonth": "202610",
+        "channelGroup": "Direct",
+        "activeUsers": 8208
+      },
+      {
+        "yearMonth": "202609",
+        "channelGroup": "Direct",
+        "activeUsers": 7293
+      },
+      {
+        "yearMonth": "202604",
+        "channelGroup": "Organic Search",
+        "activeUsers": 5795
+      },
+      {
+        "yearMonth": "202608",
+        "channelGroup": "Direct",
+        "activeUsers": 5536
+      },
+      {
+        "yearMonth": "202601",
+        "channelGroup": "Direct",
+        "activeUsers": 5415
+      },
+      {
+        "yearMonth": "202605",
+        "channelGroup": "Organic Search",
+        "activeUsers": 3963
+      },
+      {
+        "yearMonth": "202606",
+        "channelGroup": "Organic Search",
+        "activeUsers": 3514
+      },
+      {
+        "yearMonth": "202604",
+        "channelGroup": "Organic Social",
+        "activeUsers": 3395
+      },
+      {
+        "yearMonth": "202604",
+        "channelGroup": "Unassigned",
+        "activeUsers": 3172
+      },
+      {
+        "yearMonth": "202607",
+        "channelGroup": "Organic Search",
+        "activeUsers": 2786
+      },
+      {
+        "yearMonth": "202602",
+        "channelGroup": "Organic Search",
+        "activeUsers": 2692
+      },
+      {
+        "yearMonth": "202603",
+        "channelGroup": "Organic Search",
+        "activeUsers": 2528
+      },
+      {
+        "yearMonth": "202601",
+        "channelGroup": "Organic Search",
+        "activeUsers": 2120
+      },
+      {
+        "yearMonth": "202602",
+        "channelGroup": "Organic Social",
+        "activeUsers": 1844
+      },
+      {
+        "yearMonth": "202606",
+        "channelGroup": "Unassigned",
+        "activeUsers": 1444
+      },
+      {
+        "yearMonth": "202609",
+        "channelGroup": "Organic Search",
+        "activeUsers": 1336
+      },
+      {
+        "yearMonth": "202604",
+        "channelGroup": "Referral",
+        "activeUsers": 1231
+      },
+      {
+        "yearMonth": "202608",
+        "channelGroup": "Organic Search",
+        "activeUsers": 1206
+      },
+      {
+        "yearMonth": "202610",
+        "channelGroup": "Organic Search",
+        "activeUsers": 939
+      },
+      {
+        "yearMonth": "202604",
+        "channelGroup": "Email",
+        "activeUsers": 888
+      },
+      {
+        "yearMonth": "202603",
+        "channelGroup": "Unassigned",
+        "activeUsers": 815
+      },
+      {
+        "yearMonth": "202606",
+        "channelGroup": "Referral",
+        "activeUsers": 684
+      },
+      {
+        "yearMonth": "202605",
+        "channelGroup": "Referral",
+        "activeUsers": 629
+      },
+      {
+        "yearMonth": "202602",
+        "channelGroup": "Referral",
+        "activeUsers": 608
+      },
+      {
+        "yearMonth": "202607",
+        "channelGroup": "Referral",
+        "activeUsers": 572
+      },
+      {
+        "yearMonth": "202603",
+        "channelGroup": "Referral",
+        "activeUsers": 544
+      },
+      {
+        "yearMonth": "202601",
+        "channelGroup": "Referral",
+        "activeUsers": 477
+      },
+      {
+        "yearMonth": "202603",
+        "channelGroup": "Organic Social",
+        "activeUsers": 426
+      },
+      {
+        "yearMonth": "202606",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 417
+      },
+      {
+        "yearMonth": "202609",
+        "channelGroup": "Referral",
+        "activeUsers": 410
+      },
+      {
+        "yearMonth": "202608",
+        "channelGroup": "Referral",
+        "activeUsers": 388
+      },
+      {
+        "yearMonth": "202605",
+        "channelGroup": "Organic Social",
+        "activeUsers": 300
+      },
+      {
+        "yearMonth": "202610",
+        "channelGroup": "Referral",
+        "activeUsers": 274
+      },
+      {
+        "yearMonth": "202607",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 273
+      },
+      {
+        "yearMonth": "202606",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 257
+      },
+      {
+        "yearMonth": "202605",
+        "channelGroup": "Unassigned",
+        "activeUsers": 231
+      },
+      {
+        "yearMonth": "202605",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 205
+      },
+      {
+        "yearMonth": "202608",
+        "channelGroup": "Email",
+        "activeUsers": 195
+      },
+      {
+        "yearMonth": "202605",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 163
+      },
+      {
+        "yearMonth": "202602",
+        "channelGroup": "Email",
+        "activeUsers": 159
+      },
+      {
+        "yearMonth": "202607",
+        "channelGroup": "Unassigned",
+        "activeUsers": 156
+      },
+      {
+        "yearMonth": "202607",
+        "channelGroup": "Email",
+        "activeUsers": 154
+      },
+      {
+        "yearMonth": "202602",
+        "channelGroup": "Unassigned",
+        "activeUsers": 151
+      },
+      {
+        "yearMonth": "202606",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 146
+      },
+      {
+        "yearMonth": "202603",
+        "channelGroup": "Email",
+        "activeUsers": 142
+      },
+      {
+        "yearMonth": "202601",
+        "channelGroup": "Unassigned",
+        "activeUsers": 137
+      },
+      {
+        "yearMonth": "202609",
+        "channelGroup": "Unassigned",
+        "activeUsers": 127
+      },
+      {
+        "yearMonth": "202607",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 125
+      },
+      {
+        "yearMonth": "202610",
+        "channelGroup": "Unassigned",
+        "activeUsers": 125
+      },
+      {
+        "yearMonth": "202608",
+        "channelGroup": "Unassigned",
+        "activeUsers": 111
+      },
+      {
+        "yearMonth": "202605",
+        "channelGroup": "Email",
+        "activeUsers": 105
+      },
+      {
+        "yearMonth": "202608",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 95
+      },
+      {
+        "yearMonth": "202607",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 86
+      },
+      {
+        "yearMonth": "202609",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 86
+      },
+      {
+        "yearMonth": "202601",
+        "channelGroup": "Organic Social",
+        "activeUsers": 81
+      },
+      {
+        "yearMonth": "202608",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 78
+      },
+      {
+        "yearMonth": "202609",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 77
+      },
+      {
+        "yearMonth": "202610",
+        "channelGroup": "Organic Social - LinkedIn",
+        "activeUsers": 67
+      },
+      {
+        "yearMonth": "202606",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 61
+      },
+      {
+        "yearMonth": "202606",
+        "channelGroup": "Email",
+        "activeUsers": 47
+      },
+      {
+        "yearMonth": "202609",
+        "channelGroup": "Email",
+        "activeUsers": 45
+      },
+      {
+        "yearMonth": "202605",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 41
+      },
+      {
+        "yearMonth": "202610",
+        "channelGroup": "AI Referrals",
+        "activeUsers": 40
+      },
+      {
+        "yearMonth": "202610",
+        "channelGroup": "Email",
+        "activeUsers": 26
+      },
+      {
+        "yearMonth": "202601",
+        "channelGroup": "Email",
+        "activeUsers": 22
+      },
+      {
+        "yearMonth": "202607",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 18
+      },
+      {
+        "yearMonth": "202605",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 17
+      },
+      {
+        "yearMonth": "202605",
+        "channelGroup": "Paid Other",
+        "activeUsers": 8
+      },
+      {
+        "yearMonth": "202608",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 7
+      },
+      {
+        "yearMonth": "202609",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 6
+      },
+      {
+        "yearMonth": "202601",
+        "channelGroup": "Paid Social",
+        "activeUsers": 5
+      },
+      {
+        "yearMonth": "202609",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 5
+      },
+      {
+        "yearMonth": "202610",
+        "channelGroup": "Organic Social - Twitter",
+        "activeUsers": 5
+      },
+      {
+        "yearMonth": "202602",
+        "channelGroup": "Organic Video",
+        "activeUsers": 4
+      },
+      {
+        "yearMonth": "202603",
+        "channelGroup": "Paid Social",
+        "activeUsers": 4
+      },
+      {
+        "yearMonth": "202604",
+        "channelGroup": "Organic Video",
+        "activeUsers": 4
+      },
+      {
+        "yearMonth": "202602",
+        "channelGroup": "Paid Social",
+        "activeUsers": 3
+      },
+      {
+        "yearMonth": "202608",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 3
+      },
+      {
+        "yearMonth": "202605",
+        "channelGroup": "Paid Social",
+        "activeUsers": 2
+      },
+      {
+        "yearMonth": "202601",
+        "channelGroup": "Paid Search",
+        "activeUsers": 1
+      },
+      {
+        "yearMonth": "202602",
+        "channelGroup": "Paid Other",
+        "activeUsers": 1
+      },
+      {
+        "yearMonth": "202602",
+        "channelGroup": "Paid Search",
+        "activeUsers": 1
+      },
+      {
+        "yearMonth": "202603",
+        "channelGroup": "Organic Video",
+        "activeUsers": 1
+      },
+      {
+        "yearMonth": "202603",
+        "channelGroup": "Paid Search",
+        "activeUsers": 1
+      },
+      {
+        "yearMonth": "202604",
+        "channelGroup": "Paid Social",
+        "activeUsers": 1
+      },
+      {
+        "yearMonth": "202605",
+        "channelGroup": "Organic Video",
+        "activeUsers": 1
+      },
+      {
+        "yearMonth": "202610",
+        "channelGroup": "Organic Social - Reddit",
+        "activeUsers": 1
+      }
+    ],
+    "file8": [
+      {
+        "isoWeek": "202612",
+        "activeUsers": 200887
+      },
+      {
+        "isoWeek": "202615",
+        "activeUsers": 82462
+      },
+      {
+        "isoWeek": "202613",
+        "activeUsers": 76881
+      },
+      {
+        "isoWeek": "202616",
+        "activeUsers": 60882
+      },
+      {
+        "isoWeek": "202617",
+        "activeUsers": 60256
+      },
+      {
+        "isoWeek": "202614",
+        "activeUsers": 50962
+      },
+      {
+        "isoWeek": "202629",
+        "activeUsers": 47663
+      },
+      {
+        "isoWeek": "202626",
+        "activeUsers": 43881
+      },
+      {
+        "isoWeek": "202628",
+        "activeUsers": 39060
+      },
+      {
+        "isoWeek": "202618",
+        "activeUsers": 38354
+      },
+      {
+        "isoWeek": "202619",
+        "activeUsers": 37767
+      },
+      {
+        "isoWeek": "202624",
+        "activeUsers": 37446
+      },
+      {
+        "isoWeek": "202625",
+        "activeUsers": 36060
+      },
+      {
+        "isoWeek": "202611",
+        "activeUsers": 35872
+      },
+      {
+        "isoWeek": "202610",
+        "activeUsers": 32042
+      },
+      {
+        "isoWeek": "202621",
+        "activeUsers": 31282
+      },
+      {
+        "isoWeek": "202627",
+        "activeUsers": 29431
+      },
+      {
+        "isoWeek": "202620",
+        "activeUsers": 28169
+      },
+      {
+        "isoWeek": "202623",
+        "activeUsers": 23854
+      },
+      {
+        "isoWeek": "202608",
+        "activeUsers": 20509
+      },
+      {
+        "isoWeek": "202622",
+        "activeUsers": 19918
+      },
+      {
+        "isoWeek": "202609",
+        "activeUsers": 19834
+      },
+      {
+        "isoWeek": "202607",
+        "activeUsers": 14621
+      },
+      {
+        "isoWeek": "202640",
+        "activeUsers": 4519
+      },
+      {
+        "isoWeek": "202642",
+        "activeUsers": 4224
+      },
+      {
+        "isoWeek": "202641",
+        "activeUsers": 3715
+      },
+      {
+        "isoWeek": "202606",
+        "activeUsers": 3685
+      },
+      {
+        "isoWeek": "202639",
+        "activeUsers": 3628
+      },
+      {
+        "isoWeek": "202605",
+        "activeUsers": 3292
+      },
+      {
+        "isoWeek": "202630",
+        "activeUsers": 2718
+      },
+      {
+        "isoWeek": "202631",
+        "activeUsers": 2335
+      },
+      {
+        "isoWeek": "202632",
+        "activeUsers": 2319
+      },
+      {
+        "isoWeek": "202633",
+        "activeUsers": 2107
+      },
+      {
+        "isoWeek": "202634",
+        "activeUsers": 1941
+      },
+      {
+        "isoWeek": "202604",
+        "activeUsers": 1793
+      },
+      {
+        "isoWeek": "202635",
+        "activeUsers": 1667
+      },
+      {
+        "isoWeek": "202638",
+        "activeUsers": 1612
+      },
+      {
+        "isoWeek": "202603",
+        "activeUsers": 1590
+      },
+      {
+        "isoWeek": "202636",
+        "activeUsers": 1500
+      },
+      {
+        "isoWeek": "202602",
+        "activeUsers": 1496
+      },
+      {
+        "isoWeek": "202637",
+        "activeUsers": 1417
+      },
+      {
+        "isoWeek": "202601",
+        "activeUsers": 735
+      }
+    ],
+    "file9": [
+      {
+        "yearMonth": "202603",
+        "activeUsers": 360044
+      },
+      {
+        "yearMonth": "202604",
+        "activeUsers": 271234
+      },
+      {
+        "yearMonth": "202606",
+        "activeUsers": 154998
+      },
+      {
+        "yearMonth": "202605",
+        "activeUsers": 120648
+      },
+      {
+        "yearMonth": "202607",
+        "activeUsers": 103414
+      },
+      {
+        "yearMonth": "202602",
+        "activeUsers": 57649
+      },
+      {
+        "yearMonth": "202610",
+        "activeUsers": 9586
+      },
+      {
+        "yearMonth": "202609",
+        "activeUsers": 9266
+      },
+      {
+        "yearMonth": "202601",
+        "activeUsers": 8133
+      },
+      {
+        "yearMonth": "202608",
+        "activeUsers": 7632
+      }
+    ],
+    "periodTotals": {
+      "thisWeek": {
+        "label": "This Week (so far)",
+        "startDate": "2026-10-12",
+        "endDate": "2026-10-14",
+        "activeUsers": 4224,
+        "fiscalQuarter": null,
+        "refreshedAt": "2026-10-14T16:20:57.853Z"
+      },
+      "lastWeek": {
+        "label": "Last Week",
+        "startDate": "2026-10-05",
+        "endDate": "2026-10-11",
+        "activeUsers": 3715,
+        "fiscalQuarter": null,
+        "refreshedAt": "2026-10-14T16:20:57.853Z"
+      },
+      "last4Weeks": {
+        "label": "Last 4 Weeks (incl. current)",
+        "startDate": "2026-09-21",
+        "endDate": "2026-10-14",
+        "activeUsers": 14964,
+        "fiscalQuarter": null,
+        "refreshedAt": "2026-10-14T16:20:57.853Z"
+      },
+      "quarterToDate": {
+        "label": "Fiscal Q3 to Date",
+        "startDate": "2026-08-01",
+        "endDate": "2026-10-14",
+        "activeUsers": 25331,
+        "fiscalQuarter": 3,
+        "refreshedAt": "2026-10-14T16:20:57.853Z"
+      },
+      "fiscalYTD": {
+        "label": "Fiscal YTD",
+        "startDate": "2026-02-01",
+        "endDate": "2026-10-14",
+        "activeUsers": 1078385,
+        "fiscalQuarter": 3,
+        "refreshedAt": "2026-10-14T16:20:57.853Z"
+      }
+    },
+    "periodChannels": {
+      "thisWeek": {
+        "label": "This Week (so far)",
+        "startDate": "2026-10-12",
+        "endDate": "2026-10-14",
+        "channels": [
+          {
+            "channel": "Direct",
+            "activeUsers": 3879
+          },
+          {
+            "channel": "Organic Search",
+            "activeUsers": 227
+          },
+          {
+            "channel": "Referral",
+            "activeUsers": 70
+          },
+          {
+            "channel": "Unassigned",
+            "activeUsers": 62
+          },
+          {
+            "channel": "Organic Social - LinkedIn",
+            "activeUsers": 27
+          },
+          {
+            "channel": "AI Referrals",
+            "activeUsers": 8
+          }
+        ]
+      },
+      "lastWeek": {
+        "label": "Last Week",
+        "startDate": "2026-10-05",
+        "endDate": "2026-10-11",
+        "channels": [
+          {
+            "channel": "Direct",
+            "activeUsers": 2963
+          },
+          {
+            "channel": "Organic Search",
+            "activeUsers": 502
+          },
+          {
+            "channel": "Referral",
+            "activeUsers": 161
+          },
+          {
+            "channel": "Unassigned",
+            "activeUsers": 39
+          },
+          {
+            "channel": "Organic Social - LinkedIn",
+            "activeUsers": 27
+          },
+          {
+            "channel": "AI Referrals",
+            "activeUsers": 23
+          },
+          {
+            "channel": "Email",
+            "activeUsers": 11
+          },
+          {
+            "channel": "Organic Social - Twitter",
+            "activeUsers": 3
+          },
+          {
+            "channel": "Organic Social - Reddit",
+            "activeUsers": 1
+          }
+        ]
+      },
+      "last4Weeks": {
+        "label": "Last 4 Weeks (incl. current)",
+        "startDate": "2026-09-21",
+        "endDate": "2026-10-14",
+        "channels": [
+          {
+            "channel": "Direct",
+            "activeUsers": 12747
+          },
+          {
+            "channel": "Organic Search",
+            "activeUsers": 1532
+          },
+          {
+            "channel": "Referral",
+            "activeUsers": 434
+          },
+          {
+            "channel": "Unassigned",
+            "activeUsers": 163
+          },
+          {
+            "channel": "Organic Social - LinkedIn",
+            "activeUsers": 116
+          },
+          {
+            "channel": "AI Referrals",
+            "activeUsers": 80
+          },
+          {
+            "channel": "Email",
+            "activeUsers": 44
+          },
+          {
+            "channel": "Organic Social - Twitter",
+            "activeUsers": 6
+          },
+          {
+            "channel": "Organic Social - Reddit",
+            "activeUsers": 4
+          }
+        ]
+      },
+      "quarterToDate": {
+        "label": "Fiscal Q3 to Date",
+        "startDate": "2026-08-01",
+        "endDate": "2026-10-14",
+        "channels": [
+          {
+            "channel": "Direct",
+            "activeUsers": 20364
+          },
+          {
+            "channel": "Organic Search",
+            "activeUsers": 3241
+          },
+          {
+            "channel": "Referral",
+            "activeUsers": 976
+          },
+          {
+            "channel": "Unassigned",
+            "activeUsers": 359
+          },
+          {
+            "channel": "Email",
+            "activeUsers": 258
+          },
+          {
+            "channel": "Organic Social - LinkedIn",
+            "activeUsers": 246
+          },
+          {
+            "channel": "AI Referrals",
+            "activeUsers": 193
+          },
+          {
+            "channel": "Organic Social - Twitter",
+            "activeUsers": 17
+          },
+          {
+            "channel": "Organic Social - Reddit",
+            "activeUsers": 10
+          }
+        ]
+      },
+      "fiscalYTD": {
+        "label": "Fiscal YTD",
+        "startDate": "2026-02-01",
+        "endDate": "2026-10-14",
+        "channels": [
+          {
+            "channel": "Direct",
+            "activeUsers": 1036213
+          },
+          {
+            "channel": "Organic Search",
+            "activeUsers": 22571
+          },
+          {
+            "channel": "Organic Social",
+            "activeUsers": 5866
+          },
+          {
+            "channel": "Unassigned",
+            "activeUsers": 5220
+          },
+          {
+            "channel": "Referral",
+            "activeUsers": 4948
+          },
+          {
+            "channel": "Email",
+            "activeUsers": 1665
+          },
+          {
+            "channel": "Organic Social - LinkedIn",
+            "activeUsers": 1104
+          },
+          {
+            "channel": "AI Referrals",
+            "activeUsers": 724
+          },
+          {
+            "channel": "Organic Social - Twitter",
+            "activeUsers": 260
+          },
+          {
+            "channel": "Organic Social - Reddit",
+            "activeUsers": 128
+          },
+          {
+            "channel": "Organic Video",
+            "activeUsers": 10
+          },
+          {
+            "channel": "Paid Social",
+            "activeUsers": 10
+          },
+          {
+            "channel": "Paid Other",
+            "activeUsers": 9
+          },
+          {
+            "channel": "Paid Search",
+            "activeUsers": 2
+          }
+        ]
+      }
+    }
   },
   "amplitude": {
     "dailySignups": {

@@ -12,6 +12,7 @@
 
 import { writeFileSync, readFileSync, mkdirSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { readXlsx } from './lib/xlsx-lite.mjs';
 
 // --- Tiny inline dotenv loader (no extra dep) ------------------------------
 if (existsSync('.env.local')) {
@@ -78,6 +79,9 @@ const inputPath = inputIdx >= 0 ? process.argv[inputIdx + 1] : null;
 // Used by the scheduled "refresh logos" workflow so CI doesn't need every
 // source's API keys.
 const logosOnly = process.argv.includes('--logos-only');
+// --ga4-only re-reads the GA4 master feed (data/master-feed.xlsx) into
+// src/data.json's ga4 block and leaves every other source untouched.
+const ga4Only = process.argv.includes('--ga4-only');
 
 const log = (...a) => console.log('[pull-data]', ...a);
 const err = (...a) => console.error('[pull-data]', ...a);
@@ -203,7 +207,107 @@ function parseGA4Csv(filepath, mapRow) {
   return out;
 }
 
+// ---------------------------------------------------------------------------
+// GA4 master feed (Oct 14 2026) — the Apps Script now writes every GA4 dataset
+// into one workbook; download it as data/master-feed.xlsx. It replaces the
+// per-tab "GA4 Dashboard Feed - GA4 - File N.csv" exports. Tabs (by name):
+//   GA4 - File 1..5        same data as the old CSVs (Files 1–5 below)
+//   GA4 - File 6           isoYearIsoWeek, channel group, activeUsers
+//   GA4 - File 7           yearMonth, channel group, activeUsers
+//   GA4 - File 8           isoYearIsoWeek, activeUsers  (GA4-deduplicated per week)
+//   GA4 - File 9           yearMonth, activeUsers       (GA4-deduplicated per month)
+//   GA4 - Preset Totals    preset, label, startDate, endDate, activeUsers, fiscalQuarter, refreshedAt
+//   GA4 - Preset Channels  preset, label, startDate, endDate, channel, activeUsers
+// Columns are looked up by header name, so column order can change safely.
+// Active Users are NOT additive across days, weeks, months or channels — the
+// dashboard reads headline totals from the presets, never from sums.
+// ---------------------------------------------------------------------------
+const GA4_XLSX = process.env.GA4_XLSX || join(GA4_CSV_DIR, 'master-feed.xlsx');
+
+function ga4FromXlsx(path) {
+  const book = readXlsx(path);
+  const tab = (n) => {
+    const name = Object.keys(book).find((k) => k.trim().toLowerCase() === n.toLowerCase());
+    if (!name) return null;
+    const rows = book[name].filter((r) => r && r.some((c) => c != null && c !== ''));
+    if (!rows.length) return [];
+    const head = rows[0].map((h) => String(h ?? '').trim().toLowerCase());
+    return rows.slice(1).map((r) => {
+      const o = {};
+      head.forEach((h, i) => { if (h) o[h] = r[i] ?? null; });
+      return o;
+    });
+  };
+  const need = (n) => {
+    const t = tab(n);
+    if (!t) throw new Error(`${path} has no "${n}" tab.`);
+    return t;
+  };
+  const num = (v) => Number(v) || 0;
+  const ymd = (v) => String(v ?? '').replace(/\.0+$/, '').trim(); // 20260320 / "20260320"
+  const chan = (o) => String(o.sessionprimarychannelgroup ?? o.channel ?? o['session mutiny - with ai referrals'] ?? '').trim();
+  const isDate = (o) => DATE_RX.test(ymd(o.date));
+
+  const file1 = need('GA4 - File 1').filter(isDate).map((o) => ({
+    date: ymd(o.date), totalUsers: num(o.totalusers), engagedSessions: num(o.engagedsessions), sessions: num(o.sessions),
+  }));
+  const file2 = need('GA4 - File 2').filter(isDate).map((o) => ({
+    date: ymd(o.date), channelGroup: chan(o), sourceMedium: String(o.sessionsourcemedium ?? ''), eventCount: num(o.eventcount),
+  }));
+  const file3 = need('GA4 - File 3').filter(isDate).map((o) => ({
+    date: ymd(o.date), channelGroup: chan(o), sourceMedium: String(o.sessionsourcemedium ?? ''),
+    eventCount: num(o.eventcount), engagedSessions: num(o.engagedsessions), sessions: num(o.sessions), totalUsers: num(o.totalusers),
+  }));
+  const file4 = (tab('GA4 - File 4') || []).filter(isDate).map((o) => ({ date: ymd(o.date), highIntentEngagedSessions: num(o.highintentengagedsessions) }));
+  const file5 = (tab('GA4 - File 5') || []).filter(isDate).map((o) => ({ date: ymd(o.date), pagePath: String(o.pagepath ?? ''), engagedSessions: num(o.engagedsessions) }));
+
+  // Active Users (Files 6–9). Keys stay as GA4 writes them: isoWeek 'YYYYWW', yearMonth 'YYYYMM'.
+  const wk = (o) => ymd(o.isoyearisoweek);
+  const ym = (o) => ymd(o.yearmonth);
+  const file6 = (tab('GA4 - File 6') || []).filter((o) => /^\d{6}$/.test(wk(o))).map((o) => ({ isoWeek: wk(o), channelGroup: chan(o), activeUsers: num(o.activeusers) }));
+  const file7 = (tab('GA4 - File 7') || []).filter((o) => /^\d{6}$/.test(ym(o))).map((o) => ({ yearMonth: ym(o), channelGroup: chan(o), activeUsers: num(o.activeusers) }));
+  const file8 = (tab('GA4 - File 8') || []).filter((o) => /^\d{6}$/.test(wk(o))).map((o) => ({ isoWeek: wk(o), activeUsers: num(o.activeusers) }));
+  const file9 = (tab('GA4 - File 9') || []).filter((o) => /^\d{6}$/.test(ym(o))).map((o) => ({ yearMonth: ym(o), activeUsers: num(o.activeusers) }));
+
+  // Presets: exact date ranges, deduplicated by GA4 for that whole range.
+  const periodTotals = {};
+  for (const o of tab('GA4 - Preset Totals') || []) {
+    if (!o.preset) continue;
+    periodTotals[o.preset] = {
+      label: o.label, startDate: String(o.startdate), endDate: String(o.enddate),
+      activeUsers: num(o.activeusers), fiscalQuarter: o.fiscalquarter ?? null, refreshedAt: o.refreshedat ?? null,
+    };
+  }
+  const periodChannels = {};
+  for (const o of tab('GA4 - Preset Channels') || []) {
+    if (!o.preset) continue;
+    const p = (periodChannels[o.preset] ||= { label: o.label, startDate: String(o.startdate), endDate: String(o.enddate), channels: [] });
+    p.channels.push({ channel: chan(o), activeUsers: num(o.activeusers) });
+  }
+
+  for (const [k, n] of Object.entries({ file6, file7, file8, file9 })) if (!n.length) err(`  WARN: GA4 ${k} (Active Users) missing or empty in ${path}.`);
+  for (const p of ['thisWeek', 'lastWeek', 'last4Weeks', 'quarterToDate', 'fiscalYTD']) {
+    if (!periodTotals[p]) err(`  WARN: preset "${p}" missing from "GA4 - Preset Totals".`);
+    if (!periodChannels[p]) err(`  WARN: preset "${p}" missing from "GA4 - Preset Channels".`);
+  }
+  if (!file4.length) err('  WARN: no GA4 File 4 (high-intent engaged sessions) — high-intent card will be empty.');
+  if (file1.length === 0) throw new Error(`GA4 File 1 tab in ${path} had zero data rows.`);
+  // File 1's header row carries the Apps Script refresh timestamp in a spare cell.
+  const stamp = (book[Object.keys(book).find((k) => /file 1$/i.test(k.trim()))]?.[0] || []).find((c) => typeof c === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(c)) || null;
+  log(`  GA4 ok (master-feed.xlsx): file1=${file1.length} file2=${file2.length} file3=${file3.length} file4=${file4.length} file5=${file5.length} · AU file6=${file6.length} file7=${file7.length} file8=${file8.length} file9=${file9.length} · presets=${Object.keys(periodTotals).join(',')}`);
+  return {
+    pulledAt: new Date().toISOString(), source: 'master-feed.xlsx', feedRefreshedAt: stamp,
+    file1, file2, file3, file4, file5, file6, file7, file8, file9, periodTotals, periodChannels,
+  };
+}
+
 async function fetchGA4() {
+  if (existsSync(GA4_XLSX)) {
+    log(`Reading GA4 master feed ${GA4_XLSX}...`);
+    return ga4FromXlsx(GA4_XLSX);
+  }
+  // Legacy fallback: individual CSV exports (pre Oct 14 2026).
+  err(`  WARN: ${GA4_XLSX} not found — falling back to legacy GA4 CSVs (no Active Users data).`);
   log(`Reading GA4 CSVs from ${GA4_CSV_DIR}/...`);
 
   const found = findGA4Files();
@@ -1099,6 +1203,18 @@ if (logosOnly) {
   data.hubspot.logos = logos;
   writeFileSync(OUT_PATH, JSON.stringify(data, null, 2));
   log(`Patched ${OUT_PATH} hubspot.logos — source=${logos.source || logos.method}, total=${logos.total}, weeks=${logos.weekly.length}.`);
+  process.exit(0);
+} else if (ga4Only) {
+  // GA4-only refresh: re-read data/master-feed.xlsx and patch src/data.json's
+  // ga4 block in place (no Amplitude / HubSpot / Peec calls, window not rolled).
+  if (!existsSync(OUT_PATH)) {
+    err(`--ga4-only needs an existing ${OUT_PATH} to patch. Run a full pull-data first.`);
+    process.exit(1);
+  }
+  const data = JSON.parse(readFileSync(OUT_PATH, 'utf8'));
+  data.ga4 = await fetchGA4();
+  writeFileSync(OUT_PATH, JSON.stringify(data, null, 2));
+  log(`Patched ${OUT_PATH} ga4 from ${data.ga4.source || 'CSVs'}.`);
   process.exit(0);
 } else if (inputPath) {
   log(`Reading from local file: ${inputPath}`);

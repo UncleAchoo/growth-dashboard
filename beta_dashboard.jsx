@@ -4,9 +4,9 @@
 // layout, in Mutiny brand styling (Fraunces / Manrope, purple · green · red ·
 // blue, black 1px borders). The current dashboard is untouched.
 //
-// Layout: "PLG funnel at a glance" with two lines —
-//   line 1: Website visitors → User sign ups → Activated (live data)
-//   line 2: Paid → Retained → Expanding companies (stripe-dash, coming soon)
+// Layout: "PLG funnel at a glance" in one row (stacks to two below 1180px) —
+//   users:     Website visitors → User sign ups → Activated (live data)
+//   companies: Paid → Retained → Expanding companies (stripe-dash)
 // Clicking a step switches which section's charts show below (also kept in
 // the URL hash, e.g. ?beta#activation, so a view can be shared).
 //
@@ -23,7 +23,7 @@ import {
   ResponsiveContainer, ComposedChart, BarChart, LineChart, Bar, Line, Cell, LabelList,
   XAxis, YAxis, CartesianGrid, Tooltip, ReferenceArea,
 } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, ArrowRight, MousePointerClick, Info, Clock } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, ArrowRight, MousePointerClick, Info, Clock, ChevronDown } from 'lucide-react';
 import dataJson from './src/data.json';
 import betaSignups from './src/beta-signups.json';
 import betaPaying from './src/beta-paying.json';
@@ -203,6 +203,38 @@ const sumEngaged = (a, b) => {
   for (let d = a; d <= b; d = addDays(d, 1)) s += ENGAGED_BY_DATE[d] || 0;
   return s;
 };
+
+// --- GA4 measurement periods → adjusted visitor → sign up (Nick, Oct 14) ------
+// GA4 counted visitors three different ways in 2026:
+//   before Jul 17   no consent gate: GA4 fired for everyone, incl. ~85% bot
+//                   traffic (AWS Boardman, OR). Conversion is NOT comparable →
+//                   no adjusted rate, raw shown greyed.
+//   Jul 17–Sep 21   CookieYes opt-in everywhere: GA4 only counted visitors who
+//                   clicked Accept. Engaged sessions × CONSENT_ADJ.factor.
+//                   1.5 = the overnight jump in engaged sessions on Sep 22
+//                   (organic 1.64×, referral 1.58×) while signups stayed flat.
+//   Sep 22 →        US auto opt-in (opt-in banner in Europe only): raw GA4.
+// No data-center / city filtering (Nick: bots are part of the game).
+const CONSENT_ADJ = { start: '2026-07-17', end: '2026-09-21', factor: 1.5 };
+const MEASURE_BREAK = CONSENT_ADJ.start; // first day conversion is comparable
+const US_AUTO_OPTIN = addDays(CONSENT_ADJ.end, 1);
+const consentFactor = (d) => (d >= CONSENT_ADJ.start && d <= CONSENT_ADJ.end ? CONSENT_ADJ.factor : 1);
+// Engaged sessions scaled to full consent (only days in CONSENT_ADJ change).
+const sumEngagedAdj = (a, b) => {
+  let s = 0;
+  for (let d = a; d <= b; d = addDays(d, 1)) s += (ENGAGED_BY_DATE[d] || 0) * consentFactor(d);
+  return s;
+};
+// Adjusted conversion over a range. Days before MEASURE_BREAK are dropped
+// (clamped start); null if the range ends before it. `from` = the day it
+// actually starts on, so labels can say so.
+const adjConvOf = (a, b, signupsFor) => {
+  if (b < MEASURE_BREAK) return { rate: null, from: null };
+  const from = a < MEASURE_BREAK ? MEASURE_BREAK : a;
+  const visitors = sumEngagedAdj(from, b);
+  return { rate: pct(signupsFor(from, b), visitors), from, visitors };
+};
+const overlapsConsentAdj = (a, b) => a <= CONSENT_ADJ.end && b >= CONSENT_ADJ.start;
 // Sum high-intent engaged sessions over a range. null if File 4 doesn't cover
 // the whole range (missing or starts later), so the ratio shows "—", not 0.
 const sumHighIntent = (a, b) => {
@@ -272,6 +304,76 @@ function sumByChannel(rows, a, b) {
   return out;
 }
 const sumVals = (o) => Object.values(o).reduce((s, v) => s + v, 0);
+
+// --- Active users by channel (GA4 master feed, Oct 14) ---------------------------
+// GA4 activeUsers = distinct users in a date range. They are NOT additive: the
+// same person can be active in several days / weeks / months / channels. So:
+//   headline        ← ga4.periodTotals[preset]   (GA4-deduplicated for the exact range)
+//   channel table   ← ga4.periodChannels[preset] (exact range, per session channel)
+//   weekly bars     ← ga4.file6 (ISO week × channel), line ← ga4.file8 (deduped week total)
+//   monthly (YTD)   ← ga4.file7 (month × channel),    line ← ga4.file9 (deduped month total)
+// Never rebuild a period total by adding weeks, months, days or channels.
+// Session-scoped channel attribution: a user who came via two channels counts in
+// both, so channels add up to more than the deduplicated total.
+// Only GA4's channel GROUP is available here (no source/medium), so groups map
+// onto the same categories as the engaged-sessions chart via its fallback table.
+// Groups that share a category are added (Nick chose this, Oct 14) — a user in
+// two of them counts twice in that category.
+const AU_GROUP_CATEGORY = {
+  ...CHANNEL_FALLBACK,
+  'Organic Social - LinkedIn': 'LinkedIn',
+  'Organic Social - Twitter': 'Social',
+  'Organic Social - Reddit': 'Social',
+};
+const auCategory = (group) => AU_GROUP_CATEGORY[group] || 'Unassigned';
+function auByCategory(rows) { // rows: [{ group, n }]
+  const out = {};
+  for (const r of rows) { const k = auCategory(r.group); out[k] = (out[k] || 0) + r.n; }
+  return out;
+}
+// ISO week key 'YYYYWW' (Monday-start weeks; the ISO year is the Thursday's year).
+const isoWeekKey = (iso) => {
+  const thu = addDays(mondayOf(iso), 3);
+  const y = thu.slice(0, 4);
+  return `${y}${String(Math.floor(daysBetweenISO(`${y}-01-01`, thu) / 7) + 1).padStart(2, '0')}`;
+};
+const GA4_AU = (() => {
+  const g = dataJson.ga4 || {};
+  const group = (rows, key) => {
+    const raw = {};
+    for (const r of rows || []) (raw[r[key]] || (raw[r[key]] = [])).push({ group: r.channelGroup, n: r.activeUsers || 0 });
+    return Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, auByCategory(v)]));
+  };
+  const totals = (rows, key) => Object.fromEntries((rows || []).map((r) => [r[key], r.activeUsers || 0]));
+  const presets = Object.fromEntries(Object.entries(g.periodTotals || {}).map(([k, t]) => {
+    const ch = g.periodChannels?.[k];
+    return [k, { ...t, channels: ch ? auByCategory(ch.channels.map((c) => ({ group: c.channel, n: c.activeUsers || 0 }))) : null }];
+  }));
+  // Last day GA4 Active Users cover (presets run to the Apps Script refresh day).
+  const end = Object.values(presets).map((p) => p.endDate).filter(Boolean).sort().pop() || null;
+  return {
+    has: Boolean((g.file6 || []).length || Object.keys(presets).length),
+    weekCh: group(g.file6, 'isoWeek'), weekTotal: totals(g.file8, 'isoWeek'),
+    monthCh: group(g.file7, 'yearMonth'), monthTotal: totals(g.file9, 'yearMonth'),
+    presets, end,
+  };
+})();
+// Weekly channel charts run to the current week (Nick, Oct 14): the latest day
+// any source covers. Missing weeks after `rows` are appended as placeholders
+// (noData: no bars, tooltip says "no data yet") so the x-axis lines up with the
+// Active Users chart even when the signups export stops at the prior Sunday.
+const CURRENT_DAY = [DATA_END, GA4_AU.end].filter(Boolean).sort().pop();
+function withCurrentWeek(rows) {
+  if (!rows.length) return rows;
+  const out = [...rows];
+  for (let w = addDays(mondayOf(out[out.length - 1].start), 7); w <= mondayOf(CURRENT_DAY); w = addDays(w, 7)) {
+    const sun = addDays(w, 6);
+    out.push({ start: w, end: sun, label: monDay(w), partial: true, clipped: false, noData: true, total: 0, range: rangeLabel(w, sun > CURRENT_DAY ? CURRENT_DAY : sun) });
+  }
+  return out;
+}
+// Dashboard period → Apps Script preset (exact range, deduplicated by GA4).
+const AU_PRESET_FOR_MODE = { '1w': 'lastWeek', '4w': 'last4Weeks', qtd: 'quarterToDate', ytd: 'fiscalYTD' };
 
 // --- Roles (CSV self_selected_role, as-is) ----------------------------------
 const ROLES = [
@@ -429,8 +531,6 @@ const CONV = Object.fromEntries(CONV_WINDOWS.map((w) => [w, {
   MT: makeDailyConv((s) => s.mt, FIRST_MT_TRACKED, w),
   SND: makeDailyConv((s) => s.snd, FIRST_SND_TRACKED, w),
 }]));
-const ConvWindowCtx = React.createContext([DEFAULT_CONV_WINDOW, () => {}]);
-const useConvWindow = () => React.useContext(ConvWindowCtx);
 
 
 // --- Channel deep dive ------------------------------------------------------------
@@ -607,6 +707,22 @@ function buildModel(mode) {
       visitorsPrev,
       conv: pct(curr.length, visitors),
       convPrev: pct(prev.length, visitorsPrev),
+      // Consent-adjusted conversion (see CONSENT_ADJ). A window that starts
+      // before Jul 17 is clamped to Jul 17; the prior period only counts when
+      // it is fully comparable (else no delta).
+      ...(() => {
+        const n = (a, b) => signupsIn(a, b).length;
+        const cur = adjConvOf(START, END, n);
+        const prv = adjConvOf(PRIOR_START, PRIOR_END, n);
+        return {
+          convAdj: cur.rate,
+          convAdjFrom: cur.from,
+          visitorsAdj: cur.visitors ?? null,
+          signupsAdj: cur.from ? n(cur.from, END) : null,
+          convAdjPrev: prv.from === PRIOR_START ? prv.rate : null,
+          convAdjScaled: overlapsConsentAdj(cur.from || START, END),
+        };
+      })(),
       activated,
       activatedPrev,
       actConv: pct(activated, curr.length),
@@ -628,7 +744,11 @@ function buildModel(mode) {
       cumVisitors += visitors;
       cumSignups += list.length;
       const highIntent = sumHighIntent(w.start, end);
-      const row = { ...w, signups: list.length, visitors, cumVisitors, cumSignups, conv: pct(list.length, visitors), highIntent, hiReach: hiReachOf(highIntent, visitors), creators: list.filter(isCreator).length, hiConv: highIntent == null ? null : pct(list.filter(isCreator).length, highIntent) };
+      // Adjusted rate only for weeks fully on/after MEASURE_BREAK (the Jul 13
+      // week mixes bot-counted days → gap). Raw `conv` stays for the faint line.
+      const comparable = w.start >= MEASURE_BREAK;
+      const visitorsAdj = comparable ? sumEngagedAdj(w.start, end) : null;
+      const row = { ...w, signups: list.length, visitors, visitorsAdj, convAdj: comparable ? pct(list.length, visitorsAdj) : null, preBreak: !comparable, adjScaled: comparable && overlapsConsentAdj(w.start, end), cumVisitors, cumSignups, conv: pct(list.length, visitors), highIntent, hiReach: hiReachOf(highIntent, visitors), creators: list.filter(isCreator).length, hiConv: highIntent == null ? null : pct(list.filter(isCreator).length, highIntent) };
       ROLES.forEach((r) => { row[r.key] = 0; });
       list.forEach((s) => { row[roleKey(s)] += 1; });
       ROLES.forEach((r) => { row[`${r.key}_pct`] = list.length ? (row[r.key] / list.length) * 100 : 0; });
@@ -755,6 +875,33 @@ function buildModel(mode) {
     return { ...p, ...sums, total: sumVals(sums) };
   });
 
+  // Active users by channel (GA4 Files 6–9 + presets). Same x-axis as the
+  // engaged-sessions chart (WEEKS_CUR / MONTHS). A week or month GA4 hasn't
+  // finished (ends after GA4_AU.end) is flagged partial; one with no GA4 rows
+  // has no bars (no data, not zero).
+  const AU = (() => {
+    const row = (p, ch, total) => {
+      const partial = GA4_AU.end ? p.end > GA4_AU.end : p.partial;
+      const out = { ...p, partial, auThrough: partial && GA4_AU.end ? GA4_AU.end : p.end, auTotal: total ?? null, chSum: ch ? sumVals(ch) : null };
+      CHANNELS.forEach((c) => { out[c.key] = ch ? ch[c.key] || 0 : undefined; });
+      return out;
+    };
+    // Weekly frame (Nick, Oct 14): Last week uses the same columns as Last 4
+    // weeks, and every weekly view ends with GA4's current week (in progress,
+    // through GA4_AU.end) even when the signups export stops at the Sunday before.
+    // Only this chart — the engaged-sessions chart keeps its own frame.
+    const frame = [...(mode === '1w' ? makeWindow('4w').WEEKS_CUR : WEEKS_CUR)];
+    if (GA4_AU.end && frame.length) {
+      for (let w = addDays(frame[frame.length - 1].start, 7); w <= mondayOf(GA4_AU.end); w = addDays(w, 7)) {
+        frame.push({ start: w, end: addDays(w, 6), label: monDay(w), partial: true, clipped: false, range: rangeLabel(w, addDays(w, 6) > GA4_AU.end ? GA4_AU.end : addDays(w, 6)) });
+      }
+    }
+    const weekly = frame.map((w) => { const k = isoWeekKey(w.start); return row(w, GA4_AU.weekCh[k], GA4_AU.weekTotal[k]); });
+    const monthly = MONTHS.map((p) => { const k = p.start.slice(0, 7).replace('-', ''); return row(p, GA4_AU.monthCh[k], GA4_AU.monthTotal[k]); });
+    const presetKey = AU_PRESET_FOR_MODE[mode];
+    return { presetKey, preset: GA4_AU.presets[presetKey] || null, thisWeek: GA4_AU.presets.thisWeek || null, weekly, monthly };
+  })();
+
   const CH30 = (() => {
     const sessions = sumByChannel(GA_SESSIONS, START, END);
     const sessionsPrev = sumByChannel(GA_SESSIONS, PRIOR_START, PRIOR_END);
@@ -781,7 +928,7 @@ function buildModel(mode) {
     };
   });
 
-  return { ...W, MONTHLY_COLS, MONTHS, WINDOW, WEEKLY, ACT, MEETING_ANY_30D, ACTIVATED, ONBOARDED, RETURNED, CHANNEL_WEEKLY, CHANNEL_MONTHLY, CH30, WTD_STATS, SELF_REPORTED, SELF_REPORTED_PREV, SELF_REPORTED_WEEKLY, SELF_REPORTED_MONTHLY, VISITOR_LINE };
+  return { ...W, MONTHLY_COLS, MONTHS, WINDOW, WEEKLY, ACT, MEETING_ANY_30D, ACTIVATED, ONBOARDED, RETURNED, CHANNEL_WEEKLY, CHANNEL_MONTHLY, CH30, AU,WTD_STATS, SELF_REPORTED, SELF_REPORTED_PREV, SELF_REPORTED_WEEKLY, SELF_REPORTED_MONTHLY, VISITOR_LINE };
 }
 const MODELS = Object.fromEntries(Object.keys(MODES).map((m) => [m, buildModel(m)]));
 const ModelCtx = React.createContext(MODELS[DEFAULT_MODE]);
@@ -1010,18 +1157,22 @@ function HeaderTip({ text, size = 14 }) {
 
 // allTime: the card's headline doesn't follow the reporting-period pills (all
 // cohorts / running total); shows a small chip so it isn't read as "this period".
-// Tag on charts that follow the conversion window picked in the sticky bar
-// (Nick, Oct 8), in the bar's light blue so the two read as linked.
-function ConvWindowTag({ days, title }) {
+// Subtle per-chart conversion-window picker, inline after the card title
+// (Nick, Oct 14: moved out of the sticky bar into the charts that use it).
+// Each chart keeps its own window; default 7 days.
+function ConvWindowPicker({ value, onChange }) {
   return (
-    <span title={title} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, verticalAlign: 'middle', border: `1px solid ${C.black}`, borderRadius: 999, background: C.lightBlue, padding: '1px 8px 1px 6px', fontFamily: FONT_BODY, fontSize: 10.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: C.black, whiteSpace: 'nowrap' }}>
-      <Clock size={11} strokeWidth={2.5} />{days}-day window
-    </span>
+    <label className="beta-cw" title="Conversion window: how many days after signing up still count">
+      <Clock size={11} strokeWidth={2.25} aria-hidden />
+      <select aria-label="Conversion window" value={value} onChange={(e) => onChange(Number(e.target.value))}>
+        {CONV_WINDOWS.map((w) => <option key={w} value={w}>{w}-day window</option>)}
+      </select>
+      <ChevronDown size={11} strokeWidth={2.25} aria-hidden />
+    </label>
   );
 }
 
-function Card({ title, question, notice, footnote, children, accent = C.purple, allTime, usesConvWindow }) {
-  const [convDays] = useConvWindow();
+function Card({ title, question, notice, footnote, children, accent = C.purple, allTime, convWindow }) {
   // Description is collapsed behind a small info icon (Nick, Oct 8).
   const [showNote, setShowNote] = useState(false);
   const [slot, setSlot] = useState(null);
@@ -1036,7 +1187,7 @@ function Card({ title, question, notice, footnote, children, accent = C.purple, 
       <h3 style={{ fontFamily: FONT_BODY, fontSize: 16, lineHeight: 1.35, fontWeight: 700, margin: 0, minWidth: 0 }}>
         {title}
         {question && <HeaderTip text={question} />}
-        {usesConvWindow && <span style={{ marginLeft: 8 }}><ConvWindowTag days={convDays} title="This chart follows the conversion window set in the bar at the top" /></span>}
+        {convWindow && <span style={{ marginLeft: 6 }}><ConvWindowPicker value={convWindow[0]} onChange={convWindow[1]} /></span>}
         {allTime && (
           <span title={typeof allTime === 'string' ? allTime : 'This headline covers all time and does not change with the reporting period.'} style={{ marginLeft: 8, verticalAlign: 'middle', display: 'inline-block', border: `1px solid ${C.black}`, borderRadius: 999, padding: '1px 8px', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', background: C.paper, color: C.muted }}>
             {typeof allTime === 'string' ? allTime : 'All time'}
@@ -1197,7 +1348,10 @@ function SideLegend({ legend, children }) {
 // Optional category toggles (Nick, Oct 13): pass `hidden` (a Set of labels) and
 // `onToggle(label)` and each row becomes a show/hide switch for its series.
 // Counts and % in the table always cover every category.
-function LegendTable({ title, items, total, unit, hidden, onToggle, onShowAll }) {
+// Optional (Oct 14, Active users): `totalLabel` / `totalShare` replace the footer's
+// "Total {unit}" / "100%", and `note` adds a caption under the table — for
+// non-additive metrics where rows can add up to more than the total.
+function LegendTable({ title, items, total, unit, hidden, onToggle, onShowAll, totalLabel, totalShare = '100%', note }) {
   const cell = { ...tabular, fontFamily: FONT_BODY, fontSize: 11.5, lineHeight: '15px', textAlign: 'right', whiteSpace: 'nowrap' };
   const toggles = Boolean(onToggle);
   const anyHidden = toggles && hidden && hidden.size > 0;
@@ -1227,10 +1381,11 @@ function LegendTable({ title, items, total, unit, hidden, onToggle, onShowAll })
             </React.Fragment>
           );
         })}
-        <span style={{ fontFamily: FONT_BODY, fontSize: 11.5, fontWeight: 700, borderTop: `1px solid ${C.black}`, paddingTop: 6 }}>Total {unit}</span>
+        <span style={{ fontFamily: FONT_BODY, fontSize: 11.5, fontWeight: 700, borderTop: `1px solid ${C.black}`, paddingTop: 6 }}>{totalLabel || `Total ${unit}`}</span>
         <span style={{ ...cell, fontWeight: 700, borderTop: `1px solid ${C.black}`, paddingTop: 6 }}>{fmtInt(total)}</span>
-        <span style={{ ...cell, color: C.muted, borderTop: `1px solid ${C.black}`, paddingTop: 6 }}>100%</span>
+        <span style={{ ...cell, color: C.muted, borderTop: `1px solid ${C.black}`, paddingTop: 6 }}>{totalShare}</span>
       </div>
+      {note && <div style={{ marginTop: 10, fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 11, lineHeight: 1.45, color: C.muted }}>{note}</div>}
     </div>
   );
 }
@@ -1259,6 +1414,17 @@ const PAGE_CSS = `.beta-grid{display:grid;grid-template-columns:repeat(2,minmax(
 .beta-grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width: 1100px){.beta-grid.cols-3{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .beta-funnel-line{display:grid;align-items:stretch}
+.beta-cw{position:relative;display:inline-flex;align-items:center;gap:3px;vertical-align:middle;padding:1px 6px;border-radius:4px;color:${C.muted};font-family:${FONT_BODY};font-size:12px;font-weight:600;cursor:pointer;transition:background 120ms,color 120ms;white-space:nowrap}
+.beta-cw:hover,.beta-cw:focus-within{background:${C.paper};color:${C.black}}
+.beta-cw select{all:unset;cursor:pointer;font:inherit;color:inherit}
+.beta-cw select:focus-visible{outline:none}
+.beta-cw:has(select:focus-visible){outline:2px solid ${C.purple};outline-offset:1px}
+.beta-funnel-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));column-gap:16px;row-gap:16px;align-items:stretch}
+.bf-head{display:flex;align-items:baseline;align-content:flex-end;gap:4px 10px;flex-wrap:wrap;line-height:16px;padding-bottom:8px;border-bottom:1px solid #CFCFCF;grid-row:1;min-width:0}
+.bf-head-users{grid-column:1 / 6}
+.bf-head-co{grid-column:6 / 9}
+@media (max-width: 1180px){.beta-funnel-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.bf-head-users{grid-column:1 / -1}.bf-head-co{grid-column:1 / -1;grid-row:3;margin-top:16px}}
+@media (max-width: 760px){.beta-funnel-grid{grid-template-columns:minmax(0,1fr)}.bf-head{grid-row:auto}.bf-head-co{grid-row:auto}}
 .beta-note-btn{all:unset;cursor:pointer;display:inline-flex;padding:2px;border-radius:999px;color:${C.black};transition:opacity 120ms}
 .beta-note-btn:hover{opacity:0.8 !important}
 .beta-note-btn:focus-visible{outline:2px solid ${C.purple};outline-offset:2px}
@@ -1344,10 +1510,23 @@ const readHashView = () => {
 
 function FunnelNode({ label, value, sub, dim }) {
   return (
-    <div style={{ minWidth: 0, padding: '2px 0' }}>
-      <div style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 700, lineHeight: 1.25, color: dim ? C.muted : C.black }}>{label}</div>
+    <div style={{ minWidth: 0, padding: '2px 0', textAlign: 'center' }}>
+      {/* Label box reserves two lines and bottom-aligns, so every value in the row sits on one baseline. */}
+      <div style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 700, lineHeight: 1.25, minHeight: '2.5em', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', color: dim ? C.muted : C.black }}>{label}</div>
       <div style={{ ...tabular, fontFamily: FONT_DISPLAY, fontSize: 30, lineHeight: 1.1, letterSpacing: '-0.03em', marginTop: 4, color: dim ? '#B5B5B5' : C.black }}>{value}</div>
       {sub && <div style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 11.5, color: C.muted, marginTop: 2 }}>{sub}</div>}
+    </div>
+  );
+}
+
+// Non-clickable cell with the same frame as FunnelStep (content area + bar slot +
+// label slot, both invisible) so every cell in the row lines up.
+function FunnelStatic({ children }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '0 6px 10px' }}>{children}</div>
+      <div aria-hidden style={{ height: 3 }} />
+      <div aria-hidden style={{ ...eyebrow, fontSize: 10.5, marginTop: 8, visibility: 'hidden' }}>&nbsp;</div>
     </div>
   );
 }
@@ -1357,7 +1536,7 @@ function FunnelStep({ id, view, setView, label, rate, delta, children }) {
   const selected = view === id;
   return (
     <button type="button" className="beta-step" aria-pressed={selected} onClick={() => setView(id)} title={`Show ${VIEWS[id].title} charts`}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, padding: '0 6px 10px' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: children ? 'flex-start' : 'center', gap: 4, padding: '0 6px 10px' }}>
         {children || (
           <>
             <ArrowRight size={22} strokeWidth={2.5} color={C.black} />
@@ -1399,22 +1578,20 @@ function PlgFunnel({ view, setView }) {
         </span>
       </div>
 
-      {/* Line 1 — users */}
-      <div style={{ ...eyebrow, marginBottom: 14 }}>Users</div>
-      <div className="beta-funnel-line" style={{ gridTemplateColumns: 'minmax(110px,0.8fr) minmax(0,1.4fr) minmax(110px,0.8fr) minmax(0,1.4fr) minmax(110px,0.8fr)', gap: 12 }}>
-        <FunnelNode label="Website visitors" value={fmtInt(W.visitors)} sub="GA4 engaged sessions" />
-        <FunnelStep id="signup" view={view} setView={setView} label="Visitor → sign up" rate={fmtPct(W.conv, 1)} delta={<Delta value={ptsDiff(W.conv, W.convPrev)} suffix=" pts" size={12} />} />
-        <FunnelNode label="User sign ups" value={fmtInt(W.signups)} />
+      {/* One row, 8 equal columns: users (5) | companies (3). Each group gets a
+          header with a rule spanning its columns. 5 + 3 lines below 1180px, 1 column below 760px. */}
+      <div className="beta-funnel-grid">
+        <div className="bf-head bf-head-users"><span style={eyebrow}>Users</span></div>
+        <FunnelStatic><FunnelNode label="Website visitors" value={fmtInt(W.visitors)} sub={`GA4 engaged sessions${W.convAdjScaled ? ` · ${fmtInt(Math.round(W.visitorsAdj))} adjusted for the cookie banner` : ''}`} /></FunnelStatic>
+        <FunnelStep id="signup" view={view} setView={setView} label="Visitor → sign up" rate={fmtPct(W.convAdj, 1)} delta={<Delta value={ptsDiff(W.convAdj, W.convAdjPrev)} suffix=" pts" size={12} />} />
+        <FunnelStatic><FunnelNode label="User sign ups" value={fmtInt(W.signups)} /></FunnelStatic>
         <FunnelStep id="activation" view={view} setView={setView} label="Sign up → activated" rate={fmtPct(W.actConv, 1)} delta={<Delta value={ptsDiff(W.actConv, W.actConvPrev)} suffix=" pts" size={12} />} />
-        <FunnelNode label="Activated" value={fmtInt(W.activated)} sub="Email sent or asset published" />
-      </div>
+        <FunnelStatic><FunnelNode label="Activated" value={fmtInt(W.activated)} sub="Email sent or asset published" /></FunnelStatic>
 
-      {/* Line 2 — companies (stripe-dash) */}
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, margin: '32px 0 14px', paddingTop: 26, borderTop: `1px dashed #CFCFCF` }}>
-        <span style={eyebrow}>Companies</span>
-        <span style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 12, color: C.muted }}>{PAYING ? 'Paid + retained from Stripe · expanding coming soon' : 'From stripe-dash — coming soon'}</span>
-      </div>
-      <div className="beta-funnel-line" style={{ gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 20 }}>
+        <div className="bf-head bf-head-co">
+          <span style={eyebrow}>Companies</span>
+          <span style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 12, color: C.muted }}>{PAYING ? 'Paid + retained from Stripe · expanding soon' : 'From stripe-dash — coming soon'}</span>
+        </div>
         {[
           { id: 'paid', label: 'Paid companies' },
           { id: 'retained', label: 'Retained companies' },
@@ -1425,7 +1602,7 @@ function PlgFunnel({ view, setView }) {
               {s.id === 'retained' && RETENTION
                 ? <FunnelNode label="Retained companies" value={fmtPct(RETENTION.m1Rate, 1)} sub="Month-1 retention · Stripe" />
                 : s.id === 'paid' && PAYING
-                ? <FunnelNode label="Paying companies (PLG)" value={fmtInt(PAYING.asOf(M.END).companies)} sub={`as of ${monDay(PAYING.asOf(M.END).day)} · ${fmtInt(PAYING.asOf(M.END).users)} paying users · ${fmtPct(PAYING.asOf(M.END).conv, 1)} sign up → paid`} />
+                ? <FunnelNode label="Paying companies" value={fmtInt(PAYING.asOf(M.END).companies)} sub={`PLG · as of ${monDay(PAYING.asOf(M.END).day)} · ${fmtInt(PAYING.asOf(M.END).users)} paying users · ${fmtPct(PAYING.asOf(M.END).conv, 1)} sign up → paid`} />
                 : <FunnelNode label={s.label} value="—" sub="Not connected yet" />}
             </div>
           </FunnelStep>
@@ -1482,34 +1659,64 @@ function WebsiteVisitorsCard() {
   );
 }
 
+// Shaded GA4 measurement periods for weekly conversion charts (see CONSENT_ADJ):
+// grey = bots counted (not comparable, incl. the mixed Jul 13 week), blue =
+// opt-in banner (engaged sessions × factor). Sep 22 onward is unshaded.
+function measurementAreas(rows, yAxisId) {
+  const pre = rows.filter((w) => w.preBreak);
+  const optin = rows.filter((w) => !w.preBreak && w.start <= CONSENT_ADJ.end);
+  const lbl = (value, fill) => ({ value, position: 'insideTopLeft', fontFamily: FONT_BODY, fontSize: 10.5, fill });
+  const out = [];
+  if (pre.length) out.push(<ReferenceArea key="m-pre" {...(yAxisId != null ? { yAxisId } : {})} x1={pre[0].label} x2={pre[pre.length - 1].label} fill={C.lightGrey} fillOpacity={0.7} strokeOpacity={0} ifOverflow="hidden" label={lbl('Bots counted · not comparable', C.muted)} />);
+  if (optin.length) out.push(<ReferenceArea key="m-optin" {...(yAxisId != null ? { yAxisId } : {})} x1={optin[0].label} x2={optin[optin.length - 1].label} fill={C.lightBlue} fillOpacity={0.35} strokeOpacity={0} ifOverflow="hidden" label={lbl(`Opt-in banner · visits ×${CONSENT_ADJ.factor}`, C.black)} />);
+  return out;
+}
+const adjNote = `Adjusted for the cookie banner: Jul 17 – Sep 21 engaged sessions × ${CONSENT_ADJ.factor} (GA4 only counted visitors who clicked Accept); before Jul 17 GA4 counted bot traffic, so those weeks aren't comparable and show raw only.`;
+
 function VisitorToSignupCard() {
   const M = useModel();
   const { WEEKLY, WINDOW } = M;
+  const clamped = WINDOW.convAdjFrom && WINDOW.convAdjFrom !== M.START;
+  const adjRange = WINDOW.convAdjFrom ? rangeLabel(WINDOW.convAdjFrom, M.END) : rangeLabel(M.START, M.END);
+  const explain = WINDOW.convAdj == null
+    ? `This period is before Jul 17, when GA4 counted bot traffic, so there's no comparable rate. Raw: ${fmtPct(WINDOW.conv, 2)}.`
+    : `From ${adjRange}, ${fmtInt(WINDOW.signupsAdj)} signups came from ${fmtInt(Math.round(WINDOW.visitorsAdj))} engaged visits${WINDOW.convAdjScaled ? ` (Jul 17 – Sep 21 visits scaled ×${CONSENT_ADJ.factor} for the opt-in cookie banner)` : ''} — about ${fmtPct(WINDOW.convAdj, 1)}.${clamped ? ' Days before Jul 17 are left out (bot traffic).' : ''} Raw GA4: ${fmtPct(WINDOW.conv, 2)}.`;
   return (
     <Card
       accent={C.blue}
       title="Website visitor → sign up"
       question="What share of visitors create an account?"
-      footnote="Signups ÷ GA4 engaged sessions for the same week. Every signup counts, including repeats by the same person. No goal set yet."
+      footnote={`Signups ÷ GA4 engaged sessions for the same week. Every signup counts, including repeats by the same person. ${adjNote} No goal set yet.`}
     >
-      <StatRow delta={<Delta value={ptsDiff(WINDOW.conv, WINDOW.convPrev)} suffix=" pts" />}>
-        <Stat label={`Conversion · ${rangeLabel(M.START, M.END)}`} value={fmtPct(WINDOW.conv, 2)} explain={`From ${rangeLabel(M.START, M.END)}, ${fmtInt(WINDOW.signups)} signups came from ${fmtInt(WINDOW.visitors)} engaged visits — about ${fmtPct(WINDOW.conv, 1)} of visits.`} />
+      <StatRow delta={<Delta value={ptsDiff(WINDOW.convAdj, WINDOW.convAdjPrev)} suffix=" pts" />}>
+        <Stat label={`Conversion (adjusted) · ${adjRange}`} value={fmtPct(WINDOW.convAdj, 2)} explain={explain} sub={`Raw GA4: ${fmtPct(WINDOW.conv, 2)} (${fmtInt(WINDOW.signups)} signups ÷ ${fmtInt(WINDOW.visitors)} engaged sessions, ${rangeLabel(M.START, M.END)})`} />
         <Stat label="Goal" value="—" muted />
       </StatRow>
-      <Legend items={[{ label: 'Actual %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
-      <ZoomContainer height={190}>
+      <Legend items={[{ label: 'Adjusted %', color: C.black, line: true }, { label: 'Raw GA4 %', color: '#9A9A9A', line: true, dashed: true }, { label: 'Goal % (not set)', color: '#C8C8C8', line: true, dashed: true, weight: 1 }]} />
+      <ZoomContainer height={210}>
         <LineChart data={WEEKLY} margin={chartMargin}>
           {grid}
+          {measurementAreas(WEEKLY)}
           <XAxis {...xAxis} />
           <YAxis {...yAxis} domain={[0, 'auto']} tickFormatter={(v) => `${v}%`} />
-          <Tooltip content={({ active, payload }) => active && payload?.length ? (
-            <TooltipBox title={weekTitle(payload[0].payload)} rows={[
-              { label: 'Visitor → sign up', value: fmtPct(payload[0].payload.conv, 2), color: C.black },
-              { label: 'Signups', value: fmtInt(payload[0].payload.signups) },
-              { label: 'Engaged sessions', value: fmtInt(payload[0].payload.visitors) },
-            ]} />
-          ) : null} />
-          <Line dataKey="conv" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} isAnimationActive={false} />
+          <Tooltip content={({ active, payload }) => active && payload?.length ? (() => {
+            const w = payload[0].payload;
+            return (
+              <TooltipBox
+                title={weekTitle(w)}
+                rows={[
+                  { label: 'Adjusted', value: w.preBreak ? 'not comparable' : fmtPct(w.convAdj, 2), color: C.black },
+                  { label: 'Raw GA4', value: fmtPct(w.conv, 2) },
+                  { label: 'Signups', value: fmtInt(w.signups) },
+                  { label: 'Engaged sessions', value: fmtInt(w.visitors) },
+                  ...(w.adjScaled ? [{ label: `Adjusted sessions (×${CONSENT_ADJ.factor})`, value: fmtInt(Math.round(w.visitorsAdj)) }] : []),
+                ]}
+                note={w.preBreak ? 'Bot traffic was counted before Jul 17.' : w.adjScaled ? 'Opt-in banner: GA4 only counted visitors who clicked Accept.' : null}
+              />
+            );
+          })() : null} />
+          <Line dataKey="conv" stroke="#9A9A9A" strokeWidth={1.5} strokeDasharray="4 3" dot={false} activeDot={false} isAnimationActive={false} />
+          <Line dataKey="convAdj" stroke={C.black} strokeWidth={2.5} dot={false} connectNulls={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} isAnimationActive={false} />
         </LineChart>
       </ZoomContainer>
     </Card>
@@ -1823,6 +2030,135 @@ function VisitorsByChannelCard() {
   );
 }
 
+// Website visitors by channel — Active Users (Oct 14). Sits directly under the
+// engaged-sessions chart, which is unchanged. Same categories, colors, x-axis
+// and Fiscal-YTD monthly rule, but the metric is GA4 activeUsers (distinct
+// users), so nothing here is ever summed into a period total:
+//   headline + channel table ← Apps Script presets (exact range, GA4-deduplicated)
+//   bars ← File 6 / 7 (period × channel); black line ← File 8 / 9 (deduplicated
+//   total per week / month). Channels can add up to more than the line because a
+//   user who arrived through two channels is counted in both.
+// M.AU also carries the deduplicated headline for the planned Visitor → sign up
+// denominator.
+function VisitorsActiveUsersByChannelCard() {
+  const M = useModel();
+  const { AU } = M;
+  const monthly = M.MONTHLY_COLS;
+  const baseData = monthly ? AU.monthly : AU.weekly;
+  const P = AU.preset;
+  const TW = AU.thisWeek;
+  const pRange = P ? rangeLabel(P.startDate, P.endDate) : null;
+  const sameRange = P && P.startDate === M.START && P.endDate === M.END;
+  const chans = P?.channels || {};
+  const chSum = sumVals(chans);
+  const order = [...CHANNELS].sort((a, b) => (chans[b.key] || 0) - (chans[a.key] || 0));
+  const H = useHiddenSet();
+  const shown = CHANNELS.filter((c) => !H.hidden.has(c.key));
+  const shownSum = (row) => shown.reduce((t, c) => t + (row[c.key] || 0), 0);
+  // Line follows the legend toggles (Nick, Oct 14). All categories shown → GA4's
+  // deduplicated total. Some hidden → GA4 has no deduplicated figure for a
+  // subset of channels, so the line is the visible channels added together
+  // (a user in two visible channels counts twice), drawn dashed and labelled so.
+  const filtered = H.hidden.size > 0;
+  const data = baseData.map((r) => ({ ...r, auLine: filtered ? (r.chSum == null ? null : shownSum(r)) : r.auTotal }));
+  const unitWord = monthly ? 'month' : 'week';
+  const auTitle = (r) => (monthly
+    ? `${r.title.replace(/ \(to .*\)$/, '')}${r.partial ? ` (to ${monDay(r.auThrough)}, in progress)` : ''}`
+    : `Week of ${rangeLabel(r.start, r.auThrough)}${r.partial ? ' (in progress)' : ''}`);
+  return (
+    <div className="full">
+      <Card
+        accent={C.blue}
+        title="Website visitors by channel — Active Users"
+        question={(
+          <>
+            <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>How many distinct people visit, and through which channels? · {monthly ? 'monthly' : 'weekly'}</span>
+            <span style={{ display: 'block', marginTop: 6 }}>GA4 Active Users: each person counts once per period, however many times they come back. The chart above counts engaged visits (sessions) instead, so compare the two to see visits per person.</span>
+            <span style={{ display: 'block', marginTop: 6 }}>Channels come from each visit, so someone who came via search and later directly counts under both. That's why the channels can add up to more than the total.</span>
+          </>
+        )}
+        footnote={`GA4 activeUsers by session channel group. Bars: Active Users per ${unitWord} and channel (GA4 ${monthly ? 'File 7, calendar months' : 'File 6, ISO weeks Mon–Sun'}). Black line: GA4's deduplicated Active Users for each ${unitWord} (${monthly ? 'File 9' : 'File 8'}). A user who visits through more than one channel is counted in each, so the stacked channels can sit above the line and channel shares can total more than 100%. The headline and the channel table use GA4's figures precomputed for the exact preset range by the Apps Script (never sums of days, weeks, months or channels), so their dates can differ by a few days from the period at the top${P ? ` (here ${pRange})` : ''}. Channel groups map onto the same categories as the chart above: Organic Search, AI Referrals and Paid Search → Search + AEO; Organic Social, Twitter, Reddit and Paid Social → Social; Organic Social - LinkedIn → LinkedIn; anything else (e.g. Organic Video, Paid Other) → Unassigned. Where several groups share a category their users are added, so a user in two of them counts twice there. This feed has no source/medium, so unlike the chart above, LinkedIn visits GA4 grouped as plain Organic Social (mostly Feb–May) show under Social, and AI-tool visits GA4 grouped as Referral stay in Referral. ${monthly ? colNote(M) : `${M.mode === '1w' ? 'Last week shows the same columns as Last 4 weeks. ' : ''}The last, faintly striped column is the week in progress${GA4_AU.end ? ` (GA4 data through ${monDay(GA4_AU.end)})` : ''}.`}`}
+      >
+        <StatRow>
+          <Stat
+            label={`Active users · ${pRange || rangeLabel(M.START, M.END)}`}
+            value={P ? fmtInt(P.activeUsers) : '—'}
+            muted={!P}
+            explain={P ? `${fmtInt(P.activeUsers)} distinct people were active on the site from ${pRange} (GA4 "${P.label}", deduplicated across the whole range).${sameRange ? '' : ` That's the Apps Script's preset range; the period at the top is ${rangeLabel(M.START, M.END)}.`}` : 'No Active Users preset for this period in the GA4 feed.'}
+          />
+          {TW && AU.presetKey !== 'thisWeek' && (
+            <Stat
+              label={`This week so far · ${rangeLabel(TW.startDate, TW.endDate)}`}
+              value={fmtInt(TW.activeUsers)}
+              explain={`${fmtInt(TW.activeUsers)} distinct active users from ${rangeLabel(TW.startDate, TW.endDate)} (GA4, deduplicated).`}
+            />
+          )}
+        </StatRow>
+        {P && !sameRange && (
+          <div style={{ marginTop: 6, fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 11.5, color: C.muted }}>
+            GA4 preset range {pRange} · period at the top {rangeLabel(M.START, M.END)}
+          </div>
+        )}
+        <SideLegend legend={(
+          <LegendTable
+            title={`${P?.label || M.label} · ${pRange || rangeLabel(M.START, M.END)}`}
+            unit="active users"
+            total={P?.activeUsers}
+            totalLabel="Active users (deduplicated)"
+            totalShare=""
+            items={order.map((c) => ({ label: c.key, color: c.color, n: chans[c.key] || 0 }))}
+            hidden={H.hidden}
+            onToggle={H.toggle}
+            onShowAll={H.showAll}
+            note={P ? `% = share of the ${fmtInt(P.activeUsers)} deduplicated active users. Channels add up to ${fmtInt(chSum)} because people who came through more than one channel count in each.` : null}
+          />
+        )}>
+          <Legend style={{ margin: '0 0 10px' }} items={[filtered
+            ? { label: `Active users, visible channels added (not deduplicated)`, color: C.black, line: true, dashed: true }
+            : { label: `Active users, deduplicated (GA4 ${unitWord} total)`, color: C.black, line: true }]} />
+          <ZoomContainer height={420}>
+            <ComposedChart data={data} margin={chartMargin} barCategoryGap="22%">
+              {hatchDefs(CHANNELS.map((c) => c.color))}
+              {grid}
+              <XAxis {...xAxis} />
+              <YAxis {...yAxis} tickFormatter={fmtK} />
+              <Tooltip cursor={cursor} content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const r = payload[0].payload;
+                if (r.chSum == null && r.auTotal == null) return <TooltipBox title={auTitle(r)} rows={[]} note="No GA4 Active Users data for this period" />;
+                return (
+                  <TooltipBox
+                    title={auTitle(r)}
+                    rows={[
+                      ...[...shown].reverse().filter((c) => r[c.key]).map((c) => ({
+                        label: c.key, color: c.color,
+                        value: `${fmtInt(r[c.key])}${r.auTotal ? ` · ${fmtPct(pct(r[c.key], r.auTotal), 0)}` : ''}`,
+                      })),
+                      ...(filtered ? [{ label: 'Visible channels added', value: fmtInt(r.auLine), color: C.black }] : []),
+                      { label: filtered ? 'All channels, deduplicated' : 'Active users (deduplicated)', value: fmtInt(r.auTotal), color: filtered ? undefined : C.black },
+                    ]}
+                    note={
+                      <div style={{ width: 240, whiteSpace: 'normal', lineHeight: 1.45 }}>
+                        Channels add up to {fmtInt(H.hidden.size ? shownSum(r) : r.chSum)}{H.hidden.size ? ' (shown categories)' : ''}; people who came through more than one channel count in each. % = share of deduplicated active users.
+                      </div>
+                    }
+                  />
+                );
+              }} />
+              {shown.map((c) => (
+                <Bar key={c.key} dataKey={c.key} stackId="au" stroke={C.black} strokeWidth={0.5} isAnimationActive={false}>
+                  {data.map((w) => <Cell key={w.start} fill={w.partial ? `url(#${hatchId(c.color)})` : c.color} />)}
+                </Bar>
+              ))}
+              <Line dataKey="auLine" stroke={C.black} strokeWidth={2} strokeDasharray={filtered ? '5 4' : undefined} dot={{ r: 2.5, fill: C.black, stroke: C.black }} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} connectNulls={false} isAnimationActive={false} />
+            </ComposedChart>
+          </ZoomContainer>
+        </SideLegend>
+      </Card>
+    </div>
+  );
+}
+
 const SR_STACK = [...SELF_REPORTED_BUCKETS, SR_INVITED, SR_JOINED, SR_NEVER, SR_OTHER]; // bottom → top
 const NEVER_MODAL = {
   noun: 'signup', nounPlural: 'signups', showDate: false, viaLabel: 'Role',
@@ -1878,7 +2214,7 @@ function ChannelShareLines({ M, weekly, legend, hidden }) {
   const weeks = weekly.filter((w) => w.end >= M.START);
   const data = weeks.map((w) => {
     const row = { ...w };
-    SR_STACK.forEach((b) => { row[`${b.name}__pct`] = w.total ? ((w[b.name] || 0) / w.total) * 100 : 0; });
+    SR_STACK.forEach((b) => { row[`${b.name}__pct`] = w.noData ? null : w.total ? ((w[b.name] || 0) / w.total) * 100 : 0; });
     return row;
   });
   const lines = SR_STACK.filter((b) => weeks.some((w) => w[b.name]) && !hidden?.has(b.name));
@@ -1889,7 +2225,9 @@ function ChannelShareLines({ M, weekly, legend, hidden }) {
           <CartesianGrid vertical={false} stroke={C.grid} strokeDasharray="4 4" />
           <XAxis {...xAxis} />
           <YAxis {...yAxis} domain={[0, 'auto']} tickFormatter={(v) => `${Math.round(v)}%`} />
-          <Tooltip content={({ active, payload }) => active && payload?.length ? (
+          <Tooltip content={({ active, payload }) => active && payload?.length ? (payload[0].payload.noData ? (
+            <TooltipBox title={weekTitle(payload[0].payload)} rows={[]} note={`No sign up data yet — the signups export ends ${monDay(DATA_END)}`} />
+          ) : (
             <TooltipBox
               title={weekTitle(payload[0].payload)}
               rows={lines.map((b) => ({ b, v: payload[0].payload[`${b.name}__pct`], n: payload[0].payload[b.name] || 0 }))
@@ -1897,7 +2235,7 @@ function ChannelShareLines({ M, weekly, legend, hidden }) {
                 .map((x) => ({ label: x.b.name, color: x.b.color, value: `${fmtPct(x.v, 1)} · ${fmtInt(x.n)}` }))}
               note={`${fmtInt(payload[0].payload.total)} sign ups`}
             />
-          ) : null} />
+          )) : null} />
           {lines.map((b) => (
             <Line
               key={b.name} type="monotone" dataKey={`${b.name}__pct`} name={b.name}
@@ -2012,7 +2350,12 @@ function SignupsByChannelCard() {
   const maxN = Math.max(...rows.map((r) => r.n || 0), 1);
 
   const flat = (w) => ({ ...w, ...w.counts, [SR_INVITED.name]: w.invited, [SR_JOINED.name]: w.joined, [SR_NEVER.name]: w.never, [SR_OTHER.name]: w.other });
-  const weekly = SELF_REPORTED_WEEKLY.map(flat);
+  // Weekly frame (Nick, Oct 14 — same as the Active Users chart): Last week
+  // shows the Last 4 weeks columns, and every weekly view runs to the current
+  // week. Weeks past the signups export (DATA_END) are placeholders with no
+  // bars ("no data yet", not zero). The legend table keeps the selected period.
+  const FM = M.mode === '1w' ? MODELS['4w'] : M;
+  const weekly = withCurrentWeek(FM.SELF_REPORTED_WEEKLY.map(flat));
   // Column chart data: months in Fiscal YTD, weeks otherwise. (Growth view is a line chart, stays weekly.)
   const cols = monthly ? SELF_REPORTED_MONTHLY.map(flat) : weekly;
   const th = { ...eyebrow, fontSize: 10, padding: '10px 14px', textAlign: 'right', whiteSpace: 'nowrap', borderBottom: `1px solid ${C.black}`, background: C.paper };
@@ -2024,13 +2367,13 @@ function SignupsByChannelCard() {
         accent={C.purple}
         title="Sign ups and conversion by channel"
         question={`Self-reported “How did you hear about us?” · ${view === 'chart' ? (monthly ? 'monthly' : 'weekly') : view === 'growth' ? 'share of sign ups, weekly' : `${M.label} · ${rangeLabel(START, END)}`}`}
-        footnote={`${SR.perSignup ? `Every signup in the period (Metabase) is looked up in Amplitude by user id and put in exactly one row: its own “How did you hear about us?” answer (referral_source, bucketed with the same rules as the live dashboard's “User signups by Channel”); otherwise Accepted an invite (fired “User Invitation Completed”); otherwise Joined a teammate's company (its company already had a signup, no invite event); otherwise Never completed (no workspace, or one never named; click the row to list them); otherwise Other (created a company but no answer in Amplitude). Only company setup asks the question, so joiners are never asked. Rows add up to Overall. Internal (@mutinyhq.com) signups are left out, like the rest of this page.` : `Channel = the signup's self-reported answer (Amplitude referral_source daily totals), bucketed with the same rules as the live dashboard's “User signups by Channel”. Only company setup asks the question. Accepted an invite = Amplitude “User Invitation Completed” (daily unique users). Joined a teammate's company = signups on a company that already had an earlier signup (Metabase), minus the accepted invites. No answer is split into Never completed (no workspace, or one never named; click the row to list them) and Other (what's left). Answers are daily totals here, not per person, so the split is approximate — run npm run pull-amp-events for exact per-signup rows.`} Overall = all Metabase signups in the window, matching the rest of this page.${view === 'table' ? ` Sign up → activated = share of the row's signups in the period that have activated (email sent/drafted or asset published) so far, same as the funnel. ${SR.perSignup ? `Every row is exact: it's the share of that row's signups that have activated (hover a cell for the count).` : `It's filled in only where we know each signup's group: the two joiner rows share one rate (${fmtPct(SR.actJoined.rate, 1)}, ${fmtInt(SR.actJoined.k)} of ${fmtInt(SR.actJoined.n)}) because invites vs teammates is only an Amplitude total; channel rows need each person's answer (run npm run pull-amp-events) — together, company creators (the people who were asked) activated at ${fmtPct(SR.actCreators.rate, 1)} (${fmtInt(SR.actCreators.k)} of ${fmtInt(SR.actCreators.n)}).`}` : ''}${view === 'growth' ? ` Growth: each channel's share of that week's sign ups, for the weeks in the reporting period; the last point is the week in progress. Hover a week for counts.` : view === 'chart' ? ` ${monthly ? 'Fiscal YTD shows monthly columns; the faintly striped one is the month in progress.' : 'Faintly striped bar = week in progress.'}` : ' Activated → paid comes from stripe-dash.'}`}
+        footnote={`${SR.perSignup ? `Every signup in the period (Metabase) is looked up in Amplitude by user id and put in exactly one row: its own “How did you hear about us?” answer (referral_source, bucketed with the same rules as the live dashboard's “User signups by Channel”); otherwise Accepted an invite (fired “User Invitation Completed”); otherwise Joined a teammate's company (its company already had a signup, no invite event); otherwise Never completed (no workspace, or one never named; click the row to list them); otherwise Other (created a company but no answer in Amplitude). Only company setup asks the question, so joiners are never asked. Rows add up to Overall. Internal (@mutinyhq.com) signups are left out, like the rest of this page.` : `Channel = the signup's self-reported answer (Amplitude referral_source daily totals), bucketed with the same rules as the live dashboard's “User signups by Channel”. Only company setup asks the question. Accepted an invite = Amplitude “User Invitation Completed” (daily unique users). Joined a teammate's company = signups on a company that already had an earlier signup (Metabase), minus the accepted invites. No answer is split into Never completed (no workspace, or one never named; click the row to list them) and Other (what's left). Answers are daily totals here, not per person, so the split is approximate — run npm run pull-amp-events for exact per-signup rows.`} Overall = all Metabase signups in the window, matching the rest of this page.${view === 'table' ? ` Sign up → activated = share of the row's signups in the period that have activated (email sent/drafted or asset published) so far, same as the funnel. ${SR.perSignup ? `Every row is exact: it's the share of that row's signups that have activated (hover a cell for the count).` : `It's filled in only where we know each signup's group: the two joiner rows share one rate (${fmtPct(SR.actJoined.rate, 1)}, ${fmtInt(SR.actJoined.k)} of ${fmtInt(SR.actJoined.n)}) because invites vs teammates is only an Amplitude total; channel rows need each person's answer (run npm run pull-amp-events) — together, company creators (the people who were asked) activated at ${fmtPct(SR.actCreators.rate, 1)} (${fmtInt(SR.actCreators.k)} of ${fmtInt(SR.actCreators.n)}).`}` : ''}${view === 'growth' ? ` Growth: each channel's share of that week's sign ups, for the weeks in the reporting period; the last point is the week in progress. Hover a week for counts.` : view === 'chart' ? ` ${monthly ? 'Fiscal YTD shows monthly columns; the faintly striped one is the month in progress.' : `${M.mode === '1w' ? 'Last week shows the same columns as Last 4 weeks; the table on the right is last week only. ' : ''}Faintly striped bar = week in progress. The chart runs to the current week; a week with no bars has no sign up data yet (the signups export ends ${monDay(DATA_END)}).`}` : ' Activated → paid comes from stripe-dash.'}`}
       >
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
           <ViewToggle value={view} onChange={setView} options={[{ value: 'chart', label: monthly ? 'Monthly chart' : 'Weekly chart' }, { value: 'table', label: 'Table' }, { value: 'growth', label: 'Growth' }]} />
         </div>
         {view === 'growth' ? (
-          <ChannelShareLines M={M} weekly={weekly} hidden={H.hidden} legend={(
+          <ChannelShareLines M={FM} weekly={weekly} hidden={H.hidden} legend={(
             <LegendTable
               title={`${M.label} · ${rangeLabel(START, END)}`}
               unit="sign ups"
@@ -2060,7 +2403,9 @@ function SignupsByChannelCard() {
                 {grid}
                 <XAxis {...xAxis} />
                 <YAxis {...yAxis} allowDecimals={false} />
-                <Tooltip cursor={cursor} content={({ active, payload }) => active && payload?.length ? (
+                <Tooltip cursor={cursor} content={({ active, payload }) => active && payload?.length ? (payload[0].payload.noData ? (
+                  <TooltipBox title={periodTitle(payload[0].payload)} rows={[]} note={`No sign up data yet — the signups export ends ${monDay(DATA_END)}`} />
+                ) : (
                   <TooltipBox
                     title={periodTitle(payload[0].payload)}
                     rows={[...shownStack].reverse().filter((b) => payload[0].payload[b.name]).map((b) => ({
@@ -2069,7 +2414,11 @@ function SignupsByChannelCard() {
                     }))}
                     note={H.hidden.size ? `${fmtInt(shownTotal(payload[0].payload))} of ${fmtInt(payload[0].payload.total)} sign ups shown (% = share of all)` : `${fmtInt(payload[0].payload.total)} sign ups`}
                   />
-                ) : null} />
+                )) : null} />
+                {cols.filter((w) => w.noData).map((w) => (
+                  <ReferenceArea key={`nd-${w.start}`} x1={w.label} x2={w.label} fill={C.lightGrey} fillOpacity={0.5} strokeOpacity={0} ifOverflow="extendDomain"
+                    label={{ value: 'No data yet', position: 'insideBottom', offset: 10, style: { fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 11, fill: C.muted } }} />
+                ))}
                 {shownStack.map((b) => (
                   <Bar key={b.name} dataKey={b.name} stackId="sr" stroke={C.black} strokeWidth={0.5} isAnimationActive={false}>
                     {cols.map((w) => <Cell key={w.start} fill={w.partial ? `url(#${hatchId(b.color)})` : b.color} />)}
@@ -2182,17 +2531,18 @@ function NewSignupsCard() {
     <Card
       title="New signups"
       question="Are we converting intent into accounts?"
-      footnote={`Visitor → signup = signups ÷ GA4 engaged sessions for the same days. Every signup counts, including repeat signups by the same person; internal (@mutinyhq.com) signups are left out. ${barWeekNote(M)}`}
+      footnote={`Visitor → signup = signups ÷ GA4 engaged sessions for the same days. Every signup counts, including repeat signups by the same person; internal (@mutinyhq.com) signups are left out. ${adjNote} ${barWeekNote(M)}`}
     >
-      <StatRow delta={<Delta value={ptsDiff(WINDOW.conv, WINDOW.convPrev)} suffix=" pts" />}>
-        <Stat label="Visitor → signup" value={fmtPct(WINDOW.conv, 2)} explain={`About ${fmtPct(WINDOW.conv, 1)} of engaged visits turned into a signup from ${rangeLabel(M.START, M.END)}.`} />
+      <StatRow delta={<Delta value={ptsDiff(WINDOW.convAdj, WINDOW.convAdjPrev)} suffix=" pts" />}>
+        <Stat label="Visitor → signup (adjusted)" value={fmtPct(WINDOW.convAdj, 2)} explain={WINDOW.convAdj == null ? `Before Jul 17 GA4 counted bot traffic, so there's no comparable rate. Raw: ${fmtPct(WINDOW.conv, 2)}.` : `About ${fmtPct(WINDOW.convAdj, 1)} of engaged visits turned into a signup from ${rangeLabel(WINDOW.convAdjFrom, M.END)}, after adjusting for the cookie banner. Raw GA4: ${fmtPct(WINDOW.conv, 2)}.`} />
         <Stat label={`Signups · ${rangeLabel(M.START, M.END)}`} value={fmtInt(WINDOW.signups)} explain={`${fmtInt(WINDOW.signups)} signups from ${rangeLabel(M.START, M.END)}.`} sub={<Delta value={pctChange(WINDOW.signups, WINDOW.signupsPrev)} size={12} />} />
       </StatRow>
-      <Legend items={[{ label: 'Signups (bars)', color: C.purple }, { label: 'Visitor → signup % (line)', color: C.black, line: true }]} />
+      <Legend items={[{ label: 'Signups (bars)', color: C.purple }, { label: 'Visitor → signup %, adjusted (line)', color: C.black, line: true }]} />
       <ZoomContainer height={190}>
         <ComposedChart data={WEEKLY} margin={chartMargin}>
           {hatchDefs([C.purple])}
           {grid}
+          {measurementAreas(WEEKLY, 'n')}
           <XAxis {...xAxis} />
           <YAxis yAxisId="n" {...yAxis} />
           <YAxis yAxisId="p" orientation="right" {...yAxis} tickFormatter={(v) => `${v}%`} />
@@ -2202,14 +2552,15 @@ function NewSignupsCard() {
               rows={[
                 { label: 'Signups', value: fmtInt(payload[0].payload.signups), color: C.purple },
                 { label: 'Engaged sessions', value: fmtInt(payload[0].payload.visitors) },
-                { label: 'Visitor → signup', value: fmtPct(payload[0].payload.conv, 2) },
+                { label: 'Visitor → signup (adjusted)', value: payload[0].payload.preBreak ? 'not comparable' : fmtPct(payload[0].payload.convAdj, 2) },
+                { label: 'Visitor → signup (raw)', value: fmtPct(payload[0].payload.conv, 2) },
               ]}
             />
           ) : null} />
           <Bar yAxisId="n" dataKey="signups" stroke={C.black} strokeWidth={1} isAnimationActive={false}>
             {WEEKLY.map((w) => <Cell key={w.start} fill={w.partial ? `url(#${hatchId(C.purple)})` : C.purple} />)}
           </Bar>
-          <Line yAxisId="p" dataKey="conv" stroke={C.black} strokeWidth={2} dot={{ r: 3, fill: C.black }} isAnimationActive={false} />
+          <Line yAxisId="p" dataKey="convAdj" stroke={C.black} strokeWidth={2} dot={{ r: 3, fill: C.black }} connectNulls={false} isAnimationActive={false} />
         </ComposedChart>
       </ZoomContainer>
     </Card>
@@ -2361,7 +2712,7 @@ function ActivationCard({ stepKey, title, question, rateLabel, cohortNoun, convN
 // Shared "Sign up → X" 7-day-by-signup-day card.
 function Daily7Card({ seriesKey, title, question, accent, verb, milestone, modal = {}, extraNote = '' }) {
   const M = useModel();
-  const [CONV_WINDOW_DAYS] = useConvWindow();
+  const [CONV_WINDOW_DAYS, setConvDays] = useState(DEFAULT_CONV_WINDOW);
   const series = CONV[CONV_WINDOW_DAYS][seriesKey];
   // Headline = signups IN the reporting period (Nick, Oct 7: headline time
   // frames must match the reporting window). Only signups whose N-day window
@@ -2375,7 +2726,7 @@ function Daily7Card({ seriesKey, title, question, accent, verb, milestone, modal
   const delta = prev.fullyTracked && prev.n ? ptsDiff(curr.rate, prev.rate) : null;
   const periodLabel = rangeLabel(M.START, M.END);
   return (
-    <Card usesConvWindow
+    <Card convWindow={[CONV_WINDOW_DAYS, setConvDays]}
       accent={accent}
       title={title}
       question={question}
@@ -2590,7 +2941,7 @@ function SignupToMeetingCard() {
 function MilestoneCumulativeCard({ field, trackedFrom, modal, accent, title, question, did, what, listTitle }) {
   const M = useModel();
   const { START, END } = M;
-  const [CONV_WINDOW_DAYS] = useConvWindow();
+  const [CONV_WINDOW_DAYS, setConvDays] = useState(DEFAULT_CONV_WINDOW);
   const openUsers = useUsersModal();
   const base = React.useMemo(() => SIGNUPS.filter((s) => s.d >= SIGNUP_COUNT_START && s[field] && s[field] >= s.d && daysBetweenISO(s.d, s[field]) <= CONV_WINDOW_DAYS), [CONV_WINDOW_DAYS, field]);
   const upTo = (d) => base.filter((s) => s[field] <= d).length;
@@ -2603,11 +2954,11 @@ function MilestoneCumulativeCard({ field, trackedFrom, modal, accent, title, que
   const total = upTo(DATA_END);
   const summary = { label: `${listTitle} · ${rangeLabel(START, END)}`, value: fmtInt(currList.length), sub: `${fmtInt(total)} signups to date ${did} within ${CONV_WINDOW_DAYS} days of signing up` };
   return (
-    <Card usesConvWindow
+    <Card convWindow={[CONV_WINDOW_DAYS, setConvDays]}
       accent={accent}
       title={title}
       question={question}
-      footnote={`Running total of signups (since ${monDay(SIGNUP_COUNT_START)}) that ${what} within ${CONV_WINDOW_DAYS} days of signing up (the conversion window set at the top), counted in the week they did it. Only tracked from ${monDay(trackedFrom)}, so the line starts there. ${lineWeekNote(M)} Click a week to list who ${did} that week. No goal set yet.`}
+      footnote={`Running total of signups (since ${monDay(SIGNUP_COUNT_START)}) that ${what} within ${CONV_WINDOW_DAYS} days of signing up (change the window next to the title), counted in the week they did it. Only tracked from ${monDay(trackedFrom)}, so the line starts there. ${lineWeekNote(M)} Click a week to list who ${did} that week. No goal set yet.`}
     >
       <StatRow>
         <Stat
@@ -3819,24 +4170,6 @@ function CreditsCohortCard() {
   );
 }
 
-// Conversion-window dropdown (sticky controls bar); drives every "Sign up → X" chart.
-function ConvWindowSelect() {
-  const [days, setDays] = useConvWindow();
-  return (
-    <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: FONT_BODY, fontSize: 12, fontWeight: 600 }}>
-      <span style={{ ...eyebrow, fontSize: 10 }}>Conversion window</span>
-      <select
-        value={days}
-        onChange={(e) => setDays(Number(e.target.value))}
-        style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, padding: '5px 28px 5px 10px', border: `1px solid ${C.black}`, borderRadius: 999, background: C.white, cursor: 'pointer' }}
-      >
-        {CONV_WINDOWS.map((w) => <option key={w} value={w}>{w}-day window</option>)}
-      </select>
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 400, color: C.muted, whiteSpace: 'nowrap' }}>applies to charts tagged <ConvWindowTag days={days} /></span>
-    </label>
-  );
-}
-
 // Collapsible detail section (closed by default). Children only mount when
 // open, so hidden charts don't render.
 function Collapsible({ title, children, defaultOpen = false }) {
@@ -3877,6 +4210,7 @@ function SectionsFor({ view }) {
         <StageHeader title="Channel deep dive" subtitle="Which channels bring visitors, and which of them convert." />
         <Grid>
           <VisitorsByChannelCard />
+          {GA4_AU.has && <VisitorsActiveUsersByChannelCard />}
           <SignupsByChannelCard />
         </Grid>
       </>
@@ -3894,7 +4228,7 @@ function SectionsFor({ view }) {
           {/* Hidden for now (Nick, Oct 6) — components kept, re-add to show:
               <CompletedSetupCard /> <FirstMeetingCard /> <FirstSendCard /> */}
         </Grid>
-        <StageHeader prefix="Lever 1" title="Onboarding" subtitle="Users who installed the call recorder and connected email and Google Calendar. Conversion charts use the conversion window set at the top." />
+        <StageHeader prefix="Lever 1" title="Onboarding" subtitle="Users who installed the call recorder and connected email and Google Calendar. Conversion charts have a window picker (7, 14 or 30 days) next to their title." />
         <Grid>
           <SignupToOnboardedCard />
           <OnboardedUsersCard />
@@ -3909,12 +4243,12 @@ function SectionsFor({ view }) {
             <SignupToCalendarCard />
           </Grid>
         </Collapsible>
-        <StageHeader prefix="Lever 2" title="A1: Magic moment" subtitle="The moment a new user first gets real value from Mutiny. Conversion charts use the conversion window set at the top." definition={<><b>Magic moment</b> = recorded their first meeting</>} />
+        <StageHeader prefix="Lever 2" title="A1: Magic moment" subtitle="The moment a new user first gets real value from Mutiny. Conversion charts have a window picker (7, 14 or 30 days) next to their title." definition={<><b>Magic moment</b> = recorded their first meeting</>} />
         <Grid>
           <SignupToMeetingCard />
           <MeetingSignupsCumulativeCard />
         </Grid>
-        <StageHeader prefix="Lever 3" title="A2: First customer send" subtitle="The first time a user sends something to a real customer. Conversion charts use the conversion window set at the top." definition={<><b>First customer send</b> = sent (or drafted) their first email</>} />
+        <StageHeader prefix="Lever 3" title="A2: First customer send" subtitle="The first time a user sends something to a real customer. Conversion charts have a window picker (7, 14 or 30 days) next to their title." definition={<><b>First customer send</b> = sent (or drafted) their first email</>} />
         <Grid>
           <SignupToEmailSendCard />
           <EmailSignupsCumulativeCard />
@@ -4011,14 +4345,6 @@ export default function BetaDashboard() {
   const M = MODELS[mode];
   const { START, END, WEEKS } = M;
   const [usersModal, setUsersModal] = useState(null);
-  // Conversion window for the "Sign up → X" charts (remembered per browser).
-  const [convWindow, setConvWindowState] = useState(() => {
-    try { const w = Number(window.localStorage.getItem('beta-conv-window')); return CONV_WINDOWS.includes(w) ? w : DEFAULT_CONV_WINDOW; } catch (e) { return DEFAULT_CONV_WINDOW; }
-  });
-  const setConvWindow = (w) => {
-    setConvWindowState(w);
-    try { window.localStorage.setItem('beta-conv-window', String(w)); } catch (e) { /* ignore */ }
-  };
   const closeUsersModal = React.useCallback(() => setUsersModal(null), []);
   const setView = (v) => {
     setViewState(v);
@@ -4033,7 +4359,6 @@ export default function BetaDashboard() {
   return (
     <ModelCtx.Provider value={M}>
     <UsersModalCtx.Provider value={setUsersModal}>
-    <ConvWindowCtx.Provider value={[convWindow, setConvWindow]}>
     <div style={{ background: C.paper, minHeight: '100vh', fontFamily: FONT_BODY, color: C.black }}>
       <style>{PAGE_CSS}</style>
       <header style={{ borderBottom: `1px solid ${C.black}`, background: C.white }}>
@@ -4057,8 +4382,8 @@ export default function BetaDashboard() {
         </div>
       </header>
 
-      {/* Controls bar (Nick, Oct 8): reporting period + conversion window on one
-          line, stuck to the top of the viewport while scrolling. */}
+      {/* Controls bar (Nick, Oct 8): reporting period, stuck to the top of the
+          viewport while scrolling. Conversion window lives in each chart (Oct 14). */}
       <div className="beta-controls" style={{ position: 'sticky', top: 0, zIndex: 900, background: C.lightBlue, borderBottom: `1px solid ${C.black}` }}>
         <div style={{ maxWidth: 1400, margin: '0 auto', padding: '10px 32px', display: 'flex', alignItems: 'center', gap: '10px 24px', flexWrap: 'wrap', fontSize: 13 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -4079,8 +4404,6 @@ export default function BetaDashboard() {
             <span style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{rangeLabel(START, END)}, {END.slice(0, 4)}</span>
             {M.WTD && <span style={{ color: C.muted, whiteSpace: 'nowrap' }}>· week to date {rangeLabel(M.WTD.start, M.WTD.end)} not in totals</span>}
           </div>
-          <span aria-hidden="true" style={{ width: 1, alignSelf: 'stretch', background: 'rgba(0,0,0,0.2)' }} />
-          <ConvWindowSelect />
         </div>
       </div>
 
@@ -4097,7 +4420,6 @@ export default function BetaDashboard() {
       </main>
       <UsersModal data={usersModal} onClose={closeUsersModal} />
     </div>
-    </ConvWindowCtx.Provider>
     </UsersModalCtx.Provider>
     </ModelCtx.Provider>
   );
