@@ -1816,8 +1816,8 @@ function HighIntentReachCard() {
 
 // High-intent pages viewed (Nick, Oct 13). For each individual URL in GA4
 // File 5 (every page under /pricing, /use-cases, /customers — subpages kept
-// separate): Σ page sessions in the period ÷ Σ site sessions
-// (File 1) in the same period × 100. Shares don't add to 100% and pages must
+// separate): Σ page sessions in the period (bars show the count since Oct 15;
+// share of File 1 site sessions kept in the tooltip). Pages must
 // not be summed into folder reach (a session can view several pages). This is
 // page-level session reporting: GA4's page-dimension sessions
 // isn't validated as equal to a session-scoped segment per URL.
@@ -1846,6 +1846,7 @@ function HighIntentPagesCard() {
       path,
       n: cur[path],
       share: pct(cur[path], engaged),
+      nPrev: M.noPrior ? null : prev[path],
       sharePrev: M.noPrior ? null : pct(prev[path], engagedPrev),
       color: pageSection(path).color,
     }))
@@ -1862,20 +1863,20 @@ function HighIntentPagesCard() {
         title="High-intent pages viewed"
         question={(
           <>
-            <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>Which high-intent pages draw the biggest share of sessions?</span>
-            <span style={{ display: 'block', marginTop: 6 }}>For each page: sessions that included a view of that page ÷ all sessions on the site, for the selected period. The page can be viewed anywhere in the session, not just as the landing page.</span>
-            <span style={{ display: 'block', marginTop: 6 }}>Each URL is shown on its own (e.g. /use-cases/account-executives is separate from /use-cases). One session can view several pages and count under each, so the bars don't add up to the reach % above. Use that card for overall reach.</span>
+            <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>Which high-intent pages get the most sessions?</span>
+            <span style={{ display: 'block', marginTop: 6 }}>For each page: the number of sessions that included a view of that page, for the selected period. The page can be viewed anywhere in the session, not just as the landing page. A session that views the same page several times counts once.</span>
+            <span style={{ display: 'block', marginTop: 6 }}>Each URL is shown on its own (e.g. /use-cases/account-executives is separate from /use-cases). One session can view several pages and count under each, so the bars don't add up to the high-intent session total above. Use the reach card for overall reach.</span>
             <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), and use-case pages (/use-cases/…).</span>
           </>
         )}
-        footnote={`Page-level session reporting (GA4 page-path breakdown). For each URL: sessions on that page ÷ all GA4 sessions on the site, for ${rangeLabel(pStart, M.END)}. Every page under /pricing, /customers and /use-cases is listed on its own (e.g. /use-cases/account-executives is separate from /use-cases); pages that round to 0% of sessions in the period are hidden. Shares don't add up to 100% and shouldn't be added together: one session can view several pages, so it shows up under each. For overall reach, use the high-intent reach card above. GA4's per-page sessions haven't been validated against a session-scoped segment per URL, so treat these as directional page-level numbers.`}
+        footnote={`Page-level session reporting (GA4 page-path breakdown). For each URL: number of sessions that viewed that page, for ${rangeLabel(pStart, M.END)} (not raw pageviews — repeat views in one session count once). Hover a bar for its share of all ${fmtInt(engaged)} site sessions. Every page under /pricing, /customers and /use-cases is listed on its own (e.g. /use-cases/account-executives is separate from /use-cases); pages that round to 0% of site sessions in the period are hidden. Counts shouldn't be added together: one session can view several pages, so it shows up under each. For overall reach, use the high-intent reach card above. GA4's per-page sessions haven't been validated against a session-scoped segment per URL, so treat these as directional page-level numbers.`}
       >
         <StatRow>
           <Stat
             label={`Top page · ${rangeLabel(pStart, M.END)}`}
-            value={top ? top.path : '—'}
+            value={top ? `${top.path} · ${fmtInt(top.n)}` : '—'}
             muted={!top}
-            explain={top ? `${top.path} had ${fmtInt(top.n)} sessions, ${fmtPct(top.share, 1)} of the site's ${fmtInt(engaged)} sessions.` : undefined}
+            explain={top ? `${fmtInt(top.n)} sessions viewed ${top.path} (${fmtPct(top.share, 1)} of the site's ${fmtInt(engaged)} sessions).` : undefined}
           />
           <Stat
             label="Pages shown"
@@ -1889,23 +1890,23 @@ function HighIntentPagesCard() {
           <ResponsiveContainer width="100%" height={rows.length * 30 + 12}>
             <BarChart data={rows} layout="vertical" margin={{ top: 4, right: 56, left: 0, bottom: 4 }} barCategoryGap={6}>
               <CartesianGrid horizontal={false} stroke={C.grid} />
-              <XAxis type="number" tick={tick} tickLine={false} axisLine={{ stroke: C.black }} tickFormatter={(v) => `${v}%`} domain={[0, 'auto']} />
+              <XAxis type="number" tick={tick} tickLine={false} axisLine={{ stroke: C.black }} tickFormatter={(v) => fmtInt(v)} domain={[0, 'auto']} />
               <YAxis type="category" dataKey="path" tick={{ ...tick, fontSize: 11.5 }} tickLine={false} axisLine={false} width={250} interval={0} />
               <Tooltip cursor={cursor} content={({ active, payload }) => active && payload?.length ? (
                 <TooltipBox title={payload[0].payload.path} rows={[
-                  { label: 'Share of sessions', value: fmtPct(payload[0].payload.share, 2), color: payload[0].payload.color },
-                  { label: 'Page sessions', value: fmtInt(payload[0].payload.n) },
+                  { label: 'Page sessions', value: fmtInt(payload[0].payload.n), color: payload[0].payload.color },
+                  { label: 'Share of site sessions', value: fmtPct(payload[0].payload.share, 2) },
                   { label: 'Site sessions', value: fmtInt(engaged) },
-                  ...(M.noPrior ? [] : [{ label: `${M.prior[0].toUpperCase()}${M.prior.slice(1)}`, value: fmtPct(payload[0].payload.sharePrev, 2) }]),
+                  ...(M.noPrior ? [] : [{ label: `${M.prior[0].toUpperCase()}${M.prior.slice(1)}`, value: `${fmtInt(payload[0].payload.nPrev)} (${fmtPct(payload[0].payload.sharePrev, 2)})` }]),
                 ]} note={
                   <div style={{ width: 250, whiteSpace: 'normal', lineHeight: 1.45, borderTop: `1px solid ${C.grid}`, paddingTop: 6, marginTop: 4 }}>
-                    Sessions that viewed this page, as a share of all sessions on the site in {rangeLabel(pStart, M.END)}. Sessions that saw several pages count under each, so shares don't add up.
+                    Sessions that viewed this page in {rangeLabel(pStart, M.END)}. Sessions that saw several pages count under each, so counts don't add up.
                   </div>
                 } />
               ) : null} />
-              <Bar dataKey="share" isAnimationActive={false} stroke={C.black} strokeWidth={1} radius={[0, 2, 2, 0]}>
+              <Bar dataKey="n" isAnimationActive={false} stroke={C.black} strokeWidth={1} radius={[0, 2, 2, 0]}>
                 {rows.map((r) => <Cell key={r.path} fill={r.color} />)}
-                <LabelList dataKey="share" position="right" formatter={(v) => fmtPct(v, 1)} style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, fill: C.black }} />
+                <LabelList dataKey="n" position="right" formatter={(v) => fmtInt(v)} style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, fill: C.black }} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
