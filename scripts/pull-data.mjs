@@ -258,39 +258,48 @@ function ga4FromXlsx(path) {
     date: ymd(o.date), channelGroup: chan(o), sourceMedium: String(o.sessionsourcemedium ?? ''),
     eventCount: num(o.eventcount), engagedSessions: num(o.engagedsessions), sessions: num(o.sessions), totalUsers: num(o.totalusers),
   }));
-  const file4 = (tab('GA4 - File 4') || []).filter(isDate).map((o) => ({ date: ymd(o.date), highIntentEngagedSessions: num(o.highintentengagedsessions) }));
-  const file5 = (tab('GA4 - File 5') || []).filter(isDate).map((o) => ({ date: ymd(o.date), pagePath: String(o.pagepath ?? ''), engagedSessions: num(o.engagedsessions) }));
+  // Oct 15 2026: the Apps Script switched Files 4–9 + presets from engagedSessions /
+  // activeUsers to plain `sessions` (File 4: highIntentSessions). A renamed column
+  // used to read as all zeros silently — now it throws, naming the tab + headers.
+  const metric = (n, rows, col) => {
+    if (rows && rows.length && !(col in rows[0])) {
+      throw new Error(`"${n}" tab has no "${col}" column (headers: ${Object.keys(rows[0]).join(', ')}). The Apps Script output changed — update ga4FromXlsx().`);
+    }
+    return rows || [];
+  };
+  const file4 = metric('GA4 - File 4', tab('GA4 - File 4'), 'highintentsessions').filter(isDate).map((o) => ({ date: ymd(o.date), highIntentSessions: num(o.highintentsessions) }));
+  const file5 = metric('GA4 - File 5', tab('GA4 - File 5'), 'sessions').filter(isDate).map((o) => ({ date: ymd(o.date), pagePath: String(o.pagepath ?? ''), sessions: num(o.sessions) }));
 
-  // Active Users (Files 6–9). Keys stay as GA4 writes them: isoWeek 'YYYYWW', yearMonth 'YYYYMM'.
+  // Sessions by channel (Files 6–9). Keys stay as GA4 writes them: isoWeek 'YYYYWW', yearMonth 'YYYYMM'.
   const wk = (o) => ymd(o.isoyearisoweek);
   const ym = (o) => ymd(o.yearmonth);
-  const file6 = (tab('GA4 - File 6') || []).filter((o) => /^\d{6}$/.test(wk(o))).map((o) => ({ isoWeek: wk(o), channelGroup: chan(o), activeUsers: num(o.activeusers) }));
-  const file7 = (tab('GA4 - File 7') || []).filter((o) => /^\d{6}$/.test(ym(o))).map((o) => ({ yearMonth: ym(o), channelGroup: chan(o), activeUsers: num(o.activeusers) }));
-  const file8 = (tab('GA4 - File 8') || []).filter((o) => /^\d{6}$/.test(wk(o))).map((o) => ({ isoWeek: wk(o), activeUsers: num(o.activeusers) }));
-  const file9 = (tab('GA4 - File 9') || []).filter((o) => /^\d{6}$/.test(ym(o))).map((o) => ({ yearMonth: ym(o), activeUsers: num(o.activeusers) }));
+  const file6 = metric('GA4 - File 6', tab('GA4 - File 6'), 'sessions').filter((o) => /^\d{6}$/.test(wk(o))).map((o) => ({ isoWeek: wk(o), channelGroup: chan(o), sessions: num(o.sessions) }));
+  const file7 = metric('GA4 - File 7', tab('GA4 - File 7'), 'sessions').filter((o) => /^\d{6}$/.test(ym(o))).map((o) => ({ yearMonth: ym(o), channelGroup: chan(o), sessions: num(o.sessions) }));
+  const file8 = metric('GA4 - File 8', tab('GA4 - File 8'), 'sessions').filter((o) => /^\d{6}$/.test(wk(o))).map((o) => ({ isoWeek: wk(o), sessions: num(o.sessions) }));
+  const file9 = metric('GA4 - File 9', tab('GA4 - File 9'), 'sessions').filter((o) => /^\d{6}$/.test(ym(o))).map((o) => ({ yearMonth: ym(o), sessions: num(o.sessions) }));
 
-  // Presets: exact date ranges, deduplicated by GA4 for that whole range.
+  // Presets: exact date ranges precomputed by the Apps Script.
   const periodTotals = {};
-  for (const o of tab('GA4 - Preset Totals') || []) {
+  for (const o of metric('GA4 - Preset Totals', tab('GA4 - Preset Totals'), 'sessions')) {
     if (!o.preset) continue;
     periodTotals[o.preset] = {
       label: o.label, startDate: String(o.startdate), endDate: String(o.enddate),
-      activeUsers: num(o.activeusers), fiscalQuarter: o.fiscalquarter ?? null, refreshedAt: o.refreshedat ?? null,
+      sessions: num(o.sessions), fiscalQuarter: o.fiscalquarter ?? null, refreshedAt: o.refreshedat ?? null,
     };
   }
   const periodChannels = {};
-  for (const o of tab('GA4 - Preset Channels') || []) {
+  for (const o of metric('GA4 - Preset Channels', tab('GA4 - Preset Channels'), 'sessions')) {
     if (!o.preset) continue;
     const p = (periodChannels[o.preset] ||= { label: o.label, startDate: String(o.startdate), endDate: String(o.enddate), channels: [] });
-    p.channels.push({ channel: chan(o), activeUsers: num(o.activeusers) });
+    p.channels.push({ channel: chan(o), sessions: num(o.sessions) });
   }
 
-  for (const [k, n] of Object.entries({ file6, file7, file8, file9 })) if (!n.length) err(`  WARN: GA4 ${k} (Active Users) missing or empty in ${path}.`);
+  for (const [k, n] of Object.entries({ file6, file7, file8, file9 })) if (!n.length) err(`  WARN: GA4 ${k} (sessions by channel) missing or empty in ${path}.`);
   for (const p of ['thisWeek', 'lastWeek', 'last4Weeks', 'quarterToDate', 'fiscalYTD']) {
     if (!periodTotals[p]) err(`  WARN: preset "${p}" missing from "GA4 - Preset Totals".`);
     if (!periodChannels[p]) err(`  WARN: preset "${p}" missing from "GA4 - Preset Channels".`);
   }
-  if (!file4.length) err('  WARN: no GA4 File 4 (high-intent engaged sessions) — high-intent card will be empty.');
+  if (!file4.length) err('  WARN: no GA4 File 4 (high-intent sessions) — high-intent card will be empty.');
   if (file1.length === 0) throw new Error(`GA4 File 1 tab in ${path} had zero data rows.`);
   // File 1's header row carries the Apps Script refresh timestamp in a spare cell.
   const stamp = (book[Object.keys(book).find((k) => /file 1$/i.test(k.trim()))]?.[0] || []).find((c) => typeof c === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(c)) || null;

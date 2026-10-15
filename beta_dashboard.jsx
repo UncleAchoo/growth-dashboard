@@ -72,17 +72,29 @@ const ENGAGED_BY_DATE = Object.fromEntries(
   dataJson.ga4.file1.map((r) => [`${r.date.slice(0, 4)}-${r.date.slice(4, 6)}-${r.date.slice(6)}`, r.engagedSessions]),
 );
 
-// High-intent engaged sessions (GA4 File 4): ONE aggregated daily number from
+// All sessions per day (GA4 File 1). Denominator for the high-intent cards since
+// Oct 15, when Files 4/5 switched from engaged sessions to sessions — the
+// numerator and denominator must use the same metric.
+const SESSIONS_BY_DATE = Object.fromEntries(
+  dataJson.ga4.file1.map((r) => [`${r.date.slice(0, 4)}-${r.date.slice(4, 6)}-${r.date.slice(6)}`, r.sessions]),
+);
+const sumSessions = (a, b) => {
+  let s = 0;
+  for (let d = a; d <= b; d = addDays(d, 1)) s += SESSIONS_BY_DATE[d] || 0;
+  return s;
+};
+
+// High-intent sessions (GA4 File 4): ONE aggregated daily number from
 // the high-intent page filter, so a session that hits several high-intent pages
 // counts once. Never rebuild this from the per-page File 5 — that double-counts.
 const gaISO4 = (d) => `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}`;
-const HIGH_INTENT_BY_DATE = Object.fromEntries((dataJson.ga4.file4 || []).map((r) => [gaISO4(r.date), r.highIntentEngagedSessions]));
+const HIGH_INTENT_BY_DATE = Object.fromEntries((dataJson.ga4.file4 || []).map((r) => [gaISO4(r.date), r.highIntentSessions]));
 // First day File 4 has data; earlier days are "no data", not zero.
 const HIGH_INTENT_START = Object.keys(HIGH_INTENT_BY_DATE).sort()[0] || null;
-// Per-page high-intent views (GA4 File 5): engaged sessions per pagePath per
+// Per-page high-intent views (GA4 File 5): sessions per pagePath per
 // day. Page-level only: a session on several pages appears under each, so
 // these rows must NEVER be summed for reach (use File 4 for that).
-const HIGH_INTENT_PAGE_ROWS = (dataJson.ga4.file5 || []).map((r) => ({ d: gaISO4(r.date), path: r.pagePath, n: r.engagedSessions || 0 }));
+const HIGH_INTENT_PAGE_ROWS = (dataJson.ga4.file5 || []).map((r) => ({ d: gaISO4(r.date), path: r.pagePath, n: r.sessions || 0 }));
 const HIGH_INTENT_PAGES = [...new Set(HIGH_INTENT_PAGE_ROWS.map((r) => r.path))].sort();
 
 const DATA_START = betaSignups.firstDate;
@@ -305,20 +317,17 @@ function sumByChannel(rows, a, b) {
 }
 const sumVals = (o) => Object.values(o).reduce((s, v) => s + v, 0);
 
-// --- Active users by channel (GA4 master feed, Oct 14) ---------------------------
-// GA4 activeUsers = distinct users in a date range. They are NOT additive: the
-// same person can be active in several days / weeks / months / channels. So:
-//   headline        ← ga4.periodTotals[preset]   (GA4-deduplicated for the exact range)
+// --- Sessions by channel (GA4 master feed; activeUsers until Oct 15) -------------
+// Oct 15: the Apps Script switched Files 6–9 + presets from activeUsers to
+// sessions. Each session has exactly one channel group, so channels add up to
+// the total. The structure below (presets for headlines) is kept as-is:
+//   headline        ← ga4.periodTotals[preset]   (exact preset range)
 //   channel table   ← ga4.periodChannels[preset] (exact range, per session channel)
-//   weekly bars     ← ga4.file6 (ISO week × channel), line ← ga4.file8 (deduped week total)
-//   monthly (YTD)   ← ga4.file7 (month × channel),    line ← ga4.file9 (deduped month total)
-// Never rebuild a period total by adding weeks, months, days or channels.
-// Session-scoped channel attribution: a user who came via two channels counts in
-// both, so channels add up to more than the deduplicated total.
+//   weekly bars     ← ga4.file6 (ISO week × channel), line ← ga4.file8 (week total)
+//   monthly (YTD)   ← ga4.file7 (month × channel),    line ← ga4.file9 (month total)
 // Only GA4's channel GROUP is available here (no source/medium), so groups map
 // onto the same categories as the engaged-sessions chart via its fallback table.
-// Groups that share a category are added (Nick chose this, Oct 14) — a user in
-// two of them counts twice in that category.
+// Groups that share a category are added (Nick chose this, Oct 14).
 const AU_GROUP_CATEGORY = {
   ...CHANNEL_FALLBACK,
   'Organic Social - LinkedIn': 'LinkedIn',
@@ -341,13 +350,13 @@ const GA4_AU = (() => {
   const g = dataJson.ga4 || {};
   const group = (rows, key) => {
     const raw = {};
-    for (const r of rows || []) (raw[r[key]] || (raw[r[key]] = [])).push({ group: r.channelGroup, n: r.activeUsers || 0 });
+    for (const r of rows || []) (raw[r[key]] || (raw[r[key]] = [])).push({ group: r.channelGroup, n: r.sessions || 0 });
     return Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, auByCategory(v)]));
   };
-  const totals = (rows, key) => Object.fromEntries((rows || []).map((r) => [r[key], r.activeUsers || 0]));
+  const totals = (rows, key) => Object.fromEntries((rows || []).map((r) => [r[key], r.sessions || 0]));
   const presets = Object.fromEntries(Object.entries(g.periodTotals || {}).map(([k, t]) => {
     const ch = g.periodChannels?.[k];
-    return [k, { ...t, channels: ch ? auByCategory(ch.channels.map((c) => ({ group: c.channel, n: c.activeUsers || 0 }))) : null }];
+    return [k, { ...t, channels: ch ? auByCategory(ch.channels.map((c) => ({ group: c.channel, n: c.sessions || 0 }))) : null }];
   }));
   // Last day GA4 Active Users cover (presets run to the Apps Script refresh day).
   const end = Object.values(presets).map((p) => p.endDate).filter(Boolean).sort().pop() || null;
@@ -682,8 +691,8 @@ function buildModel(mode) {
     const hiStartPrev = hiWindowStart(PRIOR_START, PRIOR_END);
     const highIntent = hiStart ? sumHighIntent(hiStart, END) : null;
     const highIntentPrev = hiStartPrev ? sumHighIntent(hiStartPrev, PRIOR_END) : null;
-    const hiVisitors = hiStart ? sumEngaged(hiStart, END) : null;
-    const hiVisitorsPrev = hiStartPrev ? sumEngaged(hiStartPrev, PRIOR_END) : null;
+    const hiVisitors = hiStart ? sumSessions(hiStart, END) : null;
+    const hiVisitorsPrev = hiStartPrev ? sumSessions(hiStartPrev, PRIOR_END) : null;
     const hiCreators = hiStart ? signupsIn(hiStart, END).filter(isCreator).length : null;
     const hiCreatorsPrev = hiStartPrev ? signupsIn(hiStartPrev, PRIOR_END).filter(isCreator).length : null;
     return {
@@ -748,7 +757,7 @@ function buildModel(mode) {
       // week mixes bot-counted days → gap). Raw `conv` stays for the faint line.
       const comparable = w.start >= MEASURE_BREAK;
       const visitorsAdj = comparable ? sumEngagedAdj(w.start, end) : null;
-      const row = { ...w, signups: list.length, visitors, visitorsAdj, convAdj: comparable ? pct(list.length, visitorsAdj) : null, preBreak: !comparable, adjScaled: comparable && overlapsConsentAdj(w.start, end), cumVisitors, cumSignups, conv: pct(list.length, visitors), highIntent, hiReach: hiReachOf(highIntent, visitors), creators: list.filter(isCreator).length, hiConv: highIntent == null ? null : pct(list.filter(isCreator).length, highIntent) };
+      const row = { ...w, signups: list.length, visitors, visitorsAdj, convAdj: comparable ? pct(list.length, visitorsAdj) : null, preBreak: !comparable, adjScaled: comparable && overlapsConsentAdj(w.start, end), cumVisitors, cumSignups, conv: pct(list.length, visitors), highIntent, allSessions: sumSessions(w.start, end), hiReach: hiReachOf(highIntent, sumSessions(w.start, end)),creators: list.filter(isCreator).length, hiConv: highIntent == null ? null : pct(list.filter(isCreator).length, highIntent) };
       ROLES.forEach((r) => { row[r.key] = 0; });
       list.forEach((s) => { row[roleKey(s)] += 1; });
       ROLES.forEach((r) => { row[`${r.key}_pct`] = list.length ? (row[r.key] / list.length) * 100 : 0; });
@@ -1758,12 +1767,12 @@ function CumulativeVisitorsCard() {
   );
 }
 
-// Website visitor → high-intent visitor (Nick, Oct 13). Of all engaged
+// Website visitor → high-intent visitor (Nick, Oct 13; sessions since Oct 15). Of all
 // sessions, what share visited at least one hypothesized high-intent page
 // (pricing, customers, use cases — the filter lives in GA4 / Apps Script).
-//   numerator   ← GA4 File 4 highIntentEngagedSessions (deduped per session by GA4)
-//   denominator ← GA4 File 1 engagedSessions
-// Weekly reach = Σ high-intent ÷ Σ engaged × 100. Never average daily %s.
+//   numerator   ← GA4 File 4 highIntentSessions (deduped per session by GA4)
+//   denominator ← GA4 File 1 sessions
+// Weekly reach = Σ high-intent ÷ Σ sessions × 100. Never average daily %s.
 function HighIntentReachCard() {
   const M = useModel();
   const { WEEKLY, WINDOW } = M;
@@ -1774,19 +1783,19 @@ function HighIntentReachCard() {
       title="Website visitor → high-intent visitor"
       question={(
         <>
-          <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>What share of engaged visits reach a high-intent page?</span>
-          <span style={{ display: 'block', marginTop: 6 }}>Each week: engaged visits that viewed at least one high-intent page ÷ all engaged visits on the site. A visit counts once, even if it saw several high-intent pages. A rough read on how well the site steers engaged traffic toward buying-consideration content.</span>
+          <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>What share of visits reach a high-intent page?</span>
+          <span style={{ display: 'block', marginTop: 6 }}>Each week: visits that viewed at least one high-intent page ÷ all visits on the site. A visit counts once, even if it saw several high-intent pages. A rough read on how well the site steers traffic toward buying-consideration content.</span>
           <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), and use-case pages (/use-cases/…).</span>
         </>
       )}
-      footnote={`High-intent engaged sessions ÷ all GA4 engaged sessions for the same week (session counts summed first, then divided). High-intent = an engaged session that viewed at least one hypothesized high-intent page (pricing, customers, use cases); a session that hits several still counts once. GA4 tracking changed around Jul 20, when total engaged sessions dropped ~85%, so compare reach within, not across, that line. ${lineWeekNote(M)} No goal set yet.`}
+      footnote={`High-intent sessions ÷ all GA4 sessions for the same week (session counts summed first, then divided). High-intent = a session that viewed at least one hypothesized high-intent page (pricing, customers, use cases); a session that hits several still counts once. GA4 tracking changed around Jul 17 (CookieYes consent banner), when total sessions dropped ~94%, so compare reach within, not across, that line. ${lineWeekNote(M)} No goal set yet.`}
     >
       <StatRow delta={has ? <Delta value={ptsDiff(WINDOW.hiReach, WINDOW.hiReachPrev)} suffix=" pts" /> : null}>
         <Stat
           label={`Reach · ${rangeLabel(WINDOW.hiStart || M.START, M.END)}`}
           value={has ? fmtPct(WINDOW.hiReach, 1) : '—'}
           muted={!has}
-          explain={has ? `From ${rangeLabel(WINDOW.hiStart, M.END)}, ${fmtInt(WINDOW.highIntent)} of ${fmtInt(WINDOW.hiVisitors)} engaged visits reached a high-intent page — about ${fmtPct(WINDOW.hiReach, 1)}.${WINDOW.hiStart !== M.START ? ` Starts ${monDay(WINDOW.hiStart)}, the first day of high-intent data.` : ''}` : undefined}
+          explain={has ? `From ${rangeLabel(WINDOW.hiStart, M.END)}, ${fmtInt(WINDOW.highIntent)} of ${fmtInt(WINDOW.hiVisitors)} visits reached a high-intent page — about ${fmtPct(WINDOW.hiReach, 1)}.${WINDOW.hiStart !== M.START ? ` Starts ${monDay(WINDOW.hiStart)}, the first day of high-intent data.` : ''}` : undefined}
         />
         <Stat label="Goal" value="—" muted />
       </StatRow>
@@ -1800,7 +1809,7 @@ function HighIntentReachCard() {
             <TooltipBox title={weekTitle(payload[0].payload)} rows={[
               { label: 'High-intent reach', value: payload[0].payload.hiReach == null ? '—' : fmtPct(payload[0].payload.hiReach, 1), color: C.black },
               { label: 'High-intent sessions', value: payload[0].payload.highIntent == null ? '—' : fmtInt(payload[0].payload.highIntent) },
-              { label: 'Engaged sessions', value: fmtInt(payload[0].payload.visitors) },
+              { label: 'All sessions', value: fmtInt(payload[0].payload.allSessions) },
             ]} />
           ) : null} />
           <Line dataKey="hiReach" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} connectNulls={false} isAnimationActive={false} />
@@ -1812,10 +1821,10 @@ function HighIntentReachCard() {
 
 // High-intent pages viewed (Nick, Oct 13). For each individual URL in GA4
 // File 5 (every page under /pricing, /use-cases, /customers — subpages kept
-// separate): Σ page engaged sessions in the period ÷ Σ site engaged sessions
+// separate): Σ page sessions in the period ÷ Σ site sessions
 // (File 1) in the same period × 100. Shares don't add to 100% and pages must
 // not be summed into folder reach (a session can view several pages). This is
-// page-level engaged-session reporting: GA4's page-dimension engagedSessions
+// page-level session reporting: GA4's page-dimension sessions
 // isn't validated as equal to a session-scoped segment per URL.
 const PAGE_SECTIONS = [
   { key: 'pricing', label: 'Pricing', rx: /^\/pricing/, color: C.purple },
@@ -1833,8 +1842,8 @@ function HighIntentPagesCard() {
   const M = useModel();
   // Clamp to File 5's first day like the reach card (Fiscal YTD starts Feb 1).
   const pStart = HIGH_INTENT_START && M.START < HIGH_INTENT_START ? HIGH_INTENT_START : M.START;
-  const engaged = sumEngaged(pStart, M.END);
-  const engagedPrev = sumEngaged(M.PRIOR_START, M.PRIOR_END);
+  const engaged = sumSessions(pStart, M.END); // all site sessions (name kept for diff size)
+  const engagedPrev = sumSessions(M.PRIOR_START, M.PRIOR_END);
   const cur = pageSessionsIn(pStart, M.END);
   const prev = pageSessionsIn(M.PRIOR_START, M.PRIOR_END);
   const rows = HIGH_INTENT_PAGES
@@ -1846,7 +1855,7 @@ function HighIntentPagesCard() {
       color: pageSection(path).color,
     }))
     // Hide anything that would read 0.0% (Nick, Oct 13): no sessions, or too
-    // few to round up to 0.1% of the site's engaged sessions.
+    // few to round up to 0.1% of the site's sessions.
     .filter((r) => r.n > 0 && r.share != null && r.share >= 0.05)
     .sort((a, b) => b.n - a.n || a.path.localeCompare(b.path));
   const top = rows[0];
@@ -1858,26 +1867,26 @@ function HighIntentPagesCard() {
         title="High-intent pages viewed"
         question={(
           <>
-            <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>Which high-intent pages draw the biggest share of engaged sessions?</span>
-            <span style={{ display: 'block', marginTop: 6 }}>For each page: engaged sessions that included a view of that page ÷ all engaged sessions on the site, for the selected period. The page can be viewed anywhere in the session, not just as the landing page.</span>
+            <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>Which high-intent pages draw the biggest share of sessions?</span>
+            <span style={{ display: 'block', marginTop: 6 }}>For each page: sessions that included a view of that page ÷ all sessions on the site, for the selected period. The page can be viewed anywhere in the session, not just as the landing page.</span>
             <span style={{ display: 'block', marginTop: 6 }}>Each URL is shown on its own (e.g. /use-cases/account-executives is separate from /use-cases). One session can view several pages and count under each, so the bars don't add up to the reach % above. Use that card for overall reach.</span>
             <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), and use-case pages (/use-cases/…).</span>
           </>
         )}
-        footnote={`Page-level engaged-session reporting (GA4 page-path breakdown). For each URL: engaged sessions on that page ÷ all GA4 engaged sessions on the site, for ${rangeLabel(pStart, M.END)}. Every page under /pricing, /customers and /use-cases is listed on its own (e.g. /use-cases/account-executives is separate from /use-cases); pages that round to 0% of engaged sessions in the period are hidden. Shares don't add up to 100% and shouldn't be added together: one session can view several pages, so it shows up under each. For overall reach, use the high-intent reach card above. GA4's per-page engaged sessions haven't been validated against a session-scoped segment per URL, so treat these as directional page-level numbers.`}
+        footnote={`Page-level session reporting (GA4 page-path breakdown). For each URL: sessions on that page ÷ all GA4 sessions on the site, for ${rangeLabel(pStart, M.END)}. Every page under /pricing, /customers and /use-cases is listed on its own (e.g. /use-cases/account-executives is separate from /use-cases); pages that round to 0% of sessions in the period are hidden. Shares don't add up to 100% and shouldn't be added together: one session can view several pages, so it shows up under each. For overall reach, use the high-intent reach card above. GA4's per-page sessions haven't been validated against a session-scoped segment per URL, so treat these as directional page-level numbers.`}
       >
         <StatRow>
           <Stat
             label={`Top page · ${rangeLabel(pStart, M.END)}`}
             value={top ? top.path : '—'}
             muted={!top}
-            explain={top ? `${top.path} had ${fmtInt(top.n)} engaged sessions, ${fmtPct(top.share, 1)} of the site's ${fmtInt(engaged)} engaged sessions.` : undefined}
+            explain={top ? `${top.path} had ${fmtInt(top.n)} sessions, ${fmtPct(top.share, 1)} of the site's ${fmtInt(engaged)} sessions.` : undefined}
           />
           <Stat
             label="Pages shown"
             value={`${rows.length} of ${HIGH_INTENT_PAGES.length}`}
             muted={!has}
-            explain={`${rows.length} of the ${HIGH_INTENT_PAGES.length} tracked high-intent URLs reached at least 0.1% of engaged sessions from ${rangeLabel(pStart, M.END)}. The rest round to 0% and are hidden.`}
+            explain={`${rows.length} of the ${HIGH_INTENT_PAGES.length} tracked high-intent URLs reached at least 0.1% of sessions from ${rangeLabel(pStart, M.END)}. The rest round to 0% and are hidden.`}
           />
         </StatRow>
         <Legend items={PAGE_SECTIONS.map((s) => ({ label: s.label, color: s.color }))} />
@@ -1889,13 +1898,13 @@ function HighIntentPagesCard() {
               <YAxis type="category" dataKey="path" tick={{ ...tick, fontSize: 11.5 }} tickLine={false} axisLine={false} width={250} interval={0} />
               <Tooltip cursor={cursor} content={({ active, payload }) => active && payload?.length ? (
                 <TooltipBox title={payload[0].payload.path} rows={[
-                  { label: 'Share of engaged sessions', value: fmtPct(payload[0].payload.share, 2), color: payload[0].payload.color },
-                  { label: 'Page engaged sessions', value: fmtInt(payload[0].payload.n) },
-                  { label: 'Site engaged sessions', value: fmtInt(engaged) },
+                  { label: 'Share of sessions', value: fmtPct(payload[0].payload.share, 2), color: payload[0].payload.color },
+                  { label: 'Page sessions', value: fmtInt(payload[0].payload.n) },
+                  { label: 'Site sessions', value: fmtInt(engaged) },
                   ...(M.noPrior ? [] : [{ label: `${M.prior[0].toUpperCase()}${M.prior.slice(1)}`, value: fmtPct(payload[0].payload.sharePrev, 2) }]),
                 ]} note={
                   <div style={{ width: 250, whiteSpace: 'normal', lineHeight: 1.45, borderTop: `1px solid ${C.grid}`, paddingTop: 6, marginTop: 4 }}>
-                    Engaged sessions that viewed this page, as a share of all engaged sessions on the site in {rangeLabel(pStart, M.END)}. Sessions that saw several pages count under each, so shares don't add up.
+                    Sessions that viewed this page, as a share of all sessions on the site in {rangeLabel(pStart, M.END)}. Sessions that saw several pages count under each, so shares don't add up.
                   </div>
                 } />
               ) : null} />
@@ -1916,8 +1925,8 @@ function HighIntentPagesCard() {
 }
 
 // High-intent visitor → sign up (Nick, Oct 13): same calculation as
-// Website visitor → sign up, with high-intent engaged sessions (GA4 File 4)
-// replacing all engaged sessions. Weekly signups ÷ weekly high-intent sessions.
+// Website visitor → sign up, with high-intent sessions (GA4 File 4)
+// replacing all sessions. Weekly signups ÷ weekly high-intent sessions.
 // A ratio of two weekly totals, not a tracked path: signups aren't joined to
 // the sessions they came from.
 function HighIntentToSignupCard() {
@@ -1931,20 +1940,20 @@ function HighIntentToSignupCard() {
       question={(
         <>
           <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>Do high-intent visitors create an account?</span>
-          <span style={{ display: 'block', marginTop: 6 }}>Each week: company-creator signups ÷ engaged sessions that viewed at least one high-intent page.</span>
+          <span style={{ display: 'block', marginTop: 6 }}>Each week: company-creator signups ÷ sessions that viewed at least one high-intent page.</span>
           <span style={{ display: 'block', marginTop: 6 }}>Only signups that created a new company count. People accepting an invite or joining a teammate's company, and signups that never set up a company, are left out, since they mostly don't arrive through the website.</span>
           <span style={{ display: 'block', marginTop: 6 }}>It's a ratio of two weekly totals, not a tracked path: a signup counts whether or not that person saw a high-intent page.</span>
           <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), and use-case pages (/use-cases/…).</span>
         </>
       )}
-      footnote={`Company-creator signups ÷ GA4 high-intent engaged sessions for the same week (each total summed first, then divided). Company creator = the signup created a new company; accepted invites, people joining a teammate's existing company, and signups that never set up a company are excluded. Repeat signups by the same person still count if each created a company; internal (@mutinyhq.com) signups are left out. Signups aren't linked to the sessions they came from, so this compares two weekly totals rather than following people from a high-intent page to signup, and it can run high. GA4 tracking changed around Jul 20, so compare within, not across, that line. ${lineWeekNote(M)} No goal set yet.`}
+      footnote={`Company-creator signups ÷ GA4 high-intent sessions for the same week (each total summed first, then divided). Company creator = the signup created a new company; accepted invites, people joining a teammate's existing company, and signups that never set up a company are excluded. Repeat signups by the same person still count if each created a company; internal (@mutinyhq.com) signups are left out. Signups aren't linked to the sessions they came from, so this compares two weekly totals rather than following people from a high-intent page to signup, and it can run high. GA4 tracking changed around Jul 20, so compare within, not across, that line. ${lineWeekNote(M)} No goal set yet.`}
     >
       <StatRow delta={has ? <Delta value={ptsDiff(WINDOW.hiConv, WINDOW.hiConvPrev)} suffix=" pts" /> : null}>
         <Stat
           label={`Conversion · ${rangeLabel(WINDOW.hiStart || M.START, M.END)}`}
           value={has ? fmtPct(WINDOW.hiConv, 1) : '—'}
           muted={!has}
-          explain={has ? `From ${rangeLabel(WINDOW.hiStart, M.END)}, ${fmtInt(WINDOW.hiCreators)} company-creator signups vs ${fmtInt(WINDOW.highIntent)} high-intent engaged sessions — about ${fmtPct(WINDOW.hiConv, 1)}.${WINDOW.hiStart !== M.START ? ` Starts ${monDay(WINDOW.hiStart)}, the first day of high-intent data.` : ''}` : undefined}
+          explain={has ? `From ${rangeLabel(WINDOW.hiStart, M.END)}, ${fmtInt(WINDOW.hiCreators)} company-creator signups vs ${fmtInt(WINDOW.highIntent)} high-intent sessions — about ${fmtPct(WINDOW.hiConv, 1)}.${WINDOW.hiStart !== M.START ? ` Starts ${monDay(WINDOW.hiStart)}, the first day of high-intent data.` : ''}` : undefined}
         />
         <Stat label="Goal" value="—" muted />
       </StatRow>
@@ -2030,16 +2039,12 @@ function VisitorsByChannelCard() {
   );
 }
 
-// Website visitors by channel — Active Users (Oct 14). Sits directly under the
-// engaged-sessions chart, which is unchanged. Same categories, colors, x-axis
-// and Fiscal-YTD monthly rule, but the metric is GA4 activeUsers (distinct
-// users), so nothing here is ever summed into a period total:
-//   headline + channel table ← Apps Script presets (exact range, GA4-deduplicated)
-//   bars ← File 6 / 7 (period × channel); black line ← File 8 / 9 (deduplicated
-//   total per week / month). Channels can add up to more than the line because a
-//   user who arrived through two channels is counted in both.
-// M.AU also carries the deduplicated headline for the planned Visitor → sign up
-// denominator.
+// Website visitors by channel — Sessions (Active Users Oct 14 → sessions Oct 15).
+// Sits directly under the engaged-sessions chart, which is unchanged. Same
+// categories, colors, x-axis and Fiscal-YTD monthly rule; metric is GA4 sessions:
+//   headline + channel table ← Apps Script presets (exact range)
+//   bars ← File 6 / 7 (period × channel); black line ← File 8 / 9 (total per
+//   week / month). Internal names (AU, auTotal…) are left over from Active Users.
 function VisitorsActiveUsersByChannelCard() {
   const M = useModel();
   const { AU } = M;
@@ -2069,28 +2074,28 @@ function VisitorsActiveUsersByChannelCard() {
     <div className="full">
       <Card
         accent={C.blue}
-        title="Website visitors by channel — Active Users"
+        title="Website visitors by channel — Sessions"
         question={(
           <>
-            <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>How many distinct people visit, and through which channels? · {monthly ? 'monthly' : 'weekly'}</span>
-            <span style={{ display: 'block', marginTop: 6 }}>GA4 Active Users: each person counts once per period, however many times they come back. The chart above counts engaged visits (sessions) instead, so compare the two to see visits per person.</span>
-            <span style={{ display: 'block', marginTop: 6 }}>Channels come from each visit, so someone who came via search and later directly counts under both. That's why the channels can add up to more than the total.</span>
+            <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>How many visits does the site get, and through which channels? · {monthly ? 'monthly' : 'weekly'}</span>
+            <span style={{ display: 'block', marginTop: 6 }}>GA4 sessions: every visit counts, engaged or not. The chart above counts engaged sessions only, so compare the two to see how much traffic engages.</span>
+            <span style={{ display: 'block', marginTop: 6 }}>Each visit has one channel, so the channels add up to the total.</span>
           </>
         )}
-        footnote={`GA4 activeUsers by session channel group. Bars: Active Users per ${unitWord} and channel (GA4 ${monthly ? 'File 7, calendar months' : 'File 6, ISO weeks Mon–Sun'}). Black line: GA4's deduplicated Active Users for each ${unitWord} (${monthly ? 'File 9' : 'File 8'}). A user who visits through more than one channel is counted in each, so the stacked channels can sit above the line and channel shares can total more than 100%. The headline and the channel table use GA4's figures precomputed for the exact preset range by the Apps Script (never sums of days, weeks, months or channels), so their dates can differ by a few days from the period at the top${P ? ` (here ${pRange})` : ''}. Channel groups map onto the same categories as the chart above: Organic Search, AI Referrals and Paid Search → Search + AEO; Organic Social, Twitter, Reddit and Paid Social → Social; Organic Social - LinkedIn → LinkedIn; anything else (e.g. Organic Video, Paid Other) → Unassigned. Where several groups share a category their users are added, so a user in two of them counts twice there. This feed has no source/medium, so unlike the chart above, LinkedIn visits GA4 grouped as plain Organic Social (mostly Feb–May) show under Social, and AI-tool visits GA4 grouped as Referral stay in Referral. ${monthly ? colNote(M) : `${M.mode === '1w' ? 'Last week shows the same columns as Last 4 weeks. ' : ''}The last, faintly striped column is the week in progress${GA4_AU.end ? ` (GA4 data through ${monDay(GA4_AU.end)})` : ''}.`}`}
+        footnote={`GA4 sessions by session channel group. Bars: sessions per ${unitWord} and channel (GA4 ${monthly ? 'File 7, calendar months' : 'File 6, ISO weeks Mon–Sun'}). Black line: GA4's total sessions for each ${unitWord} (${monthly ? 'File 9' : 'File 8'}). The headline and the channel table use GA4's figures precomputed for the exact preset range by the Apps Script, so their dates can differ by a few days from the period at the top${P ? ` (here ${pRange})` : ''}. Channel groups map onto the same categories as the chart above: Organic Search, AI Referrals and Paid Search → Search + AEO; Organic Social, Twitter, Reddit and Paid Social → Social; Organic Social - LinkedIn → LinkedIn; anything else (e.g. Organic Video, Paid Other) → Unassigned. Where several groups share a category their sessions are added. This feed has no source/medium, so unlike the chart above, LinkedIn visits GA4 grouped as plain Organic Social (mostly Feb–May) show under Social, and AI-tool visits GA4 grouped as Referral stay in Referral. ${monthly ? colNote(M) : `${M.mode === '1w' ? 'Last week shows the same columns as Last 4 weeks. ' : ''}The last, faintly striped column is the week in progress${GA4_AU.end ? ` (GA4 data through ${monDay(GA4_AU.end)})` : ''}.`}`}
       >
         <StatRow>
           <Stat
-            label={`Active users · ${pRange || rangeLabel(M.START, M.END)}`}
-            value={P ? fmtInt(P.activeUsers) : '—'}
+            label={`Sessions · ${pRange || rangeLabel(M.START, M.END)}`}
+            value={P ? fmtInt(P.sessions) : '—'}
             muted={!P}
-            explain={P ? `${fmtInt(P.activeUsers)} distinct people were active on the site from ${pRange} (GA4 "${P.label}", deduplicated across the whole range).${sameRange ? '' : ` That's the Apps Script's preset range; the period at the top is ${rangeLabel(M.START, M.END)}.`}` : 'No Active Users preset for this period in the GA4 feed.'}
+            explain={P ? `${fmtInt(P.sessions)} sessions on the site from ${pRange} (GA4 "${P.label}").${sameRange ? '' : ` That's the Apps Script's preset range; the period at the top is ${rangeLabel(M.START, M.END)}.`}` : 'No sessions preset for this period in the GA4 feed.'}
           />
           {TW && AU.presetKey !== 'thisWeek' && (
             <Stat
               label={`This week so far · ${rangeLabel(TW.startDate, TW.endDate)}`}
-              value={fmtInt(TW.activeUsers)}
-              explain={`${fmtInt(TW.activeUsers)} distinct active users from ${rangeLabel(TW.startDate, TW.endDate)} (GA4, deduplicated).`}
+              value={fmtInt(TW.sessions)}
+              explain={`${fmtInt(TW.sessions)} sessions from ${rangeLabel(TW.startDate, TW.endDate)} (GA4).`}
             />
           )}
         </StatRow>
@@ -2102,20 +2107,20 @@ function VisitorsActiveUsersByChannelCard() {
         <SideLegend legend={(
           <LegendTable
             title={`${P?.label || M.label} · ${pRange || rangeLabel(M.START, M.END)}`}
-            unit="active users"
-            total={P?.activeUsers}
-            totalLabel="Active users (deduplicated)"
+            unit="sessions"
+            total={P?.sessions}
+            totalLabel="Sessions (total)"
             totalShare=""
             items={order.map((c) => ({ label: c.key, color: c.color, n: chans[c.key] || 0 }))}
             hidden={H.hidden}
             onToggle={H.toggle}
             onShowAll={H.showAll}
-            note={P ? `% = share of the ${fmtInt(P.activeUsers)} deduplicated active users. Channels add up to ${fmtInt(chSum)} because people who came through more than one channel count in each.` : null}
+            note={P ? `% = share of the ${fmtInt(P.sessions)} sessions.${Math.abs(chSum - P.sessions) > 1 ? ` Channels add up to ${fmtInt(chSum)} (GA4 rounding / thresholding).` : ''}` : null}
           />
         )}>
           <Legend style={{ margin: '0 0 10px' }} items={[filtered
-            ? { label: `Active users, visible channels added (not deduplicated)`, color: C.black, line: true, dashed: true }
-            : { label: `Active users, deduplicated (GA4 ${unitWord} total)`, color: C.black, line: true }]} />
+            ? { label: `Sessions, visible channels only`, color: C.black, line: true, dashed: true }
+            : { label: `Sessions (GA4 ${unitWord} total)`, color: C.black, line: true }]} />
           <ZoomContainer height={420}>
             <ComposedChart data={data} margin={chartMargin} barCategoryGap="22%">
               {hatchDefs(CHANNELS.map((c) => c.color))}
@@ -2125,7 +2130,7 @@ function VisitorsActiveUsersByChannelCard() {
               <Tooltip cursor={cursor} content={({ active, payload }) => {
                 if (!active || !payload?.length) return null;
                 const r = payload[0].payload;
-                if (r.chSum == null && r.auTotal == null) return <TooltipBox title={auTitle(r)} rows={[]} note="No GA4 Active Users data for this period" />;
+                if (r.chSum == null && r.auTotal == null) return <TooltipBox title={auTitle(r)} rows={[]} note="No GA4 sessions data for this period" />;
                 return (
                   <TooltipBox
                     title={auTitle(r)}
@@ -2135,11 +2140,11 @@ function VisitorsActiveUsersByChannelCard() {
                         value: `${fmtInt(r[c.key])}${r.auTotal ? ` · ${fmtPct(pct(r[c.key], r.auTotal), 0)}` : ''}`,
                       })),
                       ...(filtered ? [{ label: 'Visible channels added', value: fmtInt(r.auLine), color: C.black }] : []),
-                      { label: filtered ? 'All channels, deduplicated' : 'Active users (deduplicated)', value: fmtInt(r.auTotal), color: filtered ? undefined : C.black },
+                      { label: filtered ? 'All channels' : 'Sessions (total)', value: fmtInt(r.auTotal), color: filtered ? undefined : C.black },
                     ]}
                     note={
                       <div style={{ width: 240, whiteSpace: 'normal', lineHeight: 1.45 }}>
-                        Channels add up to {fmtInt(H.hidden.size ? shownSum(r) : r.chSum)}{H.hidden.size ? ' (shown categories)' : ''}; people who came through more than one channel count in each. % = share of deduplicated active users.
+                        {H.hidden.size ? `Shown categories add up to ${fmtInt(shownSum(r))}. ` : ''}% = share of total sessions.
                       </div>
                     }
                   />
