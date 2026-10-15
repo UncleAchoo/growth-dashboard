@@ -1854,23 +1854,23 @@ function HighIntentPagesCard() {
     // few to round up to 0.1% of the site's sessions.
     .filter((r) => r.n > 0 && r.share != null && r.share >= 0.05)
     .sort((a, b) => b.n - a.n || a.path.localeCompare(b.path))
-    .slice(0, 5); // Top 5 only (Nick, Oct 15)
+    .slice(0, 10); // Top 10 only (Nick, Oct 15)
   const top = rows[0];
   const has = engaged > 0 && rows.length > 0;
   return (
     <div className="full">
       <Card
         accent={C.blue}
-        title="Top 5 high-intent pages — Sessions"
+        title="Top 10 high-intent pages — Sessions"
         question={(
           <>
-            <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>Which 5 high-intent pages get the most sessions?</span>
+            <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>Which 10 high-intent pages get the most sessions?</span>
             <span style={{ display: 'block', marginTop: 6 }}>For each page: the number of sessions that included a view of that page, for the selected period. The page can be viewed anywhere in the session, not just as the landing page. A session that views the same page several times counts once.</span>
             <span style={{ display: 'block', marginTop: 6 }}>Each URL is shown on its own (e.g. /use-cases/account-executives is separate from /use-cases). One session can view several pages and count under each, so the bars don't add up to the high-intent session total above. Use the reach card for overall reach.</span>
             <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), and use-case pages (/use-cases/…).</span>
           </>
         )}
-        footnote={`Page-level session reporting (GA4 page-path breakdown). For each URL: number of sessions that viewed that page, for ${rangeLabel(pStart, M.END)} (not raw pageviews — repeat views in one session count once). Hover a bar for its share of all ${fmtInt(engaged)} site sessions. Shows the 5 pages with the most sessions; every page under /pricing, /customers and /use-cases is ranked on its own (e.g. /use-cases/account-executives is separate from /use-cases). Counts shouldn't be added together: one session can view several pages, so it shows up under each. For overall reach, use the high-intent reach card above. GA4's per-page sessions haven't been validated against a session-scoped segment per URL, so treat these as directional page-level numbers.`}
+        footnote={`Page-level session reporting (GA4 page-path breakdown). For each URL: number of sessions that viewed that page, for ${rangeLabel(pStart, M.END)} (not raw pageviews — repeat views in one session count once). Hover a bar for its share of all ${fmtInt(engaged)} site sessions. Shows the 10 pages with the most sessions; every page under /pricing, /customers and /use-cases is ranked on its own (e.g. /use-cases/account-executives is separate from /use-cases). Counts shouldn't be added together: one session can view several pages, so it shows up under each. For overall reach, use the high-intent reach card above. GA4's per-page sessions haven't been validated against a session-scoped segment per URL, so treat these as directional page-level numbers.`}
       >
         <StatRow>
           <Stat
