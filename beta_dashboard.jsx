@@ -1850,9 +1850,8 @@ function HighIntentPagesCard() {
       sharePrev: M.noPrior ? null : pct(prev[path], engagedPrev),
       color: pageSection(path).color,
     }))
-    // Hide anything that would read 0.0% (Nick, Oct 13): no sessions, or too
-    // few to round up to 0.1% of the site's sessions.
-    .filter((r) => r.n > 0 && r.share != null && r.share >= 0.05)
+    // Rank on absolute sessions only (Nick, Oct 15: no 0.1% share cutoff).
+    .filter((r) => r.n > 0)
     .sort((a, b) => b.n - a.n || a.path.localeCompare(b.path))
     .slice(0, 10); // Top 10 only (Nick, Oct 15)
   const top = rows[0];
