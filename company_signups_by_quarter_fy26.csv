@@ -1,0 +1,4 @@
+quarter,start,end,company_signups,user_signups,cohort_paid_by_quarter_end,cohort_conv_by_quarter_end,cohort_paid_to_date,cohort_conv_to_date,new_paying_plg_companies_in_quarter,new_paying_per_company_signup
+Q1 FY26,2026-02-01,2026-04-30,2334,3304,78,3.3%,118,5.1%,78,3.3%
+Q2 FY26,2026-05-01,2026-07-31,1281,2509,51,4.0%,57,4.4%,88,6.9%
+Q3 FY26 (QTD to Oct 12),2026-08-01,2026-10-31,514,1350,10,1.9%,10,1.9%,22,4.3%
