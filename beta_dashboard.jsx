@@ -11,8 +11,8 @@
 // the URL hash, e.g. ?beta#activation, so a view can be shared).
 //
 // Data:
-//   Website visitors  ← GA4 engaged sessions (src/data.json → ga4.file1), same
-//                       metric as the current dashboard's "Website Visitors".
+//   Website visitors  ← GA4 sessions (src/data.json → ga4.file1). Engaged
+//                       sessions until Oct 15; the live dashboard still uses those.
 //   Signups           ← Metabase signups export → src/beta-signups.json
 //                       (npm run ingest-signups). One row = one user+company
 //                       signup; never deduped.
@@ -68,13 +68,11 @@ const daysBetweenISO = (a, b) => Math.round((toDate(b) - toDate(a)) / 86400000);
 
 // --- Source data --------------------------------------------------------------
 const SIGNUPS = betaSignups.signups;
-const ENGAGED_BY_DATE = Object.fromEntries(
-  dataJson.ga4.file1.map((r) => [`${r.date.slice(0, 4)}-${r.date.slice(4, 6)}-${r.date.slice(6)}`, r.engagedSessions]),
-);
 
-// All sessions per day (GA4 File 1). Denominator for the high-intent cards since
-// Oct 15, when Files 4/5 switched from engaged sessions to sessions — the
-// numerator and denominator must use the same metric.
+// All sessions per day (GA4 File 1). Since Oct 15 (Nick) the whole ?beta
+// dashboard uses sessions, never engaged sessions: Website visitors, visitor →
+// sign up, high-intent reach + pages, channel charts. The live dashboard
+// (mutiny_growth_dashboard.jsx) still uses engaged sessions.
 const SESSIONS_BY_DATE = Object.fromEntries(
   dataJson.ga4.file1.map((r) => [`${r.date.slice(0, 4)}-${r.date.slice(4, 6)}-${r.date.slice(6)}`, r.sessions]),
 );
@@ -210,31 +208,28 @@ function makeWindow(mode) {
 const barWeekNote = (M) => (M.SHOWS_CUR ? 'Faintly striped bar = week in progress.' : 'Full weeks only; the week in progress is left off.');
 const lineWeekNote = (M) => (M.SHOWS_CUR ? 'Last point is the week in progress.' : 'Last point is the last full week.');
 
-const sumEngaged = (a, b) => {
-  let s = 0;
-  for (let d = a; d <= b; d = addDays(d, 1)) s += ENGAGED_BY_DATE[d] || 0;
-  return s;
-};
 
 // --- GA4 measurement periods → adjusted visitor → sign up (Nick, Oct 14) ------
 // GA4 counted visitors three different ways in 2026:
-//   before Jul 17   no consent gate: GA4 fired for everyone, incl. ~85% bot
+//   before Jul 17   no consent gate: GA4 fired for everyone, incl. ~95% bot
 //                   traffic (AWS Boardman, OR). Conversion is NOT comparable →
 //                   no adjusted rate, raw shown greyed.
 //   Jul 17–Sep 21   CookieYes opt-in everywhere: GA4 only counted visitors who
-//                   clicked Accept. Engaged sessions × CONSENT_ADJ.factor.
-//                   1.5 = the overnight jump in engaged sessions on Sep 22
-//                   (organic 1.64×, referral 1.58×) while signups stayed flat.
+//                   clicked Accept. Sessions × CONSENT_ADJ.factor.
+//                   2.5 = sessions Sep 22–Oct 5 ÷ Sep 8–21 (9,958 / 3,987), the
+//                   jump when US auto opt-in went live, while signups stayed flat.
+//                   (Was 1.5 on engaged sessions until Oct 15; Nick chose to
+//                   recompute on sessions. Direct 3.0×, organic 1.57×, referral 1.34×.)
 //   Sep 22 →        US auto opt-in (opt-in banner in Europe only): raw GA4.
 // No data-center / city filtering (Nick: bots are part of the game).
-const CONSENT_ADJ = { start: '2026-07-17', end: '2026-09-21', factor: 1.5 };
+const CONSENT_ADJ = { start: '2026-07-17', end: '2026-09-21', factor: 2.5 };
 const MEASURE_BREAK = CONSENT_ADJ.start; // first day conversion is comparable
 const US_AUTO_OPTIN = addDays(CONSENT_ADJ.end, 1);
 const consentFactor = (d) => (d >= CONSENT_ADJ.start && d <= CONSENT_ADJ.end ? CONSENT_ADJ.factor : 1);
-// Engaged sessions scaled to full consent (only days in CONSENT_ADJ change).
-const sumEngagedAdj = (a, b) => {
+// Sessions scaled to full consent (only days in CONSENT_ADJ change).
+const sumSessionsAdj = (a, b) => {
   let s = 0;
-  for (let d = a; d <= b; d = addDays(d, 1)) s += (ENGAGED_BY_DATE[d] || 0) * consentFactor(d);
+  for (let d = a; d <= b; d = addDays(d, 1)) s += (SESSIONS_BY_DATE[d] || 0) * consentFactor(d);
   return s;
 };
 // Adjusted conversion over a range. Days before MEASURE_BREAK are dropped
@@ -243,11 +238,11 @@ const sumEngagedAdj = (a, b) => {
 const adjConvOf = (a, b, signupsFor) => {
   if (b < MEASURE_BREAK) return { rate: null, from: null };
   const from = a < MEASURE_BREAK ? MEASURE_BREAK : a;
-  const visitors = sumEngagedAdj(from, b);
+  const visitors = sumSessionsAdj(from, b);
   return { rate: pct(signupsFor(from, b), visitors), from, visitors };
 };
 const overlapsConsentAdj = (a, b) => a <= CONSENT_ADJ.end && b >= CONSENT_ADJ.start;
-// Sum high-intent engaged sessions over a range. null if File 4 doesn't cover
+// Sum high-intent sessions over a range. null if File 4 doesn't cover
 // the whole range (missing or starts later), so the ratio shows "—", not 0.
 const sumHighIntent = (a, b) => {
   if (!HIGH_INTENT_START || a < HIGH_INTENT_START) return null;
@@ -309,7 +304,7 @@ const CHANNELS = [
   { key: 'Unassigned', color: '#D5D5D5' },
 ];
 const gaISO = (d) => `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}`;
-const GA_SESSIONS = dataJson.ga4.file3.map((r) => ({ d: gaISO(r.date), ch: channelOf(r), n: r.engagedSessions || 0 }));
+const GA_SESSIONS = dataJson.ga4.file3.map((r) => ({ d: gaISO(r.date), ch: channelOf(r), n: r.sessions || 0 }));
 function sumByChannel(rows, a, b) {
   const out = Object.fromEntries(CHANNELS.map((c) => [c.key, 0]));
   for (const r of rows) if (r.d >= a && r.d <= b) out[r.ch] = (out[r.ch] || 0) + r.n;
@@ -326,7 +321,7 @@ const sumVals = (o) => Object.values(o).reduce((s, v) => s + v, 0);
 //   weekly bars     ← ga4.file6 (ISO week × channel), line ← ga4.file8 (week total)
 //   monthly (YTD)   ← ga4.file7 (month × channel),    line ← ga4.file9 (month total)
 // Only GA4's channel GROUP is available here (no source/medium), so groups map
-// onto the same categories as the engaged-sessions chart via its fallback table.
+// onto the same categories as the chart above via its fallback table.
 // Groups that share a category are added (Nick chose this, Oct 14).
 const AU_GROUP_CATEGORY = {
   ...CHANNEL_FALLBACK,
@@ -677,8 +672,8 @@ function buildModel(mode) {
   const WINDOW = (() => {
     const curr = signupsIn(START, END);
     const prev = signupsIn(PRIOR_START, PRIOR_END);
-    const visitors = sumEngaged(START, END);
-    const visitorsPrev = sumEngaged(PRIOR_START, PRIOR_END);
+    const visitors = sumSessions(START, END);
+    const visitorsPrev = sumSessions(PRIOR_START, PRIOR_END);
     const roleCounts = Object.fromEntries(ROLES.map((r) => [r.key, 0]));
     curr.forEach((s) => { roleCounts[roleKey(s)] += 1; });
     // Funnel "Activated" = signups in the window that have activated (email
@@ -686,7 +681,7 @@ function buildModel(mode) {
     const activated = curr.filter(actDate).length;
     const activatedPrev = prev.filter(actDate).length;
     // High-intent window: clamped to File 4's first day (see hiWindowStart);
-    // engaged sessions and signups use the same clamped range.
+    // sessions and signups use the same clamped range.
     const hiStart = hiWindowStart(START, END);
     const hiStartPrev = hiWindowStart(PRIOR_START, PRIOR_END);
     const highIntent = hiStart ? sumHighIntent(hiStart, END) : null;
@@ -704,7 +699,7 @@ function buildModel(mode) {
       hiReach: hiReachOf(highIntent, hiVisitors),
       hiReachPrev: hiReachOf(highIntentPrev, hiVisitorsPrev),
       // High-intent visitor → sign up (Nick, Oct 13): COMPANY-CREATOR signups
-      // ÷ high-intent engaged sessions (File 4). Creators only, so invitees /
+      // ÷ high-intent sessions (File 4). Creators only, so invitees /
       // teammates joining an existing company don't inflate it.
       creators: curr.filter(isCreator).length,
       creatorsPrev: prev.filter(isCreator).length,
@@ -749,14 +744,14 @@ function buildModel(mode) {
     return WEEKS.map((w) => {
       const end = w.partial ? DATA_END : w.end;
       const list = signupsIn(w.start, end);
-      const visitors = sumEngaged(w.start, end);
+      const visitors = sumSessions(w.start, end);
       cumVisitors += visitors;
       cumSignups += list.length;
       const highIntent = sumHighIntent(w.start, end);
       // Adjusted rate only for weeks fully on/after MEASURE_BREAK (the Jul 13
       // week mixes bot-counted days → gap). Raw `conv` stays for the faint line.
       const comparable = w.start >= MEASURE_BREAK;
-      const visitorsAdj = comparable ? sumEngagedAdj(w.start, end) : null;
+      const visitorsAdj = comparable ? sumSessionsAdj(w.start, end) : null;
       const row = { ...w, signups: list.length, visitors, visitorsAdj, convAdj: comparable ? pct(list.length, visitorsAdj) : null, preBreak: !comparable, adjScaled: comparable && overlapsConsentAdj(w.start, end), cumVisitors, cumSignups, conv: pct(list.length, visitors), highIntent, allSessions: sumSessions(w.start, end), hiReach: hiReachOf(highIntent, sumSessions(w.start, end)),creators: list.filter(isCreator).length, hiConv: highIntent == null ? null : pct(list.filter(isCreator).length, highIntent) };
       ROLES.forEach((r) => { row[r.key] = 0; });
       list.forEach((s) => { row[roleKey(s)] += 1; });
@@ -885,7 +880,7 @@ function buildModel(mode) {
   });
 
   // Active users by channel (GA4 Files 6–9 + presets). Same x-axis as the
-  // engaged-sessions chart (WEEKS_CUR / MONTHS). A week or month GA4 hasn't
+  // sessions-by-source chart (WEEKS_CUR / MONTHS). A week or month GA4 hasn't
   // finished (ends after GA4_AU.end) is flagged partial; one with no GA4 rows
   // has no bars (no data, not zero).
   const AU = (() => {
@@ -898,7 +893,7 @@ function buildModel(mode) {
     // Weekly frame (Nick, Oct 14): Last week uses the same columns as Last 4
     // weeks, and every weekly view ends with GA4's current week (in progress,
     // through GA4_AU.end) even when the signups export stops at the Sunday before.
-    // Only this chart — the engaged-sessions chart keeps its own frame.
+    // Only this chart — the sessions-by-source chart keeps its own frame.
     const frame = [...(mode === '1w' ? makeWindow('4w').WEEKS_CUR : WEEKS_CUR)];
     if (GA4_AU.end && frame.length) {
       for (let w = addDays(frame[frame.length - 1].start, 7); w <= mondayOf(GA4_AU.end); w = addDays(w, 7)) {
@@ -920,7 +915,7 @@ function buildModel(mode) {
   // Week to date (the in-progress week; not in the headline totals).
   const WTD_STATS = W.WTD ? (() => {
     const list = signupsIn(W.WTD.start, W.WTD.end);
-    return { ...W.WTD, visitors: sumEngaged(W.WTD.start, W.WTD.end), signups: list.length, activated: list.filter(actDate).length };
+    return { ...W.WTD, visitors: sumSessions(W.WTD.start, W.WTD.end), signups: list.length, activated: list.filter(actDate).length };
   })() : null;
   const SELF_REPORTED = selfReportedIn(START, END);
   // Same split per week, for the stacked-column view of the channel table.
@@ -1591,7 +1586,7 @@ function PlgFunnel({ view, setView }) {
           header with a rule spanning its columns. 5 + 3 lines below 1180px, 1 column below 760px. */}
       <div className="beta-funnel-grid">
         <div className="bf-head bf-head-users"><span style={eyebrow}>Users</span></div>
-        <FunnelStatic><FunnelNode label="Website visitors" value={fmtInt(W.visitors)} sub={`GA4 engaged sessions${W.convAdjScaled ? ` · ${fmtInt(Math.round(W.visitorsAdj))} adjusted for the cookie banner` : ''}`} /></FunnelStatic>
+        <FunnelStatic><FunnelNode label="Website visitors" value={fmtInt(W.visitors)} sub={`GA4 sessions${W.convAdjScaled ? ` · ${fmtInt(Math.round(W.visitorsAdj))} adjusted for the cookie banner` : ''}`} /></FunnelStatic>
         <FunnelStep id="signup" view={view} setView={setView} label="Visitor → sign up" rate={fmtPct(W.convAdj, 1)} delta={<Delta value={ptsDiff(W.convAdj, W.convAdjPrev)} suffix=" pts" size={12} />} />
         <FunnelStatic><FunnelNode label="User sign ups" value={fmtInt(W.signups)} /></FunnelStatic>
         <FunnelStep id="activation" view={view} setView={setView} label="Sign up → activated" rate={fmtPct(W.actConv, 1)} delta={<Delta value={ptsDiff(W.actConv, W.actConvPrev)} suffix=" pts" size={12} />} />
@@ -1645,20 +1640,20 @@ function WebsiteVisitorsCard() {
       accent={C.blue}
       title="Website visitors"
       question="How many people are we getting to the site?"
-      footnote={`GA4 engaged sessions (>10s, a conversion, or 2+ pageviews), same metric as the current dashboard. Used instead of total users because AI crawlers inflate that number. ${M.SHOWS_CUR ? 'Dotted segment = week in progress.' : 'Full weeks only; the week in progress is left off.'} No goal set yet.`}
+      footnote={`GA4 sessions: every visit, engaged or not (the dashboard used engaged sessions until Oct 15; the live dashboard still does). Before Jul 17 GA4 also counted bot traffic, so those weeks run about 8× higher than today (Apr–Jun ≈ 6,200 sessions a day vs ≈ 800 since Sep 22). ${M.SHOWS_CUR ? 'Dotted segment = week in progress.' : 'Full weeks only; the week in progress is left off.'} No goal set yet.`}
     >
       <StatRow delta={<Delta value={pctChange(WINDOW.visitors, WINDOW.visitorsPrev)} />}>
-        <Stat label={`Actual · ${rangeLabel(M.START, M.END)}`} value={fmtInt(WINDOW.visitors)} explain={`The site had ${fmtInt(WINDOW.visitors)} engaged visits (GA4 engaged sessions) from ${rangeLabel(M.START, M.END)}.`} />
+        <Stat label={`Actual · ${rangeLabel(M.START, M.END)}`} value={fmtInt(WINDOW.visitors)} explain={`The site had ${fmtInt(WINDOW.visitors)} visits (GA4 sessions) from ${rangeLabel(M.START, M.END)}.`} />
         <Stat label="Goal" value="—" muted />
       </StatRow>
-      <Legend items={[{ label: 'Engaged sessions (weekly)', color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
+      <Legend items={[{ label: 'Sessions (weekly)', color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
       <ZoomContainer height={190}>
         <LineChart data={VISITOR_LINE} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
           <YAxis {...yAxis} tickFormatter={fmtK} domain={[0, 'auto']} />
           <Tooltip content={({ active, payload }) => active && payload?.length ? (
-            <TooltipBox title={weekTitle(payload[0].payload)} rows={[{ label: 'Engaged sessions', value: fmtInt(payload[0].payload.visitors), color: C.black }]} />
+            <TooltipBox title={weekTitle(payload[0].payload)} rows={[{ label: 'Sessions', value: fmtInt(payload[0].payload.visitors), color: C.black }]} />
           ) : null} />
           <Line dataKey="visitorsFull" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} isAnimationActive={false} />
           <Line dataKey="visitorsPartial" stroke={C.black} strokeWidth={2} strokeDasharray="2 4" dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} legendType="none" isAnimationActive={false} />
@@ -1670,7 +1665,7 @@ function WebsiteVisitorsCard() {
 
 // Shaded GA4 measurement periods for weekly conversion charts (see CONSENT_ADJ):
 // grey = bots counted (not comparable, incl. the mixed Jul 13 week), blue =
-// opt-in banner (engaged sessions × factor). Sep 22 onward is unshaded.
+// opt-in banner (sessions × factor). Sep 22 onward is unshaded.
 function measurementAreas(rows, yAxisId) {
   const pre = rows.filter((w) => w.preBreak);
   const optin = rows.filter((w) => !w.preBreak && w.start <= CONSENT_ADJ.end);
@@ -1680,7 +1675,7 @@ function measurementAreas(rows, yAxisId) {
   if (optin.length) out.push(<ReferenceArea key="m-optin" {...(yAxisId != null ? { yAxisId } : {})} x1={optin[0].label} x2={optin[optin.length - 1].label} fill={C.lightBlue} fillOpacity={0.35} strokeOpacity={0} ifOverflow="hidden" label={lbl(`Opt-in banner · visits ×${CONSENT_ADJ.factor}`, C.black)} />);
   return out;
 }
-const adjNote = `Adjusted for the cookie banner: Jul 17 – Sep 21 engaged sessions × ${CONSENT_ADJ.factor} (GA4 only counted visitors who clicked Accept); before Jul 17 GA4 counted bot traffic, so those weeks aren't comparable and show raw only.`;
+const adjNote = `Adjusted for the cookie banner: Jul 17 – Sep 21 sessions × ${CONSENT_ADJ.factor} (GA4 only counted visitors who clicked Accept); before Jul 17 GA4 counted bot traffic, so those weeks aren't comparable and show raw only.`;
 
 function VisitorToSignupCard() {
   const M = useModel();
@@ -1689,16 +1684,16 @@ function VisitorToSignupCard() {
   const adjRange = WINDOW.convAdjFrom ? rangeLabel(WINDOW.convAdjFrom, M.END) : rangeLabel(M.START, M.END);
   const explain = WINDOW.convAdj == null
     ? `This period is before Jul 17, when GA4 counted bot traffic, so there's no comparable rate. Raw: ${fmtPct(WINDOW.conv, 2)}.`
-    : `From ${adjRange}, ${fmtInt(WINDOW.signupsAdj)} signups came from ${fmtInt(Math.round(WINDOW.visitorsAdj))} engaged visits${WINDOW.convAdjScaled ? ` (Jul 17 – Sep 21 visits scaled ×${CONSENT_ADJ.factor} for the opt-in cookie banner)` : ''} — about ${fmtPct(WINDOW.convAdj, 1)}.${clamped ? ' Days before Jul 17 are left out (bot traffic).' : ''} Raw GA4: ${fmtPct(WINDOW.conv, 2)}.`;
+    : `From ${adjRange}, ${fmtInt(WINDOW.signupsAdj)} signups came from ${fmtInt(Math.round(WINDOW.visitorsAdj))} visits${WINDOW.convAdjScaled ? ` (Jul 17 – Sep 21 visits scaled ×${CONSENT_ADJ.factor} for the opt-in cookie banner)` : ''} — about ${fmtPct(WINDOW.convAdj, 1)}.${clamped ? ' Days before Jul 17 are left out (bot traffic).' : ''} Raw GA4: ${fmtPct(WINDOW.conv, 2)}.`;
   return (
     <Card
       accent={C.blue}
       title="Website visitor → sign up"
       question="What share of visitors create an account?"
-      footnote={`Signups ÷ GA4 engaged sessions for the same week. Every signup counts, including repeats by the same person. ${adjNote} No goal set yet.`}
+      footnote={`Signups ÷ GA4 sessions for the same week. Every signup counts, including repeats by the same person. ${adjNote} No goal set yet.`}
     >
       <StatRow delta={<Delta value={ptsDiff(WINDOW.convAdj, WINDOW.convAdjPrev)} suffix=" pts" />}>
-        <Stat label={`Conversion (adjusted) · ${adjRange}`} value={fmtPct(WINDOW.convAdj, 2)} explain={explain} sub={`Raw GA4: ${fmtPct(WINDOW.conv, 2)} (${fmtInt(WINDOW.signups)} signups ÷ ${fmtInt(WINDOW.visitors)} engaged sessions, ${rangeLabel(M.START, M.END)})`} />
+        <Stat label={`Conversion (adjusted) · ${adjRange}`} value={fmtPct(WINDOW.convAdj, 2)} explain={explain} sub={`Raw GA4: ${fmtPct(WINDOW.conv, 2)} (${fmtInt(WINDOW.signups)} signups ÷ ${fmtInt(WINDOW.visitors)} sessions, ${rangeLabel(M.START, M.END)})`} />
         <Stat label="Goal" value="—" muted />
       </StatRow>
       <Legend items={[{ label: 'Adjusted %', color: C.black, line: true }, { label: 'Raw GA4 %', color: '#9A9A9A', line: true, dashed: true }, { label: 'Goal % (not set)', color: '#C8C8C8', line: true, dashed: true, weight: 1 }]} />
@@ -1717,7 +1712,7 @@ function VisitorToSignupCard() {
                   { label: 'Adjusted', value: w.preBreak ? 'not comparable' : fmtPct(w.convAdj, 2), color: C.black },
                   { label: 'Raw GA4', value: fmtPct(w.conv, 2) },
                   { label: 'Signups', value: fmtInt(w.signups) },
-                  { label: 'Engaged sessions', value: fmtInt(w.visitors) },
+                  { label: 'Sessions', value: fmtInt(w.visitors) },
                   ...(w.adjScaled ? [{ label: `Adjusted sessions (×${CONSENT_ADJ.factor})`, value: fmtInt(Math.round(w.visitorsAdj)) }] : []),
                 ]}
                 note={w.preBreak ? 'Bot traffic was counted before Jul 17.' : w.adjScaled ? 'Opt-in banner: GA4 only counted visitors who clicked Accept.' : null}
@@ -1741,10 +1736,10 @@ function CumulativeVisitorsCard() {
       accent={C.blue}
       title="Total website visitors (cumulative)"
       question="Are we on pace?"
-      footnote={`Running total of GA4 engaged sessions since ${monDay(WEEKS[0].start)}. No goal set yet — a goal line will be added once we have one.`}
+      footnote={`Running total of GA4 sessions since ${monDay(WEEKS[0].start)}. No goal set yet — a goal line will be added once we have one.`}
     >
       <StatRow>
-        <Stat label={`Actual · since ${monDay(WEEKS[0].start)}`} value={fmtInt(total)} explain={`${fmtInt(total)} engaged visits in total since ${monDay(WEEKS[0].start)}.`} />
+        <Stat label={`Actual · since ${monDay(WEEKS[0].start)}`} value={fmtInt(total)} explain={`${fmtInt(total)} visits in total since ${monDay(WEEKS[0].start)}.`} />
         <Stat label="Goal" value="—" muted />
         <Stat label="Vs goal" value="—" muted />
       </StatRow>
@@ -1842,7 +1837,7 @@ function HighIntentPagesCard() {
   const M = useModel();
   // Clamp to File 5's first day like the reach card (Fiscal YTD starts Feb 1).
   const pStart = HIGH_INTENT_START && M.START < HIGH_INTENT_START ? HIGH_INTENT_START : M.START;
-  const engaged = sumSessions(pStart, M.END); // all site sessions (name kept for diff size)
+  const engaged = sumSessions(pStart, M.END); // all site sessions
   const engagedPrev = sumSessions(M.PRIOR_START, M.PRIOR_END);
   const cur = pageSessionsIn(pStart, M.END);
   const prev = pageSessionsIn(M.PRIOR_START, M.PRIOR_END);
@@ -1994,10 +1989,10 @@ function VisitorsByChannelCard() {
         accent={C.blue}
         title="Website visitors by channel"
         question={`Where are visitors coming from? · ${monthly ? 'monthly' : 'weekly'}`}
-        footnote={`GA4 engaged sessions by channel, bucketed with the same rules as the live dashboard (LinkedIn split out from Social; search engines and AI referrals combined as Search + AEO). Totals can differ slightly from the Website visitors card because GA4 samples the channel breakdown. ${monthly ? 'Fiscal YTD shows monthly columns; the faintly striped one is the month in progress.' : 'Faintly striped bar = week in progress.'}`}
+        footnote={`GA4 sessions by channel, bucketed with the same rules as the live dashboard (LinkedIn split out from Social; search engines and AI referrals combined as Search + AEO). Totals can differ slightly from the Website visitors card because GA4 samples the channel breakdown. ${monthly ? 'Fiscal YTD shows monthly columns; the faintly striped one is the month in progress.' : 'Faintly striped bar = week in progress.'}`}
       >
         <StatRow delta={<Delta value={pctChange(CH30.total, CH30.totalPrev)} />}>
-          <Stat label={`Actual · ${rangeLabel(M.START, M.END)}`} value={fmtInt(CH30.total)} explain={`${fmtInt(CH30.total)} engaged visits from ${rangeLabel(M.START, M.END)}, split by where they came from below.`} />
+          <Stat label={`Actual · ${rangeLabel(M.START, M.END)}`} value={fmtInt(CH30.total)} explain={`${fmtInt(CH30.total)} visits from ${rangeLabel(M.START, M.END)}, split by where they came from below.`} />
         </StatRow>
         <SideLegend legend={(
           <LegendTable
@@ -2023,7 +2018,7 @@ function VisitorsByChannelCard() {
                   label: c.key, color: c.color,
                   value: `${fmtInt(payload[0].payload[c.key])} · ${fmtPct(pct(payload[0].payload[c.key], payload[0].payload.total), 0)}`,
                 }))}
-                note={H.hidden.size ? `${fmtInt(shownTotal(payload[0].payload))} of ${fmtInt(payload[0].payload.total)} engaged sessions shown (% = share of all)` : `${fmtInt(payload[0].payload.total)} engaged sessions`}
+                note={H.hidden.size ? `${fmtInt(shownTotal(payload[0].payload))} of ${fmtInt(payload[0].payload.total)} sessions shown (% = share of all)` : `${fmtInt(payload[0].payload.total)} sessions`}
               />
             ) : null} />
             {shown.map((c) => (
@@ -2040,7 +2035,7 @@ function VisitorsByChannelCard() {
 }
 
 // Website visitors by channel — Sessions (Active Users Oct 14 → sessions Oct 15).
-// Sits directly under the engaged-sessions chart, which is unchanged. Same
+// Sits directly under the source/medium sessions chart. Same
 // categories, colors, x-axis and Fiscal-YTD monthly rule; metric is GA4 sessions:
 //   headline + channel table ← Apps Script presets (exact range)
 //   bars ← File 6 / 7 (period × channel); black line ← File 8 / 9 (total per
@@ -2078,7 +2073,7 @@ function VisitorsActiveUsersByChannelCard() {
         question={(
           <>
             <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>How many visits does the site get, and through which channels? · {monthly ? 'monthly' : 'weekly'}</span>
-            <span style={{ display: 'block', marginTop: 6 }}>GA4 sessions: every visit counts, engaged or not. The chart above counts engaged sessions only, so compare the two to see how much traffic engages.</span>
+            <span style={{ display: 'block', marginTop: 6 }}>Same metric as the chart above (GA4 sessions), but channels come straight from GA4's channel group rather than source/medium, and the headline uses the Apps Script's exact preset range.</span>
             <span style={{ display: 'block', marginTop: 6 }}>Each visit has one channel, so the channels add up to the total.</span>
           </>
         )}
@@ -2536,10 +2531,10 @@ function NewSignupsCard() {
     <Card
       title="New signups"
       question="Are we converting intent into accounts?"
-      footnote={`Visitor → signup = signups ÷ GA4 engaged sessions for the same days. Every signup counts, including repeat signups by the same person; internal (@mutinyhq.com) signups are left out. ${adjNote} ${barWeekNote(M)}`}
+      footnote={`Visitor → signup = signups ÷ GA4 sessions for the same days. Every signup counts, including repeat signups by the same person; internal (@mutinyhq.com) signups are left out. ${adjNote} ${barWeekNote(M)}`}
     >
       <StatRow delta={<Delta value={ptsDiff(WINDOW.convAdj, WINDOW.convAdjPrev)} suffix=" pts" />}>
-        <Stat label="Visitor → signup (adjusted)" value={fmtPct(WINDOW.convAdj, 2)} explain={WINDOW.convAdj == null ? `Before Jul 17 GA4 counted bot traffic, so there's no comparable rate. Raw: ${fmtPct(WINDOW.conv, 2)}.` : `About ${fmtPct(WINDOW.convAdj, 1)} of engaged visits turned into a signup from ${rangeLabel(WINDOW.convAdjFrom, M.END)}, after adjusting for the cookie banner. Raw GA4: ${fmtPct(WINDOW.conv, 2)}.`} />
+        <Stat label="Visitor → signup (adjusted)" value={fmtPct(WINDOW.convAdj, 2)} explain={WINDOW.convAdj == null ? `Before Jul 17 GA4 counted bot traffic, so there's no comparable rate. Raw: ${fmtPct(WINDOW.conv, 2)}.` : `About ${fmtPct(WINDOW.convAdj, 1)} of visits turned into a signup from ${rangeLabel(WINDOW.convAdjFrom, M.END)}, after adjusting for the cookie banner. Raw GA4: ${fmtPct(WINDOW.conv, 2)}.`} />
         <Stat label={`Signups · ${rangeLabel(M.START, M.END)}`} value={fmtInt(WINDOW.signups)} explain={`${fmtInt(WINDOW.signups)} signups from ${rangeLabel(M.START, M.END)}.`} sub={<Delta value={pctChange(WINDOW.signups, WINDOW.signupsPrev)} size={12} />} />
       </StatRow>
       <Legend items={[{ label: 'Signups (bars)', color: C.purple }, { label: 'Visitor → signup %, adjusted (line)', color: C.black, line: true }]} />
@@ -2556,7 +2551,7 @@ function NewSignupsCard() {
               title={weekTitle(payload[0].payload)}
               rows={[
                 { label: 'Signups', value: fmtInt(payload[0].payload.signups), color: C.purple },
-                { label: 'Engaged sessions', value: fmtInt(payload[0].payload.visitors) },
+                { label: 'Sessions', value: fmtInt(payload[0].payload.visitors) },
                 { label: 'Visitor → signup (adjusted)', value: payload[0].payload.preBreak ? 'not comparable' : fmtPct(payload[0].payload.convAdj, 2) },
                 { label: 'Visitor → signup (raw)', value: fmtPct(payload[0].payload.conv, 2) },
               ]}
@@ -4318,7 +4313,7 @@ function SectionsFor({ view }) {
 // One "data as of" line for the header (Nick, Oct 7): each source has its own
 // last day; headlines stop at the earliest so they never mix cut-offs.
 const DATA_SOURCES = (() => {
-  const gaLast = Object.keys(ENGAGED_BY_DATE).filter((d) => ENGAGED_BY_DATE[d] != null).sort().pop() || null;
+  const gaLast = Object.keys(SESSIONS_BY_DATE).filter((d) => SESSIONS_BY_DATE[d] != null).sort().pop() || null;
   const ampLast = betaSignups.ampEvents?.lastDay
     || (() => { const days = (dataJson.amplitude?.referralSources || []).flatMap((e) => Object.keys(e.daily || {})).sort(); const d = days.pop(); return d ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}` : null; })();
   return [
