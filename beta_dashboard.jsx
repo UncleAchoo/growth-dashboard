@@ -1764,7 +1764,7 @@ function CumulativeVisitorsCard() {
 
 // Website visitor → high-intent visitor (Nick, Oct 13; sessions since Oct 15). Of all
 // sessions, what share visited at least one hypothesized high-intent page
-// (pricing, customers, use cases — the filter lives in GA4 / Apps Script).
+// (pricing, customers, case studies, use cases — the filter lives in GA4 / Apps Script).
 //   numerator   ← GA4 File 4 highIntentSessions (deduped per session by GA4)
 //   denominator ← GA4 File 1 sessions
 // Weekly reach = Σ high-intent ÷ Σ sessions × 100. Never average daily %s.
@@ -1780,10 +1780,10 @@ function HighIntentReachCard() {
         <>
           <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>What share of visits reach a high-intent page?</span>
           <span style={{ display: 'block', marginTop: 6 }}>Each week: visits that viewed at least one high-intent page ÷ all visits on the site. A visit counts once, even if it saw several high-intent pages. A rough read on how well the site steers traffic toward buying-consideration content.</span>
-          <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), and use-case pages (/use-cases/…).</span>
+          <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), case studies (/case-studies/…), and use-case pages (/use-cases/…).</span>
         </>
       )}
-      footnote={`High-intent sessions ÷ all GA4 sessions for the same week (session counts summed first, then divided). High-intent = a session that viewed at least one hypothesized high-intent page (pricing, customers, use cases); a session that hits several still counts once. GA4 tracking changed around Jul 17 (CookieYes consent banner), when total sessions dropped ~94%, so compare reach within, not across, that line. ${lineWeekNote(M)} No goal set yet.`}
+      footnote={`High-intent sessions ÷ all GA4 sessions for the same week (session counts summed first, then divided). High-intent = a session that viewed at least one hypothesized high-intent page (pricing, customers, case studies, use cases); a session that hits several still counts once. GA4 tracking changed around Jul 17 (CookieYes consent banner), when total sessions dropped ~94%, so compare reach within, not across, that line. ${lineWeekNote(M)} No goal set yet.`}
     >
       <StatRow delta={has ? <Delta value={ptsDiff(WINDOW.hiReach, WINDOW.hiReachPrev)} suffix=" pts" /> : null}>
         <Stat
@@ -1815,7 +1815,7 @@ function HighIntentReachCard() {
 }
 
 // High-intent pages viewed (Nick, Oct 13). For each individual URL in GA4
-// File 5 (every page under /pricing, /use-cases, /customers — subpages kept
+// File 5 (every page under /pricing, /use-cases, /customers, /case-studies — subpages kept
 // separate): Σ page sessions in the period (bars show the count since Oct 15;
 // share of File 1 site sessions kept in the tooltip). Pages must
 // not be summed into folder reach (a session can view several pages). This is
@@ -1824,6 +1824,7 @@ function HighIntentReachCard() {
 const PAGE_SECTIONS = [
   { key: 'pricing', label: 'Pricing', rx: /^\/pricing/, color: C.purple },
   { key: 'customers', label: 'Customers', rx: /^\/customers/, color: C.green },
+  { key: 'case-studies', label: 'Case studies', rx: /^\/case-studies/, color: C.red },
   { key: 'use-cases', label: 'Use cases', rx: /^\/use-cases/, color: C.blue },
 ];
 const pageSection = (path) => PAGE_SECTIONS.find((s) => s.rx.test(path)) || { key: 'other', label: 'Other', color: C.lightGrey };
@@ -1866,10 +1867,10 @@ function HighIntentPagesCard() {
             <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>Which 10 high-intent pages get the most sessions?</span>
             <span style={{ display: 'block', marginTop: 6 }}>For each page: the number of sessions that included a view of that page, for the selected period. The page can be viewed anywhere in the session, not just as the landing page. A session that views the same page several times counts once.</span>
             <span style={{ display: 'block', marginTop: 6 }}>Each URL is shown on its own (e.g. /use-cases/account-executives is separate from /use-cases). One session can view several pages and count under each, so the bars don't add up to the high-intent session total above. Use the reach card for overall reach.</span>
-            <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), and use-case pages (/use-cases/…).</span>
+            <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), case studies (/case-studies/…), and use-case pages (/use-cases/…).</span>
           </>
         )}
-        footnote={`Page-level session reporting (GA4 page-path breakdown). For each URL: number of sessions that viewed that page, for ${rangeLabel(pStart, M.END)} (not raw pageviews — repeat views in one session count once). Hover a bar for its share of all ${fmtInt(engaged)} site sessions. Shows the 10 pages with the most sessions; every page under /pricing, /customers and /use-cases is ranked on its own (e.g. /use-cases/account-executives is separate from /use-cases). Counts shouldn't be added together: one session can view several pages, so it shows up under each. For overall reach, use the high-intent reach card above. GA4's per-page sessions haven't been validated against a session-scoped segment per URL, so treat these as directional page-level numbers.`}
+        footnote={`Page-level session reporting (GA4 page-path breakdown). For each URL: number of sessions that viewed that page, for ${rangeLabel(pStart, M.END)} (not raw pageviews — repeat views in one session count once). Hover a bar for its share of all ${fmtInt(engaged)} site sessions. Shows the 10 pages with the most sessions; every page under /pricing, /customers, /case-studies and /use-cases is ranked on its own (e.g. /use-cases/account-executives is separate from /use-cases). Counts shouldn't be added together: one session can view several pages, so it shows up under each. For overall reach, use the high-intent reach card above. GA4's per-page sessions haven't been validated against a session-scoped segment per URL, so treat these as directional page-level numbers.`}
       >
         <StatRow>
           <Stat
@@ -1933,7 +1934,7 @@ function HighIntentToSignupCard() {
           <span style={{ display: 'block', marginTop: 6 }}>Each week: company-creator signups ÷ sessions that viewed at least one high-intent page.</span>
           <span style={{ display: 'block', marginTop: 6 }}>Only signups that created a new company count. People accepting an invite or joining a teammate's company, and signups that never set up a company, are left out, since they mostly don't arrive through the website.</span>
           <span style={{ display: 'block', marginTop: 6 }}>It's a ratio of two weekly totals, not a tracked path: a signup counts whether or not that person saw a high-intent page.</span>
-          <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), and use-case pages (/use-cases/…).</span>
+          <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), case studies (/case-studies/…), and use-case pages (/use-cases/…).</span>
         </>
       )}
       footnote={`Company-creator signups ÷ GA4 high-intent sessions for the same week (each total summed first, then divided). Company creator = the signup created a new company; accepted invites, people joining a teammate's existing company, and signups that never set up a company are excluded. Repeat signups by the same person still count if each created a company; internal (@mutinyhq.com) signups are left out. Signups aren't linked to the sessions they came from, so this compares two weekly totals rather than following people from a high-intent page to signup, and it can run high. GA4 tracking changed around Jul 20, so compare within, not across, that line. ${lineWeekNote(M)} No goal set yet.`}
