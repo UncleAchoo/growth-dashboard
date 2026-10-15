@@ -4210,7 +4210,8 @@ function SectionsFor({ view }) {
         </Grid>
         <StageHeader title="Channel deep dive" subtitle="Which channels bring visitors, and which of them convert." />
         <Grid>
-          <VisitorsByChannelCard />
+          {/* Hidden Oct 15 (Nick): keep only the "— Sessions" version below. */}
+          {/* <VisitorsByChannelCard /> */}
           {GA4_AU.has && <VisitorsActiveUsersByChannelCard />}
           <SignupsByChannelCard />
         </Grid>
