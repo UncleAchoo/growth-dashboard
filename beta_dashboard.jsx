@@ -1834,6 +1834,43 @@ const pageSessionsIn = (a, b) => {
   return out;
 };
 
+// Y-axis URL label (Nick, Oct 15): right-aligned, truncated with an ellipsis
+// to fit the axis width (measured in the real font), full URL on hover.
+const PATH_AXIS_W = 250;
+const PATH_FONT_PX = 11.5;
+let measureCtx = null;
+const textWidth = (str) => {
+  const font = `${PATH_FONT_PX}px ${FONT_BODY}`;
+  try {
+    // Web font not loaded yet → conservative estimate so labels never overflow.
+    if (document.fonts && !document.fonts.check(font)) return str.length * PATH_FONT_PX * 0.62;
+    if (!measureCtx) measureCtx = document.createElement('canvas').getContext('2d');
+    measureCtx.font = font;
+    return measureCtx.measureText(str).width;
+  } catch (e) {
+    return str.length * PATH_FONT_PX * 0.62;
+  }
+};
+const fitWithEllipsis = (str, maxW) => {
+  if (textWidth(str) <= maxW) return str;
+  let lo = 0, hi = str.length;
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2);
+    if (textWidth(`${str.slice(0, mid)}…`) <= maxW) lo = mid; else hi = mid - 1;
+  }
+  return `${str.slice(0, lo)}…`;
+};
+function PathTick({ x, y, payload }) {
+  const full = payload?.value ?? '';
+  const shown = fitWithEllipsis(full, PATH_AXIS_W - 14);
+  return (
+    <g transform={`translate(${x},${y})`} style={{ cursor: 'default' }}>
+      <title>{full}</title>
+      <text x={0} y={0} dy={4} textAnchor="end" fontFamily={FONT_BODY} fontSize={PATH_FONT_PX} fill={C.black}>{shown}</text>
+    </g>
+  );
+}
+
 function HighIntentPagesCard() {
   const M = useModel();
   // Clamp to File 5's first day like the reach card (Fiscal YTD starts Feb 1).
@@ -1886,7 +1923,7 @@ function HighIntentPagesCard() {
             <BarChart data={rows} layout="vertical" margin={{ top: 4, right: 56, left: 0, bottom: 4 }} barCategoryGap={6}>
               <CartesianGrid horizontal={false} stroke={C.grid} />
               <XAxis type="number" tick={tick} tickLine={false} axisLine={{ stroke: C.black }} tickFormatter={(v) => fmtInt(v)} domain={[0, 'auto']} />
-              <YAxis type="category" dataKey="path" tick={{ ...tick, fontSize: 11.5 }} tickLine={false} axisLine={false} width={250} interval={0} />
+              <YAxis type="category" dataKey="path" tick={<PathTick />} tickLine={false} axisLine={false} width={PATH_AXIS_W} interval={0} />
               <Tooltip cursor={cursor} content={({ active, payload }) => active && payload?.length ? (
                 <TooltipBox title={payload[0].payload.path} rows={[
                   { label: 'Page sessions', value: fmtInt(payload[0].payload.n), color: payload[0].payload.color },
