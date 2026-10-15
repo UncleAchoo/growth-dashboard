@@ -67,7 +67,13 @@ const rangeLabel = (a, b) => (a === b ? monDay(a) : `${monDay(a)} – ${monDay(b
 const daysBetweenISO = (a, b) => Math.round((toDate(b) - toDate(a)) / 86400000);
 
 // --- Source data --------------------------------------------------------------
-const SIGNUPS = betaSignups.signups;
+// Never-completed signups (ingest `nc`: no workspace, or one never named) are
+// left out of EVERY signup metric on this page (Nick, Oct 15). They never
+// activate, so only signup counts / denominators change. They're kept in
+// NEVER_COMPLETED for the "view never-completed sign ups" modal.
+const ALL_SIGNUP_ROWS = betaSignups.signups;
+const NEVER_COMPLETED = ALL_SIGNUP_ROWS.filter((s) => s.nc);
+const SIGNUPS = ALL_SIGNUP_ROWS.filter((s) => !s.nc);
 
 // All sessions per day (GA4 File 1). Since Oct 15 (Nick) the whole ?beta
 // dashboard uses sessions, never engaged sessions: Website visitors, visitor →
@@ -263,6 +269,7 @@ const hiReachOf = (hi, engaged) => (hi == null ? null : pct(hi, engaged));
 // still counts — only the signup metric itself ignores them.
 const SIGNUP_COUNT_START = '2026-02-16';
 const signupsIn = (a, b) => SIGNUPS.filter((s) => s.d >= SIGNUP_COUNT_START && inRange(s.d, a, b));
+const neverCompletedIn = (a, b) => NEVER_COMPLETED.filter((s) => s.d >= SIGNUP_COUNT_START && inRange(s.d, a, b));
 // Company creators: the signup created a new company — not joining an existing
 // one (jx: accepted invite or teammate's company) and not left without a
 // company (nc). Same rule as the channel table's "company creators".
@@ -568,7 +575,8 @@ const SELF_REPORTED_BUCKETS = [
 //   Joined a teammate's company — signups on a company that already had an
 //     earlier signup (Metabase), minus the accepted invites (most invitees
 //     join an existing company); i.e. joined without the invite event.
-//   Never completed — no company / unnamed company: never finished onboarding.
+//   (Never completed — no company / unnamed company — is excluded from all
+//   signup counts since Oct 15; listed via the button under the card.)
 //   Other — what's left (created a company but no answer recorded, etc.).
 // Answers aren't per user, so the split is approximate: a few joiners or
 // never-completed signups did answer, which makes Other slightly too small;
@@ -581,7 +589,6 @@ const INVITE_DAILY = dataJson.amplitude?.inviteAcceptedDaily || null;
 const AMP_PER_PERSON = betaSignups.ampEvents?.firstDay
   ? { firstDay: betaSignups.ampEvents.firstDay.replaceAll('-', ''), lastDay: betaSignups.ampEvents.lastDay.replaceAll('-', '') }
   : null;
-const SR_NEVER = { name: 'Never completed', color: '#6B6B6B' };
 const SR_OTHER = { name: 'Other (no answer)', color: '#CBC3B3' };
 const REF_DAILY = (() => {
   const out = Object.fromEntries(SELF_REPORTED_BUCKETS.map((x) => [x.name, {}]));
@@ -600,7 +607,7 @@ const REF_DAILY = (() => {
 // else Other. Counts and Sign up → activated are then exact per row.
 // Without that pull, falls back to Amplitude daily totals (approximate).
 const actOf = (l) => ({ n: l.length, k: l.filter(actDate).length, rate: pct(l.filter(actDate).length, l.length), list: l });
-const srGroup = (s) => (s.ref ? categorizeReferralSource(s.ref) : s.inv ? SR_INVITED.name : s.jx ? SR_JOINED.name : s.nc ? SR_NEVER.name : SR_OTHER.name);
+const srGroup = (s) => (s.ref ? categorizeReferralSource(s.ref) : s.inv ? SR_INVITED.name : s.jx ? SR_JOINED.name : SR_OTHER.name);
 function selfReportedIn(start, end) {
   const a = start.replaceAll('-', '');
   const b = end.replaceAll('-', '');
@@ -609,18 +616,18 @@ function selfReportedIn(start, end) {
   const need = a > SIGNUP_COUNT_START.replaceAll('-', '') ? a : SIGNUP_COUNT_START.replaceAll('-', '');
   if (AMP_PER_PERSON && AMP_PER_PERSON.firstDay <= need && AMP_PER_PERSON.lastDay >= b) {
     const by = {};
-    for (const x of [...SELF_REPORTED_BUCKETS, SR_INVITED, SR_JOINED, SR_NEVER, SR_OTHER]) by[x.name] = [];
+    for (const x of [...SELF_REPORTED_BUCKETS, SR_INVITED, SR_JOINED, SR_OTHER]) by[x.name] = [];
     for (const s of list) (by[srGroup(s)] || by[SR_OTHER.name]).push(s);
     const counts = Object.fromEntries(SELF_REPORTED_BUCKETS.map((x) => [x.name, by[x.name].length]));
     const actByChannel = Object.fromEntries(SELF_REPORTED_BUCKETS.map((x) => [x.name, actOf(by[x.name])]));
-    const never = by[SR_NEVER.name].length;
+    const neverList = neverCompletedIn(start, end); // excluded from counts; for the modal only
     const other = by[SR_OTHER.name].length;
     return {
       perSignup: true, counts, answered: sumVals(counts),
-      invited: by[SR_INVITED.name].length, joined: by[SR_JOINED.name].length, never, neverList: by[SR_NEVER.name], other, otherList: by[SR_OTHER.name],
-      noAnswer: never + other, total: list.length,
+      invited: by[SR_INVITED.name].length, joined: by[SR_JOINED.name].length, neverList, other, otherList: by[SR_OTHER.name],
+      total: list.length,
       actByChannel, actInvited: actOf(by[SR_INVITED.name]), actTeammate: actOf(by[SR_JOINED.name]),
-      actNever: actOf(by[SR_NEVER.name]), actOther: actOf(by[SR_OTHER.name]),
+      actOther: actOf(by[SR_OTHER.name]),
       actJoined: actOf([...by[SR_INVITED.name], ...by[SR_JOINED.name]]),
       actCreators: actOf(list.filter((s) => !s.jx && !s.nc)),
     };
@@ -633,17 +640,16 @@ function selfReportedIn(start, end) {
     counts[x.name] = n;
   }
   const answered = sumVals(counts);
-  const neverList = list.filter((s) => s.nc);
+  const neverList = neverCompletedIn(start, end); // excluded from counts; for the modal only
   const joinedAll = list.filter((s) => s.jx).length;
   let invited = 0;
   if (INVITE_DAILY) for (const [d, v] of Object.entries(INVITE_DAILY)) if (d >= a && d <= b) invited += v || 0;
   invited = Math.min(invited, joinedAll); // can't exceed the existing-company joins it's carved from
   const joined = joinedAll - invited;
-  const never = neverList.length;
-  const other = Math.max(0, list.length - answered - joinedAll - never);
+  const other = Math.max(0, list.length - answered - joinedAll);
   return {
-    perSignup: false, counts, answered, invited, joined, never, neverList, other, noAnswer: never + other, total: list.length,
-    actJoined: actOf(list.filter((s) => s.jx)), actNever: actOf(neverList), actCreators: actOf(list.filter((s) => !s.jx && !s.nc)),
+    perSignup: false, counts, answered, invited, joined, neverList, other, total: list.length,
+    actJoined: actOf(list.filter((s) => s.jx)), actCreators: actOf(list.filter((s) => !s.jx && !s.nc)),
     actByChannel: null, actInvited: null, actTeammate: null, actOther: null,
   };
 }
@@ -2192,7 +2198,7 @@ function VisitorsActiveUsersByChannelCard() {
   );
 }
 
-const SR_STACK = [...SELF_REPORTED_BUCKETS, SR_INVITED, SR_JOINED, SR_NEVER, SR_OTHER]; // bottom → top
+const SR_STACK = [...SELF_REPORTED_BUCKETS, SR_INVITED, SR_JOINED, SR_OTHER]; // bottom → top (Never completed excluded, Oct 15)
 const NEVER_MODAL = {
   noun: 'signup', nounPlural: 'signups', showDate: false, viaLabel: 'Role',
   dateOf: (s) => s.d, viaOf: (s) => ROLES.find((r) => r.key === roleKey(s))?.label || '—',
@@ -2221,8 +2227,7 @@ function ViewToggle({ value, onChange, options }) {
 const srValue = (sr, name) => (
   name === SR_INVITED.name ? sr.invited
     : name === SR_JOINED.name ? sr.joined
-      : name === SR_NEVER.name ? sr.never
-        : name === SR_OTHER.name ? sr.other
+      : name === SR_OTHER.name ? sr.other
           : sr.counts[name] || 0
 );
 const GROWTH_MIN = 10; // rows below this in both periods are greyed (too small to read % change)
@@ -2375,14 +2380,12 @@ function SignupsByChannelCard() {
     { key: SR_INVITED.name, sub: SR.perSignup || INVITE_DAILY ? 'User Invitation Completed fired — never asked' : 'available after the next pull-data', color: SR_INVITED.color, n: SR.invited, act: SR.actInvited || SR.actJoined, actCombined: !SR.actInvited },
     { key: SR_JOINED.name, sub: 'joined an existing company without an invite — never asked', color: SR_JOINED.color, n: SR.joined, act: SR.actTeammate || SR.actJoined, actCombined: !SR.actTeammate },
   ].sort((a, b) => b.n - a.n);
-  rows.push({ key: 'No answer', color: C.lightGrey, n: SR.noAnswer, parent: true });
-  rows.push(...[
-    { key: SR_NEVER.name, sub: 'never finished onboarding · click to see who', color: SR_NEVER.color, n: SR.never, act: SR.actNever, child: true, onClick: () => openNever(SR.neverList, `signed up ${rangeLabel(START, END)}, never finished onboarding`) },
-    { key: 'Other', sub: SR.otherList ? 'click to see who' : null, color: SR_OTHER.color, n: SR.other, act: SR.actOther, child: true, ...(SR.otherList ? { onClick: () => openUsers({ ...NEVER_MODAL, title: 'Other (no answer)', subtitle: `signed up ${rangeLabel(START, END)}, created a company but no answer or invite in Amplitude`, users: SR.otherList }) } : {}) },
-  ].sort((a, b) => b.n - a.n));
+  // Other (no answer) stays at the bottom. Never completed is no longer a row
+  // (excluded from sign ups, Nick Oct 15) — see the button under the card.
+  rows.push({ key: SR_OTHER.name, sub: SR.otherList ? 'created a company, no answer · click to see who' : null, color: SR_OTHER.color, n: SR.other, act: SR.actOther, ...(SR.otherList ? { onClick: () => openUsers({ ...NEVER_MODAL, title: 'Other (no answer)', subtitle: `signed up ${rangeLabel(START, END)}, created a company but no answer or invite in Amplitude`, users: SR.otherList }) } : {}) });
   const maxN = Math.max(...rows.map((r) => r.n || 0), 1);
 
-  const flat = (w) => ({ ...w, ...w.counts, [SR_INVITED.name]: w.invited, [SR_JOINED.name]: w.joined, [SR_NEVER.name]: w.never, [SR_OTHER.name]: w.other });
+  const flat = (w) => ({ ...w, ...w.counts, [SR_INVITED.name]: w.invited, [SR_JOINED.name]: w.joined, [SR_OTHER.name]: w.other });
   // Weekly frame (Nick, Oct 14 — same as the Active Users chart): Last week
   // shows the Last 4 weeks columns, and every weekly view runs to the current
   // week. Weeks past the signups export (DATA_END) are placeholders with no
@@ -2400,7 +2403,7 @@ function SignupsByChannelCard() {
         accent={C.purple}
         title="Sign ups and conversion by channel"
         question={`Self-reported “How did you hear about us?” · ${view === 'chart' ? (monthly ? 'monthly' : 'weekly') : view === 'growth' ? 'share of sign ups, weekly' : `${M.label} · ${rangeLabel(START, END)}`}`}
-        footnote={`${SR.perSignup ? `Every signup in the period (Metabase) is looked up in Amplitude by user id and put in exactly one row: its own “How did you hear about us?” answer (referral_source, bucketed with the same rules as the live dashboard's “User signups by Channel”); otherwise Accepted an invite (fired “User Invitation Completed”); otherwise Joined a teammate's company (its company already had a signup, no invite event); otherwise Never completed (no workspace, or one never named; click the row to list them); otherwise Other (created a company but no answer in Amplitude). Only company setup asks the question, so joiners are never asked. Rows add up to Overall. Internal (@mutinyhq.com) signups are left out, like the rest of this page.` : `Channel = the signup's self-reported answer (Amplitude referral_source daily totals), bucketed with the same rules as the live dashboard's “User signups by Channel”. Only company setup asks the question. Accepted an invite = Amplitude “User Invitation Completed” (daily unique users). Joined a teammate's company = signups on a company that already had an earlier signup (Metabase), minus the accepted invites. No answer is split into Never completed (no workspace, or one never named; click the row to list them) and Other (what's left). Answers are daily totals here, not per person, so the split is approximate — run npm run pull-amp-events for exact per-signup rows.`} Overall = all Metabase signups in the window, matching the rest of this page.${view === 'table' ? ` Sign up → activated = share of the row's signups in the period that have activated (email sent/drafted or asset published) so far, same as the funnel. ${SR.perSignup ? `Every row is exact: it's the share of that row's signups that have activated (hover a cell for the count).` : `It's filled in only where we know each signup's group: the two joiner rows share one rate (${fmtPct(SR.actJoined.rate, 1)}, ${fmtInt(SR.actJoined.k)} of ${fmtInt(SR.actJoined.n)}) because invites vs teammates is only an Amplitude total; channel rows need each person's answer (run npm run pull-amp-events) — together, company creators (the people who were asked) activated at ${fmtPct(SR.actCreators.rate, 1)} (${fmtInt(SR.actCreators.k)} of ${fmtInt(SR.actCreators.n)}).`}` : ''}${view === 'growth' ? ` Growth: each channel's share of that week's sign ups, for the weeks in the reporting period; the last point is the week in progress. Hover a week for counts.` : view === 'chart' ? ` ${monthly ? 'Fiscal YTD shows monthly columns; the faintly striped one is the month in progress.' : `${M.mode === '1w' ? 'Last week shows the same columns as Last 4 weeks; the table on the right is last week only. ' : ''}Faintly striped bar = week in progress. The chart runs to the current week; a week with no bars has no sign up data yet (the signups export ends ${monDay(DATA_END)}).`}` : ' Activated → paid comes from stripe-dash.'}`}
+        footnote={`${SR.perSignup ? `Every signup in the period (Metabase) is looked up in Amplitude by user id and put in exactly one row: its own “How did you hear about us?” answer (referral_source, bucketed with the same rules as the live dashboard's “User signups by Channel”); otherwise Accepted an invite (fired “User Invitation Completed”); otherwise Joined a teammate's company (its company already had a signup, no invite event); otherwise Other (created a company but no answer in Amplitude). Only company setup asks the question, so joiners are never asked. Rows add up to Overall. Internal (@mutinyhq.com) signups are left out, like the rest of this page.` : `Channel = the signup's self-reported answer (Amplitude referral_source daily totals), bucketed with the same rules as the live dashboard's “User signups by Channel”. Only company setup asks the question. Accepted an invite = Amplitude “User Invitation Completed” (daily unique users). Joined a teammate's company = signups on a company that already had an earlier signup (Metabase), minus the accepted invites. Other = what's left. Answers are daily totals here, not per person, so the split is approximate — run npm run pull-amp-events for exact per-signup rows.`} Overall = all Metabase signups in the window, matching the rest of this page. Never-completed signups (no workspace, or one never named) are left out of every sign up number on this page; use “View never-completed sign ups” under the card to see them.${view === 'table' ? ` Sign up → activated = share of the row's signups in the period that have activated (email sent/drafted or asset published) so far, same as the funnel. ${SR.perSignup ? `Every row is exact: it's the share of that row's signups that have activated (hover a cell for the count).` : `It's filled in only where we know each signup's group: the two joiner rows share one rate (${fmtPct(SR.actJoined.rate, 1)}, ${fmtInt(SR.actJoined.k)} of ${fmtInt(SR.actJoined.n)}) because invites vs teammates is only an Amplitude total; channel rows need each person's answer (run npm run pull-amp-events) — together, company creators (the people who were asked) activated at ${fmtPct(SR.actCreators.rate, 1)} (${fmtInt(SR.actCreators.k)} of ${fmtInt(SR.actCreators.n)}).`}` : ''}${view === 'growth' ? ` Growth: each channel's share of that week's sign ups, for the weeks in the reporting period; the last point is the week in progress. Hover a week for counts.` : view === 'chart' ? ` ${monthly ? 'Fiscal YTD shows monthly columns; the faintly striped one is the month in progress.' : `${M.mode === '1w' ? 'Last week shows the same columns as Last 4 weeks; the table on the right is last week only. ' : ''}Faintly striped bar = week in progress. The chart runs to the current week; a week with no bars has no sign up data yet (the signups export ends ${monDay(DATA_END)}).`}` : ' Activated → paid comes from stripe-dash.'}`}
       >
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
           <ViewToggle value={view} onChange={setView} options={[{ value: 'chart', label: monthly ? 'Monthly chart' : 'Weekly chart' }, { value: 'table', label: 'Table' }, { value: 'growth', label: 'Growth' }]} />
@@ -2516,6 +2519,16 @@ function SignupsByChannelCard() {
             </table>
           </div>
         )}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 14 }}>
+          <button
+            type="button"
+            onClick={() => openNever(SR.neverList, `signed up ${rangeLabel(START, END)} but never finished onboarding (no workspace, or one never named) — excluded from sign up counts`)}
+            title="These signups are excluded from every sign up number on this page"
+            style={{ border: 'none', background: 'none', padding: 0, cursor: 'pointer', fontFamily: FONT_BODY, fontSize: 12, color: C.muted, textDecoration: 'underline', textUnderlineOffset: 3 }}
+          >
+            View never-completed sign ups ({fmtInt(SR.neverList.length)}, excluded) →
+          </button>
+        </div>
       </Card>
     </div>
   );
@@ -4448,7 +4461,7 @@ export default function BetaDashboard() {
         <SectionsFor view={view} />
 
         <div style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 12, color: C.muted, marginTop: 56 }}>
-          Signups export: {betaSignups.source} · {SIGNUPS.length.toLocaleString()} signup rows · {monDay(DATA_START)} {DATA_START.slice(0, 4)} – {monDay(betaSignups.lastDate)} {betaSignups.lastDate.slice(0, 4)} ({COUNTED_SIGNUPS.toLocaleString()} counted as signups from {monDay(SIGNUP_COUNT_START)}, {SIGNUP_COUNT_START.slice(0, 4)}){betaSignups.internalExcluded ? `; ${betaSignups.internalExcluded.toLocaleString()} internal @mutinyhq.com signups excluded` : ''}.
+          Signups export: {betaSignups.source} · {SIGNUPS.length.toLocaleString()} signup rows · {monDay(DATA_START)} {DATA_START.slice(0, 4)} – {monDay(betaSignups.lastDate)} {betaSignups.lastDate.slice(0, 4)} ({COUNTED_SIGNUPS.toLocaleString()} counted as signups from {monDay(SIGNUP_COUNT_START)}, {SIGNUP_COUNT_START.slice(0, 4)}){betaSignups.internalExcluded ? `; ${betaSignups.internalExcluded.toLocaleString()} internal @mutinyhq.com signups excluded` : ''}; {NEVER_COMPLETED.length.toLocaleString()} never-completed signups (no workspace, or one never named) excluded.
           GA4 pulled {dataJson.ga4.pulledAt?.slice(0, 10)}.
         </div>
       </main>
