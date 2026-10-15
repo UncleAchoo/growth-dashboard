@@ -1187,6 +1187,7 @@ async function fetchPeec() {
 // Orchestrate
 // ===========================================================================
 let payload;
+const betaFailures = [];
 if (logosOnly) {
   // Logos-only refresh: patch src/data.json's hubspot.logos in place.
   if (!existsSync(OUT_PATH)) {
@@ -1229,6 +1230,27 @@ if (logosOnly) {
   log(`Reading from local file: ${inputPath}`);
   payload = JSON.parse(readFileSync(inputPath, 'utf8'));
 } else {
+  // ?beta sources (Oct 15 2026, Nick): part of the daily pull so nothing is
+  // skipped. Order matters — ingest-signups reads pull-amp-events' output.
+  // Each runs as its own script; a failure warns and the refresh carries on
+  // (that source just keeps its previous data). --skip-beta turns this off.
+  if (!process.argv.includes('--skip-beta')) {
+    const { spawnSync } = await import('node:child_process');
+    const steps = [
+      ['Stripe paying companies', 'scripts/pull-stripe.mjs'],
+      ['Amplitude answers/invites', 'scripts/pull-amp-events.mjs'],
+      ['Signups + credits (Metabase CSVs in data/data-queries/)', 'scripts/ingest-signups.mjs'],
+    ];
+    for (const [name, script] of steps) {
+      log(`?beta: ${name} (${script})...`);
+      const r = spawnSync(process.execPath, [script], { stdio: 'inherit', env: process.env });
+      if (r.status !== 0) {
+        err(`  WARN: ?beta step "${name}" failed (exit ${r.status ?? r.signal}) — it keeps its previous data. Re-run: node ${script}`);
+        betaFailures.push(name);
+      }
+    }
+  }
+
   // Run all four in parallel. If any single source fails, surface the error
   // but write what we got — partial data is better than a stale build that
   // silently masks a broken pipeline. The dashboard's "Last updated" line
@@ -1293,3 +1315,4 @@ if (logosOnly) {
 mkdirSync(dirname(OUT_PATH), { recursive: true });
 writeFileSync(OUT_PATH, JSON.stringify(payload, null, 2));
 log(`Wrote ${OUT_PATH} — window=${payload.window?.start}..${payload.window?.end}, pulledAt=${payload.pulledAt}`);
+if (betaFailures.length) err(`WARN: ?beta steps that failed (still on old data): ${betaFailures.join(', ')}`);
