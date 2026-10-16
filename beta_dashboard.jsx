@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------
-// Beta growth dashboard — rendered only when the URL has ?beta (see
-// src/main.jsx). Rebuild of the dashboard following the Lovable blueprint's
+// Beta growth dashboard — the default view since Oct 16 2026 (was ?beta; the
+// previous dashboard now lives at ?original — see src/main.jsx). Rebuild of the dashboard following the Lovable blueprint's
 // layout, in Mutiny brand styling (Fraunces / Manrope, purple · green · red ·
 // blue, black 1px borders). The current dashboard is untouched.
 //

@@ -3,11 +3,12 @@ import { createRoot } from 'react-dom/client';
 import MutinyGrowthDashboard from '../mutiny_growth_dashboard.jsx';
 import BetaDashboard from '../beta_dashboard.jsx';
 
-// ?beta → the rebuilt dashboard (work in progress). Default stays the current one.
-const isBeta = new URLSearchParams(window.location.search).has('beta');
+// Default → the rebuilt dashboard (formerly ?beta, promoted Oct 16 2026).
+// ?original → the previous dashboard. Old ?beta links still land on the default.
+const isOriginal = new URLSearchParams(window.location.search).has('original');
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {isBeta ? <BetaDashboard /> : <MutinyGrowthDashboard />}
+    {isOriginal ? <MutinyGrowthDashboard /> : <BetaDashboard />}
   </React.StrictMode>
 );
