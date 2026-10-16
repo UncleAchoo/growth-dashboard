@@ -29,3 +29,6 @@ data/stripe/
 
 # Per-person Amplitude events (user ids + answers) — only the stripped src/beta-signups.json is committed
 data/amplitude/
+
+# Framer Analytics raw exports (~500MB, visitor ids) — only the aggregated src/framer.json is committed
+data/framer/

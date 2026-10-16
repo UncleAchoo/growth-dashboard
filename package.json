@@ -12,7 +12,8 @@
     "build:nodata": "vite build",
     "preview": "vite preview",
     "pull-stripe": "node scripts/pull-stripe.mjs",
-    "pull-amp-events": "node scripts/pull-amp-events.mjs"
+    "pull-amp-events": "node scripts/pull-amp-events.mjs",
+    "ingest-framer": "node scripts/ingest-framer.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.379.0",

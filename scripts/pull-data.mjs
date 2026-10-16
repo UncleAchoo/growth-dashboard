@@ -1240,6 +1240,8 @@ if (logosOnly) {
       ['Stripe paying companies', 'scripts/pull-stripe.mjs'],
       ['Amplitude answers/invites', 'scripts/pull-amp-events.mjs'],
       ['Signups + credits (Metabase CSVs in data/data-queries/)', 'scripts/ingest-signups.mjs'],
+      // Oct 16 2026: Framer website visitors (every CSV in data/framer/ → src/framer.json).
+      ['Framer website visitors (CSVs in data/framer/)', 'scripts/ingest-framer.mjs'],
     ];
     for (const [name, script] of steps) {
       log(`?beta: ${name} (${script})...`);

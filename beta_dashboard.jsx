@@ -11,8 +11,11 @@
 // the URL hash, e.g. ?beta#activation, so a view can be shared).
 //
 // Data:
-//   Website visitors  ← GA4 sessions (src/data.json → ga4.file1). Engaged
-//                       sessions until Oct 15; the live dashboard still uses those.
+//   Website visitors  ← Framer unique visitors (src/framer.json, npm run
+//                       ingest-framer) since Oct 16: funnel, visitors, visitor →
+//                       sign up, high-intent reach / pages / → sign up, channels.
+//                       GA4 sessions (src/data.json → ga4.*) are still loaded and
+//                       their cards kept in the file, just not rendered.
 //   Signups           ← Metabase signups export → src/beta-signups.json
 //                       (npm run ingest-signups). One row = one user+company
 //                       signup; never deduped.
@@ -28,6 +31,7 @@ import dataJson from './src/data.json';
 import betaSignups from './src/beta-signups.json';
 import betaPaying from './src/beta-paying.json';
 import betaCredits from './src/beta-credits.json';
+import framerJson from './src/framer.json';
 import { categorizeReferralSource as categorizeReferralSourceShared } from './channel-categorization.js';
 // ?beta combines Search and AEO into one self-reported bucket (Nick, Oct 8). The
 // shared engine (also used by the live dashboard) is left untouched.
@@ -318,6 +322,42 @@ function sumByChannel(rows, a, b) {
   return out;
 }
 const sumVals = (o) => Object.values(o).reduce((s, v) => s + v, 0);
+
+// --- Framer visitors (Oct 16, Nick) -----------------------------------------------
+// Framer Analytics export → src/framer.json (npm run ingest-framer). Shown
+// ALONGSIDE the GA4 cards, not instead of them. Visitor = one Framer visitorId
+// (Framer rotates ids daily, so ≈ one person per day), dated by its first
+// pageview. Each visitor has exactly one channel (first pageview's referrer +
+// utm), bucketed with the same channelOf() rules as GA4, so channels add up
+// to the total. No consent banner or bot cliff here: Framer is cookieless.
+const FRAMER_START = framerJson.firstDate;
+const FRAMER_END = framerJson.lastDate;
+const FRAMER_BY_DATE = Object.fromEntries(framerJson.daily.map((r) => [r.d, r.visitors]));
+const sumFramer = (a, b) => {
+  let s = 0;
+  for (let d = a; d <= b; d = addDays(d, 1)) s += FRAMER_BY_DATE[d] || 0;
+  return s;
+};
+// A range that starts before the export does is incomplete → no number (no delta).
+const framerIn = (a, b) => (a < FRAMER_START ? null : sumFramer(a, b));
+const FRAMER_CH = framerJson.channels.map((r) => ({ d: r.d, ch: channelOf(r), n: r.visitors }));
+// High-intent visitors (Framer): a visitor with ≥1 pageview on /pricing,
+// /customers…, /case-studies…, /use-cases… — counted once (ingest dedupes), so
+// summing days is safe. Per-page rows are page-level: a visitor who saw several
+// pages is under each, so they must NEVER be summed for reach.
+const FRAMER_HI_BY_DATE = Object.fromEntries(framerJson.daily.map((r) => [r.d, r.highIntent || 0]));
+const sumFramerHi = (a, b) => {
+  let s = 0;
+  for (let d = a; d <= b; d = addDays(d, 1)) s += FRAMER_HI_BY_DATE[d] || 0;
+  return s;
+};
+const FRAMER_PAGE_ROWS = (framerJson.pages || []).map((r) => ({ d: r.d, path: r.path, n: r.visitors }));
+const FRAMER_PAGES = [...new Set(FRAMER_PAGE_ROWS.map((r) => r.path))].sort();
+const framerPagesIn = (a, b) => {
+  const out = Object.fromEntries(FRAMER_PAGES.map((p) => [p, 0]));
+  FRAMER_PAGE_ROWS.forEach((r) => { if (r.d >= a && r.d <= b) out[r.path] += r.n; });
+  return out;
+};
 
 // --- Sessions by channel (GA4 master feed; activeUsers until Oct 15) -------------
 // Oct 15: the Apps Script switched Files 6–9 + presets from activeUsers to
@@ -918,10 +958,86 @@ function buildModel(mode) {
     return { sessions, total: sumVals(sessions), totalPrev: sumVals(sessionsPrev) };
   })();
 
+  // Framer visitors: weekly line (same weeks as the GA4 visitors line), window
+  // headline, and channel columns (same frames as the GA4 channel chart).
+  // Partial weeks / months run to the last Framer day, not DATA_END, so the
+  // in-progress week isn't cut a day short.
+  // Since Oct 16 (Nick) these drive every VISIBLE visitor chart + the funnel;
+  // the GA4 fields above (WINDOW.visitors, convAdj, hiReach…) are still built
+  // for the hidden GA4 cards. Everything stops at DATA_END like the signups, so
+  // numerator and denominator always cover the same days.
+  //   visitors           Framer unique visitors
+  //   conv               completed sign ups ÷ visitors (no consent adjustment needed)
+  //   hiReach            high-intent visitors ÷ visitors
+  //   hiConv             company-creator sign ups ÷ high-intent visitors
+  // Sign up rates start at max(period start, Framer start, SIGNUP_COUNT_START):
+  // in Fiscal YTD that's Feb 16, when sign up counts begin.
+  const FRAMER = (() => {
+    const lastDay = FRAMER_END < DATA_END ? FRAMER_END : DATA_END;
+    const to = (w) => (w.end > lastDay ? lastDay : w.end);
+    const fromW = (w) => (w.start < FRAMER_START ? FRAMER_START : w.start);
+    const maxISO = (...xs) => xs.sort().pop();
+    // Weekly lines (same weeks as WEEKLY → same x-axis as every other line chart).
+    const lineRows = WEEKLY.map((w) => {
+      const none = w.end < FRAMER_START;
+      const a = fromW(w), b = to(w);
+      const fv = none ? null : sumFramer(a, b);
+      const hi = none ? null : sumFramerHi(a, b);
+      const rated = !none && w.start >= SIGNUP_COUNT_START && w.start >= FRAMER_START;
+      return {
+        ...w,
+        partial: w.partial || w.end > lastDay,
+        fv, hi,
+        hiReach: hi == null ? null : pct(hi, fv),
+        conv: rated ? pct(w.signups, fv) : null,
+        hiConv: rated ? pct(w.creators, hi) : null,
+      };
+    });
+    const line = lineRows.map((w, i) => ({
+      ...w,
+      fvFull: w.partial ? null : w.fv,
+      fvPartial: w.partial || lineRows[i + 1]?.partial ? w.fv : null,
+    }));
+    const chRow = (p) => {
+      const s = sumByChannel(FRAMER_CH, fromW(p), to(p));
+      return { ...p, ...s, total: sumVals(s), partial: p.partial || p.end > lastDay };
+    };
+    // Window (headline) numbers.
+    const winStart = START < FRAMER_START ? FRAMER_START : START;
+    const winEnd = END > lastDay ? lastDay : END;
+    const channels = sumByChannel(FRAMER_CH, winStart, winEnd);
+    const rateStart = maxISO(START, FRAMER_START, SIGNUP_COUNT_START);
+    const prevOk = !MODES[mode].noPrior && PRIOR_START >= FRAMER_START && PRIOR_START >= SIGNUP_COUNT_START;
+    const rates = (a, b) => {
+      const v = sumFramer(a, b), h = sumFramerHi(a, b), list = signupsIn(a, b);
+      const cr = list.filter(isCreator).length;
+      return { v, h, n: list.length, cr, conv: pct(list.length, v), hiReach: pct(h, v), hiConv: pct(cr, h) };
+    };
+    const cur = rates(rateStart, winEnd);
+    const prv = prevOk ? rates(PRIOR_START, PRIOR_END) : null;
+    const reachNow = rates(winStart, winEnd);
+    return {
+      line,
+      weekly: WEEKS_CUR.map(chRow),
+      monthly: MONTHS.map(chRow),
+      winStart, winEnd, rateStart,
+      visitors: reachNow.v,
+      visitorsPrev: framerIn(PRIOR_START, PRIOR_END),
+      channels,
+      // visitor → completed sign up
+      conv: cur.conv, convPrev: prv?.conv ?? null, convSignups: cur.n, convVisitors: cur.v,
+      // high-intent reach (from the Framer start, no signup dependence)
+      highIntent: reachNow.h, hiReach: reachNow.hiReach, hiReachPrev: prv?.hiReach ?? null,
+      // high-intent → completed sign up (company creators)
+      hiConv: cur.hiConv, hiConvPrev: prv?.hiConv ?? null, hiCreators: cur.cr, hiVisitorsForConv: cur.h,
+    };
+  })();
+
   // Week to date (the in-progress week; not in the headline totals).
   const WTD_STATS = W.WTD ? (() => {
     const list = signupsIn(W.WTD.start, W.WTD.end);
-    return { ...W.WTD, visitors: sumSessions(W.WTD.start, W.WTD.end), signups: list.length, activated: list.filter(actDate).length };
+    // visitors = Framer (Oct 16); GA4 sessions kept as gaVisitors.
+    return { ...W.WTD, visitors: sumFramer(W.WTD.start, W.WTD.end), gaVisitors: sumSessions(W.WTD.start, W.WTD.end), signups: list.length, activated: list.filter(actDate).length };
   })() : null;
   const SELF_REPORTED = selfReportedIn(START, END);
   // Same split per week, for the stacked-column view of the channel table.
@@ -938,7 +1054,7 @@ function buildModel(mode) {
     };
   });
 
-  return { ...W, MONTHLY_COLS, MONTHS, WINDOW, WEEKLY, ACT, MEETING_ANY_30D, ACTIVATED, ONBOARDED, RETURNED, CHANNEL_WEEKLY, CHANNEL_MONTHLY, CH30, AU,WTD_STATS, SELF_REPORTED, SELF_REPORTED_PREV, SELF_REPORTED_WEEKLY, SELF_REPORTED_MONTHLY, VISITOR_LINE };
+  return { ...W, MONTHLY_COLS, MONTHS, WINDOW, WEEKLY, ACT, MEETING_ANY_30D, ACTIVATED, ONBOARDED, RETURNED, CHANNEL_WEEKLY, CHANNEL_MONTHLY, CH30, AU,WTD_STATS, SELF_REPORTED, SELF_REPORTED_PREV, SELF_REPORTED_WEEKLY, SELF_REPORTED_MONTHLY, VISITOR_LINE, FRAMER };
 }
 const MODELS = Object.fromEntries(Object.keys(MODES).map((m) => [m, buildModel(m)]));
 const ModelCtx = React.createContext(MODELS[DEFAULT_MODE]);
@@ -1583,9 +1699,10 @@ function PlgFunnel({ view, setView }) {
         <div className="bf-group">
           <div className="bf-head"><span style={eyebrow}>Users</span></div>
           <div className="bf-row">
-            <FunnelCell label="Website visitors" value={fmtInt(W.visitors)} />
+            {/* Framer since Oct 16 (GA4: W.visitors / W.convAdj, kept in the model). */}
+            <FunnelCell label="Website visitors" value={fmtInt(M.FRAMER.visitors)} />
             <FunnelCell id="signup" view={view} setView={setView} label="Completed sign ups" value={fmtInt(W.signups)}
-              chip={<FunnelChip rate={fmtPct(W.convAdj, 1)} of="of visitors" delta={<Delta value={ptsDiff(W.convAdj, W.convAdjPrev)} suffix=" pts" size={12} />} />} />
+              chip={<FunnelChip rate={fmtPct(M.FRAMER.conv, 1)} of="of visitors" delta={<Delta value={ptsDiff(M.FRAMER.conv, M.FRAMER.convPrev)} suffix=" pts" size={12} />} />} />
             <FunnelCell id="activation" view={view} setView={setView} label="Activated" value={fmtInt(W.activated)}
               chip={<FunnelChip rate={fmtPct(W.actConv, 1)} of="of sign ups" delta={<Delta value={ptsDiff(W.actConv, W.actConvPrev)} suffix=" pts" size={12} />} />} />
           </div>
@@ -1653,6 +1770,41 @@ function WebsiteVisitorsCard() {
           ) : null} />
           <Line dataKey="visitorsFull" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} isAnimationActive={false} />
           <Line dataKey="visitorsPartial" stroke={C.black} strokeWidth={2} strokeDasharray="2 4" dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} legendType="none" isAnimationActive={false} />
+        </LineChart>
+      </ZoomContainer>
+    </Card>
+  );
+}
+
+// Website visitors from Framer Analytics (Nick, Oct 16) — sits beside the GA4
+// card. Unique Framer visitors per week (see FRAMER_* above).
+const framerWinLabel = (F) => rangeLabel(F.winStart, F.winEnd);
+function FramerVisitorsCard() {
+  const M = useModel();
+  const F = M.FRAMER;
+  const clipped = F.winStart !== M.START;
+  return (
+    <Card
+      accent={C.blue}
+      title="Website visitors"
+      question="How many people are we getting to the site?"
+      footnote={`Framer Analytics unique visitors (npm run ingest-framer, export ${monDay(FRAMER_START)} – ${monDay(FRAMER_END)}). Framer is cookieless, so unlike GA4 it isn't affected by the Jul 17 cookie banner, and its visitor ids reset daily — a visitor is one person on one day, so a weekly number adds up the days. Only www.mutinyhq.com (plus mutinyhq.com / .co); framer.app previews are left out. Framer doesn't filter bots, but bot-like ids are ~1% of visitors (they mainly inflate pageviews, e.g. the Mar 16 week). ${M.SHOWS_CUR ? 'Dotted segment = week in progress.' : 'Full weeks only; the week in progress is left off.'}${clipped ? ` The export starts ${monDay(FRAMER_START)}, so the headline starts there.` : ''} No goal set yet.`}
+    >
+      <StatRow delta={<Delta value={pctChange(F.visitors, F.visitorsPrev)} />}>
+        <Stat label={`Actual · ${framerWinLabel(F)}`} value={fmtInt(F.visitors)} explain={`${fmtInt(F.visitors)} unique visitors (Framer) from ${framerWinLabel(F)}.${F.visitorsPrev != null ? ` ${fmtInt(F.visitorsPrev)} in the ${M.prior}.` : ''}`} />
+        <Stat label="Goal" value="—" muted />
+      </StatRow>
+      <Legend items={[{ label: 'Unique Visitors (Framer), weekly', color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
+      <ZoomContainer height={190}>
+        <LineChart data={F.line} margin={chartMargin}>
+          {grid}
+          <XAxis {...xAxis} />
+          <YAxis {...yAxis} tickFormatter={fmtK} domain={[0, 'auto']} />
+          <Tooltip content={({ active, payload }) => active && payload?.length ? (
+            <TooltipBox title={weekTitle(payload[0].payload)} rows={[{ label: 'Unique visitors', value: payload[0].payload.fv == null ? 'no data' : fmtInt(payload[0].payload.fv), color: C.black }]} />
+          ) : null} />
+          <Line dataKey="fvFull" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} isAnimationActive={false} />
+          <Line dataKey="fvPartial" stroke={C.black} strokeWidth={2} strokeDasharray="2 4" dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} legendType="none" isAnimationActive={false} />
         </LineChart>
       </ZoomContainer>
     </Card>
@@ -2002,6 +2154,225 @@ function HighIntentToSignupCard() {
   );
 }
 
+// ===========================================================================
+// Framer versions of the visitor cards (Nick, Oct 16). Same definitions as the
+// GA4 cards above, with Framer unique visitors in place of GA4 sessions. No
+// consent adjustment / bot shading: Framer is cookieless and the counts are
+// consistent across the year. The GA4 cards stay in the file, unrendered.
+// ===========================================================================
+const FRAMER_SRC_NOTE = `Visitors = Framer Analytics unique visitors (Framer resets visitor ids daily, so one person on one day; weekly numbers add up the days). Only www.mutinyhq.com.`;
+const HI_PAGES_LINE = 'High-intent pages: pricing (/pricing), customer stories (/customers/…), case studies (/case-studies/…), and use-case pages (/use-cases/…).';
+const rateFromNote = (M, F) => (F.rateStart !== M.START ? ` Starts ${monDay(F.rateStart)}${F.rateStart === SIGNUP_COUNT_START ? ', when sign up counts begin' : ', the first day of Framer data'}.` : '');
+
+function FramerVisitorToSignupCard() {
+  const M = useModel();
+  const F = M.FRAMER;
+  const range = rangeLabel(F.rateStart, F.winEnd);
+  return (
+    <Card
+      accent={C.blue}
+      title="Website visitor → completed sign up"
+      question="What share of visitors create an account?"
+      footnote={`Completed sign ups ÷ Framer unique visitors for the same days (each total summed first, then divided). Every completed sign up counts, including repeats by the same person; never-completed and internal (@mutinyhq.com) sign ups are left out. ${FRAMER_SRC_NOTE} No cookie-banner adjustment is needed (Framer is cookieless). ${lineWeekNote(M)} No goal set yet.`}
+    >
+      <StatRow delta={<Delta value={ptsDiff(F.conv, F.convPrev)} suffix=" pts" />}>
+        <Stat label={`Conversion · ${range}`} value={fmtPct(F.conv, 2)} explain={`From ${range}, ${fmtInt(F.convSignups)} completed sign ups came from ${fmtInt(F.convVisitors)} visitors — about ${fmtPct(F.conv, 1)}.${rateFromNote(M, F)}`} sub={`${fmtInt(F.convSignups)} sign ups ÷ ${fmtInt(F.convVisitors)} visitors`} />
+        <Stat label="Goal" value="—" muted />
+      </StatRow>
+      <Legend items={[{ label: 'Visitor → sign up %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
+      <ZoomContainer height={210}>
+        <LineChart data={F.line} margin={chartMargin}>
+          {grid}
+          <XAxis {...xAxis} />
+          <YAxis {...yAxis} domain={[0, 'auto']} tickFormatter={(v) => `${v}%`} />
+          <Tooltip content={({ active, payload }) => active && payload?.length ? (() => {
+            const w = payload[0].payload;
+            return (
+              <TooltipBox title={weekTitle(w)} rows={[
+                { label: 'Visitor → completed sign up', value: w.conv == null ? '—' : fmtPct(w.conv, 2), color: C.black },
+                { label: 'Completed sign ups', value: fmtInt(w.signups) },
+                { label: 'Visitors', value: w.fv == null ? '—' : fmtInt(w.fv) },
+              ]} note={w.conv == null && w.fv != null ? 'Sign ups are only counted from Feb 16.' : null} />
+            );
+          })() : null} />
+          <Line dataKey="conv" stroke={C.black} strokeWidth={2.5} dot={false} connectNulls={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} isAnimationActive={false} />
+        </LineChart>
+      </ZoomContainer>
+    </Card>
+  );
+}
+
+function FramerHighIntentReachCard() {
+  const M = useModel();
+  const F = M.FRAMER;
+  const range = rangeLabel(F.winStart, F.winEnd);
+  return (
+    <Card
+      accent={C.blue}
+      title="Website visitor → high-intent visitor"
+      question={(
+        <>
+          <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>What share of visitors reach a high-intent page?</span>
+          <span style={{ display: 'block', marginTop: 6 }}>Each week: visitors who viewed at least one high-intent page ÷ all visitors. A visitor counts once, even if they saw several high-intent pages. A rough read on how well the site steers traffic toward buying-consideration content.</span>
+          <span style={{ display: 'block', marginTop: 6 }}>{HI_PAGES_LINE}</span>
+        </>
+      )}
+      footnote={`High-intent visitors ÷ all Framer unique visitors for the same week (summed first, then divided). High-intent = viewed at least one page under /pricing, /customers, /case-studies or /use-cases that day — same filter as the GA4 Apps Script; several high-intent pages still count once. ${FRAMER_SRC_NOTE} ${lineWeekNote(M)} No goal set yet.`}
+    >
+      <StatRow delta={<Delta value={ptsDiff(F.hiReach, F.hiReachPrev)} suffix=" pts" />}>
+        <Stat label={`Reach · ${range}`} value={fmtPct(F.hiReach, 1)} explain={`From ${range}, ${fmtInt(F.highIntent)} of ${fmtInt(F.visitors)} visitors reached a high-intent page — about ${fmtPct(F.hiReach, 1)}.`} />
+        <Stat label="Goal" value="—" muted />
+      </StatRow>
+      <Legend items={[{ label: 'High-intent reach %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
+      <ZoomContainer height={190}>
+        <LineChart data={F.line} margin={chartMargin}>
+          {grid}
+          <XAxis {...xAxis} />
+          <YAxis {...yAxis} domain={[0, 'auto']} tickFormatter={(v) => `${v}%`} />
+          <Tooltip content={({ active, payload }) => active && payload?.length ? (
+            <TooltipBox title={weekTitle(payload[0].payload)} rows={[
+              { label: 'High-intent reach', value: payload[0].payload.hiReach == null ? '—' : fmtPct(payload[0].payload.hiReach, 1), color: C.black },
+              { label: 'High-intent visitors', value: payload[0].payload.hi == null ? '—' : fmtInt(payload[0].payload.hi) },
+              { label: 'All visitors', value: payload[0].payload.fv == null ? '—' : fmtInt(payload[0].payload.fv) },
+            ]} />
+          ) : null} />
+          <Line dataKey="hiReach" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} connectNulls={false} isAnimationActive={false} />
+        </LineChart>
+      </ZoomContainer>
+    </Card>
+  );
+}
+
+function FramerHighIntentPagesCard() {
+  const M = useModel();
+  const F = M.FRAMER;
+  const pStart = F.winStart;
+  const pEnd = F.winEnd;
+  const visitors = F.visitors;
+  const prevOk = !M.noPrior && M.PRIOR_START >= FRAMER_START;
+  const visitorsPrev = prevOk ? sumFramer(M.PRIOR_START, M.PRIOR_END) : null;
+  const cur = framerPagesIn(pStart, pEnd);
+  const prev = prevOk ? framerPagesIn(M.PRIOR_START, M.PRIOR_END) : null;
+  const rows = FRAMER_PAGES
+    .map((path) => ({
+      path,
+      n: cur[path],
+      share: pct(cur[path], visitors),
+      nPrev: prev ? prev[path] : null,
+      sharePrev: prev ? pct(prev[path], visitorsPrev) : null,
+      color: pageSection(path).color,
+    }))
+    .filter((r) => r.n > 0)
+    .sort((a, b) => b.n - a.n || a.path.localeCompare(b.path))
+    .slice(0, 10);
+  const top = rows[0];
+  const has = visitors > 0 && rows.length > 0;
+  return (
+    <div className="full">
+      <Card
+        accent={C.blue}
+        title="Top 10 high-intent pages — Visitors"
+        question={(
+          <>
+            <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>Which 10 high-intent pages get the most visitors?</span>
+            <span style={{ display: 'block', marginTop: 6 }}>For each page: the number of visitors who viewed it in the selected period, anywhere in their visit (not just as the landing page). Repeat views by the same visitor that day count once.</span>
+            <span style={{ display: 'block', marginTop: 6 }}>Each URL is shown on its own (e.g. /use-cases/account-executives is separate from /use-cases). One visitor can view several pages and count under each, so the bars don't add up to the high-intent total above. Use the reach card for overall reach.</span>
+            <span style={{ display: 'block', marginTop: 6 }}>{HI_PAGES_LINE}</span>
+          </>
+        )}
+        footnote={`Framer pageviews by URL, counted as unique visitors per page for ${rangeLabel(pStart, pEnd)} (not raw pageviews). Hover a bar for its share of all ${fmtInt(visitors)} visitors. Shows the 10 pages with the most visitors; trailing slashes and letter case are ignored, so /pricing/ and /pricing are one page. Counts shouldn't be added together: a visitor who viewed several pages shows up under each. ${FRAMER_SRC_NOTE}`}
+      >
+        <StatRow>
+          <Stat
+            label={`Top page · ${rangeLabel(pStart, pEnd)}`}
+            value={top ? `${top.path} · ${fmtInt(top.n)}` : '—'}
+            muted={!top}
+            explain={top ? `${fmtInt(top.n)} visitors viewed ${top.path} (${fmtPct(top.share, 1)} of the site's ${fmtInt(visitors)} visitors).` : undefined}
+          />
+        </StatRow>
+        <Legend items={PAGE_SECTIONS.map((s) => ({ label: s.label, color: s.color }))} />
+        {has ? (
+          <ResponsiveContainer width="100%" height={rows.length * 30 + 12}>
+            <BarChart data={rows} layout="vertical" margin={{ top: 4, right: 56, left: 0, bottom: 4 }} barCategoryGap={6}>
+              <CartesianGrid horizontal={false} stroke={C.grid} />
+              <XAxis type="number" tick={tick} tickLine={false} axisLine={{ stroke: C.black }} tickFormatter={(v) => fmtInt(v)} domain={[0, 'auto']} />
+              <YAxis type="category" dataKey="path" tick={<PathTick />} tickLine={false} axisLine={false} width={PATH_AXIS_W} interval={0} />
+              <Tooltip cursor={cursor} content={({ active, payload }) => active && payload?.length ? (
+                <TooltipBox title={payload[0].payload.path} rows={[
+                  { label: 'Page visitors', value: fmtInt(payload[0].payload.n), color: payload[0].payload.color },
+                  { label: 'Share of site visitors', value: fmtPct(payload[0].payload.share, 2) },
+                  { label: 'Site visitors', value: fmtInt(visitors) },
+                  ...(prev ? [{ label: `${M.prior[0].toUpperCase()}${M.prior.slice(1)}`, value: `${fmtInt(payload[0].payload.nPrev)} (${fmtPct(payload[0].payload.sharePrev, 2)})` }] : []),
+                ]} note={
+                  <div style={{ width: 250, whiteSpace: 'normal', lineHeight: 1.45, borderTop: `1px solid ${C.grid}`, paddingTop: 6, marginTop: 4 }}>
+                    Visitors who viewed this page in {rangeLabel(pStart, pEnd)}. Visitors who saw several pages count under each, so counts don't add up.
+                  </div>
+                } />
+              ) : null} />
+              <Bar dataKey="n" isAnimationActive={false} stroke={C.black} strokeWidth={1} radius={[0, 2, 2, 0]}>
+                {rows.map((r) => <Cell key={r.path} fill={r.color} />)}
+                <LabelList dataKey="n" position="right" formatter={(v) => fmtInt(v)} style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, fill: C.black }} />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <div style={{ height: 120, border: `1px dashed #BDBDBD`, borderRadius: 4, background: C.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 14, color: C.muted }}>
+            No high-intent page views in this period
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+function FramerHighIntentToSignupCard() {
+  const M = useModel();
+  const F = M.FRAMER;
+  const range = rangeLabel(F.rateStart, F.winEnd);
+  return (
+    <Card
+      accent={C.purple}
+      title="High-intent visitor → completed sign up"
+      question={(
+        <>
+          <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>Do high-intent visitors create an account?</span>
+          <span style={{ display: 'block', marginTop: 6 }}>Each week: company-creator signups ÷ visitors who viewed at least one high-intent page.</span>
+          <span style={{ display: 'block', marginTop: 6 }}>Only signups that created a new company count. People accepting an invite or joining a teammate's company, and signups that never set up a company, are left out, since they mostly don't arrive through the website.</span>
+          <span style={{ display: 'block', marginTop: 6 }}>It's a ratio of two weekly totals, not a tracked path: a signup counts whether or not that person saw a high-intent page.</span>
+          <span style={{ display: 'block', marginTop: 6 }}>{HI_PAGES_LINE}</span>
+        </>
+      )}
+      footnote={`Company-creator signups ÷ Framer high-intent visitors for the same week (each total summed first, then divided). Company creator = the signup created a new company; accepted invites, people joining a teammate's existing company, and signups that never set up a company are excluded. Repeat signups by the same person still count if each created a company; internal (@mutinyhq.com) signups are left out. Signups aren't linked to the visitors they came from, so this compares two weekly totals rather than following people from a high-intent page to signup. ${FRAMER_SRC_NOTE} ${lineWeekNote(M)} No goal set yet.`}
+    >
+      <StatRow delta={<Delta value={ptsDiff(F.hiConv, F.hiConvPrev)} suffix=" pts" />}>
+        <Stat
+          label={`Conversion · ${range}`}
+          value={fmtPct(F.hiConv, 1)}
+          explain={`From ${range}, ${fmtInt(F.hiCreators)} company-creator signups vs ${fmtInt(F.hiVisitorsForConv)} high-intent visitors — about ${fmtPct(F.hiConv, 1)}.${rateFromNote(M, F)}`}
+        />
+        <Stat label="Goal" value="—" muted />
+      </StatRow>
+      <Legend items={[{ label: 'Actual %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
+      <ZoomContainer height={190}>
+        <LineChart data={F.line} margin={chartMargin}>
+          {grid}
+          <XAxis {...xAxis} />
+          <YAxis {...yAxis} domain={[0, 'auto']} tickFormatter={(v) => `${v}%`} />
+          <Tooltip content={({ active, payload }) => active && payload?.length ? (
+            <TooltipBox title={weekTitle(payload[0].payload)} rows={[
+              { label: 'High-intent → completed sign up', value: payload[0].payload.hiConv == null ? '—' : fmtPct(payload[0].payload.hiConv, 1), color: C.black },
+              { label: 'Company-creator completed sign ups', value: fmtInt(payload[0].payload.creators) },
+              { label: 'High-intent visitors', value: payload[0].payload.hi == null ? '—' : fmtInt(payload[0].payload.hi) },
+              { label: 'All completed sign ups (for reference)', value: fmtInt(payload[0].payload.signups) },
+            ]} />
+          ) : null} />
+          <Line dataKey="hiConv" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.purple, stroke: C.black }} connectNulls={false} isAnimationActive={false} />
+        </LineChart>
+      </ZoomContainer>
+    </Card>
+  );
+}
+
 function VisitorsByChannelCard() {
   const M = useModel();
   const { CH30 } = M;
@@ -2048,6 +2419,71 @@ function VisitorsByChannelCard() {
                   value: `${fmtInt(payload[0].payload[c.key])} · ${fmtPct(pct(payload[0].payload[c.key], payload[0].payload.total), 0)}`,
                 }))}
                 note={H.hidden.size ? `${fmtInt(shownTotal(payload[0].payload))} of ${fmtInt(payload[0].payload.total)} sessions shown (% = share of all)` : `${fmtInt(payload[0].payload.total)} sessions`}
+              />
+            ) : null} />
+            {shown.map((c) => (
+              <Bar key={c.key} dataKey={c.key} stackId="ch" stroke={C.black} strokeWidth={0.5} isAnimationActive={false}>
+                {data.map((w) => <Cell key={w.start} fill={w.partial ? `url(#${hatchId(c.color)})` : c.color} />)}
+              </Bar>
+            ))}
+          </BarChart>
+        </ZoomContainer>
+        </SideLegend>
+      </Card>
+    </div>
+  );
+}
+
+// Website visitors by channel — Framer (Nick, Oct 16). Same categories, colors,
+// stacking and Fiscal-YTD monthly rule as the GA4 channel charts; one channel
+// per visitor (first pageview), so the bars add up to the Framer visitors card.
+function FramerVisitorsByChannelCard() {
+  const M = useModel();
+  const F = M.FRAMER;
+  const monthly = M.MONTHLY_COLS;
+  const data = monthly ? F.monthly : F.weekly;
+  const used = CHANNELS.filter((c) => FRAMER_CH.some((r) => r.ch === c.key));
+  const order = [...used].sort((a, b) => (F.channels[b.key] || 0) - (F.channels[a.key] || 0));
+  const H = useHiddenSet();
+  const shown = used.filter((c) => !H.hidden.has(c.key));
+  const shownTotal = (row) => shown.reduce((t, c) => t + (row[c.key] || 0), 0);
+  const total = sumVals(F.channels);
+  return (
+    <div className="full">
+      <Card
+        accent={C.blue}
+        title="Website visitors by channel"
+        question={`Where are visitors coming from? · ${monthly ? 'monthly' : 'weekly'}`}
+        footnote={`Framer Analytics unique visitors by channel. Each visitor's channel comes from its first pageview that day: utm_source / utm_medium if present, otherwise the referrer (search engines → Search + AEO, chatgpt.com / claude.ai / gemini / perplexity → Search + AEO, linkedin.com and the LinkedIn app → LinkedIn, X / Reddit / Facebook / Instagram / YouTube / Hacker News → Social, Gmail / Outlook / newsletters / utm_medium=email → Email, any other site → Referral, nothing → Direct). Bucketed with the same rules as the GA4 channel charts. Framer only gets a referrer when the browser sends one, so Direct is large (~⅔ of visitors) — it includes dark social, Slack / Teams desktop apps and typed URLs. Channels add up to the Website visitors card. ${monthly ? colNote(M) : 'Faintly striped bar = week in progress.'}`}
+      >
+        <StatRow delta={<Delta value={pctChange(F.visitors, F.visitorsPrev)} />}>
+          <Stat label={`Actual · ${framerWinLabel(F)}`} value={fmtInt(F.visitors)} explain={`${fmtInt(F.visitors)} unique visitors (Framer) from ${framerWinLabel(F)}, split by where they came from below.`} />
+        </StatRow>
+        <SideLegend legend={(
+          <LegendTable
+            title={`${M.label} · ${framerWinLabel(F)}`}
+            unit="visitors"
+            total={total}
+            items={order.map((c) => ({ label: c.key, color: c.color, n: F.channels[c.key] || 0 }))}
+            hidden={H.hidden}
+            onToggle={H.toggle}
+            onShowAll={H.showAll}
+          />
+        )}>
+        <ZoomContainer height={420}>
+          <BarChart data={data} margin={chartMargin} barCategoryGap="22%">
+            {hatchDefs(used.map((c) => c.color))}
+            {grid}
+            <XAxis {...xAxis} />
+            <YAxis {...yAxis} tickFormatter={fmtK} />
+            <Tooltip cursor={cursor} content={({ active, payload }) => active && payload?.length ? (
+              <TooltipBox
+                title={monthly ? payload[0].payload.title : weekTitle(payload[0].payload)}
+                rows={[...shown].reverse().filter((c) => payload[0].payload[c.key]).map((c) => ({
+                  label: c.key, color: c.color,
+                  value: `${fmtInt(payload[0].payload[c.key])} · ${fmtPct(pct(payload[0].payload[c.key], payload[0].payload.total), 0)}`,
+                }))}
+                note={H.hidden.size ? `${fmtInt(shownTotal(payload[0].payload))} of ${fmtInt(payload[0].payload.total)} visitors shown (% = share of all)` : `${fmtInt(payload[0].payload.total)} visitors`}
               />
             ) : null} />
             {shown.map((c) => (
@@ -4233,21 +4669,26 @@ function SectionsFor({ view }) {
       <>
         <StageHeader n={1} title="Website visitors" subtitle="Top of the funnel: people who reach the site." />
         <Grid>
-          <div className="full"><WebsiteVisitorsCard /></div>
-          <VisitorToSignupCard />
-          <HighIntentReachCard />
-          <HighIntentPagesCard />
+          {/* Framer since Oct 16 (Nick). GA4 versions kept, hidden:
+              <WebsiteVisitorsCard /> <VisitorToSignupCard /> <HighIntentReachCard /> <HighIntentPagesCard /> */}
+          <div className="full"><FramerVisitorsCard /></div>
+          <FramerVisitorToSignupCard />
+          <FramerHighIntentReachCard />
+          <FramerHighIntentPagesCard />
         </Grid>
         <StageHeader n={2} title="Completed sign up" subtitle="Visitors who create an account and finish setting up a workspace. The gate between anonymous and known." />
         <Grid>
-          <HighIntentToSignupCard />
+          {/* GA4 version hidden Oct 16: <HighIntentToSignupCard /> */}
+          <FramerHighIntentToSignupCard />
           <CumulativeSignupsCard />
         </Grid>
         <StageHeader title="Channel deep dive" subtitle="Which channels bring visitors, and which of them convert." />
         <Grid>
           {/* Hidden Oct 15 (Nick): keep only the "— Sessions" version below. */}
           {/* <VisitorsByChannelCard /> */}
-          {GA4_AU.has && <VisitorsActiveUsersByChannelCard />}
+          {/* GA4 version hidden Oct 16 (Framer is the visible source):
+              {GA4_AU.has && <VisitorsActiveUsersByChannelCard />} */}
+          <FramerVisitorsByChannelCard />
           <SignupsByChannelCard />
         </Grid>
       </>
@@ -4355,7 +4796,8 @@ const DATA_SOURCES = (() => {
     || (() => { const days = (dataJson.amplitude?.referralSources || []).flatMap((e) => Object.keys(e.daily || {})).sort(); const d = days.pop(); return d ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}` : null; })();
   return [
     { name: 'Signups', day: DATA_END },
-    { name: 'Website', day: gaLast },
+    { name: 'Website (Framer)', day: FRAMER_END },
+    { name: 'GA4', day: gaLast },
     { name: 'Amplitude', day: ampLast },
     { name: 'Stripe', day: betaPaying.pulledAt ? betaPaying.pulledAt.slice(0, 10) : null },
     { name: 'Credits', day: betaCredits?.usageLastDay || null },
