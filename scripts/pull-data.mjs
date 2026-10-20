@@ -428,10 +428,11 @@ async function fetchAmplitude() {
   log('Fetching Amplitude (daily signups + referral_source breakdown)...');
 
   // Email filter — excludes internal users. Mirrors the Amplitude charts:
-  // `email does not contain "mutinyhq" or "mutiny"`. "mutinyhq" is redundant
+  // `email does not contain "mutinyhq" or "mutiny"` (+ "gomomentic", the Momentic
+  // test account, Nick Oct 20). "mutinyhq" is redundant
   // with "mutiny" as a substring match, but listing both keeps our pull a
   // literal mirror of the chart's filter config.
-  const emailFilter = { group_type: 'User', subprop_op: 'does not contain', subprop_key: 'email', subprop_type: 'event', subprop_value: ['mutinyhq', 'mutiny'] };
+  const emailFilter = { group_type: 'User', subprop_op: 'does not contain', subprop_key: 'email', subprop_type: 'event', subprop_value: ['mutinyhq', 'mutiny', 'gomomentic'] };
 
   // Behavioral cohort "Ever completed [Onboarding] Company Setup Complete"
   // (org-creators). Used to filter the Signups-by-Team split to users who set
@@ -478,7 +479,7 @@ async function fetchAmplitude() {
   const eventWithRefFilter = {
     event_type: '[Onboarding] Company Setup Complete',
     filters: [
-      { subprop_op: 'does not contain', subprop_key: 'email',           subprop_type: 'event', subprop_value: ['mutinyhq', 'mutiny'] },
+      { subprop_op: 'does not contain', subprop_key: 'email',           subprop_type: 'event', subprop_value: ['mutinyhq', 'mutiny', 'gomomentic'] },
       { subprop_op: 'is not',           subprop_key: 'referral_source', subprop_type: 'event', subprop_value: ['(none)'] },
     ],
     group_by: [{ type: 'event', value: 'referral_source' }],
@@ -619,7 +620,7 @@ async function fetchAmplitude() {
   try {
     const csEvent = {
       event_type: '[Onboarding] Company Setup Complete',
-      filters: [{ subprop_op: 'does not contain', subprop_key: 'email', subprop_type: 'event', subprop_value: ['mutinyhq', 'mutiny'] }],
+      filters: [{ subprop_op: 'does not contain', subprop_key: 'email', subprop_type: 'event', subprop_value: ['mutinyhq', 'mutiny', 'gomomentic'] }],
     };
     const cs = await ampSegmentation({ event: csEvent, start: WINDOW_START, end: WINDOW_END, interval: 1, metric: 'uniques' });
     const csSeries = cs?.data?.series?.[0] ?? [];
@@ -1076,20 +1077,27 @@ async function fetchHubspot() {
     limit: 100,
   };
 
-  const res = await fetch('https://api.hubapi.com/crm/v3/objects/contacts/search', {
-    method: 'POST',
-    headers: {
-      'Content-Type':  'application/json',
-      'Authorization': `Bearer ${HUBSPOT_TOKEN}`,
-    },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const t = await res.text();
-    throw new Error(`HubSpot HTTP ${res.status}: ${t.slice(0, 200)}`);
-  }
-  const raw = await res.json();
-  const contacts = raw.results || [];
+  // Page through every match (Oct 20): a single request stopped at 100
+  // contacts, which silently dropped submissions once the list grew.
+  const contacts = [];
+  let after;
+  do {
+    const res = await fetch('https://api.hubapi.com/crm/v3/objects/contacts/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${HUBSPOT_TOKEN}`,
+      },
+      body: JSON.stringify(after ? { ...body, after } : body),
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`HubSpot HTTP ${res.status}: ${t.slice(0, 200)}`);
+    }
+    const raw = await res.json();
+    contacts.push(...(raw.results || []));
+    after = raw.paging?.next?.after;
+  } while (after);
 
   // The two form-response dropdowns store opaque option ids; resolve them to
   // labels ("201-1,000", "Marketing only"). Fetched once per pull, in parallel.
@@ -1104,7 +1112,7 @@ async function fetchHubspot() {
   const endCompact   = ymdCompact(WINDOW_END);
   const isoToCompact = (iso) => (iso || '').slice(0, 10).replaceAll('-', '');
 
-  const TEST_EMAIL_RX = /mutiny|kedwardsfake/i;
+  const TEST_EMAIL_RX = /mutiny|kedwardsfake|gomomentic/i; // + Momentic test account (Nick, Oct 20)
 
   const meetings = [];
   for (const c of contacts) {

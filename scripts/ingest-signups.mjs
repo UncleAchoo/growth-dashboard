@@ -95,14 +95,22 @@ let signups;
 let source;
 let HAS_CO_NAME = false; // user_signups export carries company_name
 let AMP_EVENTS = null; // coverage of data/amplitude/signup_events.json, if pulled
-let INTERNAL_EXCLUDED = 0; // @mutinyhq.com signups dropped
+let INTERNAL_EXCLUDED = 0; // internal signups dropped (INTERNAL_EMAIL_RX)
+// Internal / test accounts left out everywhere: @mutinyhq.com (Nick, Oct 7) and
+// @gomomentic.com, the Momentic automated-testing account (Nick, Oct 20).
+const INTERNAL_EMAIL_RX = /@(mutinyhq|gomomentic)\.com$/i;
+const isInternalEmail = (e) => INTERNAL_EMAIL_RX.test((e || '').trim());
 let MEETINGS_FROM = null; // first day in the meeting export (when meeting capture is tracked from)
 let EMAILS_FROM = null; // first day in the email delivery export
+// First day in each onboarding export (dashboard footer "data coverage", Oct 20).
+let RECORDER_FROM = null; // recorder_install_events
+let GMAIL_FROM = null; // integration_connection_events, toolkit gmail
+let CALENDAR_FROM = null; // integration_connection_events, toolkit google_calendar
 
 if (src.endsWith('.csv')) {
   // --- Legacy: one master CSV with first_* columns already computed ---------
   const rows = readTable(src, ['created_at', 'self_selected_role', 'recorder_first_installed_at', 'calendar_first_connected_at', 'email_first_connected_at', 'first_meeting_recorded_at', 'first_email_or_asset_sent_at'])
-    .filter((r) => !/@mutinyhq\.com$/i.test((r.email || '').trim())); // no internal signups
+    .filter((r) => !isInternalEmail(r.email)); // no internal signups
   signups = rows.map((r) => ({
     d: day(r.created_at),
     role: r.self_selected_role || null,
@@ -135,10 +143,10 @@ if (src.endsWith('.csv')) {
   // email domain is @mutinyhq.com. Done before anything else, so internal
   // users also don't count as a company's first signup, a paying user, etc.
   const allRows = readTable(T.signups, ['user_id', 'company_id', 'created_at', 'self_selected_role', 'email']);
-  const isInternal = (r) => /@mutinyhq\.com$/i.test((r.email || '').trim());
+  const isInternal = (r) => isInternalEmail(r.email);
   const base = allRows.filter((r) => !isInternal(r));
   INTERNAL_EXCLUDED = allRows.length - base.length;
-  console.log(`  excluded ${INTERNAL_EXCLUDED} internal signups (@mutinyhq.com)`);
+  console.log(`  excluded ${INTERNAL_EXCLUDED} internal signups (@mutinyhq.com, @gomomentic.com)`);
   HAS_CO_NAME = base.length > 0 && 'company_name' in base[0];
   const installs = readTable(T.installs, ['user_id', 'company_id', 'installed_at']);
   const connections = readTable(T.connections, ['user_id', 'company_id', 'toolkit', 'connection_scope', 'connected_at']);
@@ -162,6 +170,11 @@ if (src.endsWith('.csv')) {
   for (const r of meetings) { const d = day(r.occurred_at); if (d && (!MEETINGS_FROM || d < MEETINGS_FROM)) MEETINGS_FROM = d; }
   const SND = firstBy(emails, 'completed_at', (r) => r.action === 'send' || r.action === 'create_draft');
   for (const r of emails) { const d = day(r.completed_at); if (d && (!EMAILS_FROM || d < EMAILS_FROM)) EMAILS_FROM = d; }
+  for (const r of installs) RECORDER_FROM = minDay(RECORDER_FROM, day(r.installed_at));
+  for (const r of connections) {
+    if (r.toolkit === 'gmail') GMAIL_FROM = minDay(GMAIL_FROM, day(r.connected_at));
+    if (r.toolkit === 'google_calendar') CALENDAR_FROM = minDay(CALENDAR_FROM, day(r.connected_at));
+  }
 
   // A user-level event (no company) is attached to that user's latest signup
   // created on or before the event day (or their first signup if all are later).
@@ -390,7 +403,9 @@ if (src.endsWith('.csv')) {
     // ... and "Other" (created a company but no answer / invite in Amplitude),
     // the channel table's other clickable row (Nick, Oct 7).
     const otherRow = !s.nc && !s.jx && !s.ref && !s.inv && AMP_EVENTS;
-    if (s.snd || s.pub || s.rec || s.cal || s.em || ((s.nc || otherRow) && d >= '2026-02-16')) {
+    // ... and every signup since Sep 7, 2026, the activation funnel's cohort
+    // (its modal lists everyone at each stage — Nick, Oct 20).
+    if (s.snd || s.pub || s.rec || s.cal || s.em || ((s.nc || otherRow) && d >= '2026-02-16') || d >= '2026-09-07') {
       s.uid = r.user_id;
       if (r.email) s.email = r.email;
     }
@@ -413,6 +428,9 @@ const json = {
   internalExcluded: INTERNAL_EXCLUDED,
   meetingsFrom: MEETINGS_FROM,
   emailsFrom: EMAILS_FROM,
+  recorderFrom: RECORDER_FROM,
+  gmailFrom: GMAIL_FROM,
+  calendarFrom: CALENDAR_FROM,
   signups,
 };
 fs.writeFileSync(out, JSON.stringify(json));
@@ -458,7 +476,7 @@ fs.writeFileSync(out, JSON.stringify(json));
     const daily = {};
     let lastDay = null;
     for (const r of readTable(path.join(qdir, usageFile), ['company_id', 'usage_date', 'credits_used'])) {
-      if (/@mutinyhq\.com$/i.test((r.email || '').trim())) continue; // internal users' usage doesn't count (Nick, Oct 7)
+      if (isInternalEmail(r.email)) continue; // internal / test users' usage doesn't count (Nick, Oct 7; Momentic Oct 20)
       const d = day(r.usage_date);
       if (d && (!lastDay || d > lastDay)) lastDay = d;
       if (!allowance[r.company_id] || !d) continue;

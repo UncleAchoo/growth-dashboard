@@ -26,7 +26,7 @@ import {
   ResponsiveContainer, ComposedChart, BarChart, LineChart, Bar, Line, Cell, LabelList,
   XAxis, YAxis, CartesianGrid, Tooltip, ReferenceArea,
 } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, MousePointerClick, Info, Clock, ChevronDown } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, MousePointerClick, Info, Clock, ChevronDown, Calendar } from 'lucide-react';
 import dataJson from './src/data.json';
 import betaSignups from './src/beta-signups.json';
 import betaPaying from './src/beta-paying.json';
@@ -109,26 +109,55 @@ const DATA_START = betaSignups.firstDate;
 const DATA_END = betaSignups.lastDate;
 const inRange = (d, a, b) => d >= a && d <= b;
 
-// Reporting periods (Nick, Oct 7). Four pills:
-//   1w  — Last week: last complete Mon–Sun week vs the week before (weekly review).
-//   4w  — Last 4 weeks (default): last 4 complete weeks vs the 4 before (trend).
-//   qtd — Quarter to date (FISCAL quarter, see FISCAL_START_MONTH): first day of the quarter → latest data day, vs the
-//         same number of days at the start of last quarter. Charts show last
-//         quarter + this one, so the two can be compared.
-//   ytd — Fiscal year to date: Feb 1 → latest data day. No prior-year data exists
-//         (signups count from Feb 16, Stripe from Mar 26), so no comparison
-//         deltas (noPrior). Charts show every week since Jan 1.
-// 1w/4w use COMPLETE weeks only; the week in progress is shown separately as
-// "week to date" (WTD). QTD/YTD run to the latest day, so they include it.
-// The Companies line compares with a fixed earlier date per period (see
-// the start of the period). Daily series are built for the longest chart.
-const MODES = {
-  '1w': { label: 'Last week', short: '1w', long: 'last week', prior: 'prior week', tag: 'LW', weeks: 1 },
-  '4w': { label: 'Last 4 weeks', short: '4w', long: 'last 4 weeks', prior: 'prior 4 weeks', tag: 'L4W', weeks: 4 },
-  qtd: { label: 'Quarter to date', short: 'QTD', long: 'fiscal quarter to date', prior: 'same days last quarter', tag: 'QTD' },
-  ytd: { label: 'Year to date', short: 'YTD', long: 'fiscal year to date', prior: 'no prior year', tag: 'YTD', noPrior: true },
+// Reporting period (Nick, Oct 20 — Amplitude-style): two dropdowns.
+//   Date range  RANGES below. Each has a headline window START…END and a prior
+//               window (same length, just before) for deltas.
+//                 7d   last 7 days ending on the latest data day
+//                 4w/8w last 4 / 8 COMPLETE Mon–Sun weeks; charts also show the
+//                      week in progress (striped/dotted), which is in the
+//                      funnel's "week to date" line, not the totals
+//                 tm/lm this month to date / last calendar month
+//                 tq/lq this fiscal quarter to date / last fiscal quarter
+//                 ytd  fiscal year to date (no prior year → no deltas)
+//   Granularity Daily / Weekly / Monthly: the buckets every time-series chart
+//               plots (M.WEEKS — the name stayed, the grain is GRAINS[grain]).
+// Charts span exactly the selected range; a chart whose data starts later
+// starts at its first day with data (Card `from`), and the range it covers is
+// printed under its title.
+const RANGES = {
+  '7d': { label: 'Last 7 Days', long: 'last 7 days', prior: 'prior 7 days', days: 7 },
+  '30d': { label: 'Last 30 Days', long: 'last 30 days', prior: 'prior 30 days', days: 30 },
+  '60d': { label: 'Last 60 Days', long: 'last 60 days', prior: 'prior 60 days', days: 60 },
+  '90d': { label: 'Last 90 Days', long: 'last 90 days', prior: 'prior 90 days', days: 90 },
+  '4w': { label: 'Last 4 Weeks', long: 'last 4 weeks', prior: 'prior 4 weeks', weeks: 4 },
+  '8w': { label: 'Last 8 Weeks', long: 'last 8 weeks', prior: 'prior 8 weeks', weeks: 8 },
+  '12w': { label: 'Last 12 Weeks', long: 'last 12 weeks', prior: 'prior 12 weeks', weeks: 12 },
+  '24w': { label: 'Last 24 Weeks', long: 'last 24 weeks', prior: 'prior 24 weeks', weeks: 24 },
+  '3m': { label: 'Last 3 Months', long: 'last 3 months', prior: 'same days 3 months earlier', months: 3 },
+  '6m': { label: 'Last 6 Months', long: 'last 6 months', prior: 'same days 6 months earlier', months: 6 },
+  '12m': { label: 'Last 12 Months', long: 'last 12 months', prior: 'same days 12 months earlier', months: 12 },
+  tw: { label: 'This Week', long: 'week to date', prior: 'same days last week' },
+  tm: { label: 'This Month', long: 'month to date', prior: 'same days last month' },
+  tq: { label: 'This Quarter', long: 'fiscal quarter to date', prior: 'same days last quarter' },
+  ytd: { label: 'This Year', long: 'fiscal year to date', prior: 'no prior year', noPrior: true },
 };
-const DEFAULT_MODE = '4w';
+// Amplitude's date-range presets per granularity (Nick, Oct 20). "Default"
+// = GRAIN_DEFAULT. Switching granularity keeps the range when the new list
+// has it, otherwise falls back to that granularity's default.
+const GRAIN_PRESETS = {
+  day: ['7d', '30d', '60d', '90d', 'tw', 'tm', 'tq', 'ytd'],
+  week: ['4w', '8w', '12w', '24w', 'tm', 'tq', 'ytd'],
+  month: ['3m', '6m', '12m', 'tq', 'ytd'],
+};
+const GRAIN_DEFAULT = { day: '30d', week: '12w', month: '6m' };
+const presetFor = (range, grain) => (GRAIN_PRESETS[grain].includes(range) ? range : GRAIN_DEFAULT[grain]);
+const GRAINS = {
+  day: { label: 'Daily', noun: 'day', adj: 'daily', each: 'day' },
+  week: { label: 'Weekly', noun: 'week', adj: 'weekly', each: 'Mon–Sun week' },
+  month: { label: 'Monthly', noun: 'month', adj: 'monthly', each: 'calendar month' },
+};
+const DEFAULT_RANGE = '12w';
+const DEFAULT_GRAIN = 'week';
 // Mutiny runs an off-calendar fiscal year (Nick, Oct 7): Q3 ends Oct 31, so
 // quarters are Feb–Apr (Q1), May–Jul (Q2), Aug–Oct (Q3), Nov–Jan (Q4) and the
 // fiscal year starts Feb 1. QTD / YTD use these.
@@ -146,77 +175,107 @@ const quarterStart = (iso) => {
 const addMonthsISO = (iso, n) => toISO(new Date(Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1 + n, +iso.slice(8, 10))));
 // Longest chart = YTD (weeks since the Monday of Jan 1's week).
 const CHART_WEEKS = Math.max(26, Math.ceil((daysBetweenISO(mondayOf(addMonthsISO(quarterStart(DATA_END), -3)), mondayOf(DATA_END)) + 7) / 7), Math.ceil((daysBetweenISO(mondayOf(fiscalYearStart(DATA_END)), mondayOf(DATA_END)) + 7) / 7));
-// Chart frame (Nick, Oct 7): weekly charts never show less than the current
-// fiscal quarter. Last week / Last 4 weeks / QTD all chart the quarter's weeks;
-// only Fiscal YTD goes further back. Two safeguards: at least MIN_CHART_WEEKS
-// weeks (early in a quarter the frame reaches into the previous one), and
-// the frame always covers the selected period. Last week / Last 4 weeks start
-// on the quarter's first FULL week; QTD / YTD start on the Monday of the
-// period's first week. Only full weeks are charted (see the WEEKS loop).
-const MIN_CHART_WEEKS = 6;
-function makeWindow(mode) {
-  const cfg = MODES[mode];
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const monthEndOf = (iso) => addDays(addMonthsISO(`${iso.slice(0, 7)}-01`, 1), -1);
+// Buckets for one grain over [from, to] (inclusive, to ≤ DATA_END). Each has
+// start/end (clipped to the frame), `last` (= end), label (x-axis), title
+// (tooltips), range, partial (the day/week/month is still in progress — its
+// nominal end is after DATA_END) and clipped (cut by the frame).
+function makeBuckets(grain, from, to) {
+  const out = [];
+  if (grain === 'day') {
+    for (let d = from; d <= to; d = addDays(d, 1)) {
+      out.push({ grain, start: d, end: d, last: d, label: monDay(d), partial: false, clipped: false, range: monDay(d), title: `${DOW[toDate(d).getUTCDay()]}, ${monDay(d)}, ${d.slice(0, 4)}` });
+    }
+    return out;
+  }
+  if (grain === 'month') {
+    for (let m = `${from.slice(0, 7)}-01`; m <= to; m = addMonthsISO(m, 1)) {
+      const nominal = monthEndOf(m);
+      const start = m < from ? from : m;
+      const end = nominal > to ? to : nominal;
+      const partial = nominal > DATA_END;
+      const clipped = start !== m || (end !== nominal && !partial);
+      const name = `${MONTH_NAMES[+m.slice(5, 7) - 1]} ${m.slice(0, 4)}`;
+      out.push({ grain, monthly: true, start, end, last: end, label: MON[+m.slice(5, 7) - 1], partial, clipped, range: rangeLabel(start, end), title: `${name}${partial ? ` (to ${monDay(end)}, in progress)` : clipped ? ` (${rangeLabel(start, end)} only)` : ''}` });
+    }
+    return out;
+  }
+  for (let w = mondayOf(from); w <= to; w = addDays(w, 7)) {
+    const nominal = addDays(w, 6);
+    const start = w < from ? from : w;
+    const end = nominal > to ? to : nominal;
+    const partial = nominal > DATA_END;
+    const clipped = start !== w || (end !== nominal && !partial);
+    out.push({ grain, start, end, last: end, label: monDay(start), partial, clipped, range: rangeLabel(start, end), title: `Week of ${rangeLabel(start, end)}${partial ? ' (in progress)' : clipped ? ' (part week)' : ''}` });
+  }
+  return out;
+}
+function makeWindow(range, grain) {
+  const cfg = RANGES[range];
   const mon = mondayOf(DATA_END);
   const qs = quarterStart(DATA_END);
-  const qFirstFull = mondayOf(qs) === qs ? qs : addDays(mondayOf(qs), 7);
-  const floor = addDays(mon, -7 * (MIN_CHART_WEEKS - 1));
-  const minISO = (...xs) => xs.sort()[0];
-  let END;
+  const ms = `${DATA_END.slice(0, 7)}-01`;
+  let END = DATA_END;
   let START;
   let PRIOR_START;
   let PRIOR_END;
-  let chartStart;
-  if (mode === 'qtd') {
-    END = DATA_END;
-    START = qs;
-    PRIOR_START = addMonthsISO(START, -3);
-    const span = daysBetweenISO(START, END);
-    PRIOR_END = addDays(PRIOR_START, span) < START ? addDays(PRIOR_START, span) : addDays(START, -1);
-    chartStart = floor < qs ? floor : qs;
-  } else if (mode === 'ytd') {
-    END = DATA_END;
-    START = fiscalYearStart(DATA_END);
-    PRIOR_END = addDays(START, -1); // no data there; deltas are hidden (noPrior)
-    PRIOR_START = addDays(START, -(daysBetweenISO(START, END) + 1));
-    chartStart = minISO(START, floor);
-  } else {
+  let label = cfg.label;
+  // To-date ranges compare with the same number of days at the start of the
+  // previous month / quarter.
+  const sameDaysBefore = (start, months) => {
+    const ps = addMonthsISO(start, -months);
+    const pe = addDays(ps, daysBetweenISO(start, END));
+    return [ps, pe < start ? pe : addDays(start, -1)];
+  };
+  if (cfg.days) { // last N days, ending on the latest data day
+    START = addDays(END, -(cfg.days - 1));
+    PRIOR_END = addDays(START, -1);
+    PRIOR_START = addDays(START, -cfg.days);
+  } else if (cfg.months) { // last N calendar months, this one to date
+    START = addMonthsISO(ms, -(cfg.months - 1));
+    [PRIOR_START, PRIOR_END] = sameDaysBefore(START, cfg.months);
+  } else if (range === 'tw') {
+    START = mon;
+    PRIOR_START = addDays(mon, -7);
+    PRIOR_END = addDays(PRIOR_START, daysBetweenISO(START, END));
+  } else if (cfg.weeks) {
     END = addDays(mon, 6) === DATA_END ? DATA_END : addDays(mon, -1); // last complete Sunday
     START = addDays(END, -(7 * cfg.weeks - 1));
     PRIOR_END = addDays(START, -1);
     PRIOR_START = addDays(START, -7 * cfg.weeks);
-    // Last 4 weeks charts exactly those 4 full weeks + the week in progress
-    // (Nick, Oct 8). Last week keeps the quarter frame.
-    chartStart = mode === '4w' ? START : minISO(qFirstFull, floor, START);
+  } else if (range === 'tm') {
+    START = ms;
+    [PRIOR_START, PRIOR_END] = sameDaysBefore(START, 1);
+    label = `This Month (${MON[+ms.slice(5, 7) - 1]})`;
+  } else if (range === 'tq') {
+    START = qs;
+    [PRIOR_START, PRIOR_END] = sameDaysBefore(START, 3);
+    label = `This Quarter (Q${fiscalQuarter(DATA_END)})`;
+  } else { // ytd
+    START = fiscalYearStart(DATA_END);
+    PRIOR_END = addDays(START, -1); // no data there; deltas are hidden (noPrior)
+    PRIOR_START = addDays(START, -(daysBetweenISO(START, END) + 1));
+    label = 'This Year (fiscal)';
   }
-  if (chartStart < DATA_START) chartStart = DATA_START;
-  const WTD = END < DATA_END ? { start: addDays(END, 1), end: DATA_END } : null;
-  const FULL_WEEKS = [];
-  // Nick (Oct 8): weekly charts only show FULL Mon–Sun weeks — the first week
-  // isn't clipped to the period's first day, and the week in progress is left
-  // off (it's in the funnel's "week to date" line instead). So in QTD / YTD the
-  // bars won't add up exactly to the headline. partial/clipped stay false.
-  for (let w = mondayOf(chartStart); addDays(w, 6) <= DATA_END; w = addDays(w, 7)) {
-    const sun = addDays(w, 6);
-    const start = w < DATA_START ? DATA_START : w;
-    FULL_WEEKS.push({ start, end: sun, label: monDay(start), partial: sun > DATA_END, clipped: start !== w, range: rangeLabel(start, sun > DATA_END ? DATA_END : sun) });
-  }
-  // Same weeks + the week in progress (flagged partial, drawn striped). Used by
-  // the two channel charts, which show the current week (Nick, Oct 8).
-  const curMon = mondayOf(DATA_END);
-  const WEEKS_CUR = addDays(curMon, 6) > DATA_END
-    ? [...FULL_WEEKS, { start: curMon, end: addDays(curMon, 6), label: monDay(curMon), partial: true, clipped: false, range: rangeLabel(curMon, DATA_END) }]
-    : FULL_WEEKS;
-  // Every weekly chart in Last 4 weeks includes the week in progress.
-  const WEEKS = mode === '4w' ? WEEKS_CUR : FULL_WEEKS;
+  const eff = cfg;
+  // No comparison when the prior window starts before sign up counts do
+  // (Feb 16): a partly empty prior period would make every delta look huge.
+  const effOut = !eff.noPrior && PRIOR_START < SIGNUP_COUNT_START ? { ...eff, noPrior: true, prior: 'no full prior period' } : eff;
+  // Chart frame = the range; complete-week ranges also chart the week in progress.
+  const FRAME_START = START < DATA_START ? DATA_START : START;
+  const FRAME_END = cfg.weeks ? DATA_END : END;
+  const WTD = cfg.weeks && END < DATA_END ? { start: addDays(END, 1), end: DATA_END } : null;
+  const WEEKS = makeBuckets(grain, FRAME_START, FRAME_END);
   const SHOWS_CUR = WEEKS.some((w) => w.partial);
-  // Pill / header label names the fiscal quarter, e.g. "Q3 to date".
-  const label = mode === 'qtd' ? `Q${fiscalQuarter(DATA_END)} to date` : mode === 'ytd' ? 'Fiscal YTD' : cfg.label;
-  return { mode, ...cfg, label, END, START, PRIOR_START, PRIOR_END, WTD, WEEKS, WEEKS_CUR, SHOWS_CUR };
+  const G = GRAINS[grain];
+  return { range, mode: range, grain, ...effOut, label, grainLabel: G.label, grainNoun: G.noun, grainAdj: G.adj, grainEach: G.each, END, START, PRIOR_START, PRIOR_END, FRAME_START, FRAME_END, WTD, WEEKS, WEEKS_CUR: WEEKS, SHOWS_CUR };
 }
 
 // Footnote wording for the week in progress, which only Last 4 weeks charts.
-const barWeekNote = (M) => (M.SHOWS_CUR ? 'Faintly striped bar = week in progress.' : 'Full weeks only; the week in progress is left off.');
-const lineWeekNote = (M) => (M.SHOWS_CUR ? 'Last point is the week in progress.' : 'Last point is the last full week.');
+const barWeekNote = (M) => (M.SHOWS_CUR ? `Faintly striped bar = ${M.grainNoun} in progress.` : `One bar per ${M.grainNoun}.`);
+const lineWeekNote = (M) => (M.SHOWS_CUR ? `Last point is the ${M.grainNoun} in progress.` : `One point per ${M.grainNoun}.`);
 
 
 // --- GA4 measurement periods → adjusted visitor → sign up (Nick, Oct 14) ------
@@ -272,7 +331,12 @@ const hiReachOf = (hi, engaged) => (hi == null ? null : pct(hi, engaged));
 // kept in SIGNUPS: anything they do later (setup, meetings, sends, activation)
 // still counts — only the signup metric itself ignores them.
 const SIGNUP_COUNT_START = '2026-02-16';
-const signupsIn = (a, b) => SIGNUPS.filter((s) => s.d >= SIGNUP_COUNT_START && inRange(s.d, a, b));
+// Date-sorted index → O(log n) range lookups (Oct 20: daily buckets over a
+// whole fiscal year call these hundreds of times).
+const lowerBound = (arr, key, x) => { let lo = 0, hi = arr.length; while (lo < hi) { const m = (lo + hi) >> 1; if (key(arr[m]) < x) lo = m + 1; else hi = m; } return lo; };
+const sliceByDate = (arr, key, a, b) => arr.slice(lowerBound(arr, key, a), lowerBound(arr, key, addDays(b, 1)));
+const COUNTED_SORTED = SIGNUPS.filter((s) => s.d >= SIGNUP_COUNT_START).sort((x, y) => (x.d < y.d ? -1 : x.d > y.d ? 1 : 0));
+const signupsIn = (a, b) => sliceByDate(COUNTED_SORTED, (s) => s.d, a, b);
 const neverCompletedIn = (a, b) => NEVER_COMPLETED.filter((s) => s.d >= SIGNUP_COUNT_START && inRange(s.d, a, b));
 // Company creators: the signup created a new company — not joining an existing
 // one (jx: accepted invite or teammate's company) and not left without a
@@ -415,7 +479,7 @@ const GA4_AU = (() => {
 // Active Users chart even when the signups export stops at the prior Sunday.
 const CURRENT_DAY = [DATA_END, GA4_AU.end].filter(Boolean).sort().pop();
 function withCurrentWeek(rows) {
-  if (!rows.length) return rows;
+  if (!rows.length || rows[0].grain !== 'week') return rows;
   const out = [...rows];
   for (let w = addDays(mondayOf(out[out.length - 1].start), 7); w <= mondayOf(CURRENT_DAY); w = addDays(w, 7)) {
     const sun = addDays(w, 6);
@@ -424,7 +488,7 @@ function withCurrentWeek(rows) {
   return out;
 }
 // Dashboard period → Apps Script preset (exact range, deduplicated by GA4).
-const AU_PRESET_FOR_MODE = { '1w': 'lastWeek', '4w': 'last4Weeks', qtd: 'quarterToDate', ytd: 'fiscalYTD' };
+const AU_PRESET_FOR_MODE = { '4w': 'last4Weeks', tq: 'quarterToDate', ytd: 'fiscalYTD' };
 
 // --- Roles (CSV self_selected_role, as-is) ----------------------------------
 const ROLES = [
@@ -445,7 +509,13 @@ const STEPS = [
   { key: 'cal', label: 'Calendar connected', color: C.red },
   { key: 'em', label: 'Email connected', color: '#3FB6D3' },
 ];
-const isSetUp = (s) => Boolean(s.rec && s.cal && s.em);
+// Completed onboarding requirements: recorder + Gmail + Google Calendar.
+// (Oct 20 Nick tried dropping the recorder — false — then reverted; flip to
+// false to require only Gmail + Calendar.)
+const ONB_REQUIRES_RECORDER = true;
+const ONB_KEYS = ONB_REQUIRES_RECORDER ? ['rec', 'cal', 'em'] : ['cal', 'em'];
+const ONB_DEF_TEXT = ONB_REQUIRES_RECORDER ? 'installed the call recorder, and connected email (Gmail) and Google Calendar' : 'connected email (Gmail) and Google Calendar';
+const isSetUp = (s) => ONB_KEYS.every((k) => s[k]);
 function setupStats(list) {
   const out = { n: list.length, all: list.filter(isSetUp).length };
   for (const st of STEPS) out[st.key] = list.filter((s) => s[st.key]).length;
@@ -464,7 +534,7 @@ function setupStats(list) {
 //                    meeting recorded before setup finished also counts).
 //   First send (A2): first meeting → first email/asset sent (any time so far).
 const daysBetween = (a, b) => (toDate(b) - toDate(a)) / 86400000;
-const setupDate = (s) => (isSetUp(s) ? [s.rec, s.cal, s.em].sort()[2] : null);
+const setupDate = (s) => (isSetUp(s) ? ONB_KEYS.map((k) => s[k]).sort()[ONB_KEYS.length - 1] : null);
 const ACTIVATION = [
   { key: 'mt', enteredOn: setupDate, converted: (s) => Boolean(s.mt && daysBetween(setupDate(s), s.mt) <= 7) },
   { key: 'snd', enteredOn: (s) => s.mt, converted: (s) => Boolean(s.snd) },
@@ -482,7 +552,8 @@ function activationStats(step, a, b) {
 // came first (see ingest rules). Per signup (user + company), never deduped.
 // Users who signed up before Feb 16 still count when they activate.
 const actDate = (s) => (s.snd && s.pub ? (s.snd < s.pub ? s.snd : s.pub) : s.snd || s.pub || null);
-const activatedIn = (a, b) => SIGNUPS.filter((s) => { const d = actDate(s); return d && inRange(d, a, b); });
+const ACT_SORTED = SIGNUPS.filter(actDate).sort((x, y) => (actDate(x) < actDate(y) ? -1 : actDate(x) > actDate(y) ? 1 : 0));
+const activatedIn = (a, b) => sliceByDate(ACT_SORTED, actDate, a, b);
 const FIRST_ACT_TRACKED = SIGNUPS.reduce((m, s) => { const d = actDate(s); return d && (!m || d < m) ? d : m; }, null);
 
 // --- Returned (after activation) -------------------------------------------------------
@@ -499,11 +570,12 @@ const RET_LAST_MATURE = addDays(DATA_END, -RETURN_DAYS);
 const RET_MODAL = { noun: 'returned user', dateLabel: 'Returned', dateOf: (s) => s.ret, viaOf: returnedVia };
 
 // --- Completed onboarding (Lever 1) ------------------------------------------------
-// Completed onboarding = installed the call recorder AND connected email (Gmail)
-// AND connected Google Calendar; dated by the last of the three (setupDate).
+// Completed onboarding = every ONB_KEYS step (recorder + Gmail + Google
+// Calendar, see ONB_REQUIRES_RECORDER); dated by the last one (setupDate).
 // Like activation, users who signed up before Feb 16 count when they complete.
 const onbDate = (s) => setupDate(s);
-const onboardedIn = (a, b) => SIGNUPS.filter((s) => { const d = onbDate(s); return d && inRange(d, a, b); });
+const ONB_SORTED = SIGNUPS.filter(onbDate).sort((x, y) => (onbDate(x) < onbDate(y) ? -1 : onbDate(x) > onbDate(y) ? 1 : 0));
+const onboardedIn = (a, b) => sliceByDate(ONB_SORTED, onbDate, a, b);
 const FIRST_ONB_TRACKED = SIGNUPS.reduce((m, s) => { const d = onbDate(s); return d && (!m || d < m) ? d : m; }, null);
 // Onboarding can only happen once the recorder exists: first tracked install.
 const FIRST_REC_TRACKED = SIGNUPS.reduce((m, s) => (s.rec && (!m || s.rec < m) ? s.rec : m), null);
@@ -572,10 +644,12 @@ const FIRST_MT_TRACKED = betaSignups.meetingsFrom || '2026-09-03';
 // drafts count as sends). The email export starts Sep 4, 2026.
 const FIRST_SND_TRACKED = betaSignups.emailsFrom || '2026-09-04';
 const FIRST_EM_TRACKED = firstOf('em');
+// First day onboarding can be measured: the latest of its steps' first days.
+const ONB_TRACK_FROM = ONB_REQUIRES_RECORDER ? FIRST_REC_TRACKED : [FIRST_CAL_TRACKED, FIRST_EM_TRACKED].filter(Boolean).sort().pop();
 // CONV[window][key] — precomputed for every window option.
 const CONV = Object.fromEntries(CONV_WINDOWS.map((w) => [w, {
   ACT: makeDailyConv(actDate, null, w),
-  ONB: makeDailyConv(onbDate, FIRST_REC_TRACKED, w),
+  ONB: makeDailyConv(onbDate, ONB_TRACK_FROM, w),
   REC: makeDailyConv((s) => s.rec, FIRST_REC_TRACKED, w),
   EM: makeDailyConv((s) => s.em, FIRST_EM_TRACKED, w),
   CAL: makeDailyConv((s) => s.cal, FIRST_CAL_TRACKED, w),
@@ -695,24 +769,16 @@ function selfReportedIn(start, end) {
 }
 
 // --- Window-dependent model (rebuilt per reporting window) ------------------
-function buildModel(mode) {
-  const W = makeWindow(mode);
+function buildModel(range, grain) {
+  const W = makeWindow(range, grain);
+  const mode = range;
   const { END, START, PRIOR_START, PRIOR_END, WEEKS, WEEKS_CUR } = W;
 
-  // Rule of thumb (Nick, Oct 13): in Fiscal YTD every COLUMN chart is monthly
-  // (~37 weekly bars are unreadable); line charts stay weekly. MONTHS = calendar
-  // months from the period start to the latest data day; the month in progress
-  // is `partial` (drawn striped). `last` = the month's last day with data.
-  const MONTHLY_COLS = mode === 'ytd';
-  const MONTHS = [];
-  for (let m = START.slice(0, 7); m <= DATA_END.slice(0, 7); m = addMonthsISO(`${m}-01`, 1).slice(0, 7)) {
-    const first = `${m}-01` < START ? START : `${m}-01`;
-    const monthEnd = addDays(addMonthsISO(`${m}-01`, 1), -1);
-    const partial = monthEnd > DATA_END;
-    const last = partial ? DATA_END : monthEnd;
-    const name = `${MON[+m.slice(5, 7) - 1]} ${m.slice(0, 4)}`;
-    MONTHS.push({ start: first, end: monthEnd, last, label: MON[+m.slice(5, 7) - 1], monthly: true, partial, clipped: false, range: rangeLabel(first, last), title: `${name}${partial ? ` (to ${monDay(DATA_END)}, in progress)` : ''}` });
-  }
+  // Oct 20: the granularity dropdown replaces the old "Fiscal YTD = monthly
+  // columns" rule — every chart uses W.WEEKS (buckets of the chosen grain), so
+  // the monthly variants below are the same buckets and MONTHLY_COLS is off.
+  const MONTHLY_COLS = false;
+  const MONTHS = WEEKS;
 
   // --- Derived series -----------------------------------------------------------
   const WINDOW = (() => {
@@ -940,8 +1006,8 @@ function buildModel(mode) {
     // weeks, and every weekly view ends with GA4's current week (in progress,
     // through GA4_AU.end) even when the signups export stops at the Sunday before.
     // Only this chart — the sessions-by-source chart keeps its own frame.
-    const frame = [...(mode === '1w' ? makeWindow('4w').WEEKS_CUR : WEEKS_CUR)];
-    if (GA4_AU.end && frame.length) {
+    const frame = [...WEEKS_CUR];
+    if (grain === 'week' && GA4_AU.end && frame.length) {
       for (let w = addDays(frame[frame.length - 1].start, 7); w <= mondayOf(GA4_AU.end); w = addDays(w, 7)) {
         frame.push({ start: w, end: addDays(w, 6), label: monDay(w), partial: true, clipped: false, range: rangeLabel(w, addDays(w, 6) > GA4_AU.end ? GA4_AU.end : addDays(w, 6)) });
       }
@@ -967,7 +1033,7 @@ function buildModel(mode) {
   // for the hidden GA4 cards. Everything stops at DATA_END like the signups, so
   // numerator and denominator always cover the same days.
   //   visitors           Framer unique visitors
-  //   conv               completed sign ups ÷ visitors (no consent adjustment needed)
+  //   conv               sign ups ÷ visitors (no consent adjustment needed)
   //   hiReach            high-intent visitors ÷ visitors
   //   hiConv             company-creator sign ups ÷ high-intent visitors
   // Sign up rates start at max(period start, Framer start, SIGNUP_COUNT_START):
@@ -1007,7 +1073,7 @@ function buildModel(mode) {
     const winEnd = END > lastDay ? lastDay : END;
     const channels = sumByChannel(FRAMER_CH, winStart, winEnd);
     const rateStart = maxISO(START, FRAMER_START, SIGNUP_COUNT_START);
-    const prevOk = !MODES[mode].noPrior && PRIOR_START >= FRAMER_START && PRIOR_START >= SIGNUP_COUNT_START;
+    const prevOk = !W.noPrior && PRIOR_START >= FRAMER_START && PRIOR_START >= SIGNUP_COUNT_START;
     const rates = (a, b) => {
       const v = sumFramer(a, b), h = sumFramerHi(a, b), list = signupsIn(a, b);
       const cr = list.filter(isCreator).length;
@@ -1024,11 +1090,12 @@ function buildModel(mode) {
       visitors: reachNow.v,
       visitorsPrev: framerIn(PRIOR_START, PRIOR_END),
       channels,
-      // visitor → completed sign up
+      // visitor → sign up
       conv: cur.conv, convPrev: prv?.conv ?? null, convSignups: cur.n, convVisitors: cur.v,
       // high-intent reach (from the Framer start, no signup dependence)
       highIntent: reachNow.h, hiReach: reachNow.hiReach, hiReachPrev: prv?.hiReach ?? null,
-      // high-intent → completed sign up (company creators)
+      highIntentPrev: !W.noPrior && PRIOR_START >= FRAMER_START ? sumFramerHi(PRIOR_START, PRIOR_END) : null,
+      // high-intent → sign up (company creators)
       hiConv: cur.hiConv, hiConvPrev: prv?.hiConv ?? null, hiCreators: cur.cr, hiVisitorsForConv: cur.h,
     };
   })();
@@ -1056,8 +1123,14 @@ function buildModel(mode) {
 
   return { ...W, MONTHLY_COLS, MONTHS, WINDOW, WEEKLY, ACT, MEETING_ANY_30D, ACTIVATED, ONBOARDED, RETURNED, CHANNEL_WEEKLY, CHANNEL_MONTHLY, CH30, AU,WTD_STATS, SELF_REPORTED, SELF_REPORTED_PREV, SELF_REPORTED_WEEKLY, SELF_REPORTED_MONTHLY, VISITOR_LINE, FRAMER };
 }
-const MODELS = Object.fromEntries(Object.keys(MODES).map((m) => [m, buildModel(m)]));
-const ModelCtx = React.createContext(MODELS[DEFAULT_MODE]);
+// Built on demand (24 range × grain combos) and cached.
+const MODEL_CACHE = new Map();
+const getModel = (range, grain) => {
+  const k = `${range}|${grain}`;
+  if (!MODEL_CACHE.has(k)) MODEL_CACHE.set(k, buildModel(range, grain));
+  return MODEL_CACHE.get(k);
+};
+const ModelCtx = React.createContext(getModel(DEFAULT_RANGE, DEFAULT_GRAIN));
 const useModel = () => React.useContext(ModelCtx);
 
 // --- Activated-users modal ------------------------------------------------------
@@ -1090,7 +1163,14 @@ function UsersModal({ data, onClose }) {
   const showDate = data.showDate !== false;
   const viaLabel = data.viaLabel || 'Via';
   const viaOf = data.viaOf || activatedVia;
-  const rows = [...data.users].sort((a, b) => (dateOf(a) < dateOf(b) ? -1 : dateOf(a) > dateOf(b) ? 1 : 0));
+  // Optional fadedOf(u) (activation funnel, Oct 20): users who haven't done the
+  // next step yet draw faded and sort after those who have.
+  const fadedOf = data.fadedOf || null;
+  const sortKey = (u) => dateOf(u) || u.d || '';
+  const rows = [...data.users].sort((a, b) => {
+    if (fadedOf) { const fa = fadedOf(a) ? 1 : 0; const fb = fadedOf(b) ? 1 : 0; if (fa !== fb) return fa - fb; }
+    return sortKey(a) < sortKey(b) ? -1 : sortKey(a) > sortKey(b) ? 1 : 0;
+  });
   const th = { ...eyebrow, fontSize: 10, textAlign: 'left', padding: '8px 12px', borderBottom: `1px solid ${C.black}`, background: C.paper, position: 'sticky', top: 0 };
   const td = { fontFamily: FONT_BODY, fontSize: 13, padding: '8px 12px', borderBottom: `1px solid ${C.lightGrey}`, whiteSpace: 'nowrap' };
   return (
@@ -1100,6 +1180,7 @@ function UsersModal({ data, onClose }) {
           <div>
             <div style={{ fontFamily: FONT_BODY, fontSize: 16, fontWeight: 700 }}>{data.title}</div>
             <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.muted, marginTop: 3 }}>{rows.length.toLocaleString()} {rows.length === 1 ? noun : nounPlural}{data.subtitle ? ` · ${data.subtitle}` : ''}</div>
+            {data.note && <div style={{ fontFamily: FONT_BODY, fontSize: 12.5, color: C.black, marginTop: 6 }}>{data.note}</div>}
             {/* The card's headline breakdown (Nick, Oct 8): moved off the card into Details. */}
             {data.summary && (
               <div style={{ marginTop: 14, display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: '4px 14px' }}>
@@ -1117,22 +1198,30 @@ function UsersModal({ data, onClose }) {
               <thead>
                 <tr>
                   <th style={th}>User (admin profile)</th>
-                  <th style={th}>Signed up</th>
-                  {showDate && <th style={th}>{dateLabel}</th>}
-                  {showVia && <th style={th}>{viaLabel}</th>}
+                  {data.stageCols ? data.stageCols.map((c) => <th key={c.label} style={th}>{c.label}</th>) : (
+                    <>
+                      <th style={th}>Signed up</th>
+                      {showDate && <th style={th}>{dateLabel}</th>}
+                      {showVia && <th style={th}>{viaLabel}</th>}
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody>
                 {rows.map((u, i) => (
-                  <tr key={`${u.uid}-${u.co}-${i}`}>
+                  <tr key={`${u.uid}-${u.co}-${i}`} style={fadedOf && fadedOf(u) ? { opacity: 0.38 } : undefined}>
                     <td style={td}>
                       {u.uid ? (
                         <a href={`${ADMIN_USER_URL}${u.uid}`} target="_blank" rel="noopener noreferrer" title={`${ADMIN_USER_URL}${u.uid}`} style={{ color: C.purple, textDecoration: 'underline', textUnderlineOffset: 2, ...(u.email ? {} : { fontFamily: "'Geist Mono', 'SF Mono', Consolas, monospace", fontSize: 12 }) }}>{u.email || u.uid}</a>
                       ) : <span style={{ color: C.muted }}>unknown</span>}
                     </td>
-                    <td style={{ ...td, ...tabular }}>{monDay(u.d)} {u.d.slice(0, 4)}</td>
-                    {showDate && <td style={{ ...td, ...tabular }}>{monDay(dateOf(u))}</td>}
-                    {showVia && <td style={td}>{viaOf(u)}</td>}
+                    {data.stageCols ? data.stageCols.map((c) => <td key={c.label} style={{ ...td, ...tabular }}>{c.render(u)}</td>) : (
+                      <>
+                        <td style={{ ...td, ...tabular }}>{monDay(u.d)} {u.d.slice(0, 4)}</td>
+                        {showDate && <td style={{ ...td, ...tabular }}>{dateOf(u) ? monDay(dateOf(u)) : '—'}</td>}
+                        {showVia && <td style={td}>{viaOf(u)}</td>}
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -1298,7 +1387,32 @@ function ConvWindowPicker({ value, onChange }) {
   );
 }
 
-function Card({ title, question, notice, footnote, children, accent = C.purple, allTime, convWindow }) {
+// Dates a card covers (Nick, Oct 20), printed under its title: the reporting
+// period, started no earlier than the card's first day of data (`from`) and
+// ended no later than its last (`to`).
+const cardSpan = (M, from, to) => {
+  const a = from && from > M.START ? from : M.START;
+  const b = to && to < M.END ? to : M.END;
+  return { a, b, empty: a > b };
+};
+// Chart rows (M.WEEKS buckets) that reach the card's first day of data.
+// First day of data per source (charts start here when the range starts earlier).
+const maxISO = (...xs) => xs.filter(Boolean).sort().pop();
+const FV_RATE_FROM = maxISO(FRAMER_START, SIGNUP_COUNT_START); // visitor → sign up needs both
+const STRIPE_START = betaPaying.historyStart || null;
+const fromRows = (rows, from) => (from ? rows.filter((r) => (r.end || r.d) >= from) : rows);
+function CardRange({ from, to }) {
+  const M = useModel();
+  const { a, b, empty } = cardSpan(M, from, to);
+  return (
+    <div style={{ ...tabular, fontFamily: FONT_BODY, fontSize: 12.5, color: C.muted, marginTop: 4 }}>
+      {empty
+        ? `No data in this period — data starts ${monDay(from)}, ${from.slice(0, 4)}`
+        : <>{rangeLabel(a, b)}, {b.slice(0, 4)}{a !== M.START && <span title={`${M.label} starts ${monDay(M.START)}; this chart's data only starts ${monDay(a)}, so it begins there.`}> · earliest available data</span>}{M.WTD && !to && <span> · + {rangeLabel(M.WTD.start, M.WTD.end)} in progress</span>}</>}
+    </div>
+  );
+}
+function Card({ title, question, notice, footnote, children, accent = C.purple, allTime, convWindow, from, to, noRange }) {
   // Description is collapsed behind a small info icon (Nick, Oct 8).
   const [showNote, setShowNote] = useState(false);
   const [slot, setSlot] = useState(null);
@@ -1307,7 +1421,7 @@ function Card({ title, question, notice, footnote, children, accent = C.purple, 
     <article style={{
       display: 'flex', flexDirection: 'column', background: C.white, border: `1px solid ${C.black}`,
       borderRadius: 4, padding: '28px 30px 22px', minWidth: 0, position: 'relative',
-      boxShadow: `4px 4px 0 ${accent}`,
+      // No colored drop shadow (Nick, Oct 20: too much).
     }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
       <h3 style={{ fontFamily: FONT_BODY, fontSize: 16, lineHeight: 1.35, fontWeight: 700, margin: 0, minWidth: 0 }}>
@@ -1322,8 +1436,9 @@ function Card({ title, question, notice, footnote, children, accent = C.purple, 
       </h3>
       <div ref={setSlot} style={{ flexShrink: 0, display: 'flex', gap: 8 }} />
       </div>
+      {!allTime && !noRange && <CardRange from={from} to={to} />}
       {notice && (
-        <div style={{ marginTop: 12, borderRadius: 4, border: `1px solid ${C.black}`, background: C.lightGreen, padding: '8px 12px', fontFamily: FONT_BODY, fontSize: 12, lineHeight: 1.55 }}>
+        <div style={{ marginTop: 12, borderRadius: 4, border: `1px solid ${C.black}`, background: C.paper, padding: '8px 12px', fontFamily: FONT_BODY, fontSize: 12, lineHeight: 1.55 }}>
           {notice}
         </div>
       )}
@@ -1525,7 +1640,7 @@ function StageHeader({ n, prefix, title, subtitle, right, definition }) {
       </h2>
       {/* Visible definition next to the title (Nick, Oct 8: Stage 3 states what "activated" means). */}
       {definition && (
-        <span style={{ alignSelf: 'center', display: 'inline-flex', alignItems: 'baseline', gap: 6, border: `1px solid ${C.black}`, borderRadius: 999, background: C.lightGreen, padding: '4px 12px', fontFamily: FONT_BODY, fontSize: 12.5, lineHeight: 1.35 }}>
+        <span style={{ alignSelf: 'center', display: 'inline-flex', alignItems: 'baseline', gap: 6, border: `1px solid ${C.black}`, borderRadius: 999, background: C.white, padding: '4px 12px', fontFamily: FONT_BODY, fontSize: 12.5, lineHeight: 1.35 }}>
           {definition}
         </span>
       )}
@@ -1537,6 +1652,10 @@ function StageHeader({ n, prefix, title, subtitle, right, definition }) {
 // Two columns like the blueprint; one column on narrow screens.
 const PAGE_CSS = `.beta-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 28px;align-items:stretch}
 .beta-grid > .full{grid-column:1 / -1}
+.af-seg{transition:box-shadow 80ms}
+.af-seg:hover{box-shadow:4px 4px 0 ${C.black}!important;z-index:2!important}
+.af-seg:focus-visible{outline:2px solid ${C.black};outline-offset:2px}
+@media (max-width: 760px){.af-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 .beta-grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width: 1100px){.beta-grid.cols-3{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .beta-funnel-line{display:grid;align-items:stretch}
@@ -1615,12 +1734,12 @@ function TooltipBox({ title, rows, note }) {
     </div>
   );
 }
-const weekTitle = (w) => `Week of ${w.range}${w.partial ? ' (in progress)' : w.clipped ? ' (first days of the period)' : ''}`;
+const weekTitle = (w) => w.title || `Week of ${w.range}${w.partial ? ' (in progress)' : ''}`;
 // Column charts switch to months in Fiscal YTD (M.MONTHLY_COLS); these keep
 // titles / modal subtitles / footnotes right for either grain.
-const periodTitle = (p) => (p.monthly ? p.title : weekTitle(p));
-const periodPhrase = (p) => (p.monthly ? `in ${p.title}` : `week of ${p.range}`);
-const colNote = (M) => (M.MONTHLY_COLS ? 'Fiscal YTD shows monthly columns; the faintly striped one is the month in progress.' : barWeekNote(M));
+const periodTitle = (p) => weekTitle(p);
+const periodPhrase = (p) => (p.grain === 'day' ? `on ${p.title}` : p.grain === 'month' || p.monthly ? `in ${p.title}` : `week of ${p.range}`);
+const colNote = (M) => barWeekNote(M);
 const cursor = { fill: 'rgba(167,59,245,0.06)' };
 
 // ===========================================================================
@@ -1628,8 +1747,9 @@ const cursor = { fill: 'rgba(167,59,245,0.06)' };
 // ===========================================================================
 // Sections a click can open. Line 1 opens by transition; line 2 by company stage.
 const VIEWS = {
-  signup: { title: 'Visitor → completed sign up', short: 'Visitor → completed sign up' },
-  activation: { title: 'Completed sign up → activated', short: 'Completed sign up → activated' },
+  visitors: { title: 'Website visitors', short: 'Website visitors' },
+  signup: { title: 'Visitor → sign up', short: 'Visitor → sign up' },
+  activation: { title: 'Sign up → activated', short: 'Sign up → activated' },
   paid: { title: 'Paid companies', short: 'Paid' },
   retained: { title: 'Retained companies', short: 'Retained' },
   expanding: { title: 'Expanding companies', short: 'Expanding' },
@@ -1700,11 +1820,11 @@ function PlgFunnel({ view, setView }) {
           <div className="bf-head"><span style={eyebrow}>Users</span></div>
           <div className="bf-row">
             {/* Framer since Oct 16 (GA4: W.visitors / W.convAdj, kept in the model). */}
-            <FunnelCell label="Website visitors" value={fmtInt(M.FRAMER.visitors)} />
-            <FunnelCell id="signup" view={view} setView={setView} label="Completed sign ups" value={fmtInt(W.signups)}
+            <FunnelCell id="visitors" view={view} setView={setView} label="Website visitors" value={fmtInt(M.FRAMER.visitors)} />
+            <FunnelCell id="signup" view={view} setView={setView} label="Sign ups" value={fmtInt(W.signups)}
               chip={<FunnelChip rate={fmtPct(M.FRAMER.conv, 1)} of="of visitors" delta={<Delta value={ptsDiff(M.FRAMER.conv, M.FRAMER.convPrev)} suffix=" pts" size={12} />} />} />
             <FunnelCell id="activation" view={view} setView={setView} label="Activated" value={fmtInt(W.activated)}
-              chip={<FunnelChip rate={fmtPct(W.actConv, 1)} of="of sign ups" delta={<Delta value={ptsDiff(W.actConv, W.actConvPrev)} suffix=" pts" size={12} />} />} />
+              chip={<FunnelChip rate={fmtPct(W.actConv, 1)} of="of sign ups" delta={<Delta value={M.noPrior ? null : ptsDiff(W.actConv, W.actConvPrev)} suffix=" pts" size={12} />} />} />
           </div>
         </div>
         <div className="bf-group bf-group-co">
@@ -1784,7 +1904,7 @@ function FramerVisitorsCard() {
   const F = M.FRAMER;
   const clipped = F.winStart !== M.START;
   return (
-    <Card
+    <Card from={FRAMER_START}
       accent={C.blue}
       title="Website visitors"
       question="How many people are we getting to the site?"
@@ -1794,9 +1914,9 @@ function FramerVisitorsCard() {
         <Stat label={`Actual · ${framerWinLabel(F)}`} value={fmtInt(F.visitors)} explain={`${fmtInt(F.visitors)} unique visitors (Framer) from ${framerWinLabel(F)}.${F.visitorsPrev != null ? ` ${fmtInt(F.visitorsPrev)} in the ${M.prior}.` : ''}`} />
         <Stat label="Goal" value="—" muted />
       </StatRow>
-      <Legend items={[{ label: 'Unique Visitors (Framer), weekly', color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
+      <Legend items={[{ label: `Unique visitors (Framer), ${M.grainAdj}`, color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
       <ZoomContainer height={190}>
-        <LineChart data={F.line} margin={chartMargin}>
+        <LineChart data={fromRows(F.line, FRAMER_START)} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
           <YAxis {...yAxis} tickFormatter={fmtK} domain={[0, 'auto']} />
@@ -1836,9 +1956,9 @@ function VisitorToSignupCard() {
   return (
     <Card
       accent={C.blue}
-      title="Website visitor → completed sign up"
+      title="Website visitor → sign up"
       question="What share of visitors create an account?"
-      footnote={`Completed sign ups ÷ GA4 sessions for the same week. Every completed sign up counts, including repeats by the same person. ${adjNote} No goal set yet.`}
+      footnote={`Sign ups ÷ GA4 sessions for the same week. Every sign up counts, including repeats by the same person. ${adjNote} No goal set yet.`}
     >
       <StatRow delta={<Delta value={ptsDiff(WINDOW.convAdj, WINDOW.convAdjPrev)} suffix=" pts" />}>
         <Stat label={`Conversion (adjusted) · ${adjRange}`} value={fmtPct(WINDOW.convAdj, 2)} explain={explain} sub={`Raw GA4: ${fmtPct(WINDOW.conv, 2)} (${fmtInt(WINDOW.signups)} signups ÷ ${fmtInt(WINDOW.visitors)} sessions, ${rangeLabel(M.START, M.END)})`} />
@@ -1859,7 +1979,7 @@ function VisitorToSignupCard() {
                 rows={[
                   { label: 'Adjusted', value: w.preBreak ? 'not comparable' : fmtPct(w.convAdj, 2), color: C.black },
                   { label: 'Raw GA4', value: fmtPct(w.conv, 2) },
-                  { label: 'Completed sign ups', value: fmtInt(w.signups) },
+                  { label: 'Sign ups', value: fmtInt(w.signups) },
                   { label: 'Sessions', value: fmtInt(w.visitors) },
                   ...(w.adjScaled ? [{ label: `Adjusted sessions (×${CONSENT_ADJ.factor})`, value: fmtInt(Math.round(w.visitorsAdj)) }] : []),
                 ]}
@@ -2112,7 +2232,7 @@ function HighIntentToSignupCard() {
   return (
     <Card
       accent={C.purple}
-      title="High-intent visitor → completed sign up"
+      title="High-intent visitor → sign up"
       question={(
         <>
           <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>Do high-intent visitors create an account?</span>
@@ -2122,7 +2242,7 @@ function HighIntentToSignupCard() {
           <span style={{ display: 'block', marginTop: 6 }}>High-intent pages: pricing (/pricing), customer stories (/customers/…), case studies (/case-studies/…), and use-case pages (/use-cases/…).</span>
         </>
       )}
-      footnote={`Company-creator signups ÷ GA4 high-intent sessions for the same week (each total summed first, then divided). Company creator = the signup created a new company; accepted invites, people joining a teammate's existing company, and signups that never set up a company are excluded. Repeat signups by the same person still count if each created a company; internal (@mutinyhq.com) signups are left out. Signups aren't linked to the sessions they came from, so this compares two weekly totals rather than following people from a high-intent page to signup, and it can run high. GA4 tracking changed around Jul 20, so compare within, not across, that line. ${lineWeekNote(M)} No goal set yet.`}
+      footnote={`Company-creator signups ÷ GA4 high-intent sessions for the same week (each total summed first, then divided). Company creator = the signup created a new company; accepted invites, people joining a teammate's existing company, and signups that never set up a company are excluded. Repeat signups by the same person still count if each created a company; internal (@mutinyhq.com, @gomomentic.com test account) signups are left out. Signups aren't linked to the sessions they came from, so this compares two weekly totals rather than following people from a high-intent page to signup, and it can run high. GA4 tracking changed around Jul 20, so compare within, not across, that line. ${lineWeekNote(M)} No goal set yet.`}
     >
       <StatRow delta={has ? <Delta value={ptsDiff(WINDOW.hiConv, WINDOW.hiConvPrev)} suffix=" pts" /> : null}>
         <Stat
@@ -2141,10 +2261,10 @@ function HighIntentToSignupCard() {
           <YAxis {...yAxis} domain={[0, 'auto']} tickFormatter={(v) => `${v}%`} />
           <Tooltip content={({ active, payload }) => active && payload?.length ? (
             <TooltipBox title={weekTitle(payload[0].payload)} rows={[
-              { label: 'High-intent → completed sign up', value: fmtPct(payload[0].payload.hiConv, 1), color: C.black },
-              { label: 'Company-creator completed sign ups', value: fmtInt(payload[0].payload.creators) },
+              { label: 'High-intent → sign up', value: fmtPct(payload[0].payload.hiConv, 1), color: C.black },
+              { label: 'Company-creator sign ups', value: fmtInt(payload[0].payload.creators) },
               { label: 'High-intent sessions', value: fmtInt(payload[0].payload.highIntent) },
-              { label: 'All completed sign ups (for reference)', value: fmtInt(payload[0].payload.signups) },
+              { label: 'All sign ups (for reference)', value: fmtInt(payload[0].payload.signups) },
             ]} />
           ) : null} />
           <Line dataKey="hiConv" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.purple, stroke: C.black }} connectNulls={false} isAnimationActive={false} />
@@ -2169,19 +2289,19 @@ function FramerVisitorToSignupCard() {
   const F = M.FRAMER;
   const range = rangeLabel(F.rateStart, F.winEnd);
   return (
-    <Card
+    <Card from={FV_RATE_FROM}
       accent={C.blue}
-      title="Website visitor → completed sign up"
+      title="Website visitor → sign up"
       question="What share of visitors create an account?"
-      footnote={`Completed sign ups ÷ Framer unique visitors for the same days (each total summed first, then divided). Every completed sign up counts, including repeats by the same person; never-completed and internal (@mutinyhq.com) sign ups are left out. ${FRAMER_SRC_NOTE} No cookie-banner adjustment is needed (Framer is cookieless). ${lineWeekNote(M)} No goal set yet.`}
+      footnote={`Sign ups ÷ Framer unique visitors for the same days (each total summed first, then divided). Every sign up counts, including repeats by the same person; never-completed and internal (@mutinyhq.com, @gomomentic.com test account) sign ups are left out. ${FRAMER_SRC_NOTE} No cookie-banner adjustment is needed (Framer is cookieless). ${lineWeekNote(M)} No goal set yet.`}
     >
       <StatRow delta={<Delta value={ptsDiff(F.conv, F.convPrev)} suffix=" pts" />}>
-        <Stat label={`Conversion · ${range}`} value={fmtPct(F.conv, 2)} explain={`From ${range}, ${fmtInt(F.convSignups)} completed sign ups came from ${fmtInt(F.convVisitors)} visitors — about ${fmtPct(F.conv, 1)}.${rateFromNote(M, F)}`} sub={`${fmtInt(F.convSignups)} sign ups ÷ ${fmtInt(F.convVisitors)} visitors`} />
+        <Stat label={`Conversion · ${range}`} value={fmtPct(F.conv, 2)} explain={`From ${range}, ${fmtInt(F.convSignups)} sign ups came from ${fmtInt(F.convVisitors)} visitors — about ${fmtPct(F.conv, 1)}.${rateFromNote(M, F)}`} sub={`${fmtInt(F.convSignups)} sign ups ÷ ${fmtInt(F.convVisitors)} visitors`} />
         <Stat label="Goal" value="—" muted />
       </StatRow>
       <Legend items={[{ label: 'Visitor → sign up %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
       <ZoomContainer height={210}>
-        <LineChart data={F.line} margin={chartMargin}>
+        <LineChart data={fromRows(F.line, FV_RATE_FROM)} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
           <YAxis {...yAxis} domain={[0, 'auto']} tickFormatter={(v) => `${v}%`} />
@@ -2189,8 +2309,8 @@ function FramerVisitorToSignupCard() {
             const w = payload[0].payload;
             return (
               <TooltipBox title={weekTitle(w)} rows={[
-                { label: 'Visitor → completed sign up', value: w.conv == null ? '—' : fmtPct(w.conv, 2), color: C.black },
-                { label: 'Completed sign ups', value: fmtInt(w.signups) },
+                { label: 'Visitor → sign up', value: w.conv == null ? '—' : fmtPct(w.conv, 2), color: C.black },
+                { label: 'Sign ups', value: fmtInt(w.signups) },
                 { label: 'Visitors', value: w.fv == null ? '—' : fmtInt(w.fv) },
               ]} note={w.conv == null && w.fv != null ? 'Sign ups are only counted from Feb 16.' : null} />
             );
@@ -2202,12 +2322,56 @@ function FramerVisitorToSignupCard() {
   );
 }
 
+// High-intent website visitors (Nick, Oct 20): the count, not the share —
+// replaces "Website visitor → high-intent visitor" (reach card kept, hidden).
+function FramerHighIntentVisitorsCard() {
+  const M = useModel();
+  const F = M.FRAMER;
+  const range = rangeLabel(F.winStart, F.winEnd);
+  const data = fromRows(F.line, FRAMER_START).map((w, i, all) => ({ ...w, hiFull: w.partial ? null : w.hi, hiPartial: w.partial || all[i + 1]?.partial ? w.hi : null }));
+  return (
+    <Card from={FRAMER_START}
+      accent={C.blue}
+      title="High-intent website visitors"
+      question={(
+        <>
+          <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>How many visitors reach a high-intent page?</span>
+          <span style={{ display: 'block', marginTop: 6 }}>{HI_PAGES_LINE}</span>
+        </>
+      )}
+      footnote={`Framer unique visitors who viewed at least one page under /pricing, /customers, /case-studies or /use-cases that day — same filter as the GA4 Apps Script; several high-intent pages still count once. ${FRAMER_SRC_NOTE} ${lineWeekNote(M)} No goal set yet.`}
+    >
+      <StatRow delta={<Delta value={pctChange(F.highIntent, F.highIntentPrev)} />}>
+        <Stat label={`Actual · ${range}`} value={fmtInt(F.highIntent)} explain={`${fmtInt(F.highIntent)} high-intent visitors from ${range} — ${fmtPct(F.hiReach, 1)} of all ${fmtInt(F.visitors)} visitors.${F.highIntentPrev != null ? ` ${fmtInt(F.highIntentPrev)} in the ${M.prior}.` : ''}`} />
+        <Stat label="Goal" value="—" muted />
+      </StatRow>
+      <Legend items={[{ label: `High-intent visitors, ${M.grainAdj}`, color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
+      <ZoomContainer height={190}>
+        <LineChart data={data} margin={chartMargin}>
+          {grid}
+          <XAxis {...xAxis} />
+          <YAxis {...yAxis} tickFormatter={fmtK} domain={[0, 'auto']} allowDecimals={false} />
+          <Tooltip content={({ active, payload }) => active && payload?.length ? (
+            <TooltipBox title={weekTitle(payload[0].payload)} rows={[
+              { label: 'High-intent visitors', value: payload[0].payload.hi == null ? '—' : fmtInt(payload[0].payload.hi), color: C.black },
+              { label: 'Share of all visitors', value: payload[0].payload.hiReach == null ? '—' : fmtPct(payload[0].payload.hiReach, 1) },
+              { label: 'All visitors', value: payload[0].payload.fv == null ? '—' : fmtInt(payload[0].payload.fv) },
+            ]} />
+          ) : null} />
+          <Line dataKey="hiFull" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} isAnimationActive={false} />
+          <Line dataKey="hiPartial" stroke={C.black} strokeWidth={2} strokeDasharray="2 4" dot={false} activeDot={{ r: 4, fill: C.blue, stroke: C.black }} legendType="none" isAnimationActive={false} />
+        </LineChart>
+      </ZoomContainer>
+    </Card>
+  );
+}
+
 function FramerHighIntentReachCard() {
   const M = useModel();
   const F = M.FRAMER;
   const range = rangeLabel(F.winStart, F.winEnd);
   return (
-    <Card
+    <Card from={FRAMER_START}
       accent={C.blue}
       title="Website visitor → high-intent visitor"
       question={(
@@ -2225,7 +2389,7 @@ function FramerHighIntentReachCard() {
       </StatRow>
       <Legend items={[{ label: 'High-intent reach %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
       <ZoomContainer height={190}>
-        <LineChart data={F.line} margin={chartMargin}>
+        <LineChart data={fromRows(F.line, FRAMER_START)} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
           <YAxis {...yAxis} domain={[0, 'auto']} tickFormatter={(v) => `${v}%`} />
@@ -2269,7 +2433,7 @@ function FramerHighIntentPagesCard() {
   const has = visitors > 0 && rows.length > 0;
   return (
     <div className="full">
-      <Card
+      <Card from={FRAMER_START}
         accent={C.blue}
         title="Top 10 high-intent pages — Visitors"
         question={(
@@ -2330,9 +2494,9 @@ function FramerHighIntentToSignupCard() {
   const F = M.FRAMER;
   const range = rangeLabel(F.rateStart, F.winEnd);
   return (
-    <Card
+    <Card from={FV_RATE_FROM}
       accent={C.purple}
-      title="High-intent visitor → completed sign up"
+      title="High-intent visitor → sign up"
       question={(
         <>
           <span style={{ display: 'block', color: C.black, fontWeight: 600 }}>Do high-intent visitors create an account?</span>
@@ -2342,7 +2506,7 @@ function FramerHighIntentToSignupCard() {
           <span style={{ display: 'block', marginTop: 6 }}>{HI_PAGES_LINE}</span>
         </>
       )}
-      footnote={`Company-creator signups ÷ Framer high-intent visitors for the same week (each total summed first, then divided). Company creator = the signup created a new company; accepted invites, people joining a teammate's existing company, and signups that never set up a company are excluded. Repeat signups by the same person still count if each created a company; internal (@mutinyhq.com) signups are left out. Signups aren't linked to the visitors they came from, so this compares two weekly totals rather than following people from a high-intent page to signup. ${FRAMER_SRC_NOTE} ${lineWeekNote(M)} No goal set yet.`}
+      footnote={`Company-creator signups ÷ Framer high-intent visitors for the same week (each total summed first, then divided). Company creator = the signup created a new company; accepted invites, people joining a teammate's existing company, and signups that never set up a company are excluded. Repeat signups by the same person still count if each created a company; internal (@mutinyhq.com, @gomomentic.com test account) signups are left out. Signups aren't linked to the visitors they came from, so this compares two weekly totals rather than following people from a high-intent page to signup. ${FRAMER_SRC_NOTE} ${lineWeekNote(M)} No goal set yet.`}
     >
       <StatRow delta={<Delta value={ptsDiff(F.hiConv, F.hiConvPrev)} suffix=" pts" />}>
         <Stat
@@ -2354,16 +2518,16 @@ function FramerHighIntentToSignupCard() {
       </StatRow>
       <Legend items={[{ label: 'Actual %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
       <ZoomContainer height={190}>
-        <LineChart data={F.line} margin={chartMargin}>
+        <LineChart data={fromRows(F.line, FV_RATE_FROM)} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
           <YAxis {...yAxis} domain={[0, 'auto']} tickFormatter={(v) => `${v}%`} />
           <Tooltip content={({ active, payload }) => active && payload?.length ? (
             <TooltipBox title={weekTitle(payload[0].payload)} rows={[
-              { label: 'High-intent → completed sign up', value: payload[0].payload.hiConv == null ? '—' : fmtPct(payload[0].payload.hiConv, 1), color: C.black },
-              { label: 'Company-creator completed sign ups', value: fmtInt(payload[0].payload.creators) },
+              { label: 'High-intent → sign up', value: payload[0].payload.hiConv == null ? '—' : fmtPct(payload[0].payload.hiConv, 1), color: C.black },
+              { label: 'Company-creator sign ups', value: fmtInt(payload[0].payload.creators) },
               { label: 'High-intent visitors', value: payload[0].payload.hi == null ? '—' : fmtInt(payload[0].payload.hi) },
-              { label: 'All completed sign ups (for reference)', value: fmtInt(payload[0].payload.signups) },
+              { label: 'All sign ups (for reference)', value: fmtInt(payload[0].payload.signups) },
             ]} />
           ) : null} />
           <Line dataKey="hiConv" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.purple, stroke: C.black }} connectNulls={false} isAnimationActive={false} />
@@ -2441,7 +2605,7 @@ function FramerVisitorsByChannelCard() {
   const M = useModel();
   const F = M.FRAMER;
   const monthly = M.MONTHLY_COLS;
-  const data = monthly ? F.monthly : F.weekly;
+  const data = fromRows(monthly ? F.monthly : F.weekly, FRAMER_START);
   const used = CHANNELS.filter((c) => FRAMER_CH.some((r) => r.ch === c.key));
   const order = [...used].sort((a, b) => (F.channels[b.key] || 0) - (F.channels[a.key] || 0));
   const H = useHiddenSet();
@@ -2450,10 +2614,10 @@ function FramerVisitorsByChannelCard() {
   const total = sumVals(F.channels);
   return (
     <div className="full">
-      <Card
+      <Card from={FRAMER_START}
         accent={C.blue}
         title="Website visitors by channel"
-        question={`Where are visitors coming from? · ${monthly ? 'monthly' : 'weekly'}`}
+        question={`Where are visitors coming from? · ${M.grainAdj}`}
         footnote={`Framer Analytics unique visitors by channel. Each visitor's channel comes from its first pageview that day: utm_source / utm_medium if present, otherwise the referrer (search engines → Search + AEO, chatgpt.com / claude.ai / gemini / perplexity → Search + AEO, linkedin.com and the LinkedIn app → LinkedIn, X / Reddit / Facebook / Instagram / YouTube / Hacker News → Social, Gmail / Outlook / newsletters / utm_medium=email → Email, any other site → Referral, nothing → Direct). Bucketed with the same rules as the GA4 channel charts. Framer only gets a referrer when the browser sends one, so Direct is large (~⅔ of visitors) — it includes dark social, Slack / Teams desktop apps and typed URLs. Channels add up to the Website visitors card. ${monthly ? colNote(M) : 'Faintly striped bar = week in progress.'}`}
       >
         <StatRow delta={<Delta value={pctChange(F.visitors, F.visitorsPrev)} />}>
@@ -2719,7 +2883,7 @@ function ChannelGrowthTable({ M, th, td }) {
   if (M.noPrior) {
     return (
       <div style={{ marginTop: 16, border: `1px dashed ${C.black}`, borderRadius: 4, background: C.paper, padding: '22px 20px', textAlign: 'center', fontFamily: FONT_BODY, fontSize: 13, color: C.muted }}>
-        Year to date has no prior period to compare with. Pick Last week, Last 4 weeks or Quarter to date to see growth by channel.
+        {M.label} has no full prior period to compare with (sign up data starts Feb 16). Pick a shorter date range to see growth by channel.
       </div>
     );
   }
@@ -2727,7 +2891,7 @@ function ChannelGrowthTable({ M, th, td }) {
   const prev = M.SELF_REPORTED_PREV;
   // 12 complete weeks for the trend, whatever the toggle (the week in progress
   // would look like a drop).
-  const trendWeeks = MODELS['4w'].SELF_REPORTED_WEEKLY.filter((w) => !w.partial).slice(-12); // always 12 weeks
+  const trendWeeks = getModel('ytd', 'week').SELF_REPORTED_WEEKLY.filter((w) => !w.partial).slice(-12); // always 12 weeks
   const rows = SR_STACK.map((b) => {
     const c = srValue(cur, b.name);
     const p = srValue(prev, b.name);
@@ -2816,29 +2980,29 @@ function SignupsByChannelCard() {
   // shows the Last 4 weeks columns, and every weekly view runs to the current
   // week. Weeks past the signups export (DATA_END) are placeholders with no
   // bars ("no data yet", not zero). The legend table keeps the selected period.
-  const FM = M.mode === '1w' ? MODELS['4w'] : M;
+  const FM = M;
   const weekly = withCurrentWeek(FM.SELF_REPORTED_WEEKLY.map(flat));
   // Column chart data: months in Fiscal YTD, weeks otherwise. (Growth view is a line chart, stays weekly.)
-  const cols = monthly ? SELF_REPORTED_MONTHLY.map(flat) : weekly;
+  const cols = fromRows(monthly ? SELF_REPORTED_MONTHLY.map(flat) : weekly, SIGNUP_COUNT_START);
   const th = { ...eyebrow, fontSize: 10, padding: '10px 14px', textAlign: 'right', whiteSpace: 'nowrap', borderBottom: `1px solid ${C.black}`, background: C.paper };
   const td = { ...tabular, fontFamily: FONT_BODY, fontSize: 13.5, padding: '11px 14px', textAlign: 'right', borderBottom: `1px solid ${C.lightGrey}`, whiteSpace: 'nowrap' };
   const soon = <span style={{ color: '#B5B5B5' }}>—</span>;
   return (
     <div className="full">
-      <Card
+      <Card from={SIGNUP_COUNT_START}
         accent={C.purple}
-        title="Completed sign ups and conversion by channel"
-        question={`Self-reported “How did you hear about us?” · ${view === 'chart' ? (monthly ? 'monthly' : 'weekly') : view === 'growth' ? 'share of sign ups, weekly' : `${M.label} · ${rangeLabel(START, END)}`}`}
-        footnote={`${SR.perSignup ? `Every signup in the period (Metabase) is looked up in Amplitude by user id and put in exactly one row: its own “How did you hear about us?” answer (referral_source, bucketed with the same rules as the live dashboard's “User signups by Channel”); otherwise Accepted an invite (fired “User Invitation Completed”); otherwise Joined a teammate's company (its company already had a signup, no invite event); otherwise Other (created a company but no answer in Amplitude). Only company setup asks the question, so joiners are never asked. Rows add up to Overall. Internal (@mutinyhq.com) signups are left out, like the rest of this page.` : `Channel = the signup's self-reported answer (Amplitude referral_source daily totals), bucketed with the same rules as the live dashboard's “User signups by Channel”. Only company setup asks the question. Accepted an invite = Amplitude “User Invitation Completed” (daily unique users). Joined a teammate's company = signups on a company that already had an earlier signup (Metabase), minus the accepted invites. Other = what's left. Answers are daily totals here, not per person, so the split is approximate — run npm run pull-amp-events for exact per-signup rows.`} Overall = all Metabase signups in the window, matching the rest of this page. Never-completed signups (no workspace, or one never named) are left out of every sign up number on this page; use “View never-completed sign ups” under the card to see them.${view === 'table' ? ` Sign up → activated = share of the row's signups in the period that have activated (email sent/drafted or asset published) so far, same as the funnel. ${SR.perSignup ? `Every row is exact: it's the share of that row's signups that have activated (hover a cell for the count).` : `It's filled in only where we know each signup's group: the two joiner rows share one rate (${fmtPct(SR.actJoined.rate, 1)}, ${fmtInt(SR.actJoined.k)} of ${fmtInt(SR.actJoined.n)}) because invites vs teammates is only an Amplitude total; channel rows need each person's answer (run npm run pull-amp-events) — together, company creators (the people who were asked) activated at ${fmtPct(SR.actCreators.rate, 1)} (${fmtInt(SR.actCreators.k)} of ${fmtInt(SR.actCreators.n)}).`}` : ''}${view === 'growth' ? ` Growth: each channel's share of that week's sign ups, for the weeks in the reporting period; the last point is the week in progress. Hover a week for counts.` : view === 'chart' ? ` ${monthly ? 'Fiscal YTD shows monthly columns; the faintly striped one is the month in progress.' : `${M.mode === '1w' ? 'Last week shows the same columns as Last 4 weeks; the table on the right is last week only. ' : ''}Faintly striped bar = week in progress. The chart runs to the current week; a week with no bars has no sign up data yet (the signups export ends ${monDay(DATA_END)}).`}` : ' Activated → paid comes from stripe-dash.'}`}
+        title="Sign ups and conversion by channel"
+        question={`Self-reported “How did you hear about us?” · ${view === 'chart' ? M.grainAdj : view === 'growth' ? `share of sign ups, ${M.grainAdj}` : `${M.label} · ${rangeLabel(START, END)}`}`}
+        footnote={`${SR.perSignup ? `Every signup in the period (Metabase) is looked up in Amplitude by user id and put in exactly one row: its own “How did you hear about us?” answer (referral_source, bucketed with the same rules as the live dashboard's “User signups by Channel”); otherwise Accepted an invite (fired “User Invitation Completed”); otherwise Joined a teammate's company (its company already had a signup, no invite event); otherwise Other (created a company but no answer in Amplitude). Only company setup asks the question, so joiners are never asked. Rows add up to Overall. Internal (@mutinyhq.com, @gomomentic.com test account) signups are left out, like the rest of this page.` : `Channel = the signup's self-reported answer (Amplitude referral_source daily totals), bucketed with the same rules as the live dashboard's “User signups by Channel”. Only company setup asks the question. Accepted an invite = Amplitude “User Invitation Completed” (daily unique users). Joined a teammate's company = signups on a company that already had an earlier signup (Metabase), minus the accepted invites. Other = what's left. Answers are daily totals here, not per person, so the split is approximate — run npm run pull-amp-events for exact per-signup rows.`} Overall = all Metabase signups in the window, matching the rest of this page. Never-completed signups (no workspace, or one never named) are left out of every sign up number on this page; use “View never-completed sign ups” under the card to see them.${view === 'table' ? ` Sign up → activated = share of the row's signups in the period that have activated (email sent/drafted or asset published) so far, same as the funnel. ${SR.perSignup ? `Every row is exact: it's the share of that row's signups that have activated (hover a cell for the count).` : `It's filled in only where we know each signup's group: the two joiner rows share one rate (${fmtPct(SR.actJoined.rate, 1)}, ${fmtInt(SR.actJoined.k)} of ${fmtInt(SR.actJoined.n)}) because invites vs teammates is only an Amplitude total; channel rows need each person's answer (run npm run pull-amp-events) — together, company creators (the people who were asked) activated at ${fmtPct(SR.actCreators.rate, 1)} (${fmtInt(SR.actCreators.k)} of ${fmtInt(SR.actCreators.n)}).`}` : ''}${view === 'growth' ? ` Growth: each channel's share of that week's sign ups, for the weeks in the reporting period; the last point is the week in progress. Hover a week for counts.` : view === 'chart' ? ` ${monthly ? 'Fiscal YTD shows monthly columns; the faintly striped one is the month in progress.' : `${M.mode === '1w' ? 'Last week shows the same columns as Last 4 weeks; the table on the right is last week only. ' : ''}Faintly striped bar = week in progress. The chart runs to the current week; a week with no bars has no sign up data yet (the signups export ends ${monDay(DATA_END)}).`}` : ' Activated → paid comes from stripe-dash.'}`}
       >
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
-          <ViewToggle value={view} onChange={setView} options={[{ value: 'chart', label: monthly ? 'Monthly chart' : 'Weekly chart' }, { value: 'table', label: 'Table' }, { value: 'growth', label: 'Growth' }]} />
+          <ViewToggle value={view} onChange={setView} options={[{ value: 'chart', label: `${M.grainLabel} chart` }, { value: 'table', label: 'Table' }, { value: 'growth', label: 'Growth' }]} />
         </div>
         {view === 'growth' ? (
-          <ChannelShareLines M={FM} weekly={weekly} hidden={H.hidden} legend={(
+          <ChannelShareLines M={FM} weekly={fromRows(weekly, SIGNUP_COUNT_START)} hidden={H.hidden} legend={(
             <LegendTable
               title={`${M.label} · ${rangeLabel(START, END)}`}
-              unit="completed sign ups"
+              unit="sign ups"
               total={SR.total}
               items={SR_STACK.map((b) => ({ label: b.name, color: b.color, n: srValue(SR, b.name) })).sort((a, b) => b.n - a.n)}
               hidden={H.hidden}
@@ -2851,7 +3015,7 @@ function SignupsByChannelCard() {
             <SideLegend legend={(
               <LegendTable
                 title={`${M.label} · ${rangeLabel(START, END)}`}
-                unit="completed sign ups"
+                unit="sign ups"
                 total={SR.total}
                 items={SR_STACK.map((b) => ({ label: b.name, color: b.color, n: srValue(SR, b.name) })).sort((a, b) => b.n - a.n)}
                 hidden={H.hidden}
@@ -2896,9 +3060,9 @@ function SignupsByChannelCard() {
               <thead>
                 <tr>
                   <th style={{ ...th, textAlign: 'left', paddingLeft: 30 }}>Channel (self-reported)</th>
-                  <th style={{ ...th, textAlign: 'left', width: '34%' }}>Completed sign ups</th>
-                  <th style={th}>% of completed sign ups</th>
-                  <th style={th}>Completed sign up → activated</th>
+                  <th style={{ ...th, textAlign: 'left', width: '34%' }}>Sign ups</th>
+                  <th style={th}>% of sign ups</th>
+                  <th style={th}>Sign up → activated</th>
                   <th style={{ ...th, paddingRight: 30 }}>Activated → paid</th>
                 </tr>
               </thead>
@@ -2967,7 +3131,7 @@ function CumulativeSignupsCard() {
   return (
     <div style={{ display: 'grid' }}>
       <Card
-        title="Total completed sign ups (cumulative)"
+        title="Total sign ups (cumulative)"
         question="Are we on pace?"
         footnote={`Running total of every signup (incl. repeats by the same person) since ${monDay(SIGNUP_COUNT_START)}, ${SIGNUP_COUNT_START.slice(0, 4)}, the same start as the live dashboard, shown for the last ${WEEKS.length} weeks. ${lineWeekNote(M)} No goal set yet — the dashed goal line will be added once we have one.`}
       >
@@ -2984,7 +3148,7 @@ function CumulativeSignupsCard() {
             <YAxis {...yAxis} tickFormatter={fmtK} domain={['dataMin', 'auto']} allowDecimals={false} />
             <Tooltip content={({ active, payload }) => active && payload?.length ? (
               <TooltipBox title={weekTitle(payload[0].payload)} rows={[
-                { label: 'Cumulative completed sign ups', value: fmtInt(payload[0].payload.cumSignups), color: C.black },
+                { label: 'Cumulative sign ups', value: fmtInt(payload[0].payload.cumSignups), color: C.black },
                 { label: 'This week', value: fmtInt(payload[0].payload.signups) },
               ]} />
             ) : null} />
@@ -2996,20 +3160,118 @@ function CumulativeSignupsCard() {
   );
 }
 
+// Enterprise meetings (Nick, Oct 20): HubSpot "Talk to Sales" form
+// submissions (dataJson.hubspot.meetings, from pull-data.mjs — test emails
+// already removed). Same source as the live dashboard's "Enterprise Talk to
+// Sales Submissions". Counted only through HubSpot's pull day (HS_END).
+const HS_MEETINGS = (dataJson.hubspot?.meetings || []).map((m) => ({ ...m, d: `${m.date.slice(0, 4)}-${m.date.slice(4, 6)}-${m.date.slice(6)}` }));
+const HS_END = dataJson.hubspot?.pulledAt ? dataJson.hubspot.pulledAt.slice(0, 10) : null;
+const HS_FIRST = HS_MEETINGS.map((m) => m.d).sort()[0] || null;
+const meetingsIn = (a, b) => HS_MEETINGS.filter((m) => m.d >= a && m.d <= b);
+
+function EnterpriseMeetingsCard() {
+  const M = useModel();
+  const { WEEKLY } = M;
+  const end = HS_END && HS_END < M.END ? HS_END : M.END;
+  const total = meetingsIn(M.START, end).length;
+  const prev = M.noPrior ? null : meetingsIn(M.PRIOR_START, M.PRIOR_END).length;
+  const rows = WEEKLY.map((w) => {
+    if (!HS_END || w.start > HS_END) return { ...w, meetings: null, subs: [] };
+    const last = [w.partial ? DATA_END : w.end, HS_END].sort()[0];
+    const subs = meetingsIn(w.start, last);
+    return { ...w, meetings: subs.length, subs, hsPartial: w.partial || last < w.end };
+  });
+  const data = rows.map((w, i) => {
+    const next = rows[i + 1];
+    const tail = w.hsPartial || (next && next.hsPartial);
+    return { ...w, meetingsFull: w.hsPartial ? null : w.meetings, meetingsPartial: tail ? w.meetings : null };
+  });
+  return (
+    <Card from={HS_FIRST} to={HS_END}
+      accent={C.red}
+      title="Enterprise meetings"
+      question="How many companies ask to talk to sales?"
+      footnote={`HubSpot “Talk to Sales” form submissions (contacts whose first or most recent conversion is Talk to Sales, dated by that conversion; test and @mutiny emails left out). Same source as the live dashboard's Enterprise Talk to Sales Submissions. HubSpot pulled ${HS_END ? monDay(HS_END) : '—'}; a period HubSpot hasn't fully covered yet draws dotted. No goal set yet.`}
+    >
+      <StatRow delta={prev == null ? null : <Delta value={pctChange(total, prev)} />}>
+        <Stat label={`Actual · ${rangeLabel(M.START, end)}`} value={fmtInt(total)} explain={`${fmtInt(total)} Talk to Sales submissions from ${rangeLabel(M.START, end)}.${prev != null ? ` ${fmtInt(prev)} in the ${M.prior}.` : ''}`} />
+        <Stat label="Goal" value="—" muted />
+      </StatRow>
+      <Legend items={[{ label: `Enterprise meetings (${M.grainAdj})`, color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
+      <ZoomContainer height={220}>
+        <LineChart data={fromRows(data, HS_FIRST)} margin={chartMargin}>
+          {grid}
+          <XAxis {...xAxis} />
+          <YAxis {...yAxis} domain={[0, 'auto']} allowDecimals={false} />
+          <Tooltip content={({ active, payload }) => active && payload?.length ? (
+            <TooltipBox
+              title={weekTitle(payload[0].payload)}
+              rows={[
+                { label: 'Enterprise meetings', value: payload[0].payload.meetings == null ? '—' : fmtInt(payload[0].payload.meetings), color: C.black },
+                ...payload[0].payload.subs.slice(0, 8).map((m, i) => ({ label: m.company || m.email.split('@')[1] || '—', value: m.jobTitle || '—', key: i })),
+              ]}
+              note={payload[0].payload.subs.length > 8 ? `+${payload[0].payload.subs.length - 8} more` : undefined}
+            />
+          ) : null} />
+          <Line dataKey="meetingsFull" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.red, stroke: C.black }} isAnimationActive={false} />
+          <Line dataKey="meetingsPartial" stroke={C.black} strokeWidth={2} strokeDasharray="2 4" dot={false} activeDot={{ r: 4, fill: C.red, stroke: C.black }} legendType="none" isAnimationActive={false} />
+        </LineChart>
+      </ZoomContainer>
+    </Card>
+  );
+}
+
+// Sign ups per week (Nick, Oct 20): replaces the cumulative card on the Sign
+// ups tab. Weekly in every reporting period, Fiscal YTD included (Nick asked for per week).
+// Line chart (Nick, Oct 20); the week in progress draws as a dotted tail.
+function WeeklySignupsCard() {
+  const M = useModel();
+  const { WEEKLY, WINDOW } = M;
+  const data = WEEKLY.map((w, i) => {
+    const next = WEEKLY[i + 1];
+    return { ...w, signupsFull: w.partial ? null : w.signups, signupsPartial: w.partial || next?.partial ? w.signups : null };
+  });
+  return (
+    <Card from={SIGNUP_COUNT_START}
+      title="Sign ups"
+      question="Are we on pace?"
+      footnote={`Every signup in each ${M.grainEach}, including repeat signups by the same person (someone signing up to two companies counts twice); internal (@mutinyhq.com, @gomomentic.com test account) and never-completed signups are left out. ${lineWeekNote(M)}${M.SHOWS_CUR ? ' (dotted)' : ''} No goal set yet.`}
+    >
+      <StatRow delta={<Delta value={pctChange(WINDOW.signups, WINDOW.signupsPrev)} />}>
+        <Stat label={`Actual · ${rangeLabel(M.START, M.END)}`} value={fmtInt(WINDOW.signups)} explain={`${fmtInt(WINDOW.signups)} signups from ${rangeLabel(M.START, M.END)}.${WINDOW.signupsPrev != null ? ` ${fmtInt(WINDOW.signupsPrev)} in the ${M.prior}.` : ''}`} />
+        <Stat label="Goal" value="—" muted />
+      </StatRow>
+      <Legend items={[{ label: `Sign ups (${M.grainAdj})`, color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
+      <ZoomContainer height={220}>
+        <LineChart data={fromRows(data, SIGNUP_COUNT_START)} margin={chartMargin}>
+          {grid}
+          <XAxis {...xAxis} />
+          <YAxis {...yAxis} domain={[0, 'auto']} allowDecimals={false} />
+          <Tooltip content={({ active, payload }) => active && payload?.length ? (
+            <TooltipBox title={weekTitle(payload[0].payload)} rows={[{ label: 'Sign ups', value: fmtInt(payload[0].payload.signups), color: C.black }]} />
+          ) : null} />
+          <Line dataKey="signupsFull" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.purple, stroke: C.black }} isAnimationActive={false} />
+          <Line dataKey="signupsPartial" stroke={C.black} strokeWidth={2} strokeDasharray="2 4" dot={false} activeDot={{ r: 4, fill: C.purple, stroke: C.black }} legendType="none" isAnimationActive={false} />
+        </LineChart>
+      </ZoomContainer>
+    </Card>
+  );
+}
+
 function NewSignupsCard() {
   const M = useModel();
   const { WEEKLY, WINDOW } = M;
   return (
     <Card
-      title="New completed sign ups"
+      title="New sign ups"
       question="Are we converting intent into accounts?"
-      footnote={`Visitor → signup = signups ÷ GA4 sessions for the same days. Every signup counts, including repeat signups by the same person; internal (@mutinyhq.com) signups are left out. ${adjNote} ${barWeekNote(M)}`}
+      footnote={`Visitor → signup = signups ÷ GA4 sessions for the same days. Every signup counts, including repeat signups by the same person; internal (@mutinyhq.com, @gomomentic.com test account) signups are left out. ${adjNote} ${barWeekNote(M)}`}
     >
       <StatRow delta={<Delta value={ptsDiff(WINDOW.convAdj, WINDOW.convAdjPrev)} suffix=" pts" />}>
-        <Stat label="Visitor → completed sign up (adjusted)" value={fmtPct(WINDOW.convAdj, 2)} explain={WINDOW.convAdj == null ? `Before Jul 17 GA4 counted bot traffic, so there's no comparable rate. Raw: ${fmtPct(WINDOW.conv, 2)}.` : `About ${fmtPct(WINDOW.convAdj, 1)} of visits turned into a signup from ${rangeLabel(WINDOW.convAdjFrom, M.END)}, after adjusting for the cookie banner. Raw GA4: ${fmtPct(WINDOW.conv, 2)}.`} />
-        <Stat label={`Completed sign ups · ${rangeLabel(M.START, M.END)}`} value={fmtInt(WINDOW.signups)} explain={`${fmtInt(WINDOW.signups)} signups from ${rangeLabel(M.START, M.END)}.`} sub={<Delta value={pctChange(WINDOW.signups, WINDOW.signupsPrev)} size={12} />} />
+        <Stat label="Visitor → sign up (adjusted)" value={fmtPct(WINDOW.convAdj, 2)} explain={WINDOW.convAdj == null ? `Before Jul 17 GA4 counted bot traffic, so there's no comparable rate. Raw: ${fmtPct(WINDOW.conv, 2)}.` : `About ${fmtPct(WINDOW.convAdj, 1)} of visits turned into a signup from ${rangeLabel(WINDOW.convAdjFrom, M.END)}, after adjusting for the cookie banner. Raw GA4: ${fmtPct(WINDOW.conv, 2)}.`} />
+        <Stat label={`Sign ups · ${rangeLabel(M.START, M.END)}`} value={fmtInt(WINDOW.signups)} explain={`${fmtInt(WINDOW.signups)} signups from ${rangeLabel(M.START, M.END)}.`} sub={<Delta value={pctChange(WINDOW.signups, WINDOW.signupsPrev)} size={12} />} />
       </StatRow>
-      <Legend items={[{ label: 'Completed sign ups (bars)', color: C.purple }, { label: 'Visitor → completed sign up %, adjusted (line)', color: C.black, line: true }]} />
+      <Legend items={[{ label: 'Sign ups (bars)', color: C.purple }, { label: 'Visitor → sign up %, adjusted (line)', color: C.black, line: true }]} />
       <ZoomContainer height={190}>
         <ComposedChart data={WEEKLY} margin={chartMargin}>
           {hatchDefs([C.purple])}
@@ -3022,10 +3284,10 @@ function NewSignupsCard() {
             <TooltipBox
               title={weekTitle(payload[0].payload)}
               rows={[
-                { label: 'Completed sign ups', value: fmtInt(payload[0].payload.signups), color: C.purple },
+                { label: 'Sign ups', value: fmtInt(payload[0].payload.signups), color: C.purple },
                 { label: 'Sessions', value: fmtInt(payload[0].payload.visitors) },
-                { label: 'Visitor → completed sign up (adjusted)', value: payload[0].payload.preBreak ? 'not comparable' : fmtPct(payload[0].payload.convAdj, 2) },
-                { label: 'Visitor → completed sign up (raw)', value: fmtPct(payload[0].payload.conv, 2) },
+                { label: 'Visitor → sign up (adjusted)', value: payload[0].payload.preBreak ? 'not comparable' : fmtPct(payload[0].payload.convAdj, 2) },
+                { label: 'Visitor → sign up (raw)', value: fmtPct(payload[0].payload.conv, 2) },
               ]}
             />
           ) : null} />
@@ -3045,12 +3307,12 @@ function RoleMixCard() {
   const total = WINDOW.signups;
   return (
     <Card
-      title="Who completes sign up (role mix)"
+      title="Who signs up (role mix)"
       question="Are the right people signing up — sales leaders, or mostly reps?"
       footnote="Role is the self-selected answer at signup (self_selected_role), shown as-is. Bars show each role's share of that week's signups; hover for counts."
     >
       <StatRow>
-        <Stat label={`Completed sign ups · ${rangeLabel(M.START, M.END)}`} value={fmtInt(total)} explain={`${fmtInt(total)} signups from ${rangeLabel(M.START, M.END)}, split by the role they picked.`} />
+        <Stat label={`Sign ups · ${rangeLabel(M.START, M.END)}`} value={fmtInt(total)} explain={`${fmtInt(total)} signups from ${rangeLabel(M.START, M.END)}, split by the role they picked.`} />
       </StatRow>
       <div style={{ ...eyebrow, marginTop: 24 }}>By role · share of signups, {rangeLabel(M.START, M.END)}</div>
       <Legend
@@ -3095,7 +3357,7 @@ function CompletedSetupCard() {
       footnote="Grouped by signup week: of signups that week, the share who have done each step so far. Completed setup requires all three: recorder installed, Google Calendar connected and Gmail connected. A connection counts as soon as they try, even if it failed or is pending. Recent weeks have had less time to finish, so they read low."
     >
       <StatRow delta={<Delta value={ptsDiff(allRate, pct(p.all, p.n))} suffix=" pts" />}>
-        <Stat label="Completed sign up → completed setup" value={fmtPct(allRate, 1)} sub={`${s.all} of ${s.n} signups · ${rangeLabel(M.START, M.END)}`} />
+        <Stat label="Sign up → completed setup" value={fmtPct(allRate, 1)} sub={`${s.all} of ${s.n} signups · ${rangeLabel(M.START, M.END)}`} />
       </StatRow>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px 32px', marginTop: 14 }}>
         {STEPS.map((st) => (
@@ -3196,9 +3458,13 @@ function Daily7Card({ seriesKey, title, question, accent, verb, milestone, modal
   const dayTitle = (x) => `Signed up ${monDay(x.d)}, ${x.d.slice(0, 4)}`;
   // No delta when the prior window starts before the milestone was trackable.
   const delta = prev.fullyTracked && prev.n ? ptsDiff(curr.rate, prev.rate) : null;
-  const periodLabel = rangeLabel(M.START, M.END);
+  // First signup day this milestone can be measured for (window ends on/after trackFrom).
+  const dataFrom = maxISO(SIGNUP_COUNT_START, series.trackFrom ? addDays(series.trackFrom, -CONV_WINDOW_DAYS) : null);
+  const periodLabel = rangeLabel(maxISO(M.START, dataFrom), M.END);
+  const days = series.daily.filter((x) => x.d >= M.FRAME_START && x.d <= M.FRAME_END && x.d >= dataFrom);
+  const dayTicks = days.length > 21 ? days.filter((x) => x.d === mondayOf(x.d)).map((x) => x.d) : undefined;
   return (
-    <Card convWindow={[CONV_WINDOW_DAYS, setConvDays]}
+    <Card convWindow={[CONV_WINDOW_DAYS, setConvDays]} from={dataFrom}
       accent={accent}
       title={title}
       question={question}
@@ -3206,7 +3472,7 @@ function Daily7Card({ seriesKey, title, question, accent, verb, milestone, modal
     >
       <StatRow delta={<Delta value={delta} suffix=" pts" />}>
         <Stat
-          label={`${CONV_WINDOW_DAYS}-day conversion · completed sign ups ${periodLabel}`}
+          label={`${CONV_WINDOW_DAYS}-day conversion · sign ups ${periodLabel}`}
           value={curr.n ? fmtPct(curr.rate, 1) : '—'}
           sub={curr.n ? `${fmtInt(curr.a)} of ${fmtInt(curr.n)} signups${open ? ` · ${fmtInt(open)} still in their ${CONV_WINDOW_DAYS} days` : ''}` : `All ${fmtInt(open)} signups are still in their ${CONV_WINDOW_DAYS}-day window`}
           explain={curr.n ? `Of the ${fmtInt(curr.n)} people who signed up ${rangeLabel(curr.from, curr.to)} (the part of ${periodLabel} whose ${CONV_WINDOW_DAYS} days are up), ${fmtInt(curr.a)} (${fmtPct(curr.rate, 1)}) ${verb} within ${CONV_WINDOW_DAYS} days of signing up.${open ? ` ${fmtInt(open)} later signups are still in their window.` : ''}` : null}
@@ -3220,17 +3486,17 @@ function Daily7Card({ seriesKey, title, question, accent, verb, milestone, modal
         { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true },
       ]} />
       <ZoomContainer height={210}>
-        <LineChart data={series.daily.filter((x) => x.d >= M.WEEKS[0].start)} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (x) => ({ ...modal, title: dayTitle(x), subtitle: `${fmtInt(x.a)} of ${fmtInt(x.n)} signups ${verb} within ${CONV_WINDOW_DAYS} days${x.mature ? '' : ' (window still open)'}`, users: x.list }))}>
+        <LineChart data={days} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (x) => ({ ...modal, title: dayTitle(x), subtitle: `${fmtInt(x.a)} of ${fmtInt(x.n)} signups ${verb} within ${CONV_WINDOW_DAYS} days${x.mature ? '' : ' (window still open)'}`, users: x.list }))}>
           {grid}
-          <XAxis {...xAxis} dataKey="d" ticks={series.ticks.filter((t) => t >= M.WEEKS[0].start)} tickFormatter={monDay} />
+          <XAxis {...xAxis} dataKey="d" ticks={dayTicks} tickFormatter={monDay} />
           <YAxis {...yAxis} domain={[0, 'auto']} tickFormatter={(v) => `${v}%`} />
           <Tooltip content={({ active, payload }) => active && payload?.length ? (
             <TooltipBox title={dayTitle(payload[0].payload)} rows={payload[0].payload.tracked ? [
               { label: `${verb[0].toUpperCase()}${verb.slice(1)} within ${CONV_WINDOW_DAYS} days`, value: fmtPct(payload[0].payload.mature ? payload[0].payload.rate : payload[0].payload.rateImm, 1), color: '#9A9A9A' },
               { label: '7-day rolling', value: fmtPct(payload[0].payload.roll, 1), color: C.black },
-              { label: 'Completed sign ups that day', value: fmtInt(payload[0].payload.n) },
+              { label: 'Sign ups that day', value: fmtInt(payload[0].payload.n) },
               { label: `${verb[0].toUpperCase()}${verb.slice(1)}`, value: fmtInt(payload[0].payload.a) },
-            ] : [{ label: 'Completed sign ups that day', value: fmtInt(payload[0].payload.n) }]} note={!payload[0].payload.tracked ? 'Not tracked yet for this signup day' : payload[0].payload.mature ? `Click to list who ${verb}` : `Still inside the ${CONV_WINDOW_DAYS}-day window · click to list`} />
+            ] : [{ label: 'Sign ups that day', value: fmtInt(payload[0].payload.n) }]} note={!payload[0].payload.tracked ? 'Not tracked yet for this signup day' : payload[0].payload.mature ? `Click to list who ${verb}` : `Still inside the ${CONV_WINDOW_DAYS}-day window · click to list`} />
           ) : null} />
           <Line dataKey="rate" stroke="transparent" dot={{ r: 2.5, fill: '#9A9A9A', fillOpacity: 0.3, stroke: 'none' }} activeDot={{ r: 4, fill: accent, stroke: C.black }} isAnimationActive={false} legendType="none" />
           <Line dataKey="rateImm" stroke="transparent" dot={{ r: 2.5, fill: '#9A9A9A', fillOpacity: 0.12, stroke: 'none' }} activeDot={{ r: 4, fill: '#D9D9D9', stroke: C.black }} isAnimationActive={false} legendType="none" />
@@ -3246,11 +3512,59 @@ function SignupToActivatedCard() {
     <Daily7Card
       seriesKey="ACT"
       accent={C.green}
-      title="Completed sign up → activated"
+      title="Sign up → activated"
       question="Of each day's signups, what share activate within the window?"
       verb="activated"
       milestone="activated (sent or drafted an email, or published an asset)"
     />
+  );
+}
+
+// Activated users per week (Nick, Oct 20): replaces the cumulative card on the
+// Activated tab; full width. Weekly line in every period (lines stay weekly in
+// Fiscal YTD); the week in progress draws as a dotted tail.
+function ActivatedUsersWeeklyCard() {
+  const M = useModel();
+  const { ACTIVATED, END, START } = M;
+  const A = ACTIVATED;
+  const openUsers = useUsersModal();
+  const data = A.weekly.map((w, i) => {
+    const next = A.weekly[i + 1];
+    const tracked = FIRST_ACT_TRACKED && (w.partial ? DATA_END : w.end) >= FIRST_ACT_TRACKED;
+    const n = tracked ? w.n : null;
+    return { ...w, nFull: w.partial ? null : n, nPartial: w.partial || next?.partial ? n : null };
+  });
+  return (
+    <Card from={FIRST_ACT_TRACKED}
+      accent={C.green}
+      title="Activated users"
+      question="Are we on pace?"
+      footnote={`Users who activated for the first time in each ${M.grainEach}, whatever their signup date. Activated = sent (or drafted) an email or published an asset, counted once, in the period they first did either. Asset data starts ${monDay(FIRST_ACT_TRACKED || END)}, ${(FIRST_ACT_TRACKED || END).slice(0, 4)}; email sends start Sep 4. Asset publishes carry no company, so each is credited to the user's latest signup at the time; publishes with no user are left out. ${lineWeekNote(M)}${M.SHOWS_CUR ? ' (dotted)' : ''} Click a point to list who activated then. No goal set yet.`}
+    >
+      <StatRow delta={M.noPrior ? null : <Delta value={pctChange(A.curr, A.prev)} />}>
+        <Stat label={`Actual · ${rangeLabel(M.START, M.END)}`} value={fmtInt(A.curr)} explain={`${fmtInt(A.curr)} users activated for the first time from ${rangeLabel(M.START, M.END)} (sent an email or published an asset).${M.noPrior ? '' : ` ${fmtInt(A.prev)} in the ${M.prior}.`} ${fmtInt(A.now.cum)} have activated to date.`} sub={`${fmtInt(A.now.cum)} activated to date`} />
+        <Stat label="Goal" value="—" muted />
+      </StatRow>
+      <ListUsersButton n={A.curr} label={`activated in the ${M.long}`} onClick={() => openUsers({ title: 'Activated users', subtitle: `activated ${rangeLabel(START, END)}`, users: A.currList, summary: { label: `Activated · ${rangeLabel(START, END)}`, value: fmtInt(A.curr), sub: `${fmtInt(A.email)} by email · ${fmtInt(A.asset)} by asset · ${fmtInt(A.now.cum)} activated to date` } })} />
+      <Legend items={[{ label: `Activated users (${M.grainAdj})`, color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
+      <ZoomContainer height={220}>
+        <LineChart data={fromRows(data, FIRST_ACT_TRACKED)} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ title: 'Activated users', subtitle: `activated ${periodPhrase(row)}`, users: row.list }))}>
+          {grid}
+          <XAxis {...xAxis} />
+          <YAxis {...yAxis} domain={[0, 'auto']} allowDecimals={false} />
+          <Tooltip content={({ active, payload }) => active && payload?.length ? (
+            <TooltipBox title={weekTitle(payload[0].payload)} rows={[
+              { label: `Activated this ${M.grainNoun}`, value: fmtInt(payload[0].payload.n), color: C.black },
+              { label: '…first via asset publish', value: fmtInt(payload[0].payload.asset) },
+              { label: '…first via email', value: fmtInt(payload[0].payload.email) },
+              { label: 'Activated to date', value: fmtInt(payload[0].payload.cum) },
+            ]} note="Click to list these activated users" />
+          ) : null} />
+          <Line dataKey="nFull" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.green, stroke: C.black }} isAnimationActive={false} />
+          <Line dataKey="nPartial" stroke={C.black} strokeWidth={2} strokeDasharray="2 4" dot={false} activeDot={{ r: 4, fill: C.green, stroke: C.black }} legendType="none" isAnimationActive={false} />
+        </LineChart>
+      </ZoomContainer>
+    </Card>
   );
 }
 
@@ -3358,12 +3672,12 @@ function SignupToOnboardedCard() {
     <Daily7Card
       seriesKey="ONB"
       accent={C.purple}
-      title="Completed sign up → completed onboarding"
+      title="Sign up → completed onboarding"
       question="Of each day's signups, what share finish onboarding within the window?"
       verb="completed onboarding"
-      milestone="completed onboarding (installed the call recorder and connected Gmail and Google Calendar, dated by the last of the three)"
+      milestone={`completed onboarding (${ONB_DEF_TEXT}, dated by the last step)`}
       modal={ONB_MODAL}
-      extraNote={` Recorder installs are only tracked from ${monDay(FIRST_REC_TRACKED || DATA_END)}, so earlier signup days have no point and the prior-period comparison is hidden until it's fully tracked.`}
+      extraNote={` Onboarding is only tracked from ${monDay(ONB_TRACK_FROM || DATA_END)}, so earlier signup days have no point and the prior-period comparison is hidden until it's fully tracked.`}
     />
   );
 }
@@ -3374,7 +3688,7 @@ const trackedNote = (d) => ` This step is only tracked from ${monDay(d || DATA_E
 function SignupToRecorderCard() {
   return (
     <Daily7Card seriesKey="REC" accent={C.purple}
-      title="Completed sign up → downloaded call recorder"
+      title="Sign up → downloaded call recorder"
       question="Of each day's signups, what share install the recorder within the window?"
       verb="downloaded the recorder"
       milestone="installed the call recorder"
@@ -3385,7 +3699,7 @@ function SignupToRecorderCard() {
 function SignupToEmailCard() {
   return (
     <Daily7Card seriesKey="EM" accent={C.purple}
-      title="Completed sign up → connected email"
+      title="Sign up → connected email"
       question="Of each day's signups, what share connect email within the window?"
       verb="connected email"
       milestone="connected Gmail (any status, including failed or pending)"
@@ -3398,7 +3712,7 @@ const MT_MODAL = { noun: 'user recorded a meeting', nounPlural: 'users recorded 
 function SignupToMeetingCard() {
   return (
     <Daily7Card seriesKey="MT" accent={C.lightPurple}
-      title="Completed sign up → first recorded meeting"
+      title="Sign up → first recorded meeting"
       question="Of each day's signups, what share record their first meeting within the window?"
       verb="recorded a meeting"
       milestone="recorded their first meeting (a finalized capture, complete or partial)"
@@ -3426,11 +3740,11 @@ function MilestoneCumulativeCard({ field, trackedFrom, modal, accent, title, que
   const total = upTo(DATA_END);
   const summary = { label: `${listTitle} · ${rangeLabel(START, END)}`, value: fmtInt(currList.length), sub: `${fmtInt(total)} signups to date ${did} within ${CONV_WINDOW_DAYS} days of signing up` };
   return (
-    <Card convWindow={[CONV_WINDOW_DAYS, setConvDays]}
+    <Card from={trackedFrom} convWindow={[CONV_WINDOW_DAYS, setConvDays]}
       accent={accent}
       title={title}
       question={question}
-      footnote={`Running total of signups (since ${monDay(SIGNUP_COUNT_START)}) that ${what} within ${CONV_WINDOW_DAYS} days of signing up (change the window next to the title), counted in the week they did it. Only tracked from ${monDay(trackedFrom)}, so the line starts there. ${lineWeekNote(M)} Click a week to list who ${did} that week. No goal set yet.`}
+      footnote={`Running total of signups (since ${monDay(SIGNUP_COUNT_START)}) that ${what} within ${CONV_WINDOW_DAYS} days of signing up (change the window next to the title), counted in the ${M.grainNoun} they did it. Only tracked from ${monDay(trackedFrom)}, so the line starts there. ${lineWeekNote(M)} Click a point to list who ${did} then. No goal set yet.`}
     >
       <StatRow>
         <Stat
@@ -3445,7 +3759,7 @@ function MilestoneCumulativeCard({ field, trackedFrom, modal, accent, title, que
       <ListUsersButton n={currList.length} label={`${did} in the ${M.long}`} onClick={() => openUsers({ ...modal, title: listTitle, subtitle: `${rangeLabel(START, END)}, within ${CONV_WINDOW_DAYS} days of signing up`, users: currList, summary })} />
       <Legend items={[{ label: 'Cumulative actual', color: C.black, line: true }, { label: 'Cumulative goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
       <ZoomContainer height={210}>
-        <LineChart data={weekly} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ ...modal, title: listTitle, subtitle: `week of ${row.range}`, users: row.list }))}>
+        <LineChart data={fromRows(weekly, trackedFrom)} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ ...modal, title: listTitle, subtitle: periodPhrase(row), users: row.list }))}>
           {grid}
           <XAxis {...xAxis} />
           <YAxis {...yAxis} domain={[0, 'auto']} allowDecimals={false} />
@@ -3453,7 +3767,7 @@ function MilestoneCumulativeCard({ field, trackedFrom, modal, accent, title, que
             <TooltipBox title={`To end of ${weekTitle(payload[0].payload).replace('Week of', 'week of')}`} rows={[
               { label: `${listTitle}, to date`, value: fmtInt(payload[0].payload.cum), color: C.black },
               { label: 'This week', value: fmtInt(payload[0].payload.n) },
-            ]} note="Click to list this week's users" />
+            ]} note="Click to list these users" />
           ) : null} />
           <Line dataKey="cum" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: accent, stroke: C.black }} isAnimationActive={false} />
         </LineChart>
@@ -3464,7 +3778,7 @@ function MilestoneCumulativeCard({ field, trackedFrom, modal, accent, title, que
 function MeetingSignupsCumulativeCard() {
   return (
     <MilestoneCumulativeCard field="mt" trackedFrom={FIRST_MT_TRACKED} modal={MT_MODAL} accent={C.lightPurple}
-      title="Completed sign ups with a recorded meeting (cumulative)"
+      title="Sign ups with a recorded meeting (cumulative)"
       question="How many signups have reached the magic moment?"
       did="recorded a meeting" listTitle="Recorded a meeting"
       what="recorded their first meeting (a finalized capture, complete or partial)" />
@@ -3476,7 +3790,7 @@ const SND_MODAL = { noun: 'user sent an email', nounPlural: 'users sent an email
 function SignupToEmailSendCard() {
   return (
     <Daily7Card seriesKey="SND" accent={C.lightPurple}
-      title="Completed sign up → first email"
+      title="Sign up → first email"
       question="Of each day's signups, what share send (or draft) their first email within the window?"
       verb="sent an email"
       milestone="sent or drafted their first email"
@@ -3487,7 +3801,7 @@ function SignupToEmailSendCard() {
 function EmailSignupsCumulativeCard() {
   return (
     <MilestoneCumulativeCard field="snd" trackedFrom={FIRST_SND_TRACKED} modal={SND_MODAL} accent={C.lightPurple}
-      title="Completed sign ups with a first email (cumulative)"
+      title="Sign ups with a first email (cumulative)"
       question="How many signups have made their first customer send?"
       did="sent an email" listTitle="Sent an email"
       what="sent or drafted their first email" />
@@ -3497,12 +3811,57 @@ function EmailSignupsCumulativeCard() {
 function SignupToCalendarCard() {
   return (
     <Daily7Card seriesKey="CAL" accent={C.purple}
-      title="Completed sign up → connected calendar"
+      title="Sign up → connected calendar"
       question="Of each day's signups, what share connect their calendar within the window?"
       verb="connected calendar"
       milestone="connected Google Calendar (any status, including failed or pending)"
       modal={stepModal('connected calendar', 'Calendar connected', 'cal')}
       extraNote={trackedNote(FIRST_CAL_TRACKED)} />
+  );
+}
+
+// Users who completed onboarding per week (Nick, Oct 20): replaces the
+// cumulative card; full width. Weekly line, week in progress dotted.
+function OnboardedUsersWeeklyCard() {
+  const M = useModel();
+  const { ONBOARDED, START, END } = M;
+  const O = ONBOARDED;
+  const openUsers = useUsersModal();
+  const data = O.weekly.map((w, i) => {
+    const next = O.weekly[i + 1];
+    const tracked = FIRST_ONB_TRACKED && (w.partial ? DATA_END : w.end) >= FIRST_ONB_TRACKED;
+    const n = tracked ? w.n : null;
+    return { ...w, nFull: w.partial ? null : n, nPartial: w.partial || next?.partial ? n : null };
+  });
+  return (
+    <Card from={ONB_TRACK_FROM}
+      accent={C.purple}
+      title="Users who completed onboarding"
+      question="Are we on pace?"
+      footnote={`Users who completed onboarding (${ONB_DEF_TEXT}) in each ${M.grainEach}, counted once, in the period they finished the last step, whatever their signup date. Tracked from ${monDay(FIRST_ONB_TRACKED || END)}, ${(FIRST_ONB_TRACKED || END).slice(0, 4)}. ${lineWeekNote(M)}${M.SHOWS_CUR ? ' (dotted)' : ''} Click a point to list who completed then. No goal set yet.`}
+    >
+      <StatRow delta={M.noPrior ? null : <Delta value={pctChange(O.curr, O.prev)} />}>
+        <Stat label={`Actual · ${rangeLabel(M.START, M.END)}`} value={fmtInt(O.curr)} explain={`${fmtInt(O.curr)} users completed onboarding from ${rangeLabel(M.START, M.END)} (recorder + Gmail + Google Calendar).${M.noPrior ? '' : ` ${fmtInt(O.prev)} in the ${M.prior}.`} ${fmtInt(O.now.cum)} have completed it to date.`} sub={`${fmtInt(O.now.cum)} completed onboarding to date`} />
+        <Stat label="Goal" value="—" muted />
+      </StatRow>
+      <ListUsersButton n={O.curr} label={`completed onboarding in the ${M.long}`} onClick={() => openUsers({ ...ONB_MODAL, title: 'Completed onboarding', subtitle: `completed ${rangeLabel(START, END)}`, users: O.currList, summary: { label: `Completed onboarding · ${rangeLabel(START, END)}`, value: fmtInt(O.curr), sub: `${fmtInt(O.now.cum)} completed onboarding to date` } })} />
+      <Legend items={[{ label: `Completed onboarding (${M.grainAdj})`, color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
+      <ZoomContainer height={220}>
+        <LineChart data={fromRows(data, ONB_TRACK_FROM)} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ ...ONB_MODAL, title: 'Completed onboarding', subtitle: `completed ${periodPhrase(row)}`, users: row.list }))}>
+          {grid}
+          <XAxis {...xAxis} />
+          <YAxis {...yAxis} domain={[0, 'auto']} allowDecimals={false} />
+          <Tooltip content={({ active, payload }) => active && payload?.length ? (
+            <TooltipBox title={weekTitle(payload[0].payload)} rows={[
+              { label: `Completed this ${M.grainNoun}`, value: fmtInt(payload[0].payload.n), color: C.black },
+              { label: 'Completed to date', value: fmtInt(payload[0].payload.cum) },
+            ]} note="Click to list these users" />
+          ) : null} />
+          <Line dataKey="nFull" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.purple, stroke: C.black }} isAnimationActive={false} />
+          <Line dataKey="nPartial" stroke={C.black} strokeWidth={2} strokeDasharray="2 4" dot={false} activeDot={{ r: 4, fill: C.purple, stroke: C.black }} legendType="none" isAnimationActive={false} />
+        </LineChart>
+      </ZoomContainer>
+    </Card>
   );
 }
 
@@ -3516,7 +3875,7 @@ function OnboardedUsersCard() {
       accent={C.purple}
       title="Total users who completed onboarding (cumulative)"
       question="Are we on pace?"
-      footnote={`Running total of users who completed onboarding (recorder installed + Gmail + Google Calendar connected) since ${monDay(FIRST_ONB_TRACKED || END)}, ${(FIRST_ONB_TRACKED || END).slice(0, 4)}, counted once, in the week they finished the last of the three, whatever their signup date. Click a week to list who completed that week. No goal set yet.`}
+      footnote={`Running total of users who completed onboarding (${ONB_DEF_TEXT}) since ${monDay(FIRST_ONB_TRACKED || END)}, ${(FIRST_ONB_TRACKED || END).slice(0, 4)}, counted once, in the week they finished the last of the three, whatever their signup date. Click a week to list who completed that week. No goal set yet.`}
     >
       <StatRow>
         <Stat label={`Actual · ${rangeLabel(M.START, M.END)}`} value={fmtInt(O.curr)} explain={`${fmtInt(O.curr)} users completed onboarding from ${rangeLabel(M.START, M.END)} (recorder + Gmail + Google Calendar); ${fmtInt(O.now.cum)} have completed it to date.`} sub={`${fmtInt(O.now.cum)} completed onboarding to date`} />
@@ -3535,7 +3894,7 @@ function OnboardedUsersCard() {
               { label: 'Completed to date', value: fmtInt(payload[0].payload.cum), color: C.black },
               { label: 'Change vs prior week', value: fmtSigned(payload[0].payload.cumWoW, '%', 1) },
               { label: 'Completed this week', value: fmtInt(payload[0].payload.n) },
-            ]} note="Click to list this week's users" />
+            ]} note="Click to list these users" />
           ) : null} />
           <Line dataKey="cum" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.purple, stroke: C.black }} isAnimationActive={false} />
         </LineChart>
@@ -3555,11 +3914,11 @@ function ActivatedToReturnedCard() {
   const openUsers = useUsersModal();
   const periodLabel = rangeLabel(M.START, M.END);
   return (
-    <Card
+    <Card from={FIRST_ACT_TRACKED}
       accent={C.blue}
       title="Activated → returned"
       question="Do activated users come back the following week?"
-      footnote={`${RET_DEF} Weekly points group users by the week they activated. The headline covers users who activated in the reporting period (${periodLabel}); only those whose ${RETURN_DAYS}-day window has closed count${R.curr.open ? ` — ${fmtInt(R.curr.open)} who activated in the last ${RETURN_DAYS} days are still open and left out` : ''}. Compared with the same for ${rangeLabel(M.PRIOR_START, M.PRIOR_END)}. Dotted = weeks whose windows are still open. ${RET_SOURCES} Click a week to list who returned. No goal set yet.`}
+      footnote={`${RET_DEF} Each point groups users by the ${M.grainNoun} they activated. The headline covers users who activated in the reporting period (${periodLabel}); only those whose ${RETURN_DAYS}-day window has closed count${R.curr.open ? ` — ${fmtInt(R.curr.open)} who activated in the last ${RETURN_DAYS} days are still open and left out` : ''}. Compared with the same for ${rangeLabel(M.PRIOR_START, M.PRIOR_END)}. Dotted = weeks whose windows are still open. ${RET_SOURCES} Click a week to list who returned. No goal set yet.`}
     >
       <StatRow delta={<Delta value={R.prev.n ? ptsDiff(R.curr.rate, R.prev.rate) : null} suffix=" pts" />}>
         <Stat
@@ -3573,7 +3932,7 @@ function ActivatedToReturnedCard() {
       <ListUsersButton n={R.curr.k} label={`returned within ${RETURN_DAYS} days`} onClick={() => openUsers({ ...RET_MODAL, title: 'Returned users', subtitle: `activated ${rangeLabel(R.curr.from, R.curr.to)} · ${fmtInt(R.curr.k)} of ${fmtInt(R.curr.n)} returned`, users: R.curr.retList, summary: { label: `Conversion · activated ${periodLabel}`, value: R.curr.n ? fmtPct(R.curr.rate, 1) : '—', sub: R.curr.n ? `${fmtInt(R.curr.k)} of ${fmtInt(R.curr.n)} activated${R.curr.open ? ` · ${fmtInt(R.curr.open)} still in their ${RETURN_DAYS} days` : ''}` : `All ${fmtInt(R.curr.open)} are still in their ${RETURN_DAYS}-day window` } })} />
       <Legend items={[{ label: 'Actual %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
       <ZoomContainer height={210}>
-        <LineChart data={R.weekly} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ ...RET_MODAL, title: 'Returned users', subtitle: `activated week of ${row.range} · ${fmtInt(row.k)} of ${fmtInt(row.n)} returned${row.mature ? '' : ' (window still open)'}`, users: row.retList }))}>
+        <LineChart data={fromRows(R.weekly, FIRST_ACT_TRACKED)} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ ...RET_MODAL, title: 'Returned users', subtitle: `activated week of ${row.range} · ${fmtInt(row.k)} of ${fmtInt(row.n)} returned${row.mature ? '' : ' (window still open)'}`, users: row.retList }))}>
           {grid}
           <XAxis {...xAxis} />
           <YAxis {...yAxis} domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tickFormatter={(v) => `${v}%`} />
@@ -3599,11 +3958,11 @@ function WeeklyReturnedUsersCard() {
   const c = R.curr;
   const periodLabel = rangeLabel(M.START, M.END);
   return (
-    <Card
+    <Card from={FIRST_ACT_TRACKED}
       accent={C.blue}
       title="Weekly returned users"
-      question="How many activated users come back each week?"
-      footnote={`${RET_DEF} Chart: weekly count, not cumulative, by the week they activated; dotted = weeks whose windows are still open. Headline: returned users among those who activated in the reporting period (${periodLabel}) whose ${RETURN_DAYS}-day window has closed, vs the same for ${rangeLabel(M.PRIOR_START, M.PRIOR_END)}. ${RET_SOURCES} Click a week to list who returned. No goal set yet.`}
+      question={`How many activated users come back each ${M.grainNoun}?`}
+      footnote={`${RET_DEF} Chart: ${M.grainAdj} count, not cumulative, by the ${M.grainNoun} they activated; dotted = points whose windows are still open. Headline: returned users among those who activated in the reporting period (${periodLabel}) whose ${RETURN_DAYS}-day window has closed, vs the same for ${rangeLabel(M.PRIOR_START, M.PRIOR_END)}. ${RET_SOURCES} Click a week to list who returned. No goal set yet.`}
     >
       <StatRow delta={<Delta value={R.prev.n ? pctChange(c.k, R.prev.k) : null} />}>
         <Stat
@@ -3618,7 +3977,7 @@ function WeeklyReturnedUsersCard() {
       {c.n > 0 && <ListUsersButton n={c.k} label={`returned (activated ${periodLabel})`} onClick={() => openUsers({ ...RET_MODAL, title: 'Returned users', subtitle: `activated ${rangeLabel(c.from, c.to)} · ${fmtInt(c.k)} of ${fmtInt(c.n)} returned`, users: c.retList, summary: { label: `Returned · activated ${periodLabel}`, value: fmtInt(c.k), sub: `of ${fmtInt(c.n)} activated${c.open ? ` · ${fmtInt(c.open)} still open` : ''}` } })} />}
       <Legend items={[{ label: 'Actual', color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
       <ZoomContainer height={210}>
-        <LineChart data={R.weekly} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ ...RET_MODAL, title: 'Returned users', subtitle: `activated week of ${row.range} · ${fmtInt(row.k)} of ${fmtInt(row.n)} returned${row.mature ? '' : ' (window still open)'}`, users: row.retList }))}>
+        <LineChart data={fromRows(R.weekly, FIRST_ACT_TRACKED)} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({ ...RET_MODAL, title: 'Returned users', subtitle: `activated week of ${row.range} · ${fmtInt(row.k)} of ${fmtInt(row.n)} returned${row.mature ? '' : ' (window still open)'}`, users: row.retList }))}>
           {grid}
           <XAxis {...xAxis} />
           <YAxis {...yAxis} domain={[0, 'auto']} allowDecimals={false} />
@@ -3679,7 +4038,7 @@ function FirstSendCard() {
 function ComingSoonCard({ title, question, body, heading = 'Coming from stripe-dash' }) {
   return (
     <div className="full">
-      <Card title={title} question={question} accent={C.lightGrey}>
+      <Card noRange title={title} question={question} accent={C.lightGrey}>
         <div style={{ marginTop: 16, border: `1px dashed ${C.black}`, borderRadius: 4, background: C.paper, padding: '28px 20px', textAlign: 'center' }}>
           <div style={{ fontFamily: FONT_DISPLAY, fontSize: 24, letterSpacing: '-0.02em' }}>{heading}</div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.muted, marginTop: 6, maxWidth: 560, marginInline: 'auto', lineHeight: 1.5 }}>{body}</div>
@@ -3808,11 +4167,11 @@ function SignupToPaidCard() {
   const now = PAYING.asOf(M.END);
   const prev = PAYING.asOf(addDays(M.START, -1));
   return (
-    <Card
+    <Card from={maxISO(STRIPE_START, SIGNUP_COUNT_START)}
       accent={C.green}
-      title="Completed sign up → paid"
+      title="Sign up → paid"
       question="What share of companies that sign up end up paying?"
-      footnote={`Paying companies ÷ individual companies that have signed up, as of the end of each week. Signed up = a distinct company id whose first signup is on or after ${monDay(SIGNUP_COUNT_START)}, ${SIGNUP_COUNT_START.slice(0, 4)} (same start as the signup counts), plus older companies once they've started paying (e.g. accounts from before ${monDay(SIGNUP_COUNT_START)} that converted later), so every paying PLG company counts. Paying = PLG Stripe customer with MRR above $0 (revenue dashboard definition). No goal set yet.`}
+      footnote={`Paying companies ÷ individual companies that have signed up, as of the end of each ${M.grainNoun}. Signed up = a distinct company id whose first signup is on or after ${monDay(SIGNUP_COUNT_START)}, ${SIGNUP_COUNT_START.slice(0, 4)} (same start as the signup counts), plus older companies once they've started paying (e.g. accounts from before ${monDay(SIGNUP_COUNT_START)} that converted later), so every paying PLG company counts. Paying = PLG Stripe customer with MRR above $0 (revenue dashboard definition). No goal set yet.`}
     >
       <StatRow delta={<Delta value={ptsDiff(now.conv, prev.conv)} suffix=" pts" />} deltaLabel={`vs ${monDay(addDays(M.START, -1))}`}>
         <Stat label={`Conversion · as of ${monDay(now.day)}`} value={fmtPct(now.conv, 1)} explain={`Of the ${fmtInt(now.cohort)} companies that signed up since ${monDay(SIGNUP_COUNT_START)} (plus older ones that started paying), ${fmtInt(now.cohortPaying)} (${fmtPct(now.conv, 1)}) were paying on ${monDay(now.day)}.`} sub={<span style={{ fontSize: 12, color: C.muted }}>{fmtInt(now.cohortPaying)} of {fmtInt(now.cohort)} companies</span>} />
@@ -3820,13 +4179,13 @@ function SignupToPaidCard() {
       </StatRow>
       <Legend items={[{ label: 'Actual %', color: C.black, line: true }, { label: 'Goal % (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
       <ZoomContainer height={200}>
-        <LineChart data={weeks} margin={chartMargin}>
+        <LineChart data={fromRows(weeks, maxISO(STRIPE_START, SIGNUP_COUNT_START))} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
           <YAxis {...yAxis} tickFormatter={(v) => `${v}%`} domain={[0, 'auto']} />
           <Tooltip content={({ active, payload }) => active && payload?.length ? (
             <TooltipBox title={weekTitle(payload[0].payload)} rows={[
-              { label: 'Completed sign up → paid', value: fmtPct(payload[0].payload.conv, 2), color: C.black },
+              { label: 'Sign up → paid', value: fmtPct(payload[0].payload.conv, 2), color: C.black },
               { label: 'Paying companies', value: fmtInt(payload[0].payload.cohortPaying) },
               { label: 'Companies signed up', value: fmtInt(payload[0].payload.cohort) },
             ]} />
@@ -3844,11 +4203,11 @@ function Act2ToPaidCard() {
   const now = PAYING.asOf(M.END);
   const prev = PAYING.asOf(addDays(M.START, -1));
   return (
-    <Card
+    <Card from={maxISO(STRIPE_START, FIRST_ACT_TRACKED)}
       accent={C.purple}
       title="1+ activated users → paid"
       question="Of companies with at least 1 activated user, what share are paying?"
-      footnote={`Of companies that had an activated user (sent or drafted an email, or published an asset) before or on the same day as their first payment, the share paying at the end of each week. Companies that started paying first and only activated later are left out of both sides. Paying = PLG Stripe customer with MRR above $0 (revenue dashboard definition). No goal set yet.`}
+      footnote={`Of companies that had an activated user (sent or drafted an email, or published an asset) before or on the same day as their first payment, the share paying at the end of each ${M.grainNoun}. Companies that started paying first and only activated later are left out of both sides. Paying = PLG Stripe customer with MRR above $0 (revenue dashboard definition). No goal set yet.`}
     >
       <StatRow delta={<Delta value={ptsDiff(now.act2Conv, prev.act2Conv)} suffix=" pts" />} deltaLabel={`vs ${monDay(addDays(M.START, -1))}`}>
         <Stat
@@ -3861,7 +4220,7 @@ function Act2ToPaidCard() {
       </StatRow>
       <Legend items={[{ label: '1+ activated → paid', color: C.black, line: true }]} />
       <ZoomContainer height={200}>
-        <LineChart data={weeks} margin={chartMargin}>
+        <LineChart data={fromRows(weeks, maxISO(STRIPE_START, FIRST_ACT_TRACKED))} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
           <YAxis {...yAxis} tickFormatter={(v) => `${v}%`} domain={[0, 'auto']} />
@@ -3881,23 +4240,24 @@ function Act2ToPaidCard() {
 
 function PayingCompaniesCard() {
   const M = useModel();
-  const weeks = payingWeekly(M);
+  // Weekly line, week in progress dotted (Nick, Oct 20: top of the Paid tab).
+  const weeks = payingWeekly(M).map((w, i, all) => ({ ...w, coFull: w.partial ? null : w.companies, coPartial: w.partial || all[i + 1]?.partial ? w.companies : null }));
   const now = PAYING.asOf(M.END);
   const prev = PAYING.asOf(addDays(M.START, -1));
   return (
-    <Card
+    <Card from={STRIPE_START}
       accent={C.green}
       title="Paying companies (PLG)"
       question="How many self-serve companies are paying?"
-      footnote={`Same definition as the revenue dashboard's Paying logos: one Stripe customer = one company, paying when its MRR (rebuilt from invoices) is above $0 at the end of each week. Enterprise customers are excluded; accounts that graduated to enterprise count only until their graduation date. Scheduled-to-cancel and past-due still count. ${lineWeekNote(M)}`}
+      footnote={`Same definition as the revenue dashboard's Paying logos: one Stripe customer = one company, paying when its MRR (rebuilt from invoices) is above $0 at the end of each ${M.grainNoun}. Enterprise customers are excluded; accounts that graduated to enterprise count only until their graduation date. Scheduled-to-cancel and past-due still count. ${lineWeekNote(M)}`}
     >
       <StatRow delta={<Delta value={pctChange(now.companies, prev.companies)} />} deltaLabel={`vs ${monDay(addDays(M.START, -1))} (${fmtInt(prev.companies)})`}>
         <Stat label={`Paying · as of ${monDay(now.day)}`} value={fmtInt(now.companies)} explain={`${fmtInt(now.companies)} self-serve companies were paying on ${monDay(now.day)} (enterprise not included).`} />
         <Stat label="PLG ARR" value={`$${fmtInt(Math.round(now.arr))}`} explain={`Those companies pay $${fmtInt(Math.round(now.arr / 12))} a month in total, so $${fmtInt(Math.round(now.arr))} a year.`} />
       </StatRow>
-      <Legend items={[{ label: 'Paying companies (end of week)', color: C.black, line: true }]} />
-      <ZoomContainer height={200}>
-        <LineChart data={weeks} margin={chartMargin}>
+      <Legend items={[{ label: `Paying companies (end of each ${M.grainNoun})`, color: C.black, line: true }]} />
+      <ZoomContainer height={220}>
+        <LineChart data={fromRows(weeks, STRIPE_START)} margin={chartMargin}>
           {grid}
           <XAxis {...xAxis} />
           <YAxis {...yAxis} allowDecimals={false} domain={[0, 'auto']} />
@@ -3905,9 +4265,11 @@ function PayingCompaniesCard() {
             <TooltipBox title={weekTitle(payload[0].payload)} rows={[
               { label: 'Paying companies', value: fmtInt(payload[0].payload.companies), color: C.black },
               { label: 'PLG ARR', value: `$${fmtInt(Math.round(payload[0].payload.arr))}` },
+              { label: 'Users in paying companies', value: fmtInt(payload[0].payload.users) },
             ]} />
           ) : null} />
-          <Line dataKey="companies" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.green, stroke: C.black }} isAnimationActive={false} />
+          <Line dataKey="coFull" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: C.green, stroke: C.black }} isAnimationActive={false} />
+          <Line dataKey="coPartial" stroke={C.black} strokeWidth={2} strokeDasharray="2 4" dot={false} activeDot={{ r: 4, fill: C.green, stroke: C.black }} legendType="none" isAnimationActive={false} />
         </LineChart>
       </ZoomContainer>
     </Card>
@@ -4282,7 +4644,7 @@ function ActivationPredictsCard() {
   const P = ACT_PREDICT;
   return (
     <div className="full">
-      <Card
+      <Card noRange
         accent={C.purple}
         title="Does activation predict paid and retention?"
         question="Companies with 1+ activated users vs companies with none: do they convert to paid, and keep paying?"
@@ -4536,7 +4898,7 @@ function CreditsUsedCard() {
   return (
     <div className="full">
       {detail && <CreditsModal data={detail} onClose={() => setDetail(null)} />}
-      <Card
+      <Card from={betaCredits?.usageFirstDay || undefined}
         accent={C.purple}
         title="Credits used per billing cycle"
         question="How much of each billing cycle's credits do paying companies use?"
@@ -4662,33 +5024,222 @@ function Collapsible({ title, children, defaultOpen = false }) {
   );
 }
 
+// --- Activation funnels (Nick, Oct 20) ---------------------------------------------
+// Two Amplitude-style funnels on the Activation tab, one per sign up type:
+//   Org creators   created a new company (isCreator: not jx, not nc)
+//   Invited users  joined an existing company (jx: accepted an invite or
+//                  joined a teammate's workspace)
+// Cohort = that type's sign ups in the reporting period, clamped to start no
+// earlier than the week of Sep 7, 2026 (AF_START, the first full week every
+// source has data: recorder installs from Aug 27, email sends from Sep 4);
+// a period ending before that shows an empty state.
+// Steps are NOT sequential (Nick, Oct 20 — some steps aren't required): each
+// step counts every sign up in the cohort that has done it, any time so far,
+// whether or not they did the other steps. Bars are % of the cohort's sign
+// ups: solid = did the step, striped = hasn't yet. Click either part to list them.
+const AF_START = '2026-09-07';
+const AF_SEGMENTS = {
+  creators: { title: 'Activation funnel — org creators', who: 'org creators', filter: isCreator, def: 'sign ups that created a new company (workspace)' },
+  invited: { title: 'Activation funnel — invited users', who: 'invited users', filter: (s) => Boolean(s.jx), def: 'sign ups that joined an existing company (accepted an invite or joined a teammate’s workspace)' },
+};
+const onbStepsDone = (s) => STEPS.filter((st) => ONB_KEYS.includes(st.key) && s[st.key]).map((st) => st.label.replace(/ (installed|connected)$/, '')).join(' · ') || 'None yet';
+// Funnel modal: one column per step — ✓ + date when done, otherwise — (with
+// what's partly done in grey).
+const afDone = (txt) => <span><span style={{ color: C.up, fontWeight: 700 }}>✓</span> {txt}</span>;
+const afNo = (hint) => <span style={{ color: C.muted }}>—{hint ? ` ${hint}` : ''}</span>;
+const AF_STAGE_COLS = [
+  { label: 'Signed up', render: (s) => afDone(monDay(s.d)) },
+  { label: 'Completed onboarding', render: (s) => {
+    if (isSetUp(s)) return afDone(monDay(onbDate(s)));
+    const done = ONB_KEYS.filter((k) => s[k]).length;
+    return afNo(`${done} of ${ONB_KEYS.length}${done ? ` (${onbStepsDone(s)})` : ''}`);
+  } },
+  { label: 'Activated', render: (s) => (actDate(s) ? afDone(`${monDay(actDate(s))} · ${activatedVia(s)}`) : afNo('')) },
+];
+const buildActFunnel = (a, b, seg) => {
+  const cohort = signupsIn(a, b).filter(AF_SEGMENTS[seg].filter);
+  return [
+    { key: 'signups', label: 'Sign ups', list: cohort, dateOf: (u) => u.d, def: `${AF_SEGMENTS[seg].def} (never-completed sign ups excluded, as in the Sign ups metric)` },
+    { key: 'onboarded', label: 'Completed onboarding', list: cohort.filter(isSetUp), dateOf: onbDate, def: ONB_DEF_TEXT },
+    { key: 'activated', label: 'Activated', list: cohort.filter((s) => Boolean(actDate(s))), dateOf: actDate, def: 'sent (or drafted) an email or published an asset' },
+  ];
+};
+
+function ActivationFunnelCard({ segment }) {
+  const SEG = AF_SEGMENTS[segment];
+  const openUsers = useUsersModal();
+  const M = useModel();
+  const afFrom = M.START > AF_START ? M.START : AF_START;
+  const afTo = M.END;
+  const outOfRange = afTo < AF_START;
+  const steps = React.useMemo(() => buildActFunnel(afFrom, afTo, segment), [afFrom, afTo, segment]);
+  // Last segment clicked (solid or striped) keeps a shadow so it's clear what the modal shows.
+  const [sel, setSel] = useState(null);
+  const top = steps[0].list.length;
+  const H = 200;
+  const range = `${SEG.who} who signed up ${rangeLabel(afFrom, afTo)}`;
+  return (
+    <Card
+      accent={C.green}
+      title={SEG.title}
+      from={AF_START}
+      question={`Of ${SEG.who} who signed up in the period, how many completed onboarding and how many activated?`}
+      footnote={<>
+        {steps.map((st, i) => <span key={st.key} style={{ display: 'block' }}><b>{i + 1}. {st.label}</b> = {st.def}</span>)}
+        <span style={{ display: 'block', marginTop: 6 }}>{`Cohort = ${SEG.who}' sign ups in the reporting period (${M.label}), from the week of ${monDay(AF_START)} at the earliest — the first full week every source has data (recorder installs from Aug 27, email sends from Sep 4). Steps aren't sequential: each counts every sign up in the cohort that has done it, any time so far, whether or not they did the other step — so Activated can be larger than Completed onboarding. Repeats by the same person count separately (one row per user + company). Recent sign ups have had less time. Bars: solid = did the step; striped = hasn't yet. Click either part to list them.`}</span>
+      </>}
+    >
+      {outOfRange ? (
+        <div style={{ marginTop: 18, padding: '28px 20px', border: `1px dashed ${C.lightGrey}`, borderRadius: 4, fontFamily: FONT_BODY, fontSize: 14, color: C.muted }}>
+          This reporting period ({rangeLabel(M.START, M.END)}) ends before the week of {monDay(AF_START)}, when funnel data starts. Pick a later period to see the funnel.
+        </div>
+      ) : (
+      <div className="af-grid" style={{ display: 'grid', gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))`, gap: 14, marginTop: 18 }}>
+        {steps.map((st, i) => {
+          const n = st.list.length;
+          const notYet = top - n;
+          const open = (inStep) => {
+            const ids = new Set(st.list);
+            const users = inStep ? st.list : steps[0].list.filter((u) => !ids.has(u));
+            setSel(`${st.key}:${inStep ? 'in' : 'out'}`);
+            openUsers({
+              noun: 'sign up', nounPlural: 'sign ups',
+              dateOf: inStep ? st.dateOf : (u) => u.d, // sort by when they did this step
+              stageCols: AF_STAGE_COLS,
+              title: inStep ? `${st.label} · ${SEG.who}` : `Not yet: ${st.label.toLowerCase()} · ${SEG.who}`,
+              subtitle: range,
+              users,
+              summary: inStep
+                ? { label: st.label, value: fmtInt(n), sub: `${fmtPct(pct(n, top), 1)} of ${fmtInt(top)} sign ups` }
+                : { label: `Haven't ${st.key === 'onboarded' ? 'completed onboarding' : 'activated'} yet`, value: fmtInt(notYet), sub: `${fmtPct(pct(notYet, top), 1)} of ${fmtInt(top)} sign ups` },
+            });
+          };
+          const segStyle = (id) => ({ all: 'unset', boxSizing: 'border-box', display: 'block', width: '100%', cursor: 'pointer', position: 'relative', boxShadow: sel === id ? `4px 4px 0 ${C.black}` : 'none', zIndex: sel === id ? 2 : 'auto' });
+          return (
+            <div key={st.key} style={{ display: 'flex', flexDirection: 'column', minWidth: 0, padding: '8px 6px 10px' }} title={`${st.label} = ${st.def}.`}>
+              <div style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 700, margin: '0 0 8px', minHeight: 36 }}>{st.label}</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+                <span style={{ ...tabular, fontFamily: FONT_DISPLAY, fontSize: 34, lineHeight: 1, letterSpacing: '-0.03em' }}>{fmtInt(n)}</span>
+                {i > 0 && <span style={{ ...tabular, fontFamily: FONT_BODY, fontSize: 12.5, color: C.muted }}>{fmtPct(pct(n, top), 1)}</span>}
+              </div>
+              <div style={{ height: H, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', marginTop: 14, borderBottom: `1px solid ${C.black}` }}>
+                {i > 0 && notYet > 0 && (
+                  <button type="button" className="af-seg" onClick={() => open(false)} title={`${fmtInt(notYet)} haven't yet — click to list them`}
+                    style={{ ...segStyle(`${st.key}:out`), height: Math.max(8, (notYet / (top || 1)) * H), background: `repeating-linear-gradient(135deg, ${C.lightPurple} 0 6px, #F8E9FD 6px 12px)`, border: `1px dashed ${C.purple}`, borderBottom: 'none' }} />
+                )}
+                {n > 0 && (
+                  <button type="button" className="af-seg" onClick={() => open(true)} title={`${fmtInt(n)} — click to list them`}
+                    style={{ ...segStyle(`${st.key}:in`), height: Math.max(8, (n / (top || 1)) * H), background: C.purple, border: `1px solid ${C.black}`, borderBottom: 'none' }} />
+                )}
+              </div>
+              <div style={{ ...tabular, fontFamily: FONT_BODY, fontSize: 12.5, marginTop: 10, minHeight: 36, lineHeight: 1.45, color: C.muted }}>
+                {i > 0 ? <>{fmtPct(pct(n, top), 1)} of sign ups<div>{fmtInt(notYet)} haven't yet</div></> : <>Everyone in the cohort</>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      )}
+    </Card>
+  );
+}
+
+// Funnel-style step charts (Nick, Oct 20 — "it should all work like a
+// funnel"): each point = sign ups IN that period who have done the step at any
+// time so far, not when they did it. Same counting as the activation funnels,
+// so the period total = the funnels' org creators + invited users.
+const COHORT_STEP = {
+  act: { title: 'Activated users', verb: 'activated', did: (s) => Boolean(actDate(s)), from: () => FIRST_ACT_TRACKED, accent: C.green, def: 'sent (or drafted) an email or published an asset', dateOf: actDate },
+  mt: { title: 'Sign ups with a recorded meeting', verb: 'recorded a meeting', did: (s) => Boolean(s.mt), from: () => FIRST_MT_TRACKED, accent: C.blue, def: 'a finalized capture, complete or partial', dateOf: (s) => s.mt, noFunnelNote: true },
+  snd: { title: 'Sign ups with a first email', verb: 'sent (or drafted) an email', did: (s) => Boolean(s.snd), from: () => FIRST_SND_TRACKED, accent: C.red, def: 'drafts count as sends', dateOf: (s) => s.snd, noFunnelNote: true },
+  onb: { title: 'Sign ups who completed onboarding', verb: 'completed onboarding', did: isSetUp, from: () => ONB_TRACK_FROM, accent: C.purple, def: ONB_DEF_TEXT, dateOf: onbDate },
+};
+function CohortStepCard({ kind }) {
+  const K = COHORT_STEP[kind];
+  const M = useModel();
+  const openUsers = useUsersModal();
+  const from = K.from();
+  const of = (a, b) => { const base = signupsIn(a, b); const list = base.filter(K.did); return { base: base.length, n: list.length, list, rate: pct(list.length, base.length) }; };
+  const rows = fromRows(M.WEEKS, from).map((w) => ({ ...w, ...of(w.start, w.end) }));
+  const data = rows.map((w, i) => ({ ...w, nFull: w.partial ? null : w.n, nPartial: w.partial || rows[i + 1]?.partial ? w.n : null }));
+  const curr = of(M.START, M.END);
+  const prev = M.noPrior ? null : of(M.PRIOR_START, M.PRIOR_END);
+  const list = (title, subtitle, users, x) => openUsers({
+    noun: 'sign up', nounPlural: 'sign ups', dateOf: K.dateOf, stageCols: AF_STAGE_COLS, title, subtitle, users,
+    summary: { label: `${K.title} · ${subtitle}`, value: fmtInt(x.n), sub: `${fmtPct(x.rate, 1)} of ${fmtInt(x.base)} sign ups` },
+  });
+  const Verb = K.verb[0].toUpperCase() + K.verb.slice(1);
+  return (
+    <Card from={from}
+      accent={K.accent}
+      title={K.title}
+      question={`Of each ${M.grainNoun}'s sign ups, how many have ${K.verb}?`}
+      footnote={`Funnel view: each point = sign ups in that ${M.grainEach} who have ${K.verb} (${K.def}) at any time so far — grouped by when they signed up, not when they ${K.verb}.${K.noFunnelNote ? ' Same counting as the activation funnels.' : ' Same counting as the activation funnels, so the period total equals org creators + invited users there.'} Never-completed sign ups are excluded. Recent sign ups have had less time, so the latest points rise as data comes in. ${lineWeekNote(M)}${M.SHOWS_CUR ? ' (dotted)' : ''} Click a point to list them. No goal set yet.`}
+    >
+      <StatRow delta={prev ? <Delta value={pctChange(curr.n, prev.n)} /> : null}>
+        <Stat label={`Actual · signed up ${rangeLabel(maxISO(M.START, from), M.END)}`} value={fmtInt(curr.n)} sub={`${fmtPct(curr.rate, 1)} of ${fmtInt(curr.base)} sign ups`}
+          explain={`Of the ${fmtInt(curr.base)} people who signed up from ${rangeLabel(M.START, M.END)}, ${fmtInt(curr.n)} (${fmtPct(curr.rate, 1)}) have ${K.verb} so far.${prev ? ` ${fmtInt(prev.n)} of the ${M.prior}'s sign ups.` : ''}`} />
+        <Stat label="Goal" value="—" muted />
+      </StatRow>
+      <ListUsersButton n={curr.n} label={`${K.verb} (signed up in the ${M.long})`} onClick={() => list(K.title, `signed up ${rangeLabel(M.START, M.END)}`, curr.list, curr)} />
+      <Legend items={[{ label: `${Verb}, by sign up ${M.grainNoun}`, color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
+      <ZoomContainer height={220}>
+        <LineChart data={data} margin={chartMargin} style={{ cursor: 'pointer' }} onClick={onWeekClick(openUsers, (row) => ({
+          noun: 'sign up', nounPlural: 'sign ups', dateOf: K.dateOf, stageCols: AF_STAGE_COLS, title: K.title, subtitle: `signed up ${periodPhrase(row)}`, users: row.list,
+          summary: { label: `${K.title} · signed up ${periodPhrase(row)}`, value: fmtInt(row.n), sub: `${fmtPct(row.rate, 1)} of ${fmtInt(row.base)} sign ups` },
+        }))}>
+          {grid}
+          <XAxis {...xAxis} />
+          <YAxis {...yAxis} domain={[0, 'auto']} allowDecimals={false} />
+          <Tooltip content={({ active, payload }) => active && payload?.length ? (
+            <TooltipBox title={`Signed up ${weekTitle(payload[0].payload).replace(/^Week of/, 'week of')}`} rows={[
+              { label: Verb, value: fmtInt(payload[0].payload.n), color: C.black },
+              { label: 'Sign ups', value: fmtInt(payload[0].payload.base) },
+              { label: `% ${K.verb}`, value: fmtPct(payload[0].payload.rate, 1) },
+            ]} note="Click to list them" />
+          ) : null} />
+          <Line dataKey="nFull" stroke={C.black} strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: K.accent, stroke: C.black }} isAnimationActive={false} />
+          <Line dataKey="nPartial" stroke={C.black} strokeWidth={2} strokeDasharray="2 4" dot={false} activeDot={{ r: 4, fill: K.accent, stroke: C.black }} legendType="none" isAnimationActive={false} />
+        </LineChart>
+      </ZoomContainer>
+    </Card>
+  );
+}
+
 // --- Sections per funnel view -------------------------------------------------
 function SectionsFor({ view }) {
-  if (view === 'signup') {
+  if (view === 'visitors') {
+    // WV tab (Nick, Oct 19): all website-visitor charts live here.
     return (
       <>
         <StageHeader n={1} title="Website visitors" subtitle="Top of the funnel: people who reach the site." />
         <Grid>
           {/* Framer since Oct 16 (Nick). GA4 versions kept, hidden:
-              <WebsiteVisitorsCard /> <VisitorToSignupCard /> <HighIntentReachCard /> <HighIntentPagesCard /> */}
+              <WebsiteVisitorsCard /> <VisitorToSignupCard /> <HighIntentReachCard /> <HighIntentPagesCard /> <HighIntentToSignupCard /> */}
           <div className="full"><FramerVisitorsCard /></div>
-          <FramerVisitorToSignupCard />
-          <FramerHighIntentReachCard />
+          <div className="full"><FramerVisitorToSignupCard /></div>
+          {/* Reach % card hidden Oct 20 (Nick): <FramerHighIntentReachCard /> */}
+          <FramerHighIntentVisitorsCard />
+          <FramerHighIntentToSignupCard />
           <FramerHighIntentPagesCard />
         </Grid>
-        <StageHeader n={2} title="Completed sign up" subtitle="Visitors who create an account and finish setting up a workspace. The gate between anonymous and known." />
+        <StageHeader title="Channel deep dive" subtitle="Which channels bring visitors to the site." />
         <Grid>
-          {/* GA4 version hidden Oct 16: <HighIntentToSignupCard /> */}
-          <FramerHighIntentToSignupCard />
-          <CumulativeSignupsCard />
-        </Grid>
-        <StageHeader title="Channel deep dive" subtitle="Which channels bring visitors, and which of them convert." />
-        <Grid>
-          {/* Hidden Oct 15 (Nick): keep only the "— Sessions" version below. */}
-          {/* <VisitorsByChannelCard /> */}
-          {/* GA4 version hidden Oct 16 (Framer is the visible source):
+          {/* Hidden Oct 15 (Nick): <VisitorsByChannelCard />. GA4 version hidden Oct 16:
               {GA4_AU.has && <VisitorsActiveUsersByChannelCard />} */}
           <FramerVisitorsByChannelCard />
+        </Grid>
+      </>
+    );
+  }
+  if (view === 'signup') {
+    return (
+      <>
+        <StageHeader n={2} title="Sign up" subtitle="Visitors who create an account and finish setting up a workspace. The gate between anonymous and known." />
+        <Grid>
+          {/* Cumulative version hidden Oct 20 (Nick): <CumulativeSignupsCard /> */}
+          <div className="full"><WeeklySignupsCard /></div>
+          <div className="full"><EnterpriseMeetingsCard /></div>
           <SignupsByChannelCard />
         </Grid>
       </>
@@ -4699,21 +5250,29 @@ function SectionsFor({ view }) {
       <>
         <StageHeader n={3} title="Activation" subtitle="First real value: the first time a user puts Mutiny to work." definition={<><b>Activated user</b> = sent (or drafted) an email, or published an asset</>} />
         <Grid>
+          {/* Weekly, full width, first (Nick, Oct 20) so the two half cards below pair up.
+              Cumulative version hidden: <ActivatedUsersCard /> */}
+          {/* Funnel-style (Nick, Oct 20): by sign up period. Event-dated version kept: <ActivatedUsersWeeklyCard /> */}
+          <div className="full"><CohortStepCard kind="act" /></div>
+          {/* Activation funnels (Nick, Oct 20): below Activated users, one per sign up type. */}
+          <ActivationFunnelCard segment="creators" />
+          <ActivationFunnelCard segment="invited" />
           <SignupToActivatedCard />
-          <ActivatedUsersCard />
           {ACT_PREDICT && <ActivationPredictsCard />}
           {/* Hidden (Nick, Oct 8) — component kept: <ActivatedByTypeCard /> */}
           {/* Hidden for now (Nick, Oct 6) — components kept, re-add to show:
               <CompletedSetupCard /> <FirstMeetingCard /> <FirstSendCard /> */}
         </Grid>
-        <StageHeader prefix="Lever 1" title="Onboarding" subtitle="Users who installed the call recorder and connected email and Google Calendar. Conversion charts have a window picker (7, 14 or 30 days) next to their title." />
+        <StageHeader prefix="Lever 1" title="Onboarding" subtitle="New users getting set up so Mutiny can work for them. Conversion charts have a window picker (7, 14 or 30 days) next to their title." definition={<><b>Completed onboarding</b> = {ONB_DEF_TEXT}</>} />
         <Grid>
+          {/* Weekly, full width (Nick, Oct 20). Cumulative version hidden: <OnboardedUsersCard /> */}
+          {/* Funnel-style (Nick, Oct 20): by sign up period. Event-dated version kept: <OnboardedUsersWeeklyCard /> */}
+          <CohortStepCard kind="onb" />
           <SignupToOnboardedCard />
-          <OnboardedUsersCard />
         </Grid>
         <Collapsible title="Onboarding steps in detail">
           <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.muted, margin: '0 0 14px', maxWidth: 820, lineHeight: 1.5 }}>
-            Completed onboarding needs all three steps. Here's each one on its own: of each day's signups, the share that did that step within the selected window. Use these to see which step people stall on.
+            Completed onboarding needs {ONB_REQUIRES_RECORDER ? 'all three steps' : 'email and calendar (the recorder is shown for reference, no longer required)'}. Here's each one on its own: of each day's signups, the share that did that step within the selected window. Use these to see which step people stall on.
           </p>
           <Grid cols={3}>
             <SignupToRecorderCard />
@@ -4723,18 +5282,20 @@ function SectionsFor({ view }) {
         </Collapsible>
         <StageHeader prefix="Lever 2" title="A1: Magic moment" subtitle="The moment a new user first gets real value from Mutiny. Conversion charts have a window picker (7, 14 or 30 days) next to their title." definition={<><b>Magic moment</b> = recorded their first meeting</>} />
         <Grid>
+          {/* Not cumulative (Nick, Oct 20): funnel-style by sign up period. Kept: <MeetingSignupsCumulativeCard /> */}
+          <CohortStepCard kind="mt" />
           <SignupToMeetingCard />
-          <MeetingSignupsCumulativeCard />
         </Grid>
         <StageHeader prefix="Lever 3" title="A2: First customer send" subtitle="The first time a user sends something to a real customer. Conversion charts have a window picker (7, 14 or 30 days) next to their title." definition={<><b>First customer send</b> = sent (or drafted) their first email</>} />
         <Grid>
+          {/* Not cumulative (Nick, Oct 20): funnel-style by sign up period. Kept: <EmailSignupsCumulativeCard /> */}
+          <CohortStepCard kind="snd" />
           <SignupToEmailSendCard />
-          <EmailSignupsCumulativeCard />
         </Grid>
-        <StageHeader title="Returned" subtitle={`Activated users who come back within ${RETURN_DAYS} days of activating and do something meaningful.`} />
+        <StageHeader title="Returned" subtitle={`Activated users who come back within ${RETURN_DAYS} days of activating and do something meaningful.`} definition={<><b>Returned user</b> = in the {RETURN_DAYS} days after activating, used credits, created or published an asset, or sent (or drafted) an email</>} />
         <Grid>
-          <ActivatedToReturnedCard />
           <WeeklyReturnedUsersCard />
+          <ActivatedToReturnedCard />
           {/* Hidden (Nick, Oct 7) — component kept; re-add to show:
               {PREDICT && <ReturningPredictsPaidCard />} */}
         </Grid>
@@ -4759,12 +5320,16 @@ function SectionsFor({ view }) {
         <StageHeader n={4} title="Paid companies" subtitle="Self-serve (PLG) companies paying in Stripe, and the users inside them." />
         {PAYING ? (
           <>
-            <Grid>
-              <SignupToPaidCard />
-              {/* Paying companies (PLG) chart removed (Nick, Oct 8) — component kept. */}
-              <Act2ToPaidCard />
-            </Grid>
-            <div style={{ marginTop: 32 }}><Grid><div className="full"><TotalPayingUsersCard /></div></Grid></div>
+            {/* Paying companies, weekly, full width on top (Nick, Oct 20). Replaces
+                Total paying users (component kept): <TotalPayingUsersCard /> */}
+            <Grid><div className="full"><PayingCompaniesCard /></div></Grid>
+            <div style={{ marginTop: 32 }}>
+              <Grid>
+                <SignupToPaidCard />
+                {/* Paying companies (PLG) chart removed (Nick, Oct 8) — component kept. */}
+                <Act2ToPaidCard />
+              </Grid>
+            </div>
           </>
         ) : <Grid><PaidEmptyCard /></Grid>}
       </>
@@ -4811,17 +5376,63 @@ function DataAsOf() {
   );
 }
 
+// Footer: first day of each product data export (Metabase, written by
+// ingest-signups) and the first day it matches a counted (non-internal) sign up.
+// Earlier dates may be the feature launch or just where the export starts.
+const DATA_COVERAGE = [
+  { name: 'Call recorder installs', from: betaSignups.recorderFrom, matched: FIRST_REC_TRACKED },
+  { name: 'Gmail connections', from: betaSignups.gmailFrom, matched: FIRST_EM_TRACKED },
+  { name: 'Google Calendar connections', from: betaSignups.calendarFrom, matched: FIRST_CAL_TRACKED },
+  { name: 'Recorded meetings', from: betaSignups.meetingsFrom, matched: firstOf('mt') },
+  { name: 'Email sends / drafts', from: betaSignups.emailsFrom, matched: firstOf('snd') },
+  { name: 'Asset publishes', from: firstOf('pub'), matched: firstOf('pub') },
+];
+const fullDay = (iso) => (iso ? `${monDay(iso)}, ${iso.slice(0, 4)}` : '—');
+function DataCoverage() {
+  return (
+    <div style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 12, color: C.muted, marginTop: 10, lineHeight: 1.6 }}>
+      <span style={{ fontStyle: 'normal', fontFamily: FONT_BODY, fontWeight: 700, fontSize: 10.5, letterSpacing: '0.08em', textTransform: 'uppercase', marginRight: 8 }}>Data coverage</span>
+      {DATA_COVERAGE.map((x, i) => (
+        <span key={x.name}>{i ? ' · ' : ''}{x.name} from {fullDay(x.from)}{x.matched && x.matched !== x.from ? ` (first counted sign up ${monDay(x.matched)})` : ''}</span>
+      ))}
+      . Each export's first day; may be the feature launch or just where the export starts.
+    </div>
+  );
+}
+
+// Dropdown for the controls bar: a native <select> (keyboard + mobile
+// friendly) dressed as a pill with an optional leading icon and a chevron.
+function PeriodSelect({ label, value, onChange, options, icon, group }) {
+  return (
+    <label className="period-select" title={label} style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', background: C.white, border: `1px solid ${C.black}`, borderRadius: 8, boxShadow: `2px 2px 0 ${C.black}` }}>
+      {icon && <span aria-hidden style={{ position: 'absolute', left: 10, display: 'inline-flex', pointerEvents: 'none' }}>{icon}</span>}
+      <select aria-label={label} value={value} onChange={(e) => onChange(e.target.value)}
+        style={{ appearance: 'none', WebkitAppearance: 'none', border: 'none', background: 'transparent', fontFamily: FONT_BODY, fontSize: 13.5, fontWeight: 600, color: C.black, padding: `6px 32px 6px ${icon ? 32 : 12}px`, cursor: 'pointer', borderRadius: 8 }}>
+        {group
+          ? <optgroup label={group}>{options.map(([id, text]) => <option key={id} value={id}>{text}</option>)}</optgroup>
+          : options.map(([id, text]) => <option key={id} value={id}>{text}</option>)}
+      </select>
+      <ChevronDown size={15} aria-hidden style={{ position: 'absolute', right: 10, pointerEvents: 'none' }} />
+    </label>
+  );
+}
+
 export default function BetaDashboard() {
   const [view, setViewState] = useState(readHashView);
-  // Reporting period toggle (remembered per browser).
-  const [mode, setModeState] = useState(() => {
-    try { const m = window.localStorage.getItem('beta-mode'); return MODES[m] ? m : DEFAULT_MODE; } catch (e) { return DEFAULT_MODE; }
-  });
-  const setMode = (m) => {
-    setModeState(m);
-    try { window.localStorage.setItem('beta-mode', m); } catch (e) { /* ignore */ }
-  };
-  const M = MODELS[mode];
+  // Reporting period = date range + granularity (Nick, Oct 20), remembered per browser.
+  const stored = (key, ok, dflt) => { try { const v = window.localStorage.getItem(key); return ok(v) ? v : dflt; } catch (e) { return dflt; } };
+  const [grain, setGrainState] = useState(() => stored('beta-grain', (v) => Boolean(GRAINS[v]), DEFAULT_GRAIN));
+  const [rangeSel, setRangeState] = useState(() => stored('beta-range', (v) => Boolean(RANGES[v]), DEFAULT_RANGE));
+  // Always derived at render, so the dropdown shows the range actually used
+  // even if the stored / previous selection is shorter than the minimum.
+  const range = presetFor(rangeSel, grain);
+  const save = (k, v) => { try { window.localStorage.setItem(k, v); } catch (e) { /* ignore */ } };
+  // The date range dropdown re-adjusts (Nick, Oct 20): a range shorter than the
+  // granularity's minimum snaps to that minimum (Daily 30 days, Weekly 12 weeks,
+  // Monthly 6 months).
+  const setRange = (v) => { const r = v === 'default' ? GRAIN_DEFAULT[grain] : presetFor(v, grain); setRangeState(r); save('beta-range', r); };
+  const setGrain = (g) => { const r = presetFor(range, g); setGrainState(g); setRangeState(r); save('beta-grain', g); save('beta-range', r); };
+  const M = getModel(range, grain);
   const { START, END, WEEKS } = M;
   const [usersModal, setUsersModal] = useState(null);
   const closeUsersModal = React.useCallback(() => setUsersModal(null), []);
@@ -4865,21 +5476,12 @@ export default function BetaDashboard() {
           viewport while scrolling. Conversion window lives in each chart (Oct 14). */}
       <div className="beta-controls" style={{ position: 'sticky', top: 0, zIndex: 900, background: C.lightBlue, borderBottom: `1px solid ${C.black}` }}>
         <div style={{ maxWidth: 1400, margin: '0 auto', padding: '10px 32px', display: 'flex', alignItems: 'center', gap: '10px 24px', flexWrap: 'wrap', fontSize: 13 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ ...eyebrow, fontSize: 10 }}>Reporting period</span>
-            <div role="group" aria-label="Reporting period" style={{ display: 'inline-flex', border: `1px solid ${C.black}`, borderRadius: 999, overflow: 'hidden', background: C.white }}>
-              {Object.entries(MODES).map(([id]) => (
-                <button
-                  key={id}
-                  type="button"
-                  aria-pressed={mode === id}
-                  onClick={() => setMode(id)}
-                  style={{ padding: '5px 14px', border: 'none', background: mode === id ? C.black : 'transparent', color: mode === id ? C.white : C.black, cursor: mode === id ? 'default' : 'pointer', fontFamily: FONT_BODY, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}
-                >
-                  {MODELS[id].label}
-                </button>
-              ))}
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            {/* Amplitude-style filter (Nick, Oct 20): granularity + date range dropdowns. */}
+            <span style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 700 }}>Filter by:</span>
+            <PeriodSelect label="Granularity" value={grain} onChange={setGrain} options={Object.entries(GRAINS).map(([id, g]) => [id, g.label])} />
+            <PeriodSelect label="Date range" icon={<Calendar size={15} />} value={range} onChange={setRange} group="Presets"
+              options={[['default', `Default (${RANGES[GRAIN_DEFAULT[grain]].label})`], ...GRAIN_PRESETS[grain].map((id) => [id, makeWindow(id, grain).label])]} />
             <span style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{rangeLabel(START, END)}, {END.slice(0, 4)}</span>
             {M.WTD && <span style={{ color: C.muted, whiteSpace: 'nowrap' }}>· week to date {rangeLabel(M.WTD.start, M.WTD.end)} not in totals</span>}
           </div>
@@ -4893,9 +5495,11 @@ export default function BetaDashboard() {
         <SectionsFor view={view} />
 
         <div style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 12, color: C.muted, marginTop: 56 }}>
-          Signups export: {betaSignups.source} · {SIGNUPS.length.toLocaleString()} signup rows · {monDay(DATA_START)} {DATA_START.slice(0, 4)} – {monDay(betaSignups.lastDate)} {betaSignups.lastDate.slice(0, 4)} ({COUNTED_SIGNUPS.toLocaleString()} counted as signups from {monDay(SIGNUP_COUNT_START)}, {SIGNUP_COUNT_START.slice(0, 4)}){betaSignups.internalExcluded ? `; ${betaSignups.internalExcluded.toLocaleString()} internal @mutinyhq.com signups excluded` : ''}; {NEVER_COMPLETED.length.toLocaleString()} never-completed signups (no workspace, or one never named) excluded.
+          Signups export: {betaSignups.source} · {SIGNUPS.length.toLocaleString()} signup rows · {monDay(DATA_START)} {DATA_START.slice(0, 4)} – {monDay(betaSignups.lastDate)} {betaSignups.lastDate.slice(0, 4)} ({COUNTED_SIGNUPS.toLocaleString()} counted as signups from {monDay(SIGNUP_COUNT_START)}, {SIGNUP_COUNT_START.slice(0, 4)}){betaSignups.internalExcluded ? `; ${betaSignups.internalExcluded.toLocaleString()} internal @mutinyhq.com / @gomomentic.com signups excluded` : ''}; {NEVER_COMPLETED.length.toLocaleString()} never-completed signups (no workspace, or one never named) excluded.
           GA4 pulled {dataJson.ga4.pulledAt?.slice(0, 10)}.
         </div>
+        {/* Data coverage (Nick, Oct 20): when each product data source starts. */}
+        <DataCoverage />
       </main>
       <UsersModal data={usersModal} onClose={closeUsersModal} />
     </div>
