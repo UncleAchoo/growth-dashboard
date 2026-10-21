@@ -136,7 +136,11 @@ export function buildRows(raw, { enterpriseSet, config, historyStart }) {
   const annualFlags = [];
   let skippedPreIntegration = 0;
 
+  // Stripe customers left out entirely (config.ignore_stripe_customer_ids,
+  // Nick Oct 21) — e.g. a customer the annual-plan guard would otherwise stop on.
+  const ignored = new Set(config.ignore_stripe_customer_ids || []);
   for (const id of ids) {
+    if (ignored.has(id)) continue;
     const subs = subsBy.get(id) || [];
     const invs = invBy.get(id) || [];
     const tl = recurringRunRateTimeline(invs, subs);

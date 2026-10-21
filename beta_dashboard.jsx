@@ -140,14 +140,18 @@ const RANGES = {
   tm: { label: 'This Month', long: 'month to date', prior: 'same days last month' },
   tq: { label: 'This Quarter', long: 'fiscal quarter to date', prior: 'same days last quarter' },
   ytd: { label: 'This Year', long: 'fiscal year to date', prior: 'no prior year', noPrior: true },
+  custom: { label: 'Custom range', long: 'selected dates', prior: 'same number of days before' },
 };
+// Custom date range (Nick, Oct 21): any from/to day; compared with the same
+// number of days just before. Earliest selectable day = CUSTOM_MIN.
+const CUSTOM_MIN = '2026-01-01';
 // Amplitude's date-range presets per granularity (Nick, Oct 20). "Default"
 // = GRAIN_DEFAULT. Switching granularity keeps the range when the new list
 // has it, otherwise falls back to that granularity's default.
 const GRAIN_PRESETS = {
-  day: ['7d', '30d', '60d', '90d', 'tw', 'tm', 'tq', 'ytd'],
-  week: ['4w', '8w', '12w', '24w', 'tm', 'tq', 'ytd'],
-  month: ['3m', '6m', '12m', 'tq', 'ytd'],
+  day: ['7d', '30d', '60d', '90d', 'tw', 'tm', 'tq', 'ytd', 'custom'],
+  week: ['4w', '8w', '12w', '24w', 'tm', 'tq', 'ytd', 'custom'],
+  month: ['3m', '6m', '12m', 'tq', 'ytd', 'custom'],
 };
 const GRAIN_DEFAULT = { day: '30d', week: '12w', month: '6m' };
 const presetFor = (range, grain) => (GRAIN_PRESETS[grain].includes(range) ? range : GRAIN_DEFAULT[grain]);
@@ -212,7 +216,7 @@ function makeBuckets(grain, from, to) {
   }
   return out;
 }
-function makeWindow(range, grain) {
+function makeWindow(range, grain, custom) {
   const cfg = RANGES[range];
   const mon = mondayOf(DATA_END);
   const qs = quarterStart(DATA_END);
@@ -253,6 +257,16 @@ function makeWindow(range, grain) {
     START = qs;
     [PRIOR_START, PRIOR_END] = sameDaysBefore(START, 3);
     label = `This Quarter (Q${fiscalQuarter(DATA_END)})`;
+  } else if (range === 'custom') {
+    const clampDay = (d, dflt) => (!d ? dflt : d < CUSTOM_MIN ? CUSTOM_MIN : d > DATA_END ? DATA_END : d);
+    let a = clampDay(custom?.from, addDays(DATA_END, -29));
+    let b = clampDay(custom?.to, DATA_END);
+    if (a > b) [a, b] = [b, a];
+    START = a;
+    END = b;
+    PRIOR_END = addDays(START, -1);
+    PRIOR_START = addDays(START, -(daysBetweenISO(START, END) + 1));
+    label = 'Custom range'; // dates are shown next to it everywhere
   } else { // ytd
     START = fiscalYearStart(DATA_END);
     PRIOR_END = addDays(START, -1); // no data there; deltas are hidden (noPrior)
@@ -769,8 +783,8 @@ function selfReportedIn(start, end) {
 }
 
 // --- Window-dependent model (rebuilt per reporting window) ------------------
-function buildModel(range, grain) {
-  const W = makeWindow(range, grain);
+function buildModel(range, grain, custom) {
+  const W = makeWindow(range, grain, custom);
   const mode = range;
   const { END, START, PRIOR_START, PRIOR_END, WEEKS, WEEKS_CUR } = W;
 
@@ -1125,9 +1139,14 @@ function buildModel(range, grain) {
 }
 // Built on demand (24 range × grain combos) and cached.
 const MODEL_CACHE = new Map();
-const getModel = (range, grain) => {
-  const k = `${range}|${grain}`;
-  if (!MODEL_CACHE.has(k)) MODEL_CACHE.set(k, buildModel(range, grain));
+const getModel = (range, grain, custom) => {
+  const k = range === 'custom' ? `custom|${grain}|${custom?.from}|${custom?.to}` : `${range}|${grain}`;
+  if (!MODEL_CACHE.has(k)) {
+    // Custom ranges make a new model per pair of dates — keep only the last few.
+    const customKeys = [...MODEL_CACHE.keys()].filter((x) => x.startsWith('custom|'));
+    if (range === 'custom' && customKeys.length >= 6) MODEL_CACHE.delete(customKeys[0]);
+    MODEL_CACHE.set(k, buildModel(range, grain, custom));
+  }
   return MODEL_CACHE.get(k);
 };
 const ModelCtx = React.createContext(getModel(DEFAULT_RANGE, DEFAULT_GRAIN));
@@ -1652,6 +1671,7 @@ function StageHeader({ n, prefix, title, subtitle, right, definition }) {
 // Two columns like the blueprint; one column on narrow screens.
 const PAGE_CSS = `.beta-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 28px;align-items:stretch}
 .beta-grid > .full{grid-column:1 / -1}
+.period-date{font-family:inherit;font-size:13px;font-weight:600;color:#000;background:#fff;border:1px solid #000;border-radius:8px;padding:5px 8px;box-shadow:2px 2px 0 #000}
 .af-seg{transition:box-shadow 80ms}
 .af-seg:hover{box-shadow:4px 4px 0 ${C.black}!important;z-index:2!important}
 .af-seg:focus-visible{outline:2px solid ${C.black};outline-offset:2px}
@@ -5434,16 +5454,30 @@ export default function BetaDashboard() {
   const stored = (key, ok, dflt) => { try { const v = window.localStorage.getItem(key); return ok(v) ? v : dflt; } catch (e) { return dflt; } };
   const [grain, setGrainState] = useState(() => stored('beta-grain', (v) => Boolean(GRAINS[v]), DEFAULT_GRAIN));
   const [rangeSel, setRangeState] = useState(() => stored('beta-range', (v) => Boolean(RANGES[v]), DEFAULT_RANGE));
-  // Always derived at render, so the dropdown shows the range actually used
-  // even if the stored / previous selection is shorter than the minimum.
+  // Derived at render, so the dropdown always shows a preset the granularity has.
   const range = presetFor(rangeSel, grain);
+  // Custom date range (Nick, Oct 21): two day pickers, shown when "Custom range" is picked.
+  const [custom, setCustomState] = useState(() => ({
+    from: stored('beta-custom-from', (v) => /^\d{4}-\d{2}-\d{2}$/.test(v || ''), addDays(DATA_END, -29)),
+    to: stored('beta-custom-to', (v) => /^\d{4}-\d{2}-\d{2}$/.test(v || ''), DATA_END),
+  }));
+  const setCustom = (patch) => {
+    const next = { ...custom, ...patch };
+    if (next.from > next.to) { if (patch.from) next.to = next.from; else next.from = next.to; }
+    setCustomState(next);
+    save('beta-custom-from', next.from); save('beta-custom-to', next.to);
+  };
   const save = (k, v) => { try { window.localStorage.setItem(k, v); } catch (e) { /* ignore */ } };
-  // The date range dropdown re-adjusts (Nick, Oct 20): a range shorter than the
-  // granularity's minimum snaps to that minimum (Daily 30 days, Weekly 12 weeks,
-  // Monthly 6 months).
-  const setRange = (v) => { const r = v === 'default' ? GRAIN_DEFAULT[grain] : presetFor(v, grain); setRangeState(r); save('beta-range', r); };
+  // Amplitude preset logic (Nick, Oct 20): each granularity has its own preset
+  // list; switching granularity keeps the range if listed, else its Default.
+  const setRange = (v) => {
+    const r = v === 'default' ? GRAIN_DEFAULT[grain] : presetFor(v, grain);
+    setRangeState(r); save('beta-range', r);
+    // A custom range is a daily timeframe (Nick, Oct 21): switch to Daily.
+    if (r === 'custom' && grain !== 'day') { setGrainState('day'); save('beta-grain', 'day'); }
+  };
   const setGrain = (g) => { const r = presetFor(range, g); setGrainState(g); setRangeState(r); save('beta-grain', g); save('beta-range', r); };
-  const M = getModel(range, grain);
+  const M = getModel(range, grain, range === 'custom' ? custom : null);
   const { START, END, WEEKS } = M;
   const [usersModal, setUsersModal] = useState(null);
   const closeUsersModal = React.useCallback(() => setUsersModal(null), []);
@@ -5492,7 +5526,14 @@ export default function BetaDashboard() {
             <span style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 700 }}>Filter by:</span>
             <PeriodSelect label="Granularity" value={grain} onChange={setGrain} options={Object.entries(GRAINS).map(([id, g]) => [id, g.label])} />
             <PeriodSelect label="Date range" icon={<Calendar size={15} />} value={range} onChange={setRange} group="Presets"
-              options={[['default', `Default (${RANGES[GRAIN_DEFAULT[grain]].label})`], ...GRAIN_PRESETS[grain].map((id) => [id, makeWindow(id, grain).label])]} />
+              options={[['default', `Default (${RANGES[GRAIN_DEFAULT[grain]].label})`], ...GRAIN_PRESETS[grain].map((id) => [id, id === 'custom' ? 'Custom range…' : makeWindow(id, grain).label])]} />
+            {range === 'custom' && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <input type="date" aria-label="From" className="period-date" value={custom.from} min={CUSTOM_MIN} max={DATA_END} onChange={(e) => e.target.value && setCustom({ from: e.target.value })} />
+                <span style={{ color: C.muted }}>to</span>
+                <input type="date" aria-label="To" className="period-date" value={custom.to} min={CUSTOM_MIN} max={DATA_END} onChange={(e) => e.target.value && setCustom({ to: e.target.value })} />
+              </span>
+            )}
             <span style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{rangeLabel(START, END)}, {END.slice(0, 4)}</span>
             {M.WTD && <span style={{ color: C.muted, whiteSpace: 'nowrap' }}>· week to date {rangeLabel(M.WTD.start, M.WTD.end)} not in totals</span>}
           </div>

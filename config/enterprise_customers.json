@@ -11,5 +11,7 @@
     { "name": "Tive", "id": "a4e367b1-462d-444c-b65f-f17b65a1bd4a" },
     { "name": "Uber for Business", "id": "a2fc1c25-8e1a-4be0-b4d1-88d6e8aa4619" }
   ],
-  "stripe_customer_ids": []
+  "stripe_customer_ids": [],
+  "ignore_stripe_customer_ids": ["cus_VSCL2UfJZHXTKL"],
+  "_ignore_note": "Left out of the ?beta Stripe data entirely (Nick, Oct 21 2026): cus_VSCL2UfJZHXTKL = People Center, Inc. dba Rippling, annual plan."
 }
