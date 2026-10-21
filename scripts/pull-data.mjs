@@ -1313,7 +1313,7 @@ if (logosOnly) {
   payload = JSON.parse(readFileSync(inputPath, 'utf8'));
 } else {
   // ?beta sources (Oct 15 2026, Nick): part of the daily pull so nothing is
-  // skipped. Order matters — ingest-signups reads pull-amp-events' output.
+  // skipped. Order matters — ingest-signups reads pull-amp-events' and pull-posthog's output.
   // Each runs as its own script; a failure warns and the refresh carries on
   // (that source just keeps its previous data). --skip-beta turns this off.
   if (!process.argv.includes('--skip-beta')) {
@@ -1321,6 +1321,9 @@ if (logosOnly) {
     const steps = [
       ['Stripe paying companies', 'scripts/pull-stripe.mjs'],
       ['Amplitude answers/invites', 'scripts/pull-amp-events.mjs'],
+      // Oct 21 2026: PostHog new-onboarding outcomes (src/beta-posthog.json) + org joins
+      // by join type (data/posthog/org_joins.json). Before ingest-signups, which reads the joins.
+      ['PostHog new onboarding + org joins', 'scripts/pull-posthog.mjs'],
       ['Signups + credits (Metabase CSVs in data/data-queries/)', 'scripts/ingest-signups.mjs'],
       // Oct 16 2026: Framer website visitors (every CSV in data/framer/ → src/framer.json).
       ['Framer website visitors (CSVs in data/framer/)', 'scripts/ingest-framer.mjs'],

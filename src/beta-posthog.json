@@ -1,0 +1,59 @@
+{
+  "source": "PostHog project 381053 (dashboard 2240501 logic)",
+  "pulledAt": "2026-10-21T19:15:03.821Z",
+  "rolloutStart": "2026-10-21",
+  "rolloutStartUtc": "2026-10-21T04:00:00Z",
+  "tz": "America/New_York",
+  "counts": {
+    "org": 5,
+    "gmail": 2,
+    "cal": 1,
+    "rec": 1,
+    "perms": 1,
+    "a1": 1,
+    "a2": 0
+  },
+  "creators": [
+    {
+      "pid": "999717ae-5e6f-5162-a2b1-a0833ddec92b",
+      "uid": "2d4e6387-7c52-4820-a920-84f882848e03",
+      "email": "ridzki@pvxpartners.com",
+      "orgUtc": "2026-10-21T05:52:23.933Z",
+      "org": "2026-10-21T01:52",
+      "gmail": "2026-10-21T01:53",
+      "cal": "2026-10-21T01:54",
+      "rec": "2026-10-21T01:55",
+      "perms": "2026-10-21T01:55",
+      "a1": "2026-10-21T02:01"
+    },
+    {
+      "pid": "3c95069c-bbf1-5428-ac97-ab6e85996690",
+      "uid": "764c6304-c4c0-46b1-b65c-30edfd7d3477",
+      "email": "asato@zendesk.com",
+      "orgUtc": "2026-10-21T07:54:41.321Z",
+      "org": "2026-10-21T03:54",
+      "gmail": "2026-10-21T03:59"
+    },
+    {
+      "pid": "864054de-6b36-5376-9b02-f4915f078442",
+      "uid": "67a130ab-59f2-47e6-8b10-801d38183a3c",
+      "email": "selagoutte@cegid.com",
+      "orgUtc": "2026-10-21T12:09:52.262Z",
+      "org": "2026-10-21T08:09"
+    },
+    {
+      "pid": "96ddc888-7ee3-5c8c-bf35-7631bfbac4ec",
+      "uid": "0ad87869-9d1d-4a74-a325-4b52d518bb46",
+      "email": "josh.moran@deploi.uk",
+      "orgUtc": "2026-10-21T15:29:18.138Z",
+      "org": "2026-10-21T11:29"
+    },
+    {
+      "pid": "5d0dbfd8-6069-5ef2-bab3-74768d3ec0fa",
+      "uid": "b0c73675-3d0c-48d8-9e6d-65641a25f1b3",
+      "email": "ria.manzanero@culture.ai",
+      "orgUtc": "2026-10-21T19:09:23.571Z",
+      "org": "2026-10-21T15:09"
+    }
+  ]
+}

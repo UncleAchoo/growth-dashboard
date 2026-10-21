@@ -93,6 +93,7 @@ const key = (userId, companyId) => `${userId}|${companyId}`;
 
 let signups;
 let source;
+let PH_JOINS = null; // coverage of data/posthog/org_joins.json
 let HAS_CO_NAME = false; // user_signups export carries company_name
 let AMP_EVENTS = null; // coverage of data/amplitude/signup_events.json, if pulled
 let INTERNAL_EXCLUDED = 0; // internal signups dropped (INTERNAL_EMAIL_RX)
@@ -296,6 +297,17 @@ if (src.endsWith('.csv')) {
   // Setup Complete (with its "How did you hear about us?" answer) and each
   // accepted invite to the user's signup row closest in time (Amplitude
   // user_id = Metabase user id; a user can have several company signups).
+  // How each joiner joined (Nick, Oct 21): PostHog [Activation] Organization
+  // Joined join_type, from npm run pull-posthog → data/posthog/org_joins.json.
+  // Keyed user_id + company_id (PostHog distinct_id = Metabase user id).
+  const joinsFile = path.join(root, 'data/posthog/org_joins.json');
+  const JOIN_TYPE = new Map(); // `${user_id}|${company_id}` -> 'i' | 'd'
+  if (fs.existsSync(joinsFile)) {
+    const pj = JSON.parse(fs.readFileSync(joinsFile, 'utf8'));
+    for (const j of pj.joins || []) JOIN_TYPE.set(`${j.uid}|${j.co}`, j.jt);
+    PH_JOINS = { firstDay: pj.firstDay, lastDay: pj.lastDay, pulledAt: pj.pulledAt || null };
+  }
+
   const ampFile = path.join(root, 'data/amplitude/signup_events.json');
   const AMP_MATCH_DAYS = 3;
   const evByRow = new Map(); // row -> { ref, csc, inv }
@@ -380,6 +392,8 @@ if (src.endsWith('.csv')) {
     // Joined an existing company = the company already had an earlier signup
     // (Nick, Oct 7: covers accepted invites AND joiners with no invite event).
     else if (creatorRow.get(r.company_id) !== r) s.jx = 1;
+    // How they joined (PostHog): jt = 'i' invite, 'd' domain match. Joiners only.
+    if (s.jx && JOIN_TYPE.has(`${r.user_id}|${r.company_id}`)) s.jt = JOIN_TYPE.get(`${r.user_id}|${r.company_id}`);
     // Per-person Amplitude: the signup's own answer + whether they accepted an invite.
     const amp = evByRow.get(r);
     if (amp?.ref) s.ref = amp.ref;
@@ -425,6 +439,7 @@ const json = {
   lastDate: signups[signups.length - 1]?.d,
   hasCompanyName: HAS_CO_NAME,
   ampEvents: AMP_EVENTS,
+  phJoins: PH_JOINS,
   internalExcluded: INTERNAL_EXCLUDED,
   meetingsFrom: MEETINGS_FROM,
   emailsFrom: EMAILS_FROM,
