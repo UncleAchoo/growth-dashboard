@@ -277948,7 +277948,1071 @@
         }
       ]
     },
-    "pulledAt": "2026-10-16T15:52:41.813Z"
+    "pulledAt": "2026-10-16T15:52:41.813Z",
+    "enterpriseDeals": [
+      {
+        "date": "20260102",
+        "dealId": "53118640970",
+        "name": "Players Fund",
+        "company": "Players Fund",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260103",
+        "dealId": "53166648739",
+        "name": "SalesJack",
+        "company": "SalesJack",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260104",
+        "dealId": "53129213982",
+        "name": "Scale emailer",
+        "company": "Scale emailer",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260104",
+        "dealId": "53180707732",
+        "name": "Offset",
+        "company": "Offset",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260105",
+        "dealId": "53200576113",
+        "name": "Pluralsight",
+        "company": "Pluralsight",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260105",
+        "dealId": "53269319579",
+        "name": "UnitPay",
+        "company": "UnitPay",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260105",
+        "dealId": "53238820154",
+        "name": "Quinnox",
+        "company": "Quinnox",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260105",
+        "dealId": "53269558654",
+        "name": "UnitPay",
+        "company": "UnitPay",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260105",
+        "dealId": "53238375195",
+        "name": "League",
+        "company": "League",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260105",
+        "dealId": "53200602181",
+        "name": "CollarUp Ai",
+        "company": "CollarUp Ai",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260105",
+        "dealId": "53181022464",
+        "name": "League",
+        "company": "League",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260318",
+        "dealId": "58025449053",
+        "name": "Rippling - 1/16/26",
+        "company": "Rippling",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "cbcfae4d-26b1-4768-a004-492f1ee2f074",
+        "source": ""
+      },
+      {
+        "date": "20260327",
+        "dealId": "58404191495",
+        "name": "Jeppesen ForeFlight - 3/26/26",
+        "company": "Jeppesen ForeFlight",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260327",
+        "dealId": "58519357340",
+        "name": "AvePoint - 3/27/26",
+        "company": "AvePoint",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "cbcfae4d-26b1-4768-a004-492f1ee2f074",
+        "source": ""
+      },
+      {
+        "date": "20260330",
+        "dealId": "58581699161",
+        "name": "Atomicwork - 3/30/26",
+        "company": "Atomicwork",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260403",
+        "dealId": "58725259329",
+        "name": "SeenThis - 4/3/26",
+        "company": "SeenThis",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260406",
+        "dealId": "58798274846",
+        "name": "Florence Healthcare - 3/18/26",
+        "company": "Florence Healthcare",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260406",
+        "dealId": "58798418736",
+        "name": "DHL - 3/6/26",
+        "company": "DHL",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69a6ec34-c553-4277-ae9c-7ce286638f48",
+        "source": ""
+      },
+      {
+        "date": "20260408",
+        "dealId": "58937260593",
+        "name": "Iterable - 4/8/26",
+        "company": "Iterable",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260408",
+        "dealId": "58941784638",
+        "name": "CreatorIQ - 4/13/26",
+        "company": "CreatorIQ",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260409",
+        "dealId": "58949562788",
+        "name": "AppsFlyer - 4/9/26",
+        "company": "AppsFlyer",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260409",
+        "dealId": "59023866726",
+        "name": "Canary Technologies - 4/9/26",
+        "company": "Canary Technologies",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260410",
+        "dealId": "59099912292",
+        "name": "HPE - 4/13/26",
+        "company": "HPE",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69a6ec34-c553-4277-ae9c-7ce286638f48",
+        "source": ""
+      },
+      {
+        "date": "20260410",
+        "dealId": "59086110066",
+        "name": "Rillet - 4/14/26",
+        "company": "Rillet",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260410",
+        "dealId": "59085019965",
+        "name": "Trayd - 4/15/26",
+        "company": "Trayd",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260410",
+        "dealId": "59082495597",
+        "name": "Coder - 4/13/26",
+        "company": "Coder",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260410",
+        "dealId": "59083252096",
+        "name": "Workbooks - 4/10/26",
+        "company": "Workbooks",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260410",
+        "dealId": "59086428008",
+        "name": "Snowflake - 2/20/26",
+        "company": "Snowflake",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "cbcfae4d-26b1-4768-a004-492f1ee2f074",
+        "source": ""
+      },
+      {
+        "date": "20260410",
+        "dealId": "59097433267",
+        "name": "Frontify - 4/10/26",
+        "company": "Frontify",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "cbcfae4d-26b1-4768-a004-492f1ee2f074",
+        "source": ""
+      },
+      {
+        "date": "20260413",
+        "dealId": "59139606969",
+        "name": "Conga - 4/13/26",
+        "company": "Conga",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260414",
+        "dealId": "59166901878",
+        "name": "ORO Labs - 4/14/26",
+        "company": "ORO Labs",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260414",
+        "dealId": "59158264169",
+        "name": "Cazoomi - 4/13/26",
+        "company": "Cazoomi",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260415",
+        "dealId": "59212423456",
+        "name": "Zendesk - 4/15/26",
+        "company": "Zendesk",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "cbcfae4d-26b1-4768-a004-492f1ee2f074",
+        "source": ""
+      },
+      {
+        "date": "20260416",
+        "dealId": "59233080847",
+        "name": "Alex AI - 4/16/26",
+        "company": "Alex AI",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260421",
+        "dealId": "59440818530",
+        "name": "CrowdStrike - 4/21/26",
+        "company": "CrowdStrike",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260424",
+        "dealId": "58917328701",
+        "name": "Brex - 4/7/26",
+        "company": "Brex",
+        "enteredVia": "Stage 1 (Discovery)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260424",
+        "dealId": "59151379758",
+        "name": "CookUnity - 4/13/26",
+        "company": "CookUnity",
+        "enteredVia": "Stage 1 (Discovery)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260424",
+        "dealId": "59573282601",
+        "name": "Redo - 4/23/26",
+        "company": "Redo",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260425",
+        "dealId": "59685782124",
+        "name": "0.5 Labs - 4/25/26",
+        "company": "0.5 Labs",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260428",
+        "dealId": "59756704332",
+        "name": "PEX - 4/27/26",
+        "company": "PEX",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260428",
+        "dealId": "59774282790",
+        "name": "Chargeflow.io - 4/28/26",
+        "company": "Chargeflow.io",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260429",
+        "dealId": "59791881890",
+        "name": "LaCalle Group / Continued - 4/28/26",
+        "company": "LaCalle Group / Continued",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260430",
+        "dealId": "59849601349",
+        "name": "IBS Software - 4/30/26",
+        "company": "IBS Software",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "a7d68614-73a0-4242-b004-bd907d755028",
+        "source": ""
+      },
+      {
+        "date": "20260501",
+        "dealId": "59946098314",
+        "name": "Korber Pharma Software - 5/1/26",
+        "company": "Korber Pharma Software",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260501",
+        "dealId": "59967580960",
+        "name": "GenetiQ - 5/1/26",
+        "company": "GenetiQ",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260504",
+        "dealId": "59994898357",
+        "name": "SBT (Solutions by Text) - 5/4/26",
+        "company": "SBT (Solutions by Text)",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260505",
+        "dealId": "59094195757",
+        "name": "Artera - 4/14/26",
+        "company": "Artera",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260505",
+        "dealId": "59237281796",
+        "name": "Perk - 4/16/26",
+        "company": "Perk",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260505",
+        "dealId": "59107810218",
+        "name": "GP - 4/15/26",
+        "company": "GP",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260505",
+        "dealId": "59084236721",
+        "name": "Eon.io - 4/14/26",
+        "company": "Eon.io",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260505",
+        "dealId": "59104028228",
+        "name": "RapidCanvas - 4/10/26",
+        "company": "RapidCanvas",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260505",
+        "dealId": "59860090709",
+        "name": "TryHackMe - 4/30/26",
+        "company": "TryHackMe",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260505",
+        "dealId": "60034564381",
+        "name": "Abridge - 5/5/26",
+        "company": "Abridge",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "cbcfae4d-26b1-4768-a004-492f1ee2f074",
+        "source": ""
+      },
+      {
+        "date": "20260506",
+        "dealId": "60040488817",
+        "name": "Verito - 5/5/26",
+        "company": "Verito",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260506",
+        "dealId": "60057288366",
+        "name": "1Mind - 5/6/26",
+        "company": "1Mind",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260508",
+        "dealId": "60101173651",
+        "name": "Continued - 5/8/26",
+        "company": "Continued",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260511",
+        "dealId": "60177383687",
+        "name": "Okta - 5/11/26",
+        "company": "Okta",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "51010f0f-8129-4575-a563-2532d0601dc0",
+        "source": ""
+      },
+      {
+        "date": "20260512",
+        "dealId": "60191712840",
+        "name": "Ontic - 5/12/26",
+        "company": "Ontic",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260512",
+        "dealId": "60180142006",
+        "name": "Razorpay - 5/12/26",
+        "company": "Razorpay",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260513",
+        "dealId": "60237970359",
+        "name": "Bigeye - 5/13/26",
+        "company": "Bigeye",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260513",
+        "dealId": "60237442924",
+        "name": "G&A Partners - 5/13/26",
+        "company": "G&A Partners",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260515",
+        "dealId": "60273390696",
+        "name": "Flashfood - 5/15/26",
+        "company": "Flashfood",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260515",
+        "dealId": "60264329533",
+        "name": "Bolt - 5/15/26",
+        "company": "Bolt",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260519",
+        "dealId": "60366030855",
+        "name": "LiveKit - 5/19/26",
+        "company": "LiveKit",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260522",
+        "dealId": "60524945282",
+        "name": "Gusto 5/20/26",
+        "company": "Gusto",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "51010f0f-8129-4575-a563-2532d0601dc0",
+        "source": ""
+      },
+      {
+        "date": "20260526",
+        "dealId": "60643704403",
+        "name": "Leap - 5/26/26",
+        "company": "Leap",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260527",
+        "dealId": "60668529564",
+        "name": "Ontra - 5/27/26",
+        "company": "Ontra",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260527",
+        "dealId": "60669361725",
+        "name": "AppFolio - 5/27/26",
+        "company": "AppFolio",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260527",
+        "dealId": "60662977940",
+        "name": "Deepki - 5/27/26",
+        "company": "Deepki",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260528",
+        "dealId": "60693037404",
+        "name": "exacare ai - 5/28/26",
+        "company": "exacare ai",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260528",
+        "dealId": "60698770189",
+        "name": "Gainsight - 5/28/26",
+        "company": "Gainsight",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260529",
+        "dealId": "60713207347",
+        "name": "Exacare - 5/29/26",
+        "company": "Exacare",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260529",
+        "dealId": "60715743906",
+        "name": "Gainsight - 5/29/26",
+        "company": "Gainsight",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260529",
+        "dealId": "60711737514",
+        "name": "Iridium - 5/29/26",
+        "company": "Iridium",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260529",
+        "dealId": "60712449024",
+        "name": "LexisNexis Risk - 5/29/26",
+        "company": "LexisNexis Risk",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "51010f0f-8129-4575-a563-2532d0601dc0",
+        "source": ""
+      },
+      {
+        "date": "20260607",
+        "dealId": "60927255116",
+        "name": "Lightricks - 6/7/26",
+        "company": "Lightricks",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260608",
+        "dealId": "60963483718",
+        "name": "Exaforce - 6/8/26",
+        "company": "Exaforce",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260609",
+        "dealId": "60981670243",
+        "name": "Team Pumpkin - 6/9/26",
+        "company": "Team Pumpkin",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260609",
+        "dealId": "60985286819",
+        "name": "Ontic - 6/9/26",
+        "company": "Ontic",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260611",
+        "dealId": "61028532746",
+        "name": "HUMAN, Inc. - 6/11/26",
+        "company": "HUMAN, Inc.",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260612",
+        "dealId": "61047479573",
+        "name": "Wunderkind - 6/12/26",
+        "company": "Wunderkind",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260615",
+        "dealId": "61099238577",
+        "name": "mabl - 6/15/26",
+        "company": "mabl",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260618",
+        "dealId": "61269833567",
+        "name": "BlinkOps - 6/18/26",
+        "company": "BlinkOps",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260622",
+        "dealId": "61434121509",
+        "name": "Kinaxis - 6/22/26",
+        "company": "Kinaxis",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260623",
+        "dealId": "61462333089",
+        "name": "Stravito - 6/23/26",
+        "company": "Stravito",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260625",
+        "dealId": "61643608217",
+        "name": "JFrog - 6/25/26",
+        "company": "JFrog",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260625",
+        "dealId": "61648085837",
+        "name": "AccessHope - 6/25/26",
+        "company": "AccessHope",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260706",
+        "dealId": "61322796316",
+        "name": "Compass Group USA - 6/18/26",
+        "company": "Compass Group USA",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260706",
+        "dealId": "62312630955",
+        "name": "Chainguard - 7/6/26",
+        "company": "Chainguard",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260707",
+        "dealId": "62351273533",
+        "name": "Evotix - 7/7/26",
+        "company": "Evotix",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260713",
+        "dealId": "62601255061",
+        "name": "horizon3 - 7/13/26",
+        "company": "horizon3",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260714",
+        "dealId": "62633492096",
+        "name": "PPRO - 7/14/26",
+        "company": "PPRO",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260721",
+        "dealId": "62983820634",
+        "name": "MikMak - 7/21/26",
+        "company": "MikMak",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260727",
+        "dealId": "63189311916",
+        "name": "Paycor (Paychex) - 7/24/2026",
+        "company": "Paycor (Paychex)",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260730",
+        "dealId": "63312287840",
+        "name": "BuildOps - 7/30/26",
+        "company": "BuildOps",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260731",
+        "dealId": "63304031157",
+        "name": "Sandstone - 7/30/26",
+        "company": "Sandstone",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "8c55c259-5132-4198-a4b9-36b19723b348",
+        "source": ""
+      },
+      {
+        "date": "20260803",
+        "dealId": "63460240979",
+        "name": "Numeric - 7/31/26",
+        "company": "Numeric",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260804",
+        "dealId": "63476720313",
+        "name": "Asimily - 8/4/26",
+        "company": "Asimily",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "8c55c259-5132-4198-a4b9-36b19723b348",
+        "source": ""
+      },
+      {
+        "date": "20260806",
+        "dealId": "63540913694",
+        "name": "twaice - 8/6/26",
+        "company": "twaice",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "8c55c259-5132-4198-a4b9-36b19723b348",
+        "source": ""
+      },
+      {
+        "date": "20260806",
+        "dealId": "62115748634",
+        "name": "Apple Work - 6/22/2026",
+        "company": "Apple Work",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "8c55c259-5132-4198-a4b9-36b19723b348",
+        "source": ""
+      },
+      {
+        "date": "20260806",
+        "dealId": "63549269862",
+        "name": "Within (Klarity) - 8/6/26",
+        "company": "Within (Klarity)",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260810",
+        "dealId": "63674944282",
+        "name": "Thrive TRM - 8/10/26",
+        "company": "Thrive TRM",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260811",
+        "dealId": "63713077770",
+        "name": "Selector - 8/11/26",
+        "company": "Selector",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260817",
+        "dealId": "64051637912",
+        "name": "Veriff - 8/17/26",
+        "company": "Veriff",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260817",
+        "dealId": "64076695453",
+        "name": "Wellhub - 8/17/26",
+        "company": "Wellhub",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260818",
+        "dealId": "64143027738",
+        "name": "Movable Ink - 8/18/26",
+        "company": "Movable Ink",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "51010f0f-8129-4575-a563-2532d0601dc0",
+        "source": ""
+      },
+      {
+        "date": "20260821",
+        "dealId": "64248238746",
+        "name": "CoreWeave - 8/21/26",
+        "company": "CoreWeave",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260824",
+        "dealId": "64286333979",
+        "name": "LiveKit - 8/14/2026",
+        "company": "LiveKit",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "cbcfae4d-26b1-4768-a004-492f1ee2f074",
+        "source": ""
+      },
+      {
+        "date": "20260827",
+        "dealId": "64410019590",
+        "name": "SurveyMonkey - 8/27/26",
+        "company": "SurveyMonkey",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69a6ec34-c553-4277-ae9c-7ce286638f48",
+        "source": ""
+      },
+      {
+        "date": "20260831",
+        "dealId": "64384509762",
+        "name": "Anrok - 8/25/26",
+        "company": "Anrok",
+        "enteredVia": "Stage 1 (Discovery)",
+        "stage": "4ff97a89-00bc-47ac-9033-876618cff081",
+        "source": ""
+      },
+      {
+        "date": "20260901",
+        "dealId": "64539958922",
+        "name": "Zycus Infotech - 9/1/26",
+        "company": "Zycus Infotech",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260904",
+        "dealId": "61850089025",
+        "name": "Basata - 6/29/26",
+        "company": "Basata",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20260916",
+        "dealId": "65092277142",
+        "name": "TryHackMe - 9/16/26",
+        "company": "TryHackMe",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "69dbe40f-8288-41df-be7a-9dd2172c902e",
+        "source": ""
+      },
+      {
+        "date": "20261015",
+        "dealId": "66056453488",
+        "name": "Revgro - 10/15/26",
+        "company": "Revgro",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "8c55c259-5132-4198-a4b9-36b19723b348",
+        "source": ""
+      },
+      {
+        "date": "20261015",
+        "dealId": "66063360376",
+        "name": "BICS - 10/14/26",
+        "company": "BICS",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "8c55c259-5132-4198-a4b9-36b19723b348",
+        "source": ""
+      },
+      {
+        "date": "20261015",
+        "dealId": "66057037946",
+        "name": "Klipboard - 10/15/26",
+        "company": "Klipboard",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "8c55c259-5132-4198-a4b9-36b19723b348",
+        "source": ""
+      },
+      {
+        "date": "20261016",
+        "dealId": "66169471542",
+        "name": "Signifyd - 10/16/26",
+        "company": "Signifyd",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "8c55c259-5132-4198-a4b9-36b19723b348",
+        "source": ""
+      },
+      {
+        "date": "20261016",
+        "dealId": "66168681360",
+        "name": "Locus Robotics - 10/16/26",
+        "company": "Locus Robotics",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "8c55c259-5132-4198-a4b9-36b19723b348",
+        "source": ""
+      }
+    ]
   },
   "peec": {
     "pulledAt": "2026-10-16T15:48:45.000Z",

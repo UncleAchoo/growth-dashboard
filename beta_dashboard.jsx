@@ -3160,11 +3160,22 @@ function CumulativeSignupsCard() {
   );
 }
 
-// Enterprise meetings (Nick, Oct 20): HubSpot "Talk to Sales" form
-// submissions (dataJson.hubspot.meetings, from pull-data.mjs — test emails
-// already removed). Same source as the live dashboard's "Enterprise Talk to
-// Sales Submissions". Counted only through HubSpot's pull day (HS_END).
-const HS_MEETINGS = (dataJson.hubspot?.meetings || []).map((m) => ({ ...m, d: `${m.date.slice(0, 4)}-${m.date.slice(4, 6)}-${m.date.slice(6)}` }));
+// Enterprise meetings (Nick, Oct 20): HubSpot New Business deals that entered
+// Stage 0 "0 - Interest" or Stage 1 "1 - Discovery", dated by whichever came
+// first, one per deal (dataJson.hubspot.enterpriseDeals, from pull-data.mjs
+// fetchEnterpriseDeals; test / Mutiny deals excluded). Replaced "Talk to Sales"
+// form submissions. Counted only through HubSpot's pull day (HS_END).
+const DEAL_STAGE_LABELS = {
+  '8c55c259-5132-4198-a4b9-36b19723b348': '0 - Interest',
+  '4ff97a89-00bc-47ac-9033-876618cff081': '1 - Discovery',
+  '51010f0f-8129-4575-a563-2532d0601dc0': '2 - Active Evaluation',
+  '69a6ec34-c553-4277-ae9c-7ce286638f48': '3 - Solution Validation',
+  'ae106f7a-d9f2-416c-ac87-d99ff715eee3': '4 - Negotiation',
+  'a7d68614-73a0-4242-b004-bd907d755028': '5 - Procurement',
+  'cbcfae4d-26b1-4768-a004-492f1ee2f074': 'Closed Won',
+  '69dbe40f-8288-41df-be7a-9dd2172c902e': 'Closed Lost',
+};
+const HS_MEETINGS = (dataJson.hubspot?.enterpriseDeals || []).map((m) => ({ ...m, d: `${m.date.slice(0, 4)}-${m.date.slice(4, 6)}-${m.date.slice(6)}`, stageLabel: DEAL_STAGE_LABELS[m.stage] || 'Other stage' }));
 const HS_END = dataJson.hubspot?.pulledAt ? dataJson.hubspot.pulledAt.slice(0, 10) : null;
 const HS_FIRST = HS_MEETINGS.map((m) => m.d).sort()[0] || null;
 const meetingsIn = (a, b) => HS_MEETINGS.filter((m) => m.d >= a && m.d <= b);
@@ -3190,11 +3201,11 @@ function EnterpriseMeetingsCard() {
     <Card from={HS_FIRST} to={HS_END}
       accent={C.red}
       title="Enterprise meetings"
-      question="How many companies ask to talk to sales?"
-      footnote={`HubSpot “Talk to Sales” form submissions (contacts whose first or most recent conversion is Talk to Sales, dated by that conversion; test and @mutiny emails left out). Same source as the live dashboard's Enterprise Talk to Sales Submissions. HubSpot pulled ${HS_END ? monDay(HS_END) : '—'}; a period HubSpot hasn't fully covered yet draws dotted. No goal set yet.`}
+      question="How many new enterprise deals reach Stage 0 or Stage 1?"
+      footnote={`HubSpot New Business deals that entered Stage 0 (0 - Interest) or Stage 1 (1 - Discovery), dated by whichever came first; each deal counts once. Test and Mutiny-internal deals are left out. Replaced “Talk to Sales” form submissions on Oct 20. Hover lists each deal's current stage. HubSpot pulled ${HS_END ? monDay(HS_END) : '—'}; a period HubSpot hasn't fully covered yet draws dotted. No goal set yet.`}
     >
       <StatRow delta={prev == null ? null : <Delta value={pctChange(total, prev)} />}>
-        <Stat label={`Actual · ${rangeLabel(M.START, end)}`} value={fmtInt(total)} explain={`${fmtInt(total)} Talk to Sales submissions from ${rangeLabel(M.START, end)}.${prev != null ? ` ${fmtInt(prev)} in the ${M.prior}.` : ''}`} />
+        <Stat label={`Actual · ${rangeLabel(M.START, end)}`} value={fmtInt(total)} explain={`${fmtInt(total)} enterprise deals reached Stage 0 or 1 from ${rangeLabel(M.START, end)}.${prev != null ? ` ${fmtInt(prev)} in the ${M.prior}.` : ''}`} />
         <Stat label="Goal" value="—" muted />
       </StatRow>
       <Legend items={[{ label: `Enterprise meetings (${M.grainAdj})`, color: C.black, line: true }, { label: 'Goal (not set)', color: '#9A9A9A', line: true, dashed: true }]} />
@@ -3208,7 +3219,7 @@ function EnterpriseMeetingsCard() {
               title={weekTitle(payload[0].payload)}
               rows={[
                 { label: 'Enterprise meetings', value: payload[0].payload.meetings == null ? '—' : fmtInt(payload[0].payload.meetings), color: C.black },
-                ...payload[0].payload.subs.slice(0, 8).map((m, i) => ({ label: m.company || m.email.split('@')[1] || '—', value: m.jobTitle || '—', key: i })),
+                ...payload[0].payload.subs.slice(0, 8).map((m, i) => ({ label: m.company || m.name || '—', value: m.stageLabel, key: i })),
               ]}
               note={payload[0].payload.subs.length > 8 ? `+${payload[0].payload.subs.length - 8} more` : undefined}
             />

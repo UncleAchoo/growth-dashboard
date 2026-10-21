@@ -1160,7 +1160,81 @@ async function fetchHubspot() {
     }
   }
 
-  return { meetings, logos, pulledAt: new Date().toISOString() };
+  // Enterprise meetings (Nick, Oct 20): New Business deals that entered Stage 0
+  // (Interest) or Stage 1 (Discovery) — replaces Talk-to-Sales form fills on
+  // the ?beta dashboard. Own try/catch so it can't sink the meetings pull.
+  let enterpriseDeals = null;
+  try {
+    enterpriseDeals = await fetchEnterpriseDeals();
+  } catch (e) {
+    err(`  HubSpot enterprise deals (Stage 0/1) pull failed: ${e.message}`);
+  }
+
+  return { meetings, enterpriseDeals, logos, pulledAt: new Date().toISOString() };
+}
+
+// New Business pipeline (b51ce325…) deals that entered Stage 0 "0 - Interest"
+// or Stage 1 "1 - Discovery", dated by whichever came first. One row per deal.
+// Test / internal deals (name contains "test" or "mutiny") and the known
+// excluded deal ids (hubspot-crm skill) are dropped.
+const NB_PIPELINE = 'b51ce325-f596-4cfe-ac1a-905471fc66a9';
+const STAGE0_ENTERED = 'hs_v2_date_entered_8c55c259_5132_4198_a4b9_36b19723b348_349393935'; // 0 - Interest
+const STAGE1_ENTERED = 'hs_v2_date_entered_4ff97a89_00bc_47ac_9033_876618cff081_696370426'; // 1 - Discovery
+const EXCLUDED_DEAL_IDS = new Set(['58268249692', '58363143555', '58562087729', '58630518806']);
+const TEST_DEAL_RX = /\btest\b|mutiny/i;
+async function fetchEnterpriseDeals() {
+  const sinceMs = String(Date.parse(`${WINDOW_START}T00:00:00Z`));
+  const body = (enteredProp, after) => ({
+    filterGroups: [{ filters: [
+      { propertyName: 'pipeline', operator: 'EQ', value: NB_PIPELINE },
+      { propertyName: enteredProp, operator: 'GTE', value: sinceMs },
+    ] }],
+    properties: ['dealname', 'dealstage', 'createdate', 'hs_analytics_source', STAGE0_ENTERED, STAGE1_ENTERED],
+    limit: 100,
+    ...(after ? { after } : {}),
+  });
+  const byId = new Map();
+  for (const prop of [STAGE0_ENTERED, STAGE1_ENTERED]) {
+    let after;
+    do {
+      const res = await fetch('https://api.hubapi.com/crm/v3/objects/deals/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${HUBSPOT_TOKEN}` },
+        body: JSON.stringify(body(prop, after)),
+      });
+      if (!res.ok) throw new Error(`HubSpot deals HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
+      const j = await res.json();
+      for (const d of j.results || []) byId.set(d.id, d);
+      after = j.paging?.next?.after;
+    } while (after);
+  }
+  const toDay = (v) => {
+    if (!v) return null;
+    const t = /^\d+$/.test(String(v)) ? Number(v) : Date.parse(v);
+    return Number.isFinite(t) ? new Date(t).toISOString().slice(0, 10) : null;
+  };
+  const endDay = WINDOW_END;
+  const out = [];
+  for (const [id, d] of byId) {
+    const p = d.properties || {};
+    if (EXCLUDED_DEAL_IDS.has(String(id)) || TEST_DEAL_RX.test(p.dealname || '')) continue;
+    const s0 = toDay(p[STAGE0_ENTERED]);
+    const s1 = toDay(p[STAGE1_ENTERED]);
+    const first = [s0, s1].filter(Boolean).sort()[0];
+    if (!first || first < WINDOW_START || first > endDay) continue;
+    out.push({
+      date: first.replaceAll('-', ''),
+      dealId: String(id),
+      name: (p.dealname || '').replace(/&amp;/g, '&'),
+      company: (p.dealname || '').replace(/&amp;/g, '&').replace(/\s*-?\s*\d{1,2}\/\d{1,2}\/\d{2,4}\s*$/, '').trim(),
+      enteredVia: s0 && (!s1 || s0 <= s1) ? 'Stage 0 (Interest)' : 'Stage 1 (Discovery)',
+      stage: p.dealstage || '',
+      source: p.hs_analytics_source || '',
+    });
+  }
+  out.sort((a, b) => a.date.localeCompare(b.date));
+  log(`  HubSpot ok: ${byId.size} New Business deals entered Stage 0/1 since ${WINDOW_START} → ${out.length} enterprise meetings (test deals excluded).`);
+  return out;
 }
 
 // ===========================================================================
@@ -1305,6 +1379,11 @@ if (logosOnly) {
   // produce a fresh one (PULL_LOGOS off, scope error, or partial HubSpot fail).
   // The series is methodologically built from the revenue connector and lives
   // under hubspot.logos; never clobber it with an empty value.
+  // Same for the Stage 0/1 enterprise deals (Oct 20): keep the prior list if
+  // this run's deals pull failed.
+  if (payload.hubspot && !payload.hubspot.enterpriseDeals && prev.hubspot?.enterpriseDeals) {
+    payload.hubspot.enterpriseDeals = prev.hubspot.enterpriseDeals;
+  }
   if (payload.hubspot && !payload.hubspot.logos && prev.hubspot?.logos) {
     payload.hubspot.logos = { ...prev.hubspot.logos, _staleFromPrevRun: true };
   }
