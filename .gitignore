@@ -33,5 +33,8 @@ data/amplitude/
 # PostHog org joins (user ids + company ids) — only the stripped src/beta-signups.json is committed
 data/posthog/
 
+# Daily PostHog-vs-signups org creator check (lists emails) — local only
+reports/
+
 # Framer Analytics raw exports (~500MB, visitor ids) — only the aggregated src/framer.json is committed
 data/framer/

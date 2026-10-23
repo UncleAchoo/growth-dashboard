@@ -14,7 +14,8 @@
     "pull-stripe": "node scripts/pull-stripe.mjs",
     "pull-amp-events": "node scripts/pull-amp-events.mjs",
     "ingest-framer": "node scripts/ingest-framer.mjs",
-    "pull-posthog": "node scripts/pull-posthog.mjs"
+    "pull-posthog": "node scripts/pull-posthog.mjs",
+    "compare-orgs": "node scripts/compare-org-creators.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.379.0",

@@ -1325,6 +1325,8 @@ if (logosOnly) {
       // by join type (data/posthog/org_joins.json). Before ingest-signups, which reads the joins.
       ['PostHog new onboarding + org joins', 'scripts/pull-posthog.mjs'],
       ['Signups + credits (Metabase CSVs in data/data-queries/)', 'scripts/ingest-signups.mjs'],
+      // Oct 23 2026: daily PostHog-vs-signups org creator check → reports/org-creators-compare.html.
+      ['Org creators check: PostHog vs signups', 'scripts/compare-org-creators.mjs'],
       // Oct 16 2026: Framer website visitors (every CSV in data/framer/ → src/framer.json).
       ['Framer website visitors (CSVs in data/framer/)', 'scripts/ingest-framer.mjs'],
     ];

@@ -78,6 +78,7 @@ export const QUERY = `SELECT
   person_id,
   argMaxIf(toString(properties.email), timestamp, event = '[Activation] Organization Created') AS email,
   argMinIf(distinct_id, timestamp, event = '[Activation] Organization Created') AS uid,
+  arraySort(groupArrayIf(concat(toString(timestamp), '|', toString(properties.company_id)), event = '[Activation] Organization Created')) AS orgs,
 ${STEPS.map(([k, cond]) => `  if(countIf(${cond}) > 0, toString(minIf(timestamp, ${cond})), '') AS ${k}`).join(',\n')}
 FROM events
 WHERE timestamp >= toDateTime('${ROLLOUT_UTC}')
@@ -113,7 +114,13 @@ export function build(columns, rows, pulledAt = new Date().toISOString()) {
       const steps = {};
       for (const [k] of STEPS) { const t = toET(r[idx[k]]); if (t) steps[k] = t; }
       const orgUtc = r[idx.org] ? `${r[idx.org].replace(' ', 'T').replace(/(\.\d{3})\d*$/, '$1')}Z` : null;
-      return { pid: r[idx.person_id], uid: r[idx.uid] || null, email, orgUtc, ...steps };
+      // Every org this person created (Nick, Oct 23): workspace id + UTC time.
+      // ingest-signups.mjs adds a signup row for any of these missing from
+      // Metabase's user_signups (the new onboarding doesn't always write one).
+      const orgs = (idx.orgs == null ? [] : r[idx.orgs] || [])
+        .map((s) => { const [t, co] = String(s).split('|'); return { co: co || null, utc: `${t.replace(' ', 'T').replace(/(\.\d{3})\d*$/, '$1')}Z` }; })
+        .filter((o) => o.co);
+      return { pid: r[idx.person_id], uid: r[idx.uid] || null, email, orgUtc, ...steps, ...(orgs.length ? { orgs } : {}) };
     })
     .filter((c) => !INTERNAL_EMAIL_RX.test(c.email))
     .sort((a, b) => ((a.org || '') < (b.org || '') ? -1 : 1));

@@ -107,6 +107,7 @@ let EMAILS_FROM = null; // first day in the email delivery export
 let RECORDER_FROM = null; // recorder_install_events
 let GMAIL_FROM = null; // integration_connection_events, toolkit gmail
 let CALENDAR_FROM = null; // integration_connection_events, toolkit google_calendar
+let LAST_SIGNUP_AT = null; // newest user_signups created_at (Pacific) — the Metabase export's cutoff
 
 if (src.endsWith('.csv')) {
   // --- Legacy: one master CSV with first_* columns already computed ---------
@@ -149,6 +150,65 @@ if (src.endsWith('.csv')) {
   INTERNAL_EXCLUDED = allRows.length - base.length;
   console.log(`  excluded ${INTERNAL_EXCLUDED} internal signups (@mutinyhq.com, @gomomentic.com)`);
   HAS_CO_NAME = base.length > 0 && 'company_name' in base[0];
+  // New onboarding backfill (Nick, Oct 23): from Oct 21, 2026 (Pacific day,
+  // the new-onboarding launch) the new flow leaves user_signups.company_id
+  // blank until the work role exists, so people who created an org looked
+  // "never completed". For signup rows on/after that day with no company,
+  // take the user's company from all_users.csv. Rows before Oct 21 are left
+  // as-is (the never-completed rule stays unchanged historically). No rows are
+  // added; a fill is skipped if the user already has a row for that company.
+  const FILL_FROM = '2026-10-21';
+  const allUsersFile = files.filter((f) => f.startsWith('all_users')).sort().pop();
+  if (allUsersFile) {
+    const coByUser = new Map();
+    for (const u of readTable(path.join(src, allUsersFile), ['id', 'company_id'])) if (u.company_id) coByUser.set(u.id, u.company_id);
+    const pairs = new Set(base.filter((r) => r.company_id).map((r) => key(r.user_id, r.company_id)));
+    let filled = 0;
+    for (const r of base) {
+      if (r.company_id || day(r.created_at) < FILL_FROM) continue;
+      const co = coByUser.get(r.user_id);
+      if (!co || pairs.has(key(r.user_id, co))) continue;
+      r.company_id = co; r.coFilled = 'u'; pairs.add(key(r.user_id, co)); filled += 1;
+    }
+    T.allUsers = path.join(src, allUsersFile);
+    console.log(`  filled company for ${filled} signups since ${FILL_FROM} from ${allUsersFile}`);
+  } else {
+    console.log(`  no all_users*.csv — signups since ${FILL_FROM} with no company stay "never completed"`);
+  }
+  // PostHog org creations Metabase has no row for (Nick, Oct 23). E.g. a new
+  // user who joins one workspace by domain match, then creates their own: the
+  // new flow wrote no user_signups row for the workspace they created. From
+  // src/beta-posthog.json (npm run pull-posthog), every [Activation]
+  // Organization Created (user + workspace id) on/after FILL_FROM:
+  //   1. the user's still-blank row since FILL_FROM gets that workspace, else
+  //   2. a new signup row is added (created_at = the event, Pacific).
+  // Only up to the newest user_signups row, so PostHog never runs ahead of the
+  // Metabase export. Rows marked cf: 'u' (all_users) / 'p' (PostHog).
+  const phFile = path.join(root, 'src/beta-posthog.json');
+  const signupCutoff = base.reduce((m, r) => (r.created_at > m ? r.created_at : m), '');
+  LAST_SIGNUP_AT = signupCutoff || null;
+  if (fs.existsSync(phFile)) {
+    const ph = JSON.parse(fs.readFileSync(phFile, 'utf8'));
+    const ptFmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+    const toPT = (iso) => { const p = Object.fromEntries(ptFmt.formatToParts(new Date(iso)).map((x) => [x.type, x.value])); return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second}.000`; };
+    const pairs = new Set(base.filter((r) => r.company_id).map((r) => key(r.user_id, r.company_id)));
+    let phFilled = 0; let phAdded = 0; let noOrgs = 0;
+    for (const c of ph.creators || []) {
+      if (!c.uid || isInternalEmail(c.email)) continue;
+      if (!c.orgs) { noOrgs += 1; continue; }
+      for (const o of c.orgs) {
+        const at = toPT(o.utc);
+        if (!o.co || day(at) < FILL_FROM || at > signupCutoff || pairs.has(key(c.uid, o.co))) continue;
+        const blank = base.find((r) => r.user_id === c.uid && !r.company_id && day(r.created_at) >= FILL_FROM);
+        if (blank) { blank.company_id = o.co; blank.coFilled = 'p'; phFilled += 1; } else {
+          base.push({ user_id: c.uid, company_id: o.co, created_at: at, email: c.email, self_selected_role: '', work_role_id: '', coFilled: 'p' });
+          phAdded += 1;
+        }
+        pairs.add(key(c.uid, o.co));
+      }
+    }
+    console.log(`  PostHog org creations: filled ${phFilled} blank rows, added ${phAdded} missing signup rows (up to ${signupCutoff})${noOrgs ? ` — ${noOrgs} creators have no workspace ids; re-run npm run pull-posthog` : ''}`);
+  }
   const installs = readTable(T.installs, ['user_id', 'company_id', 'installed_at']);
   const connections = readTable(T.connections, ['user_id', 'company_id', 'toolkit', 'connection_scope', 'connected_at']);
   const meetings = readTable(T.meetings, ['user_id', 'company_id', 'occurred_at']);
@@ -388,7 +448,9 @@ if (src.endsWith('.csv')) {
     // that was never named). Used to split the "No answer" row of the
     // self-reported channel table. Uses the optional company_name column when
     // the user_signups export has it; otherwise only "no company at all".
-    if (!r.company_id || (HAS_CO_NAME && !r.company_name)) s.nc = 1;
+    // (Rows whose company was filled from all_users have no company_name to check.)
+    if (r.coFilled) s.cf = r.coFilled; // company filled from all_users ('u') or PostHog ('p')
+    if (!r.company_id || (HAS_CO_NAME && !r.company_name && !r.coFilled)) s.nc = 1;
     // Joined an existing company = the company already had an earlier signup
     // (Nick, Oct 7: covers accepted invites AND joiners with no invite event).
     else if (creatorRow.get(r.company_id) !== r) s.jx = 1;
@@ -446,6 +508,7 @@ const json = {
   recorderFrom: RECORDER_FROM,
   gmailFrom: GMAIL_FROM,
   calendarFrom: CALENDAR_FROM,
+  lastSignupAt: LAST_SIGNUP_AT,
   signups,
 };
 fs.writeFileSync(out, JSON.stringify(json));
