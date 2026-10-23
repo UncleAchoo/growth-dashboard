@@ -29,6 +29,7 @@ import {
 import { ArrowUpRight, ArrowDownRight, MousePointerClick, Info, Clock, ChevronDown, Calendar } from 'lucide-react';
 import dataJson from './src/data.json';
 import betaSignups from './src/beta-signups.json';
+import betaSignupsPh from './src/beta-signups-ph.json';
 import betaPaying from './src/beta-paying.json';
 import betaCredits from './src/beta-credits.json';
 import framerJson from './src/framer.json';
@@ -72,11 +73,28 @@ const rangeLabel = (a, b) => (a === b ? monDay(a) : `${monDay(a)} – ${monDay(b
 const daysBetweenISO = (a, b) => Math.round((toDate(b) - toDate(a)) / 86400000);
 
 // --- Source data --------------------------------------------------------------
+// ?posthog (Nick, Oct 23): signup rows from Oct 21 (new onboarding launch) come
+// from PostHog events (src/beta-signups-ph.json, scripts/build-posthog-signups.mjs)
+// instead of the Metabase user_signups export; rows before Oct 21 stay Metabase.
+// Same row format, so every signup chart works unchanged. Credits, inactive
+// accounts and paying companies are not affected.
+const USE_PH_SIGNUPS = typeof window !== 'undefined'
+  && new URLSearchParams(window.location.search).has('posthog')
+  && Boolean(betaSignupsPh?.signups?.length);
+const PH_SIGNUPS_FROM = betaSignupsPh?.fromDay || '2026-10-21';
+const SIGNUP_SRC = USE_PH_SIGNUPS
+  ? {
+    ...betaSignups,
+    source: `Metabase (${betaSignups.source}) before ${PH_SIGNUPS_FROM}; PostHog events from ${PH_SIGNUPS_FROM} (pulled ${betaSignupsPh.pulledAt?.slice(0, 10)})`,
+    lastDate: betaSignupsPh.lastDate,
+    signups: [...betaSignups.signups.filter((s) => s.d < PH_SIGNUPS_FROM), ...betaSignupsPh.signups],
+  }
+  : betaSignups;
 // Never-completed signups (ingest `nc`: no workspace, or one never named) are
 // left out of EVERY signup metric on this page (Nick, Oct 15). They never
 // activate, so only signup counts / denominators change. They're kept in
 // NEVER_COMPLETED for the "view never-completed sign ups" modal.
-const ALL_SIGNUP_ROWS = betaSignups.signups;
+const ALL_SIGNUP_ROWS = SIGNUP_SRC.signups;
 const NEVER_COMPLETED = ALL_SIGNUP_ROWS.filter((s) => s.nc);
 const SIGNUPS = ALL_SIGNUP_ROWS.filter((s) => !s.nc);
 
@@ -106,8 +124,8 @@ const HIGH_INTENT_START = Object.keys(HIGH_INTENT_BY_DATE).sort()[0] || null;
 const HIGH_INTENT_PAGE_ROWS = (dataJson.ga4.file5 || []).map((r) => ({ d: gaISO4(r.date), path: r.pagePath, n: r.sessions || 0 }));
 const HIGH_INTENT_PAGES = [...new Set(HIGH_INTENT_PAGE_ROWS.map((r) => r.path))].sort();
 
-const DATA_START = betaSignups.firstDate;
-const DATA_END = betaSignups.lastDate;
+const DATA_START = SIGNUP_SRC.firstDate;
+const DATA_END = SIGNUP_SRC.lastDate;
 const inRange = (d, a, b) => d >= a && d <= b;
 
 // Reporting period (Nick, Oct 20 — Amplitude-style): two dropdowns.
@@ -668,12 +686,12 @@ function makeDailyConv(dateFn, trackFrom, days) {
 const firstOf = (key) => SIGNUPS.reduce((m, s) => (s[key] && (!m || s[key] < m) ? s[key] : m), null);
 const FIRST_CAL_TRACKED = firstOf('cal');
 // First recorded meeting (Lever 2 · A1 magic moment): the meeting export starts
-// on betaSignups.meetingsFrom (written by ingest-signups; Sep 3, 2026 when this
+// on SIGNUP_SRC.meetingsFrom (written by ingest-signups; Sep 3, 2026 when this
 // was built), so signup days whose window ends before then aren't tracked.
-const FIRST_MT_TRACKED = betaSignups.meetingsFrom || '2026-09-03';
+const FIRST_MT_TRACKED = SIGNUP_SRC.meetingsFrom || '2026-09-03';
 // First email (Lever 3 · A2 first customer send): sent OR drafted (Nick's rule:
 // drafts count as sends). The email export starts Sep 4, 2026.
-const FIRST_SND_TRACKED = betaSignups.emailsFrom || '2026-09-04';
+const FIRST_SND_TRACKED = SIGNUP_SRC.emailsFrom || '2026-09-04';
 const FIRST_EM_TRACKED = firstOf('em');
 // First day onboarding can be measured: the latest of its steps' first days.
 const ONB_TRACK_FROM = ONB_REQUIRES_RECORDER ? FIRST_REC_TRACKED : [FIRST_CAL_TRACKED, FIRST_EM_TRACKED].filter(Boolean).sort().pop();
@@ -735,11 +753,11 @@ const SELF_REPORTED_BUCKETS = [
 const SR_INVITED = { name: 'Joined via invite', color: C.up };
 const SR_DOMAIN = { name: 'Joined via domain match', color: '#2BB5D9' };
 const SR_JOINED = { name: 'Joined (method unknown)', color: '#A9DCEA' };
-const PH_JOINS_FROM = betaSignups.phJoins?.firstDay || null;
+const PH_JOINS_FROM = SIGNUP_SRC.phJoins?.firstDay || null;
 const INVITE_DAILY = dataJson.amplitude?.inviteAcceptedDaily || null;
 // Coverage of the per-person Amplitude pull (YYYYMMDD), if it has been run.
-const AMP_PER_PERSON = betaSignups.ampEvents?.firstDay
-  ? { firstDay: betaSignups.ampEvents.firstDay.replaceAll('-', ''), lastDay: betaSignups.ampEvents.lastDay.replaceAll('-', '') }
+const AMP_PER_PERSON = SIGNUP_SRC.ampEvents?.firstDay
+  ? { firstDay: SIGNUP_SRC.ampEvents.firstDay.replaceAll('-', ''), lastDay: SIGNUP_SRC.ampEvents.lastDay.replaceAll('-', '') }
   : null;
 const SR_OTHER = { name: 'Other (no answer)', color: '#CBC3B3' };
 const REF_DAILY = (() => {
@@ -5328,31 +5346,54 @@ const PH_STAGE_COLS = PH_ONB_STEPS.map((st) => ({
   render: (u) => (u[st.key] ? afDone(fmtET(u[st.key])) : afNo('')),
 }));
 
+// Same timeframe as the sign up metric (Nick, Oct 23): cohort = org creators
+// whose Organization Created falls in the reporting period (Pacific days, like
+// sign ups: START → END, week-to-date excluded), and a milestone only counts
+// if it happened by the end of the period's last day. So nothing newer than
+// the sign up data shows up here. Step times are Eastern wall clock; the end of
+// END (Pacific) = 03:00 Eastern the next day.
+const phPtFmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' });
+const phPtDay = (iso) => (iso ? phPtFmt.format(new Date(iso)) : null);
+function usePhCohort() {
+  const M = useModel();
+  const start = betaPosthog?.rolloutStart || '2026-10-21';
+  const a = M.START > start ? M.START : start;
+  const b = M.END;
+  const capET = `${addDays(b, 1)}T03:00`;
+  const creators = (betaPosthog?.creators || [])
+    .filter((c) => { const d = phPtDay(c.orgUtc); return d && d >= a && d <= b; })
+    .map((c) => {
+      const o = { ...c };
+      for (const st of PH_ONB_STEPS) if (st.key !== 'org' && o[st.key] && o[st.key] >= capET) delete o[st.key];
+      return o;
+    });
+  return { creators, start, a, b };
+}
+
 function PostHogOnboardingCard() {
   const openUsers = useUsersModal();
   const [sel, setSel] = useState(null);
-  const creators = betaPosthog?.creators || [];
-  const start = betaPosthog?.rolloutStart || '2026-10-21';
+  const { creators, start, a, b } = usePhCohort();
   const asOf = betaPosthog?.pulledAt ? betaPosthog.pulledAt.slice(0, 10) : null;
   const top = creators.length;
   const H = 200;
   const steps = PH_ONB_STEPS.map((st) => ({ ...st, list: creators.filter((c) => c[st.key]) }));
-  const range = `org creators since ${monDay(start)}${asOf ? ` (data as of ${monDay(asOf)})` : ''}`;
+  const range = `org creators ${rangeLabel(a, b)}, ${b.slice(0, 4)} (milestones through ${monDay(b)})`;
   return (
     <Card
       accent={C.green}
       title="New onboarding — org creator outcomes"
-      allTime={`Since ${monDay(start)}`}
-      question="Of people who created an organization since the new onboarding launched, how many reached each milestone?"
+      from={start}
+      question="Of people who created an organization in this period, how many reached each milestone by the end of it?"
       footnote={<>
         {steps.map((st, i) => <span key={st.key} style={{ display: 'block' }}><b>{i + 1}. {st.label}</b> = {st.def}</span>)}
-        <span style={{ display: 'block', marginTop: 6 }}>{`Recreates the PostHog dashboard “New onboarding — creator outcomes” with the same events and criteria. Cohort = people who created an organization from ${monDay(start)}, 2026 00:00 ET (new onboarding rollout) onward; internal / test users (PostHog cohort “Internal / Test users”, @mutinyhq.com) and @gomomentic.com excluded. Milestones are independent — each counts everyone in the cohort who has fired that event since ${monDay(start)}, in any order. Counted per person (PostHog person), not per sign up, so these won't tie to the activation funnels above. Fixed start: doesn't follow the period filter. A1 and A2 here are the new EPD-9795 definitions, not Lever 2 (first meeting) or Lever 3 (first send). Source: PostHog${asOf ? `, as of ${monDay(asOf)}` : ''}. Bars: solid = reached it; striped = hasn't yet. Click either part to list them.`}</span>
+        <span style={{ display: 'block', marginTop: 6 }}>{`Same events and criteria as the PostHog dashboard “New onboarding — creator outcomes”, but on the sign up metric's timeframe (Oct 23): cohort = people whose Organization Created falls in the reporting period (Pacific days, same as sign ups; earliest ${monDay(start)}, the new onboarding launch), and a milestone counts only if it happened by the end of the period's last day — so PostHog's own dashboard (which runs from Oct 21 00:00 ET to now) will show more. Internal / test users (PostHog cohort “Internal / Test users”, @mutinyhq.com) and @gomomentic.com excluded. Milestones are independent, in any order. Counted per person (PostHog person), not per sign up, and org creators only (no joiners), so these won't tie to the sign ups total or the activation funnels above. A1 and A2 here are the new EPD-9795 definitions, not Lever 2 (first meeting) or Lever 3 (first send). Source: PostHog${asOf ? `, as of ${monDay(asOf)}` : ''}. Bars: solid = reached it; striped = hasn't yet. Click either part to list them.`}</span>
         <span style={{ display: 'block', marginTop: 6 }}>{PH_CREATOR_NOTE}</span>
       </>}
     >
       {!top ? (
         <div style={{ marginTop: 18, padding: '28px 20px', border: `1px dashed ${C.lightGrey}`, borderRadius: 4, fontFamily: FONT_BODY, fontSize: 14, color: C.muted }}>
-          No org creators since {monDay(start)} yet. Run <code>npm run pull-posthog</code> to refresh.
+          No org creators in this period{b < start ? ` — data starts ${monDay(start)}` : ''}. Run <code>npm run pull-posthog</code> to refresh.
         </div>
       ) : (
       <div className="af-grid ph-grid" style={{ display: 'grid', gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))`, gap: 10, marginTop: 18 }}>
@@ -5422,8 +5463,8 @@ const relTime = (iso) => {
   return `${d} days ago`;
 };
 function PostHogOnboardingTableCard() {
-  const creators = [...(betaPosthog?.creators || [])].sort((a, b) => ((a.org || '') < (b.org || '') ? 1 : -1));
-  const start = betaPosthog?.rolloutStart || '2026-10-21';
+  const { creators: cohort, start, b: periodEnd } = usePhCohort();
+  const creators = [...cohort].sort((x, y) => ((x.org || '') < (y.org || '') ? 1 : -1));
   const asOf = betaPosthog?.pulledAt ? betaPosthog.pulledAt.slice(0, 10) : null;
   const th = { ...eyebrow, fontSize: 10, textAlign: 'left', padding: '10px 12px', borderBottom: `1px solid ${C.black}`, background: C.paper, whiteSpace: 'nowrap', verticalAlign: 'bottom' };
   const td = { fontFamily: FONT_BODY, fontSize: 13, padding: '9px 12px', borderBottom: `1px solid ${C.lightGrey}`, whiteSpace: 'nowrap' };
@@ -5434,13 +5475,13 @@ function PostHogOnboardingTableCard() {
     <Card
       accent={C.green}
       title="New onboarding — each creator’s outcomes"
-      allTime={`Since ${monDay(start)}`}
-      question="Which milestones has each org creator reached since the new onboarding launched?"
-      footnote={`One row per org creator (PostHog person) since ${monDay(start)}, 2026 00:00 ET, newest first — same cohort, events and exclusions as the bars above. ✓ = the event was recorded at least once since ${monDay(start)} (hover for when); — = not recorded. Organization created times are Eastern. Click a user to open their admin profile. Source: PostHog${asOf ? `, as of ${monDay(asOf)}` : ''}. ${PH_CREATOR_NOTE}`}
+      from={start}
+      question="Which milestones did each org creator in this period reach by the end of it?"
+      footnote={`One row per org creator (PostHog person) whose Organization Created falls in the reporting period (Pacific days, same as sign ups), newest first — same cohort, events and exclusions as the bars above. ✓ = the event was recorded by the end of ${monDay(periodEnd)} (hover for when); — = not recorded by then. Organization created times are Eastern. Click a user to open their admin profile. Source: PostHog${asOf ? `, as of ${monDay(asOf)}` : ''}. ${PH_CREATOR_NOTE}`}
     >
       {!creators.length ? (
         <div style={{ marginTop: 18, padding: '28px 20px', border: `1px dashed ${C.lightGrey}`, borderRadius: 4, fontFamily: FONT_BODY, fontSize: 14, color: C.muted }}>
-          No org creators since {monDay(start)} yet.
+          No org creators in this period{periodEnd < start ? ` — data starts ${monDay(start)}` : ''}.
         </div>
       ) : (
         <div style={{ overflowX: 'auto', margin: '18px -30px 0' }}>
@@ -5575,7 +5616,7 @@ function SectionsFor({ view }) {
               {PREDICT && <ReturningPredictsPaidCard />} */}
         </Grid>
         {/* Bottom of Activation (Nick, Oct 21): PostHog new-onboarding outcomes. */}
-        <StageHeader title="New onboarding" subtitle={`Org creators since the new onboarding launched (${monDay(betaPosthog?.rolloutStart || '2026-10-21')}), tracked in PostHog.`} definition={<><b>A1</b> = first action completed · <b>A2</b> = first review action completed (EPD-9795)</>} />
+        <StageHeader title="New onboarding" subtitle={`Org creators in the reporting period (new onboarding launched ${monDay(betaPosthog?.rolloutStart || '2026-10-21')}), tracked in PostHog.`} definition={<><b>A1</b> = first action completed · <b>A2</b> = first review action completed (EPD-9795)</>} />
         <Grid>
           <div className="full"><PostHogOnboardingCard /></div>
           <div className="full"><PostHogOnboardingTableCard /></div>
@@ -5638,7 +5679,7 @@ function SectionsFor({ view }) {
 // last day; headlines stop at the earliest so they never mix cut-offs.
 const DATA_SOURCES = (() => {
   const gaLast = Object.keys(SESSIONS_BY_DATE).filter((d) => SESSIONS_BY_DATE[d] != null).sort().pop() || null;
-  const ampLast = betaSignups.ampEvents?.lastDay
+  const ampLast = SIGNUP_SRC.ampEvents?.lastDay
     || (() => { const days = (dataJson.amplitude?.referralSources || []).flatMap((e) => Object.keys(e.daily || {})).sort(); const d = days.pop(); return d ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}` : null; })();
   return [
     { name: 'Signups', day: DATA_END },
@@ -5662,11 +5703,11 @@ function DataAsOf() {
 // ingest-signups) and the first day it matches a counted (non-internal) sign up.
 // Earlier dates may be the feature launch or just where the export starts.
 const DATA_COVERAGE = [
-  { name: 'Call recorder installs', from: betaSignups.recorderFrom, matched: FIRST_REC_TRACKED },
-  { name: 'Gmail connections', from: betaSignups.gmailFrom, matched: FIRST_EM_TRACKED },
-  { name: 'Google Calendar connections', from: betaSignups.calendarFrom, matched: FIRST_CAL_TRACKED },
-  { name: 'Recorded meetings', from: betaSignups.meetingsFrom, matched: firstOf('mt') },
-  { name: 'Email sends / drafts', from: betaSignups.emailsFrom, matched: firstOf('snd') },
+  { name: 'Call recorder installs', from: SIGNUP_SRC.recorderFrom, matched: FIRST_REC_TRACKED },
+  { name: 'Gmail connections', from: SIGNUP_SRC.gmailFrom, matched: FIRST_EM_TRACKED },
+  { name: 'Google Calendar connections', from: SIGNUP_SRC.calendarFrom, matched: FIRST_CAL_TRACKED },
+  { name: 'Recorded meetings', from: SIGNUP_SRC.meetingsFrom, matched: firstOf('mt') },
+  { name: 'Email sends / drafts', from: SIGNUP_SRC.emailsFrom, matched: firstOf('snd') },
   { name: 'Asset publishes', from: firstOf('pub'), matched: firstOf('pub') },
 ];
 const fullDay = (iso) => (iso ? `${monDay(iso)}, ${iso.slice(0, 4)}` : '—');
@@ -5789,6 +5830,12 @@ export default function BetaDashboard() {
               </span>
             )}
             <span style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{rangeLabel(START, END)}, {END.slice(0, 4)}</span>
+            {USE_PH_SIGNUPS && (
+              <a href={`${window.location.pathname}${window.location.hash}`} title={`Sign up rows from ${PH_SIGNUPS_FROM} are built from PostHog events, not the Metabase export. Click to switch back.`}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, border: `1px solid ${C.black}`, borderRadius: 999, background: C.white, padding: '3px 10px', fontSize: 12, fontWeight: 700, color: C.black, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                Sign ups: PostHog from {monDay(PH_SIGNUPS_FROM)} <span style={{ color: C.muted, fontWeight: 600 }}>· switch to Metabase</span>
+              </a>
+            )}
             {M.WTD && <span style={{ color: C.muted, whiteSpace: 'nowrap' }}>· week to date {rangeLabel(M.WTD.start, M.WTD.end)} not in totals</span>}
           </div>
         </div>
@@ -5801,7 +5848,7 @@ export default function BetaDashboard() {
         <SectionsFor view={view} />
 
         <div style={{ fontFamily: FONT_CAPTION, fontStyle: 'italic', fontSize: 12, color: C.muted, marginTop: 56 }}>
-          Signups export: {betaSignups.source} · {SIGNUPS.length.toLocaleString()} signup rows · {monDay(DATA_START)} {DATA_START.slice(0, 4)} – {monDay(betaSignups.lastDate)} {betaSignups.lastDate.slice(0, 4)} ({COUNTED_SIGNUPS.toLocaleString()} counted as signups from {monDay(SIGNUP_COUNT_START)}, {SIGNUP_COUNT_START.slice(0, 4)}){betaSignups.internalExcluded ? `; ${betaSignups.internalExcluded.toLocaleString()} internal @mutinyhq.com / @gomomentic.com signups excluded` : ''}; {NEVER_COMPLETED.length.toLocaleString()} never-completed signups (no workspace, or one never named) excluded.
+          Signups export: {SIGNUP_SRC.source} · {SIGNUPS.length.toLocaleString()} signup rows · {monDay(DATA_START)} {DATA_START.slice(0, 4)} – {monDay(SIGNUP_SRC.lastDate)} {SIGNUP_SRC.lastDate.slice(0, 4)} ({COUNTED_SIGNUPS.toLocaleString()} counted as signups from {monDay(SIGNUP_COUNT_START)}, {SIGNUP_COUNT_START.slice(0, 4)}){SIGNUP_SRC.internalExcluded ? `; ${SIGNUP_SRC.internalExcluded.toLocaleString()} internal @mutinyhq.com / @gomomentic.com signups excluded` : ''}; {NEVER_COMPLETED.length.toLocaleString()} never-completed signups (no workspace, or one never named) excluded.
           GA4 pulled {dataJson.ga4.pulledAt?.slice(0, 10)}.
         </div>
         {/* Data coverage (Nick, Oct 20): when each product data source starts. */}
