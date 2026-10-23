@@ -1,15 +1,15 @@
 {
   "source": "PostHog project 381053 (dashboard 2240501 logic)",
-  "pulledAt": "2026-10-21T19:15:03.821Z",
+  "pulledAt": "2026-10-23T14:56:47.960Z",
   "rolloutStart": "2026-10-21",
   "rolloutStartUtc": "2026-10-21T04:00:00Z",
   "tz": "America/New_York",
   "counts": {
-    "org": 5,
-    "gmail": 2,
-    "cal": 1,
-    "rec": 1,
-    "perms": 1,
+    "org": 40,
+    "gmail": 12,
+    "cal": 6,
+    "rec": 9,
+    "perms": 8,
     "a1": 1,
     "a2": 0
   },
@@ -54,6 +54,281 @@
       "email": "ria.manzanero@culture.ai",
       "orgUtc": "2026-10-21T19:09:23.571Z",
       "org": "2026-10-21T15:09"
+    },
+    {
+      "pid": "f0eb6689-a624-5af3-9d0b-5983e3c8d2aa",
+      "uid": "22df9453-2ca4-4100-a9db-c68ef777cd87",
+      "email": "salvador.torres@perplexity.ai",
+      "orgUtc": "2026-10-21T20:17:47.014Z",
+      "org": "2026-10-21T16:17"
+    },
+    {
+      "pid": "7a3807dc-164a-5705-a594-598ab5a1f78a",
+      "uid": "89d1763e-915a-434b-b176-2a8150d05d90",
+      "email": "shutov.ds@phystech.edu",
+      "orgUtc": "2026-10-22T11:55:53.169Z",
+      "org": "2026-10-22T07:55"
+    },
+    {
+      "pid": "cfddb74a-5d74-5bbd-9872-62c31d1d2196",
+      "uid": "784de747-b4f1-4a5a-8270-deb660c7304a",
+      "email": "r.wagenveld@qmes.nl",
+      "orgUtc": "2026-10-22T13:07:24.803Z",
+      "org": "2026-10-22T09:07",
+      "gmail": "2026-10-22T09:10",
+      "cal": "2026-10-22T09:10"
+    },
+    {
+      "pid": "4c1d2116-bf5b-5d27-9e41-9b6d050c3d79",
+      "uid": "c3842da9-2b88-45ba-950c-5559a90c77b8",
+      "email": "john@recki.ai",
+      "orgUtc": "2026-10-22T15:18:35.419Z",
+      "org": "2026-10-22T11:18",
+      "gmail": "2026-10-22T11:20",
+      "rec": "2026-10-22T11:22"
+    },
+    {
+      "pid": "4de6fd70-ae82-58ca-911b-8c2334dd7d86",
+      "uid": "41aec08c-07ba-4da5-8618-176e461277e4",
+      "email": "juan.da@tryjeeves.com",
+      "orgUtc": "2026-10-22T18:19:03.979Z",
+      "org": "2026-10-22T14:19"
+    },
+    {
+      "pid": "a4adc624-1f46-555d-8c7c-be39ec7bd25c",
+      "uid": "3258abf8-e644-43e0-8013-c28c79a007cf",
+      "email": "quincy.yarbrough@gomomentus.com",
+      "orgUtc": "2026-10-22T18:49:18.130Z",
+      "org": "2026-10-22T14:49"
+    },
+    {
+      "pid": "572d6a85-4ff2-50d6-9321-c298232e776f",
+      "uid": "a3503db0-6196-4e3a-8cf1-414bca0dc0bb",
+      "email": "max@unmuted.com",
+      "orgUtc": "2026-10-22T18:50:05.636Z",
+      "org": "2026-10-22T14:50",
+      "gmail": "2026-10-22T14:51",
+      "cal": "2026-10-22T14:51"
+    },
+    {
+      "pid": "5d43b379-2c19-5862-b5ed-f50c0f243d52",
+      "uid": "3c3d463a-b725-4ca8-a829-2347a6560ac4",
+      "email": "rudransh@valyn.app",
+      "orgUtc": "2026-10-22T19:27:17.555Z",
+      "org": "2026-10-22T15:27",
+      "gmail": "2026-10-22T15:49",
+      "cal": "2026-10-22T15:48",
+      "rec": "2026-10-22T15:52",
+      "perms": "2026-10-22T15:52"
+    },
+    {
+      "pid": "d4c5310a-1a68-5308-a9a3-a3be28c882e6",
+      "uid": "8403e45c-cd1b-4023-85c7-f9ce47827491",
+      "email": "vladi@spice.ai",
+      "orgUtc": "2026-10-22T19:49:25.113Z",
+      "org": "2026-10-22T15:49"
+    },
+    {
+      "pid": "18a1772c-1c7f-5c59-9336-cc0f21a320d7",
+      "uid": "8de72718-6014-4d71-a782-1d1cdd82a60b",
+      "email": "dviana@propertyvista.com",
+      "orgUtc": "2026-10-22T19:53:46.910Z",
+      "org": "2026-10-22T15:53",
+      "gmail": "2026-10-22T15:55",
+      "rec": "2026-10-23T10:27",
+      "perms": "2026-10-23T10:28"
+    },
+    {
+      "pid": "ec81ddfe-ad40-5861-9a1d-39ee69d79486",
+      "uid": "3ee54f47-d77d-4235-bca7-49409844c644",
+      "email": "mars@marionallira.com",
+      "orgUtc": "2026-10-22T21:22:33.121Z",
+      "org": "2026-10-22T17:22"
+    },
+    {
+      "pid": "a5939267-9f4f-5ffe-a3bd-1766030e6efe",
+      "uid": "6209312f-674e-4895-b83b-b839f1dba35b",
+      "email": "fb@martinredigolo.com",
+      "orgUtc": "2026-10-22T21:38:38.327Z",
+      "org": "2026-10-22T17:38"
+    },
+    {
+      "pid": "8d002d32-2a6a-5b12-ad67-2441843bff20",
+      "uid": "e1743778-e0d8-4a12-b8af-662cb99bd109",
+      "email": "mathilda@usebrisk.ai",
+      "orgUtc": "2026-10-22T22:02:33.418Z",
+      "org": "2026-10-22T18:02"
+    },
+    {
+      "pid": "37ba1e95-5ebb-5929-92ba-04cb90b42814",
+      "uid": "3934fbb1-5b9b-49ae-b506-fc7041ab6dcd",
+      "email": "harrison@joymore.com",
+      "orgUtc": "2026-10-22T22:09:18.493Z",
+      "org": "2026-10-22T18:09",
+      "gmail": "2026-10-22T18:09",
+      "cal": "2026-10-22T18:09",
+      "rec": "2026-10-22T18:11",
+      "perms": "2026-10-22T18:11"
+    },
+    {
+      "pid": "0dab8a96-861d-522b-a58f-598978f392a7",
+      "uid": "c1d8ca66-fa05-493c-a5fc-07de870889a1",
+      "email": "charlie.wyrick@companycam.com",
+      "orgUtc": "2026-10-22T23:35:28.440Z",
+      "org": "2026-10-22T19:35"
+    },
+    {
+      "pid": "3ac0e05a-2329-527c-b614-a4e419a2141f",
+      "uid": "d3baa913-752a-4db0-9ba3-4a72b9a22b72",
+      "email": "mariusandre@normandin-beaudry.ca",
+      "orgUtc": "2026-10-22T23:48:26.529Z",
+      "org": "2026-10-22T19:48"
+    },
+    {
+      "pid": "1e54b747-63a7-5326-8b38-dee330e0eded",
+      "uid": "99278a27-d0f7-494f-906e-0f6e36e08456",
+      "email": "loconnor@assemblysoftware.com",
+      "orgUtc": "2026-10-22T23:56:03.032Z",
+      "org": "2026-10-22T19:56"
+    },
+    {
+      "pid": "c5a45da4-1c8d-5ae1-93dc-62b0b9479df2",
+      "uid": "57a27ae9-ac8d-44bc-8bdb-667c48cdbbe1",
+      "email": "hello@cosmoseum.org",
+      "orgUtc": "2026-10-23T00:13:42.989Z",
+      "org": "2026-10-22T20:13"
+    },
+    {
+      "pid": "51237071-b2a2-530a-acd4-244efee6c6e8",
+      "uid": "d986e514-9bf6-4c3f-93c9-da75ee2f0a08",
+      "email": "himkattumuri@deloitte.ca",
+      "orgUtc": "2026-10-23T01:25:07.432Z",
+      "org": "2026-10-22T21:25"
+    },
+    {
+      "pid": "3d2635e9-e098-5d11-a4f1-44d1fb64ef1d",
+      "uid": "5b807ac8-4364-4f56-a7f3-a031485af6ee",
+      "email": "heydelo@deloitte.ca",
+      "orgUtc": "2026-10-23T01:35:04.900Z",
+      "org": "2026-10-22T21:35"
+    },
+    {
+      "pid": "a3247b41-611c-52e7-94c6-6f194a8da93e",
+      "uid": "92ee4a43-3dfe-4fd7-9e1f-e09dbce04e9e",
+      "email": "max@getlogentic.com",
+      "orgUtc": "2026-10-23T01:42:23.175Z",
+      "org": "2026-10-22T21:42",
+      "gmail": "2026-10-22T21:42",
+      "rec": "2026-10-22T21:44",
+      "perms": "2026-10-22T21:44"
+    },
+    {
+      "pid": "8ac4e150-2ffa-5ed8-be69-589f522aeed4",
+      "uid": "2fa27d40-0dfe-4d04-9c8c-40d32630f36d",
+      "email": "rishi@segwise.ai",
+      "orgUtc": "2026-10-23T03:43:27.156Z",
+      "org": "2026-10-22T23:43"
+    },
+    {
+      "pid": "54fd7728-4089-5329-8b5c-b0c2a84e934c",
+      "uid": "256e18aa-b1b1-48bf-af03-a03327407ef3",
+      "email": "keyur.sangani@onextel.com",
+      "orgUtc": "2026-10-23T05:07:20.915Z",
+      "org": "2026-10-23T01:07"
+    },
+    {
+      "pid": "4e38d342-59f8-5f4f-a217-9f06a4729448",
+      "uid": "9d8d9939-24a4-4ddf-a192-438a13cf9a4c",
+      "email": "nie9p1cqfi@emalupe.com",
+      "orgUtc": "2026-10-23T06:15:29.938Z",
+      "org": "2026-10-23T02:15"
+    },
+    {
+      "pid": "295d8b7e-459e-59d7-9b9f-9866791fa466",
+      "uid": "4efab775-8a72-4f2f-a26e-4a12277a8cc9",
+      "email": "adi.raghavan@netscribes.com",
+      "orgUtc": "2026-10-23T07:02:43.910Z",
+      "org": "2026-10-23T03:02"
+    },
+    {
+      "pid": "dca221ef-5309-511e-8a87-8c64ebbf2f57",
+      "uid": "7c108399-f512-4a1f-bc56-404783cd684a",
+      "email": "jd@djerneskapital.dk",
+      "orgUtc": "2026-10-23T07:59:12.201Z",
+      "org": "2026-10-23T03:59"
+    },
+    {
+      "pid": "0149b689-dab1-5a95-82e1-940aa008d9c3",
+      "uid": "28e476d7-4214-4431-b058-134a6c2a8e7f",
+      "email": "mike@cloudsquid.io",
+      "orgUtc": "2026-10-23T08:59:54.598Z",
+      "org": "2026-10-23T04:59"
+    },
+    {
+      "pid": "192e0de5-14df-52cb-aa79-05e02b484090",
+      "uid": "05f1aa6d-7420-485d-87c8-285291e7677c",
+      "email": "lotte.nederhorst@ml6.eu",
+      "orgUtc": "2026-10-23T09:04:52.094Z",
+      "org": "2026-10-23T05:04"
+    },
+    {
+      "pid": "4cec752f-90d2-5e5b-aa8b-cd57dfb8ef77",
+      "uid": "f312fc0a-83a2-4b4b-a247-1e9a2d8c021d",
+      "email": "rf@jupus.de",
+      "orgUtc": "2026-10-23T09:18:28.262Z",
+      "org": "2026-10-23T05:18"
+    },
+    {
+      "pid": "447bf485-5e78-57ab-932e-6082650fecf1",
+      "uid": "209e20f2-d88f-4489-9e91-19e9fe128350",
+      "email": "dapo@paxxion.ai",
+      "orgUtc": "2026-10-23T10:53:39.276Z",
+      "org": "2026-10-23T06:53",
+      "gmail": "2026-10-23T06:56",
+      "rec": "2026-10-23T07:07",
+      "perms": "2026-10-23T07:08"
+    },
+    {
+      "pid": "ba9f889b-759f-523f-8309-76ee114a89d7",
+      "uid": "1723efe2-5d46-42ae-bb40-ee0d021bcc74",
+      "email": "anirudh@infusionlabs.ai",
+      "orgUtc": "2026-10-23T13:04:58.449Z",
+      "org": "2026-10-23T09:04"
+    },
+    {
+      "pid": "39d6a2ec-bc58-53f3-84ee-f05de9b5dd43",
+      "uid": "bf4c6784-6fe3-43bc-8fa3-9a52c0282144",
+      "email": "shriya@crosbylegal.com",
+      "orgUtc": "2026-10-23T13:53:44.705Z",
+      "org": "2026-10-23T09:53"
+    },
+    {
+      "pid": "4a8dfc05-d7a5-5b75-8f7f-804012b51297",
+      "uid": "ce08cc87-1209-4adf-871a-3b12481f4504",
+      "email": "muhammad.qureshi@searchatlas.com",
+      "orgUtc": "2026-10-23T14:17:17.903Z",
+      "org": "2026-10-23T10:17",
+      "gmail": "2026-10-23T10:18",
+      "rec": "2026-10-23T10:19",
+      "perms": "2026-10-23T10:20"
+    },
+    {
+      "pid": "9329de1c-51de-5e84-a4b7-1c4a5a569945",
+      "uid": "355c1887-cd70-490e-80a4-dc73a75644c6",
+      "email": "m.isaacson@wotc.com",
+      "orgUtc": "2026-10-23T14:25:13.593Z",
+      "org": "2026-10-23T10:25"
+    },
+    {
+      "pid": "406d3d72-c0c7-5c05-8a8d-bdd1718b1c91",
+      "uid": "661c7d5c-7ca4-42ca-8007-3486012bd1f0",
+      "email": "henrik+testoct@henrikberggren.com",
+      "orgUtc": "2026-10-23T14:38:31.931Z",
+      "org": "2026-10-23T10:38",
+      "gmail": "2026-10-23T10:38",
+      "cal": "2026-10-23T10:39",
+      "rec": "2026-10-23T10:39",
+      "perms": "2026-10-23T10:39"
     }
   ]
 }
