@@ -161,8 +161,24 @@ const GRAINS = {
   week: { label: 'Weekly', noun: 'week', adj: 'weekly', each: 'Mon–Sun week' },
   month: { label: 'Monthly', noun: 'month', adj: 'monthly', each: 'calendar month' },
 };
-const DEFAULT_RANGE = '12w';
-const DEFAULT_GRAIN = 'week';
+// Default view (Nick, Oct 23): Daily + Custom range Oct 21 → latest data day.
+// The "to" end tracks DATA_END on every refresh unless someone picks a "to" date.
+const DEFAULT_RANGE = 'custom';
+const DEFAULT_GRAIN = 'day';
+const DEFAULT_CUSTOM_FROM = '2026-10-21';
+const DEFAULT_CUSTOM = { from: DEFAULT_CUSTOM_FROM, to: DATA_END };
+// Bump to reset everyone's remembered period once, so a new default shows up.
+const PREFS_VERSION = '2026-10-23';
+const PREF_KEYS = ['beta-grain', 'beta-range', 'beta-custom-from', 'beta-custom-to'];
+let prefsChecked = false;
+const resetPrefsOnce = () => {
+  if (prefsChecked) return;
+  prefsChecked = true;
+  try {
+    const ls = window.localStorage;
+    if (ls.getItem('beta-prefs-v') !== PREFS_VERSION) { PREF_KEYS.forEach((k) => ls.removeItem(k)); ls.setItem('beta-prefs-v', PREFS_VERSION); }
+  } catch (e) { /* ignore */ }
+};
 // Mutiny runs an off-calendar fiscal year (Nick, Oct 7): Q3 ends Oct 31, so
 // quarters are Feb–Apr (Q1), May–Jul (Q2), Aug–Oct (Q3), Nov–Jan (Q4) and the
 // fiscal year starts Feb 1. QTD / YTD use these.
@@ -1160,7 +1176,7 @@ const getModel = (range, grain, custom) => {
   }
   return MODEL_CACHE.get(k);
 };
-const ModelCtx = React.createContext(getModel(DEFAULT_RANGE, DEFAULT_GRAIN));
+const ModelCtx = React.createContext(getModel(DEFAULT_RANGE, DEFAULT_GRAIN, DEFAULT_CUSTOM));
 const useModel = () => React.useContext(ModelCtx);
 
 // --- Activated-users modal ------------------------------------------------------
@@ -5686,6 +5702,7 @@ function PeriodSelect({ label, value, onChange, options, icon, group }) {
 export default function BetaDashboard() {
   const [view, setViewState] = useState(readHashView);
   // Reporting period = date range + granularity (Nick, Oct 20), remembered per browser.
+  resetPrefsOnce();
   const stored = (key, ok, dflt) => { try { const v = window.localStorage.getItem(key); return ok(v) ? v : dflt; } catch (e) { return dflt; } };
   const [grain, setGrainState] = useState(() => stored('beta-grain', (v) => Boolean(GRAINS[v]), DEFAULT_GRAIN));
   const [rangeSel, setRangeState] = useState(() => stored('beta-range', (v) => Boolean(RANGES[v]), DEFAULT_RANGE));
@@ -5693,14 +5710,16 @@ export default function BetaDashboard() {
   const range = presetFor(rangeSel, grain);
   // Custom date range (Nick, Oct 21): two day pickers, shown when "Custom range" is picked.
   const [custom, setCustomState] = useState(() => ({
-    from: stored('beta-custom-from', (v) => /^\d{4}-\d{2}-\d{2}$/.test(v || ''), addDays(DATA_END, -29)),
-    to: stored('beta-custom-to', (v) => /^\d{4}-\d{2}-\d{2}$/.test(v || ''), DATA_END),
+    from: stored('beta-custom-from', (v) => /^\d{4}-\d{2}-\d{2}$/.test(v || ''), DEFAULT_CUSTOM.from),
+    to: stored('beta-custom-to', (v) => /^\d{4}-\d{2}-\d{2}$/.test(v || ''), DEFAULT_CUSTOM.to),
   }));
   const setCustom = (patch) => {
     const next = { ...custom, ...patch };
     if (next.from > next.to) { if (patch.from) next.to = next.from; else next.from = next.to; }
     setCustomState(next);
-    save('beta-custom-from', next.from); save('beta-custom-to', next.to);
+    // Only persist ends that actually changed, so an untouched "to" keeps rolling with DATA_END.
+    if (next.from !== custom.from) save('beta-custom-from', next.from);
+    if (next.to !== custom.to) save('beta-custom-to', next.to);
   };
   const save = (k, v) => { try { window.localStorage.setItem(k, v); } catch (e) { /* ignore */ } };
   // Amplitude preset logic (Nick, Oct 20): each granularity has its own preset
