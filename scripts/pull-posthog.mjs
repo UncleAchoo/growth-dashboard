@@ -179,6 +179,74 @@ export function buildJoins(rows, pulledAt = new Date().toISOString()) {
   return { source: `PostHog project ${PROJECT}, [Activation] Organization Joined`, pulledAt, firstDay: joins[0]?.t.slice(0, 10) || null, lastDay: joins[joins.length - 1]?.t.slice(0, 10) || null, joins };
 }
 
+// --- PostHog-sourced signups (Nick, Oct 23; dashboard ?posthog) ---------------
+// Every signup + onboarding event since Oct 21 (Pacific) for people who signed
+// up, created an org or joined one since then. One row per event kind + user +
+// workspace + value + Pacific day (first time that day), so return activity
+// can still be dated. build-posthog-signups.mjs turns this into
+// src/beta-signups-ph.json. Written to data/posthog/signup_events.json
+// (gitignored: user ids + emails).
+const SIGNUPS_OUT = `${JOINS_OUT_DIR}/signup_events.json`;
+export const SIGNUPS_FROM_UTC = '2026-10-21 07:00:00'; // = Oct 21 2026 00:00 America/Los_Angeles
+const SIGNUP_EVENT_CODES = [
+  ['u', '[Activation] User Created'],
+  ['oc', '[Activation] Organization Created'],
+  ['oj', '[Activation] Organization Joined'],
+  ['csc', '[Onboarding] Company Setup Complete'],
+  ['role', '[Onboarding] Role Confirmed'],
+  ['inv', 'User Invitation Completed'],
+  ['int', '[Activation] Integration Connected'],
+  ['intf', 'Pipedream Connection Failed'],
+  ['rec', '[Recorder] Signed In'],
+  ['mt', 'Recording Completed'],
+  ['pub', 'Asset Published'],
+  ['ac', 'Asset Created'],
+  ['snd', 'Gmail Email Sent'],
+  ['snd', 'Gmail Email Sent Directly'],
+  ['snd', 'Email Draft Sent to Gmail'],
+  ['snd', '[Activation] Email Sent'],
+];
+const UID_EXPR = "coalesce(nullIf(toString(properties.user_id), ''), distinct_id)";
+export const SIGNUP_EVENTS_QUERY = `SELECT
+  multiIf(${SIGNUP_EVENT_CODES.map(([k, e]) => `event = '${e}', '${k}'`).join(', ')}, '?') AS k,
+  ${UID_EXPR} AS uid,
+  toString(properties.company_id) AS co,
+  multiIf(k IN ('int', 'intf'), toString(properties.toolkit), k = 'role', toString(properties.role), k = 'csc', toString(properties.referral_source), k = 'oj', toString(properties.join_type), '') AS v,
+  toString(min(timestamp)) AS t,
+  if(k IN ('u', 'oc', 'oj'), any(toString(properties.email)), '') AS em
+FROM events
+WHERE timestamp >= toDateTime('${SIGNUPS_FROM_UTC}')
+  AND timestamp < now()
+  AND event IN (${[...new Set(SIGNUP_EVENT_CODES.map(([, e]) => e))].map((e) => `'${e}'`).join(', ')})
+  AND person_id NOT IN COHORT 257060
+  AND NOT (coalesce(toString(person.properties.email), '') ILIKE '%mutiny%')
+  AND NOT (coalesce(toString(person.properties.email), '') ILIKE '%@gomomentic.com')
+  AND ${UID_EXPR} IN (
+    SELECT distinct_id FROM events
+    WHERE timestamp >= toDateTime('${SIGNUPS_FROM_UTC}')
+      AND event IN ('[Activation] User Created', '[Activation] Organization Created', '[Activation] Organization Joined')
+  )
+GROUP BY k, uid, co, v, toDate(toTimeZone(timestamp, 'America/Los_Angeles'))
+ORDER BY t
+LIMIT 100000`;
+const iso = (t) => `${String(t).replace(' ', 'T').replace(/(\.\d{3})\d*$/, '$1')}${/Z$/.test(t) ? '' : 'Z'}`;
+export function buildSignupEvents(rows, pulledAt = new Date().toISOString()) {
+  // rows: [k, uid, co, v, t, em]
+  const ev = rows
+    .filter((r) => r[0] && r[0] !== '?' && r[1])
+    .map(([k, uid, co, v, t, em]) => ({ k, uid, co: co && !/^(null|\(null\))$/.test(co) ? co : null, v: v && !/^(null|\(null\))$/.test(v) ? v : null, t: iso(t), ...(em && !/^(null|\(null\))$/.test(em) ? { em } : {}) }));
+  // Internal / test users: drop every row of a user whose event email is
+  // internal (the person-level filter misses people with no person email yet).
+  const internal = new Set(ev.filter((e) => /mutiny/i.test(e.em || '') || INTERNAL_EMAIL_RX.test(e.em || '')).map((e) => e.uid));
+  return { source: `PostHog project ${PROJECT}, signup + onboarding events`, pulledAt, fromUtc: `${SIGNUPS_FROM_UTC.replace(' ', 'T')}Z`, internalExcluded: internal.size, events: ev.filter((e) => !internal.has(e.uid)) };
+}
+function writeSignupEvents(out) {
+  mkdirSync(JOINS_OUT_DIR, { recursive: true });
+  writeFileSync(SIGNUPS_OUT, `${JSON.stringify(out)}\n`);
+  const n = out.events.reduce((m, e) => ({ ...m, [e.k]: (m[e.k] || 0) + 1 }), {});
+  console.log(`pull-posthog: ${out.events.length} signup event rows since ${out.fromUtc} → ${SIGNUPS_OUT}`, n);
+}
+
 // PostHog sometimes answers 503 "clickhouse_at_capacity" (or 429/504) when its
 // query cluster is busy — transient, so retry a few times with backoff.
 const RETRY_WAITS_MS = [15000, 45000, 90000];
@@ -217,6 +285,13 @@ async function main() {
     writeJoins(buildJoins(lines.map((l) => l.split(',')), process.env.JOINS_PULLED_AT || undefined));
     return;
   }
+  // Seed / offline: --signups-from-file rows.json ({ results: [[k, uid, co, v, t, em], ...], pulledAt })
+  const sigArg = process.argv.indexOf('--signups-from-file');
+  if (sigArg > -1) {
+    const saved = JSON.parse(readFileSync(process.argv[sigArg + 1], 'utf8'));
+    writeSignupEvents(buildSignupEvents(saved.results, saved.pulledAt));
+    return;
+  }
   const fileArg = process.argv.indexOf('--from-file');
   let columns; let rows; let pulledAt;
   if (fileArg > -1) {
@@ -234,6 +309,13 @@ async function main() {
       writeJoins(buildJoins(j.results));
     } catch (e) {
       console.error(`pull-posthog: org joins — ${e.message} (keeping the previous ${JOINS_OUT})`);
+      failed = true;
+    }
+    try {
+      const s = await hogql(SIGNUP_EVENTS_QUERY, 'growth-dashboard: signups from PostHog');
+      writeSignupEvents(buildSignupEvents(s.results));
+    } catch (e) {
+      console.error(`pull-posthog: signup events — ${e.message} (keeping the previous ${SIGNUPS_OUT})`);
       failed = true;
     }
     try {

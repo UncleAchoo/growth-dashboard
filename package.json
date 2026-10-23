@@ -15,7 +15,8 @@
     "pull-amp-events": "node scripts/pull-amp-events.mjs",
     "ingest-framer": "node scripts/ingest-framer.mjs",
     "pull-posthog": "node scripts/pull-posthog.mjs",
-    "compare-orgs": "node scripts/compare-org-creators.mjs"
+    "compare-orgs": "node scripts/compare-org-creators.mjs",
+    "build-ph-signups": "node scripts/build-posthog-signups.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.379.0",
