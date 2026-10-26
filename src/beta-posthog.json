@@ -1,15 +1,15 @@
 {
   "source": "PostHog project 381053 (dashboard 2240501 logic)",
-  "pulledAt": "2026-10-23T15:45:00.000Z",
+  "pulledAt": "2026-10-26T15:11:20.718Z",
   "rolloutStart": "2026-10-21",
   "rolloutStartUtc": "2026-10-21T04:00:00Z",
   "tz": "America/New_York",
   "counts": {
-    "org": 43,
-    "gmail": 14,
-    "cal": 7,
-    "rec": 10,
-    "perms": 9,
+    "org": 79,
+    "gmail": 20,
+    "cal": 11,
+    "rec": 13,
+    "perms": 12,
     "a1": 1,
     "a2": 0
   },
@@ -611,6 +611,490 @@
         {
           "co": "0f9db6b3-300e-459c-9cb3-2a9c36c81c70",
           "utc": "2026-10-23T15:35:08.546Z"
+        }
+      ]
+    },
+    {
+      "pid": "18e3516e-c99e-5097-86f2-dfbb99555f68",
+      "uid": "7abb981f-bc1d-4e7b-996c-e7bb10c34578",
+      "email": "myles.meddick@sysaid.com",
+      "orgUtc": "2026-10-23T16:31:00.577Z",
+      "org": "2026-10-23T12:31",
+      "gmail": "2026-10-23T12:32",
+      "cal": "2026-10-23T12:32",
+      "rec": "2026-10-23T12:33",
+      "perms": "2026-10-23T12:35",
+      "orgs": [
+        {
+          "co": "cf0731a4-7f0c-4a28-83d2-6adf0ffc5043",
+          "utc": "2026-10-23T16:31:00.577Z"
+        }
+      ]
+    },
+    {
+      "pid": "d093221d-72de-51fc-a46e-e67747fbfd95",
+      "uid": "1d70adf0-0031-4e21-a2f0-b5b14aa7462c",
+      "email": "louis.amezquita@glean.com",
+      "orgUtc": "2026-10-23T16:59:46.727Z",
+      "org": "2026-10-23T12:59",
+      "orgs": [
+        {
+          "co": "fa588653-68b9-4494-9010-d13ea939f28b",
+          "utc": "2026-10-23T16:59:46.727Z"
+        }
+      ]
+    },
+    {
+      "pid": "f90415e5-a428-59a9-b92f-f521ac4d352a",
+      "uid": "9dd9f2db-b415-490a-89f3-a500ef4a24ea",
+      "email": "hayden.traughber@workstreet.com",
+      "orgUtc": "2026-10-23T17:17:18.151Z",
+      "org": "2026-10-23T13:17",
+      "orgs": [
+        {
+          "co": "71100735-b76e-42be-8336-8245000a22e0",
+          "utc": "2026-10-23T17:17:18.151Z"
+        }
+      ]
+    },
+    {
+      "pid": "1d317af4-7aba-518f-b96e-a772520e5716",
+      "uid": "02a36ef8-9bd3-4e4c-acba-49a40c759fee",
+      "email": "neil@weitzmangtm.com",
+      "orgUtc": "2026-10-23T17:22:27.833Z",
+      "org": "2026-10-23T13:22",
+      "orgs": [
+        {
+          "co": "49bf1fe0-9381-4863-9a8b-33e998ce62b5",
+          "utc": "2026-10-23T17:22:27.833Z"
+        }
+      ]
+    },
+    {
+      "pid": "da7bcabf-22eb-58c9-b6c4-d469f1a01bc8",
+      "uid": "904f5376-d389-4afd-a648-438450967b40",
+      "email": "luke@milburnconsulting.com",
+      "orgUtc": "2026-10-23T17:29:53.814Z",
+      "org": "2026-10-23T13:29",
+      "orgs": [
+        {
+          "co": "ccedadef-aa0c-4039-bc3d-674fc1be9909",
+          "utc": "2026-10-23T17:29:53.814Z"
+        }
+      ]
+    },
+    {
+      "pid": "eb9b7013-b2fa-5351-a0e8-c4bccf7b9ec2",
+      "uid": "9c1f241f-c744-4d96-9cd6-87aec04e486c",
+      "email": "jeff.r@getjobber.com",
+      "orgUtc": "2026-10-23T18:04:47.687Z",
+      "org": "2026-10-23T14:04",
+      "orgs": [
+        {
+          "co": "d8ce4646-3596-4556-8820-8ce216f0d2ef",
+          "utc": "2026-10-23T18:04:47.687Z"
+        }
+      ]
+    },
+    {
+      "pid": "ae16b2b6-3fd1-5012-886e-eb9fde970f2c",
+      "uid": "b9765af0-a798-4fe1-8e3f-a64e3a0ddff2",
+      "email": "ashley@gomultiply.com",
+      "orgUtc": "2026-10-23T18:07:46.680Z",
+      "org": "2026-10-23T14:07",
+      "gmail": "2026-10-23T14:08",
+      "cal": "2026-10-23T14:14",
+      "rec": "2026-10-23T14:10",
+      "perms": "2026-10-23T14:10",
+      "orgs": [
+        {
+          "co": "465c883a-f1ec-4a5f-a63d-e82343c2eff9",
+          "utc": "2026-10-23T18:07:46.680Z"
+        }
+      ]
+    },
+    {
+      "pid": "2b5246dc-4ae2-530c-bc0e-543d41f44be3",
+      "uid": "7b47f104-88e1-47e2-a7eb-b071908565d0",
+      "email": "gavin.mciver@showpad.com",
+      "orgUtc": "2026-10-23T18:28:04.872Z",
+      "org": "2026-10-23T14:28",
+      "orgs": [
+        {
+          "co": "1c4f5519-6dfd-4944-bbef-8c96f4e3c487",
+          "utc": "2026-10-23T18:28:04.872Z"
+        }
+      ]
+    },
+    {
+      "pid": "fa7ad385-1d34-573c-a1e4-4a9af91ff37a",
+      "uid": "f5aca182-3564-4e83-8595-76c39b9c0633",
+      "email": "nate@mangomint.com",
+      "orgUtc": "2026-10-23T18:29:48.245Z",
+      "org": "2026-10-23T14:29",
+      "orgs": [
+        {
+          "co": "6526da31-26da-4f0f-bebf-0207877a7612",
+          "utc": "2026-10-23T18:29:48.245Z"
+        }
+      ]
+    },
+    {
+      "pid": "fd17d214-8fde-54bd-9318-de70fecb746d",
+      "uid": "35f784e7-7b74-4fd4-a852-5e0aa0ef5549",
+      "email": "sarah.berkowski@timescapes.co",
+      "orgUtc": "2026-10-23T18:42:21.927Z",
+      "org": "2026-10-23T14:42",
+      "orgs": [
+        {
+          "co": "e7d7c336-ba55-47a4-8883-58b64d12f1da",
+          "utc": "2026-10-23T18:42:21.927Z"
+        }
+      ]
+    },
+    {
+      "pid": "96a4ef1d-f330-505f-a49e-9acea76f6188",
+      "uid": "d5d1b4d0-759f-4f1a-8abd-cba164f5fbab",
+      "email": "ben@irisbooth.com",
+      "orgUtc": "2026-10-23T18:45:59.812Z",
+      "org": "2026-10-23T14:45",
+      "gmail": "2026-10-23T14:46",
+      "cal": "2026-10-23T14:47",
+      "orgs": [
+        {
+          "co": "0b60e56c-1492-4076-add1-a5f3a8d6f980",
+          "utc": "2026-10-23T18:45:59.812Z"
+        }
+      ]
+    },
+    {
+      "pid": "4e7b18d1-0bbe-59cf-a7d5-ffd9e82537ed",
+      "uid": "003a974c-48dc-475f-8237-499f00f6aab3",
+      "email": "augusto.camargo@bluecore.com.br",
+      "orgUtc": "2026-10-23T19:14:45.936Z",
+      "org": "2026-10-23T15:14",
+      "orgs": [
+        {
+          "co": "b9e62eea-bc93-4dcf-b702-8ed2c2ec774c",
+          "utc": "2026-10-23T19:14:45.936Z"
+        }
+      ]
+    },
+    {
+      "pid": "4758763a-f8a3-56fb-88e9-c2cf79c677c5",
+      "uid": "994dcc6a-1b69-41c0-8585-bc9b4b1aec41",
+      "email": "will@traversal.com",
+      "orgUtc": "2026-10-23T19:49:55.721Z",
+      "org": "2026-10-23T15:49",
+      "gmail": "2026-10-23T15:52",
+      "rec": "2026-10-23T15:59",
+      "perms": "2026-10-23T15:59",
+      "orgs": [
+        {
+          "co": "cc3f263a-7674-48d0-9ec8-63f789e7fea5",
+          "utc": "2026-10-23T19:49:55.721Z"
+        }
+      ]
+    },
+    {
+      "pid": "4e5e9a76-8f49-5f83-9dd6-e9b19f0a1bc4",
+      "uid": "6e975a6c-2c3d-44f9-a82f-7ba50035e074",
+      "email": "keith.oliver@blackhawk.io",
+      "orgUtc": "2026-10-23T19:57:28.428Z",
+      "org": "2026-10-23T15:57",
+      "orgs": [
+        {
+          "co": "68e9439b-ef7b-40f3-90ef-13c1a20d6063",
+          "utc": "2026-10-23T19:57:28.428Z"
+        }
+      ]
+    },
+    {
+      "pid": "6e43a8eb-4c4a-5287-ba32-3eee9aae3912",
+      "uid": "7632a64d-4826-4343-8ed8-cb5677e549c5",
+      "email": "molly@molllified.com",
+      "orgUtc": "2026-10-23T20:12:26.286Z",
+      "org": "2026-10-23T16:12",
+      "orgs": [
+        {
+          "co": "27cc4743-e0c4-4cdf-a4e1-518382f1f39b",
+          "utc": "2026-10-23T20:12:26.286Z"
+        }
+      ]
+    },
+    {
+      "pid": "57e76131-c4cf-519b-8160-81e8a5fe046a",
+      "uid": "88729820-f6e8-4bce-8647-2d4e390a3391",
+      "email": "jimmy.pickett@huntresslabs.com",
+      "orgUtc": "2026-10-23T20:51:25.491Z",
+      "org": "2026-10-23T16:51",
+      "orgs": [
+        {
+          "co": "309543ee-ad3d-49f4-99d4-64f6c292219a",
+          "utc": "2026-10-23T20:51:25.491Z"
+        }
+      ]
+    },
+    {
+      "pid": "ed3ae8d4-0783-5b84-ac34-f3393351f4d8",
+      "uid": "06abce28-a278-4609-a401-0ab0060de32f",
+      "email": "martin@filmore.ai",
+      "orgUtc": "2026-10-23T21:12:40.524Z",
+      "org": "2026-10-23T17:12",
+      "orgs": [
+        {
+          "co": "38359ff5-6a5f-4c91-ad55-78450c118622",
+          "utc": "2026-10-23T21:12:40.524Z"
+        }
+      ]
+    },
+    {
+      "pid": "f554f644-ec97-5cb0-af96-2ec1e7072d3b",
+      "uid": "a5390587-4e84-42f3-82e5-c9022aa001cd",
+      "email": "ashley.fedor@govdash.com",
+      "orgUtc": "2026-10-23T22:51:57.938Z",
+      "org": "2026-10-23T18:51",
+      "orgs": [
+        {
+          "co": "b96b8284-bbad-4f47-9340-ce87a07fd08a",
+          "utc": "2026-10-23T22:51:57.938Z"
+        }
+      ]
+    },
+    {
+      "pid": "dc482468-2624-5cc3-acc8-7cbfda7c2fdc",
+      "uid": "36af0a0d-4865-46b7-a526-7816cc499f66",
+      "email": "matt.muller@gofmx.com",
+      "orgUtc": "2026-10-24T02:19:09.831Z",
+      "org": "2026-10-23T22:19",
+      "orgs": [
+        {
+          "co": "5685449e-de91-4add-abba-b860cca4e85c",
+          "utc": "2026-10-24T02:19:09.831Z"
+        }
+      ]
+    },
+    {
+      "pid": "7aa57929-8d22-58f3-8e07-9db6dcdf5db3",
+      "uid": "ec849855-a765-4fa3-9e5d-a6f7a5850c9a",
+      "email": "arun@getomnify.com",
+      "orgUtc": "2026-10-24T05:22:38.101Z",
+      "org": "2026-10-24T01:22",
+      "gmail": "2026-10-24T01:25",
+      "cal": "2026-10-24T01:25",
+      "orgs": [
+        {
+          "co": "2659448f-2494-4bef-b629-9d305b0a8c4a",
+          "utc": "2026-10-24T05:22:38.101Z"
+        }
+      ]
+    },
+    {
+      "pid": "6fdf520a-0228-5add-9c28-a587b9ca1fb4",
+      "uid": "28b30577-2275-4a81-a24c-c3a9d5a451c8",
+      "email": "deepak.raj@surepass.io",
+      "orgUtc": "2026-10-24T13:14:38.041Z",
+      "org": "2026-10-24T09:14",
+      "orgs": [
+        {
+          "co": "0102a992-3961-4d26-8903-d52377301211",
+          "utc": "2026-10-24T13:14:38.041Z"
+        }
+      ]
+    },
+    {
+      "pid": "03276226-ad32-58df-98b5-04a5441479ef",
+      "uid": "e9fb9ec9-8f1f-4f43-a408-b1cc2383100b",
+      "email": "semion@prospex.ch",
+      "orgUtc": "2026-10-24T13:21:55.883Z",
+      "org": "2026-10-24T09:21",
+      "gmail": "2026-10-24T09:50",
+      "orgs": [
+        {
+          "co": "86ac2422-ffb2-4a80-a89e-a03d9b5251fc",
+          "utc": "2026-10-24T13:21:55.883Z"
+        }
+      ]
+    },
+    {
+      "pid": "d145eacc-4db1-5352-bcbe-53a6d224d6e1",
+      "uid": "51081b75-897f-409d-8e70-e991ed4d692c",
+      "email": "jtabeni@fu.do",
+      "orgUtc": "2026-10-24T15:49:20.764Z",
+      "org": "2026-10-24T11:49",
+      "orgs": [
+        {
+          "co": "fb877e4f-374a-4c62-aa95-357b6874706e",
+          "utc": "2026-10-24T15:49:20.764Z"
+        }
+      ]
+    },
+    {
+      "pid": "bb9e6368-fb02-51b3-b66a-49533e671d5e",
+      "uid": "63849abb-75a2-401c-90e7-3c9cc95582e9",
+      "email": "david@dollarrevenuegroup.com",
+      "orgUtc": "2026-10-24T15:58:29.834Z",
+      "org": "2026-10-24T11:58",
+      "orgs": [
+        {
+          "co": "f5807d7a-fada-4f56-8b2f-b9ab0c10e88f",
+          "utc": "2026-10-24T15:58:29.834Z"
+        }
+      ]
+    },
+    {
+      "pid": "388ab213-a988-5289-8de9-83afb6f1ff6c",
+      "uid": "c257381f-13cd-4f69-b639-bbbc5540367d",
+      "email": "evan.devries@classdojo.com",
+      "orgUtc": "2026-10-24T16:58:03.083Z",
+      "org": "2026-10-24T12:58",
+      "orgs": [
+        {
+          "co": "8e9098de-26fc-4799-bf55-3038c2a52d06",
+          "utc": "2026-10-24T16:58:03.083Z"
+        }
+      ]
+    },
+    {
+      "pid": "5de1396b-30b5-5b54-a352-ecc5d282b7df",
+      "uid": "a6ccf86e-0df1-44e3-9244-256829a43521",
+      "email": "brian.lawrence@swayable.com",
+      "orgUtc": "2026-10-24T17:40:33.885Z",
+      "org": "2026-10-24T13:40",
+      "orgs": [
+        {
+          "co": "fd051e59-1e41-4dd4-84c1-def71982e8f4",
+          "utc": "2026-10-24T17:40:33.885Z"
+        }
+      ]
+    },
+    {
+      "pid": "26b7a9d3-a455-58c8-9256-008209b13bff",
+      "uid": "07356537-ade9-46ca-8c05-717e4b8ec009",
+      "email": "storm.macdonald@complypro.co.nz",
+      "orgUtc": "2026-10-24T21:05:21.769Z",
+      "org": "2026-10-24T17:05",
+      "orgs": [
+        {
+          "co": "8da01be2-a2fb-480d-9677-7f888b777f88",
+          "utc": "2026-10-24T21:05:21.769Z"
+        }
+      ]
+    },
+    {
+      "pid": "8d04209b-01d2-5221-ae9f-094ac8f4b29f",
+      "uid": "6399e892-eeff-4d81-a42d-14f37d09c739",
+      "email": "cgosselin@facilityos.com",
+      "orgUtc": "2026-10-25T14:05:28.887Z",
+      "org": "2026-10-25T10:05",
+      "orgs": [
+        {
+          "co": "1b9dfee7-730b-4fc2-beef-a9ca6f4f8e6b",
+          "utc": "2026-10-25T14:05:28.887Z"
+        }
+      ]
+    },
+    {
+      "pid": "81802611-acbc-5b73-afc0-4d2298861d06",
+      "uid": "476abf4d-6ece-4da1-87e9-fad5ff7f1c29",
+      "email": "csilva@infotech.com",
+      "orgUtc": "2026-10-25T14:39:05.829Z",
+      "org": "2026-10-25T10:39",
+      "orgs": [
+        {
+          "co": "d6bfe87c-6347-4035-9608-bc7467d7c5fb",
+          "utc": "2026-10-25T14:39:05.829Z"
+        }
+      ]
+    },
+    {
+      "pid": "f3379d1f-cec7-5a7f-81c8-d2f0b59267eb",
+      "uid": "a97a4ad3-dac7-4818-ba6a-d036c240232d",
+      "email": "denizhan.sahinoglu@vennyx.com",
+      "orgUtc": "2026-10-25T15:05:16.202Z",
+      "org": "2026-10-25T11:05",
+      "orgs": [
+        {
+          "co": "b50db346-94c1-414d-b59c-1e52b03c9030",
+          "utc": "2026-10-25T15:05:16.202Z"
+        }
+      ]
+    },
+    {
+      "pid": "adc5f247-0c83-5604-9b7f-9498d0129a18",
+      "uid": "1192d5a0-1fe9-43ca-a0e0-ce4a29864384",
+      "email": "alvaro.anton@a76.studio",
+      "orgUtc": "2026-10-25T15:15:01.214Z",
+      "org": "2026-10-25T11:15",
+      "orgs": [
+        {
+          "co": "44a5f9c6-7691-4595-a7dc-e4d0519e4ffb",
+          "utc": "2026-10-25T15:15:01.214Z"
+        }
+      ]
+    },
+    {
+      "pid": "271b0a46-288f-547c-b50f-3f9a000a4e7e",
+      "uid": "10ec79f0-467d-40bb-b661-98527979ede5",
+      "email": "a01784077@tec.mx",
+      "orgUtc": "2026-10-25T16:44:17.025Z",
+      "org": "2026-10-25T12:44",
+      "orgs": [
+        {
+          "co": "4ea715a3-be4b-4f4c-ba93-f991b8672a60",
+          "utc": "2026-10-25T16:44:17.025Z"
+        }
+      ]
+    },
+    {
+      "pid": "ce3254df-e31f-571a-8b72-00df8406a3e4",
+      "uid": "6a9a692b-4f50-4b5f-bb04-bfa697304399",
+      "email": "matthew@jolly.com",
+      "orgUtc": "2026-10-25T17:45:52.143Z",
+      "org": "2026-10-25T13:45",
+      "orgs": [
+        {
+          "co": "3fab5395-8a68-4504-978a-462b21acfa91",
+          "utc": "2026-10-25T17:45:52.143Z"
+        }
+      ]
+    },
+    {
+      "pid": "e00951b8-6aee-52af-a5ad-205bd7303c32",
+      "uid": "dc24db6d-5197-4b71-807e-0b834be12d13",
+      "email": "peace@hyphine.com",
+      "orgUtc": "2026-10-25T21:31:59.712Z",
+      "org": "2026-10-25T17:31",
+      "orgs": [
+        {
+          "co": "dcf03a29-a2ec-4726-98bc-42a912b1dd41",
+          "utc": "2026-10-25T21:31:59.712Z"
+        }
+      ]
+    },
+    {
+      "pid": "487c9be4-8690-565a-8ed6-c70b76ed1ca0",
+      "uid": "e75a5d4e-a835-4370-8642-7cb88282a748",
+      "email": "jason.varghese@drips.com",
+      "orgUtc": "2026-10-26T13:10:50.696Z",
+      "org": "2026-10-26T09:10",
+      "orgs": [
+        {
+          "co": "ed579ab4-831d-4fa0-8ac7-6fd30e1fe1ba",
+          "utc": "2026-10-26T13:10:50.696Z"
+        }
+      ]
+    },
+    {
+      "pid": "2bcd8502-0d33-576a-9601-bea711c2b9dc",
+      "uid": "d3cf7dc2-92fe-4e62-896c-fd09cfca1f20",
+      "email": "vicki.formosa@waatr.ai",
+      "orgUtc": "2026-10-26T13:22:14.869Z",
+      "org": "2026-10-26T09:22",
+      "orgs": [
+        {
+          "co": "7372db9b-4ab4-48bd-84d9-782293d4d92e",
+          "utc": "2026-10-26T13:22:14.869Z"
         }
       ]
     }
