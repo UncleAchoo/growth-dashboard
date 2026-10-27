@@ -65,7 +65,7 @@ def arrow(x1, x2, yy):
 strip_h = 50; gap = 16
 labw = 64
 row_users = [('Website visitors', ['Engaged sessions', '(GA4)']), ('Sign ups', ['People joining a', 'workspace']),
-             ('Activated', ['First email sent or', 'asset published']), ('Returned', ['Came back within', '7 days of activating'])]
+             ('Activated', ['Completed A2', '(PostHog A2 Activated)']), ('Returned', ['Came back within', '7 days of activating'])]
 row_cos = [('Paying', ['Self-serve companies', 'billed in Stripe']), ('Retained', ['Still paying the', 'next month']),
            ('Expanding', ['Grow seats / plan', '(coming soon)'])]
 avail = W - 2 * M - labw
@@ -125,7 +125,7 @@ left2 = [Paragraph('3. Reading tips', h2),
 defs = [
     ('Website visitors', 'GA4 engaged sessions — real visits, not bot-inflated raw traffic.'),
     ('Sign up', 'A person joining a company workspace. Someone joining two companies counts twice. Mutiny staff excluded.'),
-    ('Activated', 'Sent (or drafted) a first email, or published an asset.'),
+    ('Activated', 'Completed A2: fired [Onboarding] A2 Activated in PostHog (tracked from Oct 21, 2026).'),
     ('Returned', 'An activated user who comes back within 7 days and does something meaningful.'),
     ('Channel', 'The signup\'s own answer to "How did you hear about us?" (asked since May 7, 2026). Invited / joining teammates are never asked.'),
     ('Paying company', 'Self-serve customer billed in Stripe (MRR above $0). Enterprise excluded — same rule as the revenue dashboard.'),

@@ -18,8 +18,13 @@
 //     cal    [Activation] Integration Connected, toolkit = google_calendar
 //     rec    [Recorder] Signed In
 //     perms  [Recorder] Permissions Granted   (all 3 recorder permissions)
-//     a1     [Onboarding] First Action Completed          (EPD-9795 A1)
-//     a2     [Onboarding] First Review Action Completed   (EPD-9795 A2)
+//     a1     [Onboarding] A1 Magic Moment  OR  [Onboarding] First Action Completed
+//     a2     [Onboarding] A2 Activated  (only — Nick, Oct 26; this is also the
+//            dashboard-wide Activated definition, see A2_QUERY)
+//            (Nick, Oct 26): Kyle switched his dashboard to the new A1 Magic
+//            Moment / A2 Activated events on Oct 23 (A1 Magic Moment first fired
+//            Oct 23 14:38 UTC; A2 Activated not live yet). The old A1 event is
+//            kept in an OR so Oct 21–23 completions aren't lost.
 //
 // Also pulls org joins by join type (invite vs domain match) → data/posthog/org_joins.json
 // for ingest-signups.mjs (see JOINS_QUERY below).
@@ -62,35 +67,55 @@ const STEPS = [
   ['cal', "event = '[Activation] Integration Connected' AND properties.toolkit = 'google_calendar'"],
   ['rec', "event = '[Recorder] Signed In'"],
   ['perms', "event = '[Recorder] Permissions Granted'"],
-  ['a1', "event = '[Onboarding] First Action Completed'"],
-  ['a2', "event = '[Onboarding] First Review Action Completed'"],
+  ['a1', "event IN ('[Onboarding] A1 Magic Moment', '[Onboarding] First Action Completed')"],
+  ['a2', "event = '[Onboarding] A2 Activated'"], // = Activated (Nick, Oct 26: exactly PostHog's, no older event)
 ];
 const EVENTS = [
   '[Activation] Organization Created',
   '[Activation] Integration Connected',
   '[Recorder] Signed In',
   '[Recorder] Permissions Granted',
+  '[Onboarding] A1 Magic Moment',
   '[Onboarding] First Action Completed',
-  '[Onboarding] First Review Action Completed',
+  '[Onboarding] A2 Activated',
 ];
 
+// Org creators PostHog misses (Nick, Oct 26): sign up export rows that are the
+// first person on a company since the rollout but never fired [Activation]
+// Organization Created (existing users creating another company, or the event
+// just not firing). Their user ids come from the last ingest
+// (src/beta-signups.json) and are added to the cohort so their milestones are
+// pulled too; they're marked viaExport and listed on the card + in
+// TRACKING_GAPS.md. Uses the previous ingest, so a brand-new one can lag a day
+// (the dashboard fills that gap from the signup row itself).
+const EXPORT_CREATORS = (() => {
+  try {
+    const j = JSON.parse(readFileSync('src/beta-signups.json', 'utf8'));
+    return (j.signups || []).filter((r) => r.d >= ROLLOUT_UTC.slice(0, 10) && !r.nc && !r.jx && r.uid && !INTERNAL_EMAIL_RX.test(r.email || ''))
+      .map((r) => ({ uid: r.uid, d: r.d, email: r.email || '', co: r.co || null }));
+  } catch (e) { return []; }
+})();
+const EXPORT_UIDS = [...new Set(EXPORT_CREATORS.map((r) => r.uid))].filter((u) => /^[0-9a-f-]{36}$/i.test(u));
 export const QUERY = `SELECT
   person_id,
   argMaxIf(toString(properties.email), timestamp, event = '[Activation] Organization Created') AS email,
   argMinIf(distinct_id, timestamp, event = '[Activation] Organization Created') AS uid,
+  groupUniqArray(coalesce(nullIf(toString(properties.user_id), ''), distinct_id)) AS uids,
+  any(toString(person.properties.email)) AS pemail,
   arraySort(groupArrayIf(concat(toString(timestamp), '|', toString(properties.company_id)), event = '[Activation] Organization Created')) AS orgs,
 ${STEPS.map(([k, cond]) => `  if(countIf(${cond}) > 0, toString(minIf(timestamp, ${cond})), '') AS ${k}`).join(',\n')}
 FROM events
 WHERE timestamp >= toDateTime('${ROLLOUT_UTC}')
   AND timestamp < now()
   AND event IN (${EVENTS.map((e) => `'${e}'`).join(', ')})
-  AND person_id IN (
+  AND (person_id IN (
     SELECT person_id FROM events
     WHERE event = '[Activation] Organization Created'
       AND timestamp >= toDateTime('${ROLLOUT_UTC}')
       AND NOT (toString(properties.email) ILIKE '%mutiny%')
       AND NOT (toString(properties.email) ILIKE '%@gomomentic.com')
-  )
+  )${EXPORT_UIDS.length ? `
+    OR coalesce(nullIf(toString(properties.user_id), ''), distinct_id) IN (${EXPORT_UIDS.map((u) => `'${u}'`).join(', ')})` : ''})
   AND person_id NOT IN COHORT 257060
 GROUP BY person_id
 ORDER BY org
@@ -120,8 +145,25 @@ export function build(columns, rows, pulledAt = new Date().toISOString()) {
       const orgs = (idx.orgs == null ? [] : r[idx.orgs] || [])
         .map((s) => { const [t, co] = String(s).split('|'); return { co: co || null, utc: `${t.replace(' ', 'T').replace(/(\.\d{3})\d*$/, '$1')}Z` }; })
         .filter((o) => o.co);
-      return { pid: r[idx.person_id], uid: r[idx.uid] || null, email, orgUtc, ...steps, ...(orgs.length ? { orgs } : {}) };
+      return { pid: r[idx.person_id], uid: r[idx.uid] || null, email, orgUtc, ...steps, ...(orgs.length ? { orgs } : {}), _uids: r[idx.uids] || [], _pemail: (r[idx.pemail] || '').toLowerCase() };
     })
+    // Export-only creators (no Organization Created): date them by their
+    // export sign up day (noon Pacific ≈ 19:00 UTC) and flag them.
+    .map((c) => {
+      const pemail = c._pemail;
+      delete c._pemail;
+      if (c.org) { delete c._uids; return c; }
+      const ids = new Set([c.uid, ...(c._uids || [])].filter(Boolean));
+      const ex = EXPORT_CREATORS.find((x) => ids.has(x.uid));
+      delete c._uids;
+      if (!ex) return null;
+      // Staff acting as the user (e.g. logged in as them) carry the user's id on
+      // a different PostHog person: only keep the person whose own email is the
+      // user's (Oct 26: carson.west's id also sat on kyle@ / nikhil@mutinyhq.com).
+      if (!pemail || pemail !== (ex.email || '').toLowerCase()) return null;
+      return { ...c, uid: c.uid || ex.uid, email: c.email || ex.email, orgUtc: `${ex.d}T19:00:00.000Z`, org: `${ex.d}T00:00`, viaExport: 1 };
+    })
+    .filter(Boolean)
     .filter((c) => !INTERNAL_EMAIL_RX.test(c.email))
     .sort((a, b) => ((a.org || '') < (b.org || '') ? -1 : 1));
   const counts = Object.fromEntries(STEPS.map(([k]) => [k, creators.filter((c) => c[k]).length]));
@@ -198,6 +240,7 @@ const SIGNUP_EVENT_CODES = [
   ['int', '[Activation] Integration Connected'],
   ['intf', 'Pipedream Connection Failed'],
   ['rec', '[Recorder] Signed In'],
+  ['perms', '[Recorder] Permissions Granted'], // all 3 recorder permissions (Nick, Oct 26)
   ['mt', 'Recording Completed'],
   ['pub', 'Asset Published'],
   ['ac', 'Asset Created'],
@@ -205,6 +248,9 @@ const SIGNUP_EVENT_CODES = [
   ['snd', 'Gmail Email Sent Directly'],
   ['snd', 'Email Draft Sent to Gmail'],
   ['snd', '[Activation] Email Sent'],
+  ['a2', '[Onboarding] A2 Activated'], // Activated (Nick, Oct 26)
+  ['a1', '[Onboarding] A1 Magic Moment'], // A1 activation (Nick, Oct 26)
+  ['a1', '[Onboarding] First Action Completed'],
 ];
 const UID_EXPR = "coalesce(nullIf(toString(properties.user_id), ''), distinct_id)";
 export const SIGNUP_EVENTS_QUERY = `SELECT
@@ -270,6 +316,124 @@ async function hogql(query, name) {
   }
 }
 
+// --- Activated = A2 (Nick, Oct 26) ---------------------------------------------
+// The dashboard's Activated user = fired [Onboarding] A2 Activated in PostHog
+// (Kyle's dashboard 2240501 definition; no older event in an OR). One row per
+// user + workspace (first time). ingest-signups.mjs / build-posthog-signups.mjs
+// put it on the matching signup row as s.a2 (Pacific day), and the dashboard's
+// actDate() reads only that. Written to data/posthog/a2_events.json
+// (gitignored: user ids). Not live in PostHog as of Oct 26, so 0 rows until
+// engineering ships it.
+export const A2_EVENT = '[Onboarding] A2 Activated';
+const A2_OUT = `${JOINS_OUT_DIR}/a2_events.json`;
+const A2_FROM_UTC = '2026-10-21 04:00:00'; // new onboarding rollout (Oct 21 00:00 ET); A2 doesn't exist before it
+export const A2_QUERY = `SELECT
+  ${UID_EXPR} AS uid,
+  toString(properties.company_id) AS co,
+  toString(min(timestamp)) AS t,
+  any(toString(person.properties.email)) AS em
+FROM events
+WHERE timestamp >= toDateTime('${A2_FROM_UTC}')
+  AND timestamp < now()
+  AND event = '${A2_EVENT}'
+  AND person_id NOT IN COHORT 257060
+  AND NOT (coalesce(toString(person.properties.email), '') ILIKE '%mutiny%')
+  AND NOT (coalesce(toString(person.properties.email), '') ILIKE '%@gomomentic.com')
+GROUP BY uid, co
+ORDER BY t
+LIMIT 100000`;
+export function buildA2(rows, pulledAt = new Date().toISOString()) {
+  // rows: [uid, co, t, em]
+  const a2 = rows
+    .filter((r) => r[0] && !INTERNAL_EMAIL_RX.test(r[3] || '') && !/mutiny/i.test(r[3] || ''))
+    .map(([uid, co, t]) => ({ uid, co: co && !/^(null|\(null\))$/.test(co) ? co : null, t: iso(t) }));
+  return { source: `PostHog project ${PROJECT}, ${A2_EVENT}`, event: A2_EVENT, pulledAt, fromUtc: `${A2_FROM_UTC.replace(' ', 'T')}Z`, a2 };
+}
+function writeA2(out) {
+  mkdirSync(JOINS_OUT_DIR, { recursive: true });
+  writeFileSync(A2_OUT, `${JSON.stringify(out)}\n`);
+  console.log(`pull-posthog: ${out.a2.length} ${A2_EVENT} rows since ${out.fromUtc} → ${A2_OUT}`);
+}
+
+// --- Completed onboarding = PostHog steps (Nick, Oct 26) ---------------------
+// Completed onboarding = Gmail connected + Calendar connected + Recorder signed
+// in, with the SAME events as the New onboarding card (PH_ONB_STEPS):
+//   em   [Activation] Integration Connected, toolkit = gmail (confirmed)
+//   cal  [Activation] Integration Connected, toolkit = google_calendar (confirmed)
+//   rec  [Recorder] Signed In
+// For every user (creators and joiners), first time per user + workspace.
+// Integration Connected starts Aug 31, 2026; Recorder Signed In Oct 20, 2026.
+// ingest-signups / build-posthog-signups put them on signup rows as
+// phEm / phCal / phRec (Pacific days). → data/posthog/onb_events.json (gitignored).
+const ONB_OUT = `${JOINS_OUT_DIR}/onb_events.json`;
+const ONB_FROM_UTC = '2026-08-31 00:00:00'; // first Integration Connected
+export const ONB_QUERY = `SELECT
+  multiIf(event = '[Recorder] Signed In', 'rec', event = '[Recorder] Permissions Granted', 'perms', toString(properties.toolkit) = 'gmail', 'em', 'cal') AS k,
+  ${UID_EXPR} AS uid,
+  toString(properties.company_id) AS co,
+  toString(min(timestamp)) AS t,
+  any(toString(person.properties.email)) AS em
+FROM events
+WHERE timestamp >= toDateTime('${ONB_FROM_UTC}')
+  AND timestamp < now()
+  AND (event IN ('[Recorder] Signed In', '[Recorder] Permissions Granted')
+    OR (event = '[Activation] Integration Connected' AND toString(properties.toolkit) IN ('gmail', 'google_calendar')))
+  AND person_id NOT IN COHORT 257060
+  AND NOT (coalesce(toString(person.properties.email), '') ILIKE '%mutiny%')
+  AND NOT (coalesce(toString(person.properties.email), '') ILIKE '%@gomomentic.com')
+GROUP BY k, uid, co
+ORDER BY t
+LIMIT 100000`;
+export function buildOnb(rows, pulledAt = new Date().toISOString()) {
+  // rows: [k, uid, co, t, em]
+  const steps = rows
+    .filter((r) => ['em', 'cal', 'rec', 'perms'].includes(r[0]) && r[1] && !INTERNAL_EMAIL_RX.test(r[4] || '') && !/mutiny/i.test(r[4] || ''))
+    .map(([k, uid, co, t]) => ({ k, uid, co: co && !/^(null|\(null\))$/.test(co) ? co : null, t: iso(t) }));
+  const firstOfK = (k) => steps.filter((x) => x.k === k).map((x) => x.t).sort()[0] || null;
+  return { source: `PostHog project ${PROJECT}, onboarding steps`, pulledAt, fromUtc: `${ONB_FROM_UTC.replace(' ', 'T')}Z`, first: { em: firstOfK('em'), cal: firstOfK('cal'), rec: firstOfK('rec'), perms: firstOfK('perms') }, steps };
+}
+function writeOnb(out) {
+  mkdirSync(JOINS_OUT_DIR, { recursive: true });
+  writeFileSync(ONB_OUT, `${JSON.stringify(out)}\n`);
+  const n = out.steps.reduce((m, x) => ({ ...m, [x.k]: (m[x.k] || 0) + 1 }), {});
+  console.log(`pull-posthog: ${out.steps.length} onboarding step rows since ${out.fromUtc} → ${ONB_OUT}`, n);
+}
+
+// --- A1 activation (Nick, Oct 26) ---------------------------------------------
+// A1 = [Onboarding] A1 Magic Moment (first asset published / exported / email
+// saved to inbox; live Oct 23) OR the older [Onboarding] First Action Completed
+// (so Oct 21–23 isn't lost) — same as the New onboarding card's A1. Fires for
+// ANY user (existing ones too). ingest-signups / build-posthog-signups put it on
+// the matching signup row as s.a1 (Pacific day). → data/posthog/a1_events.json.
+const A1_EVENTS = ['[Onboarding] A1 Magic Moment', '[Onboarding] First Action Completed'];
+const A1_OUT = `${JOINS_OUT_DIR}/a1_events.json`;
+export const A1_QUERY = `SELECT
+  ${UID_EXPR} AS uid,
+  toString(properties.company_id) AS co,
+  toString(min(timestamp)) AS t,
+  any(toString(person.properties.email)) AS em
+FROM events
+WHERE timestamp >= toDateTime('${A2_FROM_UTC}')
+  AND timestamp < now()
+  AND event IN (${A1_EVENTS.map((e) => `'${e}'`).join(', ')})
+  AND person_id NOT IN COHORT 257060
+  AND NOT (coalesce(toString(person.properties.email), '') ILIKE '%mutiny%')
+  AND NOT (coalesce(toString(person.properties.email), '') ILIKE '%@gomomentic.com')
+GROUP BY uid, co
+ORDER BY t
+LIMIT 100000`;
+export function buildA1(rows, pulledAt = new Date().toISOString()) {
+  const a1 = rows
+    .filter((r) => r[0] && !INTERNAL_EMAIL_RX.test(r[3] || '') && !/mutiny/i.test(r[3] || ''))
+    .map(([uid, co, t]) => ({ uid, co: co && !/^(null|\(null\))$/.test(co) ? co : null, t: iso(t) }));
+  return { source: `PostHog project ${PROJECT}, ${A1_EVENTS.join(' OR ')}`, events: A1_EVENTS, pulledAt, fromUtc: `${A2_FROM_UTC.replace(' ', 'T')}Z`, a1 };
+}
+function writeA1(out) {
+  mkdirSync(JOINS_OUT_DIR, { recursive: true });
+  writeFileSync(A1_OUT, `${JSON.stringify(out)}\n`);
+  console.log(`pull-posthog: ${out.a1.length} A1 rows since ${out.fromUtc} → ${A1_OUT}`);
+}
+
 function writeJoins(out) {
   mkdirSync(JOINS_OUT_DIR, { recursive: true });
   writeFileSync(JOINS_OUT, `${JSON.stringify(out)}\n`);
@@ -316,6 +480,27 @@ async function main() {
       writeSignupEvents(buildSignupEvents(s.results));
     } catch (e) {
       console.error(`pull-posthog: signup events — ${e.message} (keeping the previous ${SIGNUPS_OUT})`);
+      failed = true;
+    }
+    try {
+      const a1 = await hogql(A1_QUERY, 'growth-dashboard: A1 activation');
+      writeA1(buildA1(a1.results));
+    } catch (e) {
+      console.error(`pull-posthog: A1 — ${e.message} (keeping the previous ${A1_OUT})`);
+      failed = true;
+    }
+    try {
+      const a = await hogql(A2_QUERY, 'growth-dashboard: activated (A2)');
+      writeA2(buildA2(a.results));
+    } catch (e) {
+      console.error(`pull-posthog: A2 activated — ${e.message} (keeping the previous ${A2_OUT})`);
+      failed = true;
+    }
+    try {
+      const o = await hogql(ONB_QUERY, 'growth-dashboard: completed onboarding steps');
+      writeOnb(buildOnb(o.results));
+    } catch (e) {
+      console.error(`pull-posthog: onboarding steps — ${e.message} (keeping the previous ${ONB_OUT})`);
       failed = true;
     }
     try {

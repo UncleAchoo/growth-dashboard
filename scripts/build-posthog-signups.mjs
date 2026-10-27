@@ -24,7 +24,8 @@
 //   mt    Recording Completed
 //   snd   Gmail Email Sent / Gmail Email Sent Directly / Email Draft Sent to Gmail / [Activation] Email Sent
 //   pub   Asset Published
-//   ret   first day after activation (snd or pub) with an asset created/published,
+//   a2    [Onboarding] A2 Activated = Activated (Nick, Oct 26)
+//   ret   first day after activation (a2) with an asset created/published,
 //         an email sent, or credits used (credits from the Metabase credit export)
 // Only FULL Pacific days: rows and milestones stop at the start of the day the
 // PostHog pull ran (today's partial day is left out).
@@ -91,10 +92,16 @@ for (const e of ev) {
     if (tk === 'gmail') r.em = minDay(r.em, e.d);
     if (tk === 'google_calendar') r.cal = minDay(r.cal, e.d);
   }
-  if (e.k === 'rec') r.rec = minDay(r.rec, e.d);
+  if (e.k === 'rec') { r.rec = minDay(r.rec, e.d); r.phRec = minDay(r.phRec, e.d); }
+  if (e.k === 'perms') r.phPerms = minDay(r.phPerms, e.d);
+  // Completed onboarding steps (Nick, Oct 26): confirmed connections only, like the New onboarding card.
+  if (e.k === 'int' && e.v === 'gmail') r.phEm = minDay(r.phEm, e.d);
+  if (e.k === 'int' && e.v === 'google_calendar') r.phCal = minDay(r.phCal, e.d);
   if (e.k === 'mt') r.mt = minDay(r.mt, e.d);
   if (e.k === 'snd') { r.snd = minDay(r.snd, e.d); act(r, e.d, 'e'); }
   if (e.k === 'pub') { r.pub = minDay(r.pub, e.d); act(r, e.d, 'a'); }
+  if (e.k === 'a2') r.a2 = minDay(r.a2, e.d);
+  if (e.k === 'a1') r.a1 = minDay(r.a1, e.d); // A1 activation (Nick, Oct 26) // Activated = PostHog [Onboarding] A2 Activated (Nick, Oct 26)
   if (e.k === 'ac') act(r, e.d, 'a');
 }
 
@@ -123,13 +130,19 @@ if (creditFile) {
 // --- Same row format as beta-signups.json.
 const signups = rows.map((r) => {
   const s = { d: r.d, role: r.role || null, co: r.co || null, rec: r.rec || null, cal: r.cal || null, em: r.em || null, mt: r.mt || null, snd: r.snd || null, pub: r.pub || null };
+  if (r.a2) s.a2 = r.a2;
+  if (r.a1) s.a1 = r.a1;
+  if (r.phEm) s.phEm = r.phEm;
+  if (r.phCal) s.phCal = r.phCal;
+  if (r.phRec) s.phRec = r.phRec;
+  if (r.phPerms) s.phPerms = r.phPerms;
   if (Object.keys(r.ints).length) s.ints = r.ints;
   if (r.kind === 'nc') s.nc = 1;
   if (r.kind === 'joiner') { s.jx = 1; if (r.jt) s.jt = r.jt; }
   if (r.ref) s.ref = r.ref;
   if (r.csc) s.csc = 1;
   if (r.inv) s.inv = 1;
-  const a = s.snd && s.pub ? minDay(s.snd, s.pub) : s.snd || s.pub;
+  const a = s.a2; // activation day = A2 (Nick, Oct 26)
   if (a && activity.has(r)) {
     let best = null;
     for (const d of activity.get(r).keys()) if (d > a && (!best || d < best)) best = d;

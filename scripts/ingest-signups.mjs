@@ -29,8 +29,12 @@
 //          that user's latest signup created on or before the publish (or their
 //          first signup if all are later). Rows with no created_by_user_id
 //          can't be attributed and are skipped.
-//   Activated (dashboard) = snd OR pub, whichever came first.
-//   ret  = first day AFTER the activation day with any "return" activity
+//   a2   = first [Onboarding] A2 Activated in PostHog (npm run pull-posthog →
+//          data/posthog/a2_events.json), as a Pacific day. Matched by user id +
+//          workspace, else the user's latest signup on/before that day.
+//   Activated (dashboard) = a2 (Nick, Oct 26 2026: "an activated user means
+//          they have completed that A2 event", same as PostHog). Was snd OR pub.
+//   ret  = first day AFTER the activation (a2) day with any "return" activity
 //          (Nick, Oct 6): used credits (_customer_health__all_credit_usage_*,
 //          credits_used > 0), created an asset (assets_created_*), published an
 //          asset (assets_published_*), or sent/drafted an email. The activation
@@ -94,6 +98,10 @@ const key = (userId, companyId) => `${userId}|${companyId}`;
 let signups;
 let source;
 let PH_JOINS = null; // coverage of data/posthog/org_joins.json
+let EXPORTED_AT = null; // user_signups export time, from its file name (Nick, Oct 26: "data as of" on the Activation tab)
+let PH_A2 = null; // coverage of data/posthog/a2_events.json (Activated = A2)
+let PH_A1 = null; // coverage of data/posthog/a1_events.json (A1 activation)
+let PH_ONB = null; // coverage of data/posthog/onb_events.json (Completed onboarding)
 let HAS_CO_NAME = false; // user_signups export carries company_name
 let AMP_EVENTS = null; // coverage of data/amplitude/signup_events.json, if pulled
 let INTERNAL_EXCLUDED = 0; // internal signups dropped (INTERNAL_EMAIL_RX)
@@ -140,6 +148,10 @@ if (src.endsWith('.csv')) {
     meetings: newest('recorder_meeting_events_'),
     emails: newest('email_delivery_events_'),
   };
+  {
+    const m = path.basename(T.signups).match(/(\d{4}-\d{2}-\d{2})T(\d{2})_(\d{2})_(\d{2})/);
+    if (m) EXPORTED_AT = `${m[1]}T${m[2]}:${m[3]}:${m[4]}Z`;
+  }
   const assetFile = files.filter((f) => f.startsWith('assets_published_')).sort().pop();
   // Internal signups are left out everywhere (Nick, Oct 7): any user whose
   // email domain is @mutinyhq.com. Done before anything else, so internal
@@ -368,6 +380,71 @@ if (src.endsWith('.csv')) {
     PH_JOINS = { firstDay: pj.firstDay, lastDay: pj.lastDay, pulledAt: pj.pulledAt || null };
   }
 
+  // Activated = PostHog [Onboarding] A2 Activated (Nick, Oct 26). PostHog
+  // timestamps are UTC; signup days here are Pacific, so convert.
+  const a2File = path.join(root, 'data/posthog/a2_events.json');
+  const A2 = new Map(); // signup key -> Pacific day
+  if (fs.existsSync(a2File)) {
+    const pa = JSON.parse(fs.readFileSync(a2File, 'utf8'));
+    const ptDay = (t) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(t));
+    const keys = new Set(base.map((r) => key(r.user_id, r.company_id)));
+    let unmatched = 0;
+    for (const e of pa.a2 || []) {
+      const d = ptDay(e.t);
+      const k = e.co && keys.has(key(e.uid, e.co)) ? key(e.uid, e.co) : signupKeyFor(e.uid, d);
+      if (!k) { unmatched += 1; continue; }
+      A2.set(k, minDay(A2.get(k), d));
+    }
+    PH_A2 = { event: pa.event || '[Onboarding] A2 Activated', fromUtc: pa.fromUtc || null, pulledAt: pa.pulledAt || null, rows: (pa.a2 || []).length };
+    console.log(`  PostHog A2 activated: ${(pa.a2 || []).length} rows → ${A2.size} signups${unmatched ? ` (${unmatched} not in user_signups)` : ''}`);
+  } else {
+    console.log('  no data/posthog/a2_events.json — nobody is activated (run npm run pull-posthog)');
+  }
+
+  // A1 activation = PostHog A1 Magic Moment OR First Action Completed (Nick,
+  // Oct 26), same matching as A2.
+  const a1File = path.join(root, 'data/posthog/a1_events.json');
+  const A1 = new Map(); // signup key -> Pacific day
+  if (fs.existsSync(a1File)) {
+    const pa = JSON.parse(fs.readFileSync(a1File, 'utf8'));
+    const ptDay = (t) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(t));
+    const keys = new Set(base.map((r) => key(r.user_id, r.company_id)));
+    let unmatched = 0;
+    for (const e of pa.a1 || []) {
+      const d = ptDay(e.t);
+      const k = e.co && keys.has(key(e.uid, e.co)) ? key(e.uid, e.co) : signupKeyFor(e.uid, d);
+      if (!k) { unmatched += 1; continue; }
+      A1.set(k, minDay(A1.get(k), d));
+    }
+    PH_A1 = { fromUtc: pa.fromUtc || null, pulledAt: pa.pulledAt || null, rows: (pa.a1 || []).length };
+    console.log(`  PostHog A1: ${(pa.a1 || []).length} rows → ${A1.size} signups${unmatched ? ` (${unmatched} not in user_signups)` : ''}`);
+  } else {
+    console.log('  no data/posthog/a1_events.json — nobody reached A1 (run npm run pull-posthog)');
+  }
+
+  // Completed onboarding = PostHog Gmail + Calendar + Recorder signed in (Nick,
+  // Oct 26; same events as the New onboarding card). Same matching as A2.
+  const onbFile = path.join(root, 'data/posthog/onb_events.json');
+  const ONB = { em: new Map(), cal: new Map(), rec: new Map(), perms: new Map() }; // step -> signup key -> Pacific day (perms = all 3 recorder permissions, funnel only)
+  if (fs.existsSync(onbFile)) {
+    const po = JSON.parse(fs.readFileSync(onbFile, 'utf8'));
+    const ptDay = (t) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(t));
+    const keys = new Set(base.map((r) => key(r.user_id, r.company_id)));
+    let unmatched = 0;
+    for (const e of po.steps || []) {
+      if (!ONB[e.k]) continue;
+      const d = ptDay(e.t);
+      const k = e.co && keys.has(key(e.uid, e.co)) ? key(e.uid, e.co) : signupKeyFor(e.uid, d);
+      if (!k) { unmatched += 1; continue; }
+      ONB[e.k].set(k, minDay(ONB[e.k].get(k), d));
+    }
+    const pd = (t) => (t ? ptDay(t) : null);
+    PH_ONB = { fromUtc: po.fromUtc || null, pulledAt: po.pulledAt || null, first: { em: pd(po.first?.em), cal: pd(po.first?.cal), rec: pd(po.first?.rec) } };
+    console.log(`  PostHog onboarding steps: gmail ${ONB.em.size}, calendar ${ONB.cal.size}, recorder ${ONB.rec.size} signups${unmatched ? ` (${unmatched} rows not in user_signups)` : ''}`);
+  } else {
+    console.log('  no data/posthog/onb_events.json — nobody has completed onboarding (run npm run pull-posthog)');
+  }
+
   const ampFile = path.join(root, 'data/amplitude/signup_events.json');
   const AMP_MATCH_DAYS = 3;
   const evByRow = new Map(); // row -> { ref, csc, inv }
@@ -443,6 +520,13 @@ if (src.endsWith('.csv')) {
       snd: SND.get(k) || null,
       pub: PUB.get(k) || null,
     };
+    if (A2.has(k)) s.a2 = A2.get(k); // Activated (Nick, Oct 26)
+    if (A1.has(k)) s.a1 = A1.get(k); // A1 activation (Nick, Oct 26)
+    // Completed onboarding steps, PostHog (Nick, Oct 26)
+    if (ONB.em.has(k)) s.phEm = ONB.em.get(k);
+    if (ONB.cal.has(k)) s.phCal = ONB.cal.get(k);
+    if (ONB.rec.has(k)) s.phRec = ONB.rec.get(k);
+    if (ONB.perms.has(k)) s.phPerms = ONB.perms.get(k);
     if (Object.keys(ints).length) s.ints = ints;
     // No company name = never finished onboarding (no workspace, or a workspace
     // that was never named). Used to split the "No answer" row of the
@@ -463,7 +547,7 @@ if (src.endsWith('.csv')) {
     if (amp?.inv) s.inv = 1;
     // First return activity after the activation day (any distance; the
     // dashboard applies the 7-day window).
-    const act = s.snd && s.pub ? minDay(s.snd, s.pub) : s.snd || s.pub;
+    const act = s.a2; // activation day = A2 (Nick, Oct 26)
     if (act && ACTIVITY.has(k)) {
       let best = null;
       for (const d of ACTIVITY.get(k).keys()) if (d > act && (!best || d < best)) best = d;
@@ -481,7 +565,7 @@ if (src.endsWith('.csv')) {
     const otherRow = !s.nc && !s.jx && !s.ref && !s.inv && AMP_EVENTS;
     // ... and every signup since Sep 7, 2026, the activation funnel's cohort
     // (its modal lists everyone at each stage — Nick, Oct 20).
-    if (s.snd || s.pub || s.rec || s.cal || s.em || ((s.nc || otherRow) && d >= '2026-02-16') || d >= '2026-09-07') {
+    if (s.a2 || s.a1 || s.phEm || s.phCal || s.phRec || s.snd || s.pub || s.rec || s.cal || s.em || ((s.nc || otherRow) && d >= '2026-02-16') || d >= '2026-09-07') {
       s.uid = r.user_id;
       if (r.email) s.email = r.email;
     }
@@ -502,6 +586,10 @@ const json = {
   hasCompanyName: HAS_CO_NAME,
   ampEvents: AMP_EVENTS,
   phJoins: PH_JOINS,
+  exportedAt: EXPORTED_AT,
+  phA2: PH_A2,
+  phA1: PH_A1,
+  phOnb: PH_ONB,
   internalExcluded: INTERNAL_EXCLUDED,
   meetingsFrom: MEETINGS_FROM,
   emailsFrom: EMAILS_FROM,
@@ -576,4 +664,4 @@ fs.writeFileSync(out, JSON.stringify(json));
   }
 }
 const n = (k) => signups.filter((s) => s[k]).length;
-console.log(`beta-signups: ${signups.length} signups ${json.firstDate} → ${json.lastDate} · rec ${n('rec')} cal ${n('cal')} em ${n('em')} mt ${n('mt')} snd ${n('snd')} pub ${n('pub')} ret ${n('ret')} ints ${n('ints')} → ${path.relative(root, out)}`);
+console.log(`beta-signups: ${signups.length} signups ${json.firstDate} → ${json.lastDate} · rec ${n('rec')} cal ${n('cal')} em ${n('em')} mt ${n('mt')} snd ${n('snd')} pub ${n('pub')} a2 ${n('a2')} a1 ${n('a1')} phEm ${n('phEm')} phCal ${n('phCal')} phRec ${n('phRec')} phPerms ${n('phPerms')} ret ${n('ret')} ints ${n('ints')} → ${path.relative(root, out)}`);
