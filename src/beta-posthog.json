@@ -1,15 +1,15 @@
 {
   "source": "PostHog project 381053 (dashboard 2240501 logic)",
-  "pulledAt": "2026-10-27T00:16:45.799Z",
+  "pulledAt": "2026-10-27T20:23:25.424Z",
   "rolloutStart": "2026-10-21",
   "rolloutStartUtc": "2026-10-21T04:00:00Z",
   "tz": "America/New_York",
   "counts": {
-    "org": 90,
-    "gmail": 26,
-    "cal": 14,
-    "rec": 19,
-    "perms": 18,
+    "org": 91,
+    "gmail": 27,
+    "cal": 15,
+    "rec": 20,
+    "perms": 19,
     "a1": 6,
     "a2": 0
   },
@@ -1254,6 +1254,23 @@
         {
           "co": "046195b9-b1c1-4db3-81ed-7c7efa2820b3",
           "utc": "2026-10-26T22:13:43.679Z"
+        }
+      ]
+    },
+    {
+      "pid": "7c852378-c4b3-5821-97bf-9a85541fe3d2",
+      "uid": "c0211348-b2f5-43cf-ac68-0286a258dd5d",
+      "email": "stefan@battistetti.com",
+      "orgUtc": "2026-10-27T14:59:55.968Z",
+      "org": "2026-10-27T10:59",
+      "gmail": "2026-10-27T11:25",
+      "cal": "2026-10-27T11:26",
+      "rec": "2026-10-27T12:16",
+      "perms": "2026-10-27T12:17",
+      "orgs": [
+        {
+          "co": "246a22e2-78d1-4dc6-9ada-f296cecee75b",
+          "utc": "2026-10-27T14:59:55.968Z"
         }
       ]
     }
