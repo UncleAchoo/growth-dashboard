@@ -1,11 +1,11 @@
 {
   "source": "PostHog project 381053 (dashboard 2240501 logic)",
-  "pulledAt": "2026-10-27T20:23:25.424Z",
+  "pulledAt": "2026-10-28T14:17:02.823Z",
   "rolloutStart": "2026-10-21",
   "rolloutStartUtc": "2026-10-21T04:00:00Z",
   "tz": "America/New_York",
   "counts": {
-    "org": 91,
+    "org": 95,
     "gmail": 27,
     "cal": 15,
     "rec": 20,
@@ -1271,6 +1271,58 @@
         {
           "co": "246a22e2-78d1-4dc6-9ada-f296cecee75b",
           "utc": "2026-10-27T14:59:55.968Z"
+        }
+      ]
+    },
+    {
+      "pid": "732687cb-12c4-59d6-aa3a-b17dfc63e0cc",
+      "uid": "3208c30e-0c4f-48cf-884f-18cccbc322e5",
+      "email": "carlos.naranjo@wrango.io",
+      "orgUtc": "2026-10-28T00:11:51.412Z",
+      "org": "2026-10-27T20:11",
+      "orgs": [
+        {
+          "co": "20de3f42-bb10-419d-93b0-1517cf46ac4b",
+          "utc": "2026-10-28T00:11:51.412Z"
+        }
+      ]
+    },
+    {
+      "pid": "e7b6652e-2b33-54a5-ba50-2f17b0398fba",
+      "uid": "f6661d4e-76eb-473e-83f1-6af39e97fa22",
+      "email": "eileen@gokenko.com",
+      "orgUtc": "2026-10-28T02:03:47.929Z",
+      "org": "2026-10-27T22:03",
+      "orgs": [
+        {
+          "co": "d094e849-553d-4447-aa23-df4ecae1093f",
+          "utc": "2026-10-28T02:03:47.929Z"
+        }
+      ]
+    },
+    {
+      "pid": "13e37c03-74a2-5978-83d4-f6f7e5c85d90",
+      "uid": "e4216940-cdb1-4559-a0fe-09218eac06d3",
+      "email": "ruby.mcdougall@airwallex.com",
+      "orgUtc": "2026-10-28T02:40:27.410Z",
+      "org": "2026-10-27T22:40",
+      "orgs": [
+        {
+          "co": "b95ef46a-f47e-423c-8ca6-f8f750d0aefc",
+          "utc": "2026-10-28T02:40:27.410Z"
+        }
+      ]
+    },
+    {
+      "pid": "1a572b28-4aa1-5147-808c-9006cd7ba382",
+      "uid": "f5653741-9822-4668-9d46-da15fc1d5f4e",
+      "email": "kevin.oglesbee@keysight.com",
+      "orgUtc": "2026-10-28T05:16:32.141Z",
+      "org": "2026-10-28T01:16",
+      "orgs": [
+        {
+          "co": "4994e895-e786-43ec-8b07-a0f260e7a8ce",
+          "utc": "2026-10-28T05:16:32.141Z"
         }
       ]
     }

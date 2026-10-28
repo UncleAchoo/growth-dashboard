@@ -1,13 +1,13 @@
 {
-  "pulledAt": "2026-10-27T20:23:45.825Z",
+  "pulledAt": "2026-10-28T14:17:46.837Z",
   "window": {
     "start": "2026-01-01",
-    "end": "2026-10-27"
+    "end": "2026-10-28"
   },
   "ga4": {
-    "pulledAt": "2026-10-27T20:23:32.323Z",
+    "pulledAt": "2026-10-28T14:17:10.448Z",
     "source": "master-feed.xlsx",
-    "feedRefreshedAt": "2026-10-27T20:16:10.544Z",
+    "feedRefreshedAt": "2026-10-28T14:10:16.436Z",
     "file1": [
       {
         "date": "20260320",
@@ -934,6 +934,12 @@
         "sessions": 767
       },
       {
+        "date": "20261027",
+        "totalUsers": 736,
+        "engagedSessions": 266,
+        "sessions": 748
+      },
+      {
         "date": "20260924",
         "totalUsers": 716,
         "engagedSessions": 262,
@@ -1576,12 +1582,6 @@
         "sessions": 231
       },
       {
-        "date": "20261027",
-        "totalUsers": 230,
-        "engagedSessions": 88,
-        "sessions": 230
-      },
-      {
         "date": "20260221",
         "totalUsers": 227,
         "engagedSessions": 100,
@@ -1778,6 +1778,12 @@
         "totalUsers": 84,
         "engagedSessions": 39,
         "sessions": 85
+      },
+      {
+        "date": "20261028",
+        "totalUsers": 83,
+        "engagedSessions": 21,
+        "sessions": 83
       },
       {
         "date": "20260919",
@@ -2703,6 +2709,18 @@
         "date": "20261026",
         "channelGroup": "Organic Social - LinkedIn",
         "sourceMedium": "linkedin.com / referral",
+        "eventCount": 3
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Direct",
+        "sourceMedium": "(direct) / (none)",
+        "eventCount": 3
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / organic",
         "eventCount": 3
       },
       {
@@ -4258,6 +4276,12 @@
         "channelGroup": "Referral",
         "sourceMedium": "framer.com / referral",
         "eventCount": 1
+      },
+      {
+        "date": "20261028",
+        "channelGroup": "Referral",
+        "sourceMedium": "30mpc.com / referral",
+        "eventCount": 1
       }
     ],
     "file3": [
@@ -5808,6 +5832,15 @@
         "engagedSessions": 87,
         "sessions": 480,
         "totalUsers": 479
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Direct",
+        "sourceMedium": "(direct) / (none)",
+        "eventCount": 2272,
+        "engagedSessions": 119,
+        "sessions": 491,
+        "totalUsers": 488
       },
       {
         "date": "20260205",
@@ -7781,6 +7814,15 @@
         "totalUsers": 134
       },
       {
+        "date": "20261027",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / organic",
+        "eventCount": 731,
+        "engagedSessions": 79,
+        "sessions": 138,
+        "totalUsers": 135
+      },
+      {
         "date": "20260306",
         "channelGroup": "Organic Search",
         "sourceMedium": "google / organic",
@@ -8301,15 +8343,6 @@
         "engagedSessions": 43,
         "sessions": 118,
         "totalUsers": 116
-      },
-      {
-        "date": "20261027",
-        "channelGroup": "Direct",
-        "sourceMedium": "(direct) / (none)",
-        "eventCount": 586,
-        "engagedSessions": 41,
-        "sessions": 149,
-        "totalUsers": 149
       },
       {
         "date": "20260320",
@@ -9518,6 +9551,15 @@
         "totalUsers": 43
       },
       {
+        "date": "20261027",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sourceMedium": "linkedin.com / referral",
+        "eventCount": 257,
+        "engagedSessions": 25,
+        "sessions": 45,
+        "totalUsers": 44
+      },
+      {
         "date": "20260829",
         "channelGroup": "Direct",
         "sourceMedium": "(direct) / (none)",
@@ -9743,6 +9785,15 @@
         "totalUsers": 54
       },
       {
+        "date": "20261028",
+        "channelGroup": "Direct",
+        "sourceMedium": "(direct) / (none)",
+        "eventCount": 217,
+        "engagedSessions": 6,
+        "sessions": 54,
+        "totalUsers": 54
+      },
+      {
         "date": "20260301",
         "channelGroup": "Organic Search",
         "sourceMedium": "google / organic",
@@ -9831,15 +9882,6 @@
         "engagedSessions": 27,
         "sessions": 44,
         "totalUsers": 43
-      },
-      {
-        "date": "20261027",
-        "channelGroup": "Organic Search",
-        "sourceMedium": "google / organic",
-        "eventCount": 205,
-        "engagedSessions": 27,
-        "sessions": 44,
-        "totalUsers": 44
       },
       {
         "date": "20260802",
@@ -11066,15 +11108,6 @@
         "totalUsers": 15
       },
       {
-        "date": "20261027",
-        "channelGroup": "Organic Social - LinkedIn",
-        "sourceMedium": "linkedin.com / referral",
-        "eventCount": 88,
-        "engagedSessions": 10,
-        "sessions": 14,
-        "totalUsers": 14
-      },
-      {
         "date": "20260515",
         "channelGroup": "Referral",
         "sourceMedium": "chatgpt.com / referral",
@@ -11352,6 +11385,15 @@
         "engagedSessions": 8,
         "sessions": 16,
         "totalUsers": 16
+      },
+      {
+        "date": "20261028",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "google / organic",
+        "eventCount": 76,
+        "engagedSessions": 8,
+        "sessions": 14,
+        "totalUsers": 14
       },
       {
         "date": "20260417",
@@ -12830,6 +12872,15 @@
         "totalUsers": 1
       },
       {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "framer.com / referral",
+        "eventCount": 50,
+        "engagedSessions": 5,
+        "sessions": 9,
+        "totalUsers": 8
+      },
+      {
         "date": "20260120",
         "channelGroup": "Organic Search",
         "sourceMedium": "bing / organic",
@@ -14196,6 +14247,15 @@
         "engagedSessions": 5,
         "sessions": 6,
         "totalUsers": 6
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "AI Referrals",
+        "sourceMedium": "chatgpt.com / ai-assistant",
+        "eventCount": 40,
+        "engagedSessions": 6,
+        "sessions": 9,
+        "totalUsers": 9
       },
       {
         "date": "20260128",
@@ -16907,6 +16967,15 @@
         "totalUsers": 7
       },
       {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "accounts.google.com / referral",
+        "eventCount": 30,
+        "engagedSessions": 4,
+        "sessions": 7,
+        "totalUsers": 6
+      },
+      {
         "date": "20260107",
         "channelGroup": "Unassigned",
         "sourceMedium": "chatgpt.com / (not set)",
@@ -18084,6 +18153,15 @@
         "engagedSessions": 4,
         "sessions": 5,
         "totalUsers": 5
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "arc.net / referral",
+        "eventCount": 27,
+        "engagedSessions": 3,
+        "sessions": 3,
+        "totalUsers": 2
       },
       {
         "date": "20260113",
@@ -22577,6 +22655,15 @@
         "totalUsers": 5
       },
       {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "app.rippling.com / referral",
+        "eventCount": 19,
+        "engagedSessions": 4,
+        "sessions": 4,
+        "totalUsers": 4
+      },
+      {
         "date": "20260105",
         "channelGroup": "Organic Social",
         "sourceMedium": "lm.facebook.com / referral",
@@ -23466,6 +23553,15 @@
         "engagedSessions": 3,
         "sessions": 4,
         "totalUsers": 4
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "teams.public.onecdn.static.microsoft / referral",
+        "eventCount": 18,
+        "engagedSessions": 3,
+        "sessions": 5,
+        "totalUsers": 5
       },
       {
         "date": "20260105",
@@ -25457,15 +25553,6 @@
         "totalUsers": 4
       },
       {
-        "date": "20261027",
-        "channelGroup": "AI Referrals",
-        "sourceMedium": "chatgpt.com / ai-assistant",
-        "eventCount": 16,
-        "engagedSessions": 2,
-        "sessions": 5,
-        "totalUsers": 5
-      },
-      {
         "date": "20260105",
         "channelGroup": "Organic Social",
         "sourceMedium": "l.facebook.com / referral",
@@ -26472,6 +26559,24 @@
         "engagedSessions": 1,
         "sessions": 5,
         "totalUsers": 5
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "bing / organic",
+        "eventCount": 15,
+        "engagedSessions": 2,
+        "sessions": 3,
+        "totalUsers": 3
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "localhost:3000 / referral",
+        "eventCount": 15,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
       },
       {
         "date": "20260101",
@@ -27640,6 +27745,15 @@
         "sourceMedium": "t.co / referral",
         "eventCount": 14,
         "engagedSessions": 1,
+        "sessions": 3,
+        "totalUsers": 3
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "AI Referrals",
+        "sourceMedium": "claude.ai / ai-assistant",
+        "eventCount": 14,
+        "engagedSessions": 3,
         "sessions": 3,
         "totalUsers": 3
       },
@@ -29019,6 +29133,15 @@
         "engagedSessions": 1,
         "sessions": 1,
         "totalUsers": 1
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Email",
+        "sourceMedium": "hs_email / email",
+        "eventCount": 13,
+        "engagedSessions": 2,
+        "sessions": 2,
+        "totalUsers": 2
       },
       {
         "date": "20260105",
@@ -30675,6 +30798,15 @@
         "engagedSessions": 2,
         "sessions": 4,
         "totalUsers": 4
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "viralxxxporn.com / referral",
+        "eventCount": 12,
+        "engagedSessions": 0,
+        "sessions": 3,
+        "totalUsers": 3
       },
       {
         "date": "20260102",
@@ -32423,13 +32555,13 @@
         "totalUsers": 1
       },
       {
-        "date": "20261027",
-        "channelGroup": "AI Referrals",
-        "sourceMedium": "claude.ai / ai-assistant",
+        "date": "20261028",
+        "channelGroup": "Referral",
+        "sourceMedium": "framer.com / referral",
         "eventCount": 11,
-        "engagedSessions": 2,
-        "sessions": 2,
-        "totalUsers": 2
+        "engagedSessions": 1,
+        "sessions": 3,
+        "totalUsers": 3
       },
       {
         "date": "20260102",
@@ -34532,6 +34664,33 @@
         "date": "20261025",
         "channelGroup": "Referral",
         "sourceMedium": "ycombinator.com / referral",
+        "eventCount": 10,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "energized-premise-816902.framer.app / referral",
+        "eventCount": 10,
+        "engagedSessions": 2,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
+        "date": "20261028",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sourceMedium": "linkedin.com / referral",
+        "eventCount": 10,
+        "engagedSessions": 1,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
+        "date": "20261028",
+        "channelGroup": "Referral",
+        "sourceMedium": "30mpc.com / referral",
         "eventCount": 10,
         "engagedSessions": 1,
         "sessions": 1,
@@ -37488,15 +37647,6 @@
         "engagedSessions": 1,
         "sessions": 2,
         "totalUsers": 2
-      },
-      {
-        "date": "20261027",
-        "channelGroup": "Referral",
-        "sourceMedium": "teams.public.onecdn.static.microsoft / referral",
-        "eventCount": 9,
-        "engagedSessions": 1,
-        "sessions": 3,
-        "totalUsers": 3
       },
       {
         "date": "20260101",
@@ -40908,6 +41058,15 @@
         "engagedSessions": 0,
         "sessions": 2,
         "totalUsers": 2
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "ycombinator.com / referral",
+        "eventCount": 8,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
       },
       {
         "date": "20260101",
@@ -44771,9 +44930,9 @@
         "totalUsers": 1
       },
       {
-        "date": "20261027",
-        "channelGroup": "Referral",
-        "sourceMedium": "arc.net / referral",
+        "date": "20261028",
+        "channelGroup": "Organic Search",
+        "sourceMedium": "bing / organic",
         "eventCount": 7,
         "engagedSessions": 1,
         "sessions": 1,
@@ -49550,9 +49709,18 @@
         "totalUsers": 2
       },
       {
-        "date": "20261027",
-        "channelGroup": "Referral",
-        "sourceMedium": "energized-premise-816902.framer.app / referral",
+        "date": "20261028",
+        "channelGroup": "AI Referrals",
+        "sourceMedium": "chatgpt.com / ai-assistant",
+        "eventCount": 6,
+        "engagedSessions": 0,
+        "sessions": 2,
+        "totalUsers": 2
+      },
+      {
+        "date": "20261028",
+        "channelGroup": "Email",
+        "sourceMedium": "hs_email / email",
         "eventCount": 6,
         "engagedSessions": 1,
         "sessions": 1,
@@ -57286,6 +57454,33 @@
         "sourceMedium": "nav.niceui.cn / referral",
         "eventCount": 5,
         "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Organic Social - Twitter",
+        "sourceMedium": "t.co / referral",
+        "eventCount": 5,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "accounts.google.ca / referral",
+        "eventCount": 5,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "willguldin.com / referral",
+        "eventCount": 5,
+        "engagedSessions": 0,
         "sessions": 1,
         "totalUsers": 1
       },
@@ -69792,6 +69987,15 @@
       },
       {
         "date": "20261027",
+        "channelGroup": "AI Referrals",
+        "sourceMedium": "perplexity.ai / ai-assistant",
+        "eventCount": 4,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261027",
         "channelGroup": "Organic Social - Reddit",
         "sourceMedium": "reddit.com / referral",
         "eventCount": 4,
@@ -69802,9 +70006,36 @@
       {
         "date": "20261027",
         "channelGroup": "Referral",
-        "sourceMedium": "localhost:3000 / referral",
+        "sourceMedium": "cibil.com / referral",
         "eventCount": 4,
         "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "g2crowd.lightning.force.com / referral",
+        "eventCount": 4,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "hrbl.work / referral",
+        "eventCount": 4,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "myapps.microsoft.com / referral",
+        "eventCount": 4,
+        "engagedSessions": 1,
         "sessions": 1,
         "totalUsers": 1
       },
@@ -69820,7 +70051,7 @@
       {
         "date": "20261027",
         "channelGroup": "Referral",
-        "sourceMedium": "viralxxxporn.com / referral",
+        "sourceMedium": "whataicandotoday.com / referral",
         "eventCount": 4,
         "engagedSessions": 0,
         "sessions": 1,
@@ -80853,12 +81084,12 @@
       },
       {
         "date": "20261027",
-        "channelGroup": "Referral",
-        "sourceMedium": "accounts.google.com / referral",
+        "channelGroup": "AI Referrals",
+        "sourceMedium": "chatgpt.com / (none)",
         "eventCount": 3,
-        "engagedSessions": 0,
-        "sessions": 1,
-        "totalUsers": 1
+        "engagedSessions": 1,
+        "sessions": 2,
+        "totalUsers": 2
       },
       {
         "date": "20261027",
@@ -80872,7 +81103,61 @@
       {
         "date": "20261027",
         "channelGroup": "Referral",
-        "sourceMedium": "framer.com / referral",
+        "sourceMedium": "login.microsoftonline.com / referral",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "smarsh.okta.com / referral",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Unassigned",
+        "sourceMedium": "allaiapp / directory",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261028",
+        "channelGroup": "Referral",
+        "sourceMedium": "aistacks / referral",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261028",
+        "channelGroup": "Referral",
+        "sourceMedium": "costbench / referral",
+        "eventCount": 3,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261028",
+        "channelGroup": "Referral",
+        "sourceMedium": "dwavesys.my.idaptive.app / referral",
+        "eventCount": 3,
+        "engagedSessions": 1,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261028",
+        "channelGroup": "Referral",
+        "sourceMedium": "teams.public.onecdn.static.microsoft / referral",
         "eventCount": 3,
         "engagedSessions": 0,
         "sessions": 1,
@@ -84930,19 +85215,37 @@
       },
       {
         "date": "20261027",
-        "channelGroup": "AI Referrals",
-        "sourceMedium": "chatgpt.com / (none)",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sourceMedium": "linkedin / social",
         "eventCount": 2,
-        "engagedSessions": 1,
+        "engagedSessions": 0,
         "sessions": 1,
         "totalUsers": 1
       },
       {
         "date": "20261027",
-        "channelGroup": "Organic Social - LinkedIn",
-        "sourceMedium": "linkedin / social",
+        "channelGroup": "Referral",
+        "sourceMedium": "parker.candidatelabs.com / referral",
         "eventCount": 2,
         "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261027",
+        "channelGroup": "Referral",
+        "sourceMedium": "sequoia.lightning.force.com / referral",
+        "eventCount": 2,
+        "engagedSessions": 0,
+        "sessions": 1,
+        "totalUsers": 1
+      },
+      {
+        "date": "20261028",
+        "channelGroup": "Referral",
+        "sourceMedium": "accounts.google.com / referral",
+        "eventCount": 2,
+        "engagedSessions": 1,
         "sessions": 1,
         "totalUsers": 1
       },
@@ -86143,6 +86446,10 @@
         "highIntentSessions": 86
       },
       {
+        "date": "20261027",
+        "highIntentSessions": 85
+      },
+      {
         "date": "20260328",
         "highIntentSessions": 82
       },
@@ -86335,10 +86642,6 @@
         "highIntentSessions": 29
       },
       {
-        "date": "20261027",
-        "highIntentSessions": 29
-      },
-      {
         "date": "20260817",
         "highIntentSessions": 28
       },
@@ -86520,6 +86823,10 @@
       },
       {
         "date": "20260831",
+        "highIntentSessions": 11
+      },
+      {
+        "date": "20261028",
         "highIntentSessions": 11
       },
       {
@@ -92041,6 +92348,11 @@
         "sessions": 42
       },
       {
+        "date": "20261027",
+        "pagePath": "/pricing",
+        "sessions": 42
+      },
+      {
         "date": "20260212",
         "pagePath": "/use-cases/abm-campaigns",
         "sessions": 41
@@ -93846,11 +94158,6 @@
         "sessions": 17
       },
       {
-        "date": "20261027",
-        "pagePath": "/pricing",
-        "sessions": 17
-      },
-      {
         "date": "20260204",
         "pagePath": "/case-studies/launchdarkly",
         "sessions": 16
@@ -94377,6 +94684,11 @@
       },
       {
         "date": "20261025",
+        "pagePath": "/customers",
+        "sessions": 13
+      },
+      {
+        "date": "20261027",
         "pagePath": "/customers",
         "sessions": 13
       },
@@ -95216,6 +95528,11 @@
         "sessions": 9
       },
       {
+        "date": "20261028",
+        "pagePath": "/pricing",
+        "sessions": 9
+      },
+      {
         "date": "20260204",
         "pagePath": "/case-studies/mutiny-abm-program",
         "sessions": 8
@@ -96017,6 +96334,11 @@
       },
       {
         "date": "20261027",
+        "pagePath": "/use-cases/account-based-marketing",
+        "sessions": 6
+      },
+      {
+        "date": "20261027",
         "pagePath": "/use-cases/sales-enablement",
         "sessions": 6
       },
@@ -96746,11 +97068,6 @@
         "sessions": 4
       },
       {
-        "date": "20261027",
-        "pagePath": "/customers",
-        "sessions": 4
-      },
-      {
         "date": "20260205",
         "pagePath": "/case-studies/6sense-expand-tam",
         "sessions": 3
@@ -97458,6 +97775,31 @@
       {
         "date": "20261023",
         "pagePath": "/use-cases/marketing-leaders",
+        "sessions": 3
+      },
+      {
+        "date": "20261027",
+        "pagePath": "/case-studies/launchdarkly",
+        "sessions": 3
+      },
+      {
+        "date": "20261027",
+        "pagePath": "/case-studies/simpro",
+        "sessions": 3
+      },
+      {
+        "date": "20261027",
+        "pagePath": "/use-cases/account-executives",
+        "sessions": 3
+      },
+      {
+        "date": "20261027",
+        "pagePath": "/use-cases/marketing-leaders",
+        "sessions": 3
+      },
+      {
+        "date": "20261027",
+        "pagePath": "/use-cases/sales-leaders",
         "sessions": 3
       },
       {
@@ -98913,6 +99255,26 @@
       {
         "date": "20261026",
         "pagePath": "/use-cases/marketing-leaders",
+        "sessions": 2
+      },
+      {
+        "date": "20261027",
+        "pagePath": "/case-studies/atomicwork-enterprise-sellers-build-deal-specific-assets-in-5-minutes-with-mutiny",
+        "sessions": 2
+      },
+      {
+        "date": "20261027",
+        "pagePath": "/case-studies/delphi-builds-premium-client-facing-assets-in-minutes-with-mutiny",
+        "sessions": 2
+      },
+      {
+        "date": "20261027",
+        "pagePath": "/case-studies/how-genesis-built-an-enterprise-abm-program-with-a-team-of-two",
+        "sessions": 2
+      },
+      {
+        "date": "20261027",
+        "pagePath": "/case-studies/netic-aes-save-10-hours-week-on-meeting-prep",
         "sessions": 2
       },
       {
@@ -102322,7 +102684,22 @@
       },
       {
         "date": "20261027",
-        "pagePath": "/use-cases/account-executives",
+        "pagePath": "/case-studies/snowflake-abm",
+        "sessions": 1
+      },
+      {
+        "date": "20261028",
+        "pagePath": "/case-studies/delphi-builds-premium-client-facing-assets-in-minutes-with-mutiny",
+        "sessions": 1
+      },
+      {
+        "date": "20261028",
+        "pagePath": "/customers",
+        "sessions": 1
+      },
+      {
+        "date": "20261028",
+        "pagePath": "/use-cases/account-based-marketing",
         "sessions": 1
       }
     ],
@@ -102628,6 +103005,11 @@
         "sessions": 1032
       },
       {
+        "isoWeek": "202644",
+        "channelGroup": "Direct",
+        "sessions": 989
+      },
+      {
         "isoWeek": "202609",
         "channelGroup": "Organic Search",
         "sessions": 979
@@ -102733,11 +103115,6 @@
         "sessions": 649
       },
       {
-        "isoWeek": "202644",
-        "channelGroup": "Direct",
-        "sessions": 596
-      },
-      {
         "isoWeek": "202630",
         "channelGroup": "Organic Search",
         "sessions": 579
@@ -102816,6 +103193,11 @@
         "isoWeek": "202617",
         "channelGroup": "Referral",
         "sessions": 332
+      },
+      {
+        "isoWeek": "202644",
+        "channelGroup": "Organic Search",
+        "sessions": 300
       },
       {
         "isoWeek": "202625",
@@ -102928,11 +103310,6 @@
         "sessions": 198
       },
       {
-        "isoWeek": "202644",
-        "channelGroup": "Organic Search",
-        "sessions": 189
-      },
-      {
         "isoWeek": "202619",
         "channelGroup": "Organic Social",
         "sessions": 188
@@ -103038,6 +103415,11 @@
         "sessions": 133
       },
       {
+        "isoWeek": "202644",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sessions": 133
+      },
+      {
         "isoWeek": "202636",
         "channelGroup": "Referral",
         "sessions": 132
@@ -103083,6 +103465,11 @@
         "sessions": 119
       },
       {
+        "isoWeek": "202644",
+        "channelGroup": "Referral",
+        "sessions": 116
+      },
+      {
         "isoWeek": "202611",
         "channelGroup": "Email",
         "sessions": 113
@@ -103106,11 +103493,6 @@
         "isoWeek": "202610",
         "channelGroup": "Email",
         "sessions": 102
-      },
-      {
-        "isoWeek": "202644",
-        "channelGroup": "Organic Social - LinkedIn",
-        "sessions": 100
       },
       {
         "isoWeek": "202621",
@@ -103186,11 +103568,6 @@
         "isoWeek": "202624",
         "channelGroup": "AI Referrals",
         "sessions": 74
-      },
-      {
-        "isoWeek": "202644",
-        "channelGroup": "Referral",
-        "sessions": 71
       },
       {
         "isoWeek": "202619",
@@ -103533,6 +103910,11 @@
         "sessions": 27
       },
       {
+        "isoWeek": "202644",
+        "channelGroup": "AI Referrals",
+        "sessions": 27
+      },
+      {
         "isoWeek": "202621",
         "channelGroup": "Organic Social - Reddit",
         "sessions": 26
@@ -103615,11 +103997,6 @@
       {
         "isoWeek": "202629",
         "channelGroup": "Email",
-        "sessions": 19
-      },
-      {
-        "isoWeek": "202644",
-        "channelGroup": "AI Referrals",
         "sessions": 19
       },
       {
@@ -103708,6 +104085,11 @@
         "sessions": 15
       },
       {
+        "isoWeek": "202644",
+        "channelGroup": "Unassigned",
+        "sessions": 15
+      },
+      {
         "isoWeek": "202621",
         "channelGroup": "Organic Social - Twitter",
         "sessions": 14
@@ -103725,11 +104107,6 @@
       {
         "isoWeek": "202641",
         "channelGroup": "Email",
-        "sessions": 14
-      },
-      {
-        "isoWeek": "202644",
-        "channelGroup": "Unassigned",
         "sessions": 14
       },
       {
@@ -103843,6 +104220,11 @@
         "sessions": 7
       },
       {
+        "isoWeek": "202644",
+        "channelGroup": "Email",
+        "sessions": 6
+      },
+      {
         "isoWeek": "202601",
         "channelGroup": "Email",
         "sessions": 5
@@ -103893,6 +104275,11 @@
         "sessions": 4
       },
       {
+        "isoWeek": "202644",
+        "channelGroup": "Organic Social - Twitter",
+        "sessions": 4
+      },
+      {
         "isoWeek": "202605",
         "channelGroup": "Paid Social",
         "sessions": 3
@@ -103920,16 +104307,6 @@
       {
         "isoWeek": "202642",
         "channelGroup": "Email",
-        "sessions": 3
-      },
-      {
-        "isoWeek": "202644",
-        "channelGroup": "Email",
-        "sessions": 3
-      },
-      {
-        "isoWeek": "202644",
-        "channelGroup": "Organic Social - Twitter",
         "sessions": 3
       },
       {
@@ -104142,7 +104519,7 @@
       {
         "yearMonth": "202610",
         "channelGroup": "Direct",
-        "sessions": 20538
+        "sessions": 21019
       },
       {
         "yearMonth": "202609",
@@ -104207,7 +104584,7 @@
       {
         "yearMonth": "202610",
         "channelGroup": "Organic Search",
-        "sessions": 2602
+        "sessions": 2712
       },
       {
         "yearMonth": "202602",
@@ -104250,14 +104627,14 @@
         "sessions": 906
       },
       {
+        "yearMonth": "202610",
+        "channelGroup": "Referral",
+        "sessions": 876
+      },
+      {
         "yearMonth": "202607",
         "channelGroup": "Referral",
         "sessions": 836
-      },
-      {
-        "yearMonth": "202610",
-        "channelGroup": "Referral",
-        "sessions": 832
       },
       {
         "yearMonth": "202603",
@@ -104270,14 +104647,14 @@
         "sessions": 825
       },
       {
+        "yearMonth": "202610",
+        "channelGroup": "Organic Social - LinkedIn",
+        "sessions": 766
+      },
+      {
         "yearMonth": "202603",
         "channelGroup": "Referral",
         "sessions": 736
-      },
-      {
-        "yearMonth": "202610",
-        "channelGroup": "Organic Social - LinkedIn",
-        "sessions": 733
       },
       {
         "yearMonth": "202609",
@@ -104362,7 +104739,7 @@
       {
         "yearMonth": "202610",
         "channelGroup": "Unassigned",
-        "sessions": 174
+        "sessions": 175
       },
       {
         "yearMonth": "202606",
@@ -104390,13 +104767,13 @@
         "sessions": 158
       },
       {
-        "yearMonth": "202609",
-        "channelGroup": "Unassigned",
-        "sessions": 142
-      },
-      {
         "yearMonth": "202610",
         "channelGroup": "AI Referrals",
+        "sessions": 150
+      },
+      {
+        "yearMonth": "202609",
+        "channelGroup": "Unassigned",
         "sessions": 142
       },
       {
@@ -104408,6 +104785,11 @@
         "yearMonth": "202608",
         "channelGroup": "Organic Social - LinkedIn",
         "sessions": 107
+      },
+      {
+        "yearMonth": "202610",
+        "channelGroup": "Organic Social - Twitter",
+        "sessions": 101
       },
       {
         "yearMonth": "202607",
@@ -104425,24 +104807,19 @@
         "sessions": 100
       },
       {
-        "yearMonth": "202610",
-        "channelGroup": "Organic Social - Twitter",
-        "sessions": 100
-      },
-      {
         "yearMonth": "202601",
         "channelGroup": "Organic Social",
         "sessions": 93
       },
       {
+        "yearMonth": "202610",
+        "channelGroup": "Email",
+        "sessions": 92
+      },
+      {
         "yearMonth": "202609",
         "channelGroup": "Organic Social - LinkedIn",
         "sessions": 91
-      },
-      {
-        "yearMonth": "202610",
-        "channelGroup": "Email",
-        "sessions": 89
       },
       {
         "yearMonth": "202606",
@@ -104746,7 +105123,7 @@
       },
       {
         "isoWeek": "202644",
-        "sessions": 999
+        "sessions": 1593
       },
       {
         "isoWeek": "202601",
@@ -104780,7 +105157,7 @@
       },
       {
         "yearMonth": "202610",
-        "sessions": 24868
+        "sessions": 25525
       },
       {
         "yearMonth": "202609",
@@ -104799,10 +105176,10 @@
       "thisWeek": {
         "label": "This Week (so far)",
         "startDate": "2026-10-26",
-        "endDate": "2026-10-27",
-        "sessions": 999,
+        "endDate": "2026-10-28",
+        "sessions": 1593,
         "fiscalQuarter": null,
-        "refreshedAt": "2026-10-27T20:16:05.871Z"
+        "refreshedAt": "2026-10-28T14:10:11.791Z"
       },
       "lastWeek": {
         "label": "Last Week",
@@ -104810,70 +105187,70 @@
         "endDate": "2026-10-25",
         "sessions": 8506,
         "fiscalQuarter": null,
-        "refreshedAt": "2026-10-27T20:16:05.871Z"
+        "refreshedAt": "2026-10-28T14:10:11.791Z"
       },
       "last4Weeks": {
         "label": "Last 4 Weeks (incl. current)",
         "startDate": "2026-10-05",
-        "endDate": "2026-10-27",
-        "sessions": 22955,
+        "endDate": "2026-10-28",
+        "sessions": 23628,
         "fiscalQuarter": null,
-        "refreshedAt": "2026-10-27T20:16:05.871Z"
+        "refreshedAt": "2026-10-28T14:10:11.791Z"
       },
       "quarterToDate": {
         "label": "Fiscal Q3 to Date",
         "startDate": "2026-08-01",
-        "endDate": "2026-10-27",
-        "sessions": 47939,
+        "endDate": "2026-10-28",
+        "sessions": 48465,
         "fiscalQuarter": 3,
-        "refreshedAt": "2026-10-27T20:16:05.871Z"
+        "refreshedAt": "2026-10-28T14:10:11.791Z"
       },
       "fiscalYTD": {
         "label": "Fiscal YTD",
         "startDate": "2026-02-01",
-        "endDate": "2026-10-27",
-        "sessions": 1141998,
+        "endDate": "2026-10-28",
+        "sessions": 1142314,
         "fiscalQuarter": 3,
-        "refreshedAt": "2026-10-27T20:16:05.871Z"
+        "refreshedAt": "2026-10-28T14:10:11.791Z"
       }
     },
     "periodChannels": {
       "thisWeek": {
         "label": "This Week (so far)",
         "startDate": "2026-10-26",
-        "endDate": "2026-10-27",
+        "endDate": "2026-10-28",
         "channels": [
           {
             "channel": "Direct",
-            "sessions": 596
+            "sessions": 989
           },
           {
             "channel": "Organic Search",
-            "sessions": 189
+            "sessions": 300
           },
           {
             "channel": "Organic Social - LinkedIn",
-            "sessions": 100
+            "sessions": 133
           },
           {
             "channel": "Referral",
-            "sessions": 71
+            "sessions": 116
           },
           {
             "channel": "AI Referrals",
-            "sessions": 19
+            "sessions": 27
           },
           {
             "channel": "Unassigned",
-            "sessions": 14
+            "sessions": 15
           },
           {
             "channel": "Email",
-            "sessions": 3
+            "sessions": 6
           },
           {
             "channel": "Organic Social - Twitter",
-            "sessions": 3
+            "sessions": 4
           },
           {
             "channel": "Organic Social - Reddit",
@@ -104927,39 +105304,39 @@
       "last4Weeks": {
         "label": "Last 4 Weeks (incl. current)",
         "startDate": "2026-10-05",
-        "endDate": "2026-10-27",
+        "endDate": "2026-10-28",
         "channels": [
           {
             "channel": "Direct",
-            "sessions": 18972
+            "sessions": 19428
           },
           {
             "channel": "Organic Search",
-            "sessions": 2251
+            "sessions": 2361
           },
           {
             "channel": "Referral",
-            "sessions": 732
+            "sessions": 776
           },
           {
             "channel": "Organic Social - LinkedIn",
-            "sessions": 718
+            "sessions": 751
           },
           {
             "channel": "Unassigned",
-            "sessions": 143
+            "sessions": 144
           },
           {
             "channel": "AI Referrals",
-            "sessions": 131
+            "sessions": 139
           },
           {
             "channel": "Organic Social - Twitter",
-            "sessions": 97
+            "sessions": 98
           },
           {
             "channel": "Email",
-            "sessions": 67
+            "sessions": 70
           },
           {
             "channel": "Organic Social - Reddit",
@@ -104970,39 +105347,39 @@
       "quarterToDate": {
         "label": "Fiscal Q3 to Date",
         "startDate": "2026-08-01",
-        "endDate": "2026-10-27",
+        "endDate": "2026-10-28",
         "channels": [
           {
             "channel": "Direct",
-            "sessions": 36815
+            "sessions": 37200
           },
           {
             "channel": "Organic Search",
-            "sessions": 6519
+            "sessions": 6597
           },
           {
             "channel": "Referral",
-            "sessions": 2093
+            "sessions": 2137
           },
           {
             "channel": "Organic Social - LinkedIn",
-            "sessions": 930
+            "sessions": 964
           },
           {
             "channel": "Unassigned",
-            "sessions": 448
+            "sessions": 449
           },
           {
             "channel": "Email",
-            "sessions": 382
+            "sessions": 385
           },
           {
             "channel": "AI Referrals",
-            "sessions": 342
+            "sessions": 350
           },
           {
             "channel": "Organic Social - Twitter",
-            "sessions": 113
+            "sessions": 114
           },
           {
             "channel": "Organic Social - Reddit",
@@ -105013,19 +105390,19 @@
       "fiscalYTD": {
         "label": "Fiscal YTD",
         "startDate": "2026-02-01",
-        "endDate": "2026-10-27",
+        "endDate": "2026-10-28",
         "channels": [
           {
             "channel": "Direct",
-            "sessions": 1075414
+            "sessions": 1075694
           },
           {
             "channel": "Organic Search",
-            "sessions": 38524
+            "sessions": 38610
           },
           {
             "channel": "Referral",
-            "sessions": 8189
+            "sessions": 8215
           },
           {
             "channel": "Organic Social",
@@ -105033,23 +105410,23 @@
           },
           {
             "channel": "Unassigned",
-            "sessions": 6616
+            "sessions": 6617
           },
           {
             "channel": "Email",
-            "sessions": 2330
+            "sessions": 2333
           },
           {
             "channel": "Organic Social - LinkedIn",
-            "sessions": 2048
+            "sessions": 2081
           },
           {
             "channel": "AI Referrals",
-            "sessions": 1042
+            "sessions": 1050
           },
           {
             "channel": "Organic Social - Twitter",
-            "sessions": 411
+            "sessions": 412
           },
           {
             "channel": "Organic Social - Reddit",
@@ -105376,7 +105753,8 @@
       "20261024": 0,
       "20261025": 5,
       "20261026": 12,
-      "20261027": 1
+      "20261027": 3,
+      "20261028": 2
     },
     "referralSources": [
       {
@@ -105682,7 +106060,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -105988,12 +106367,13 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
         "source": "LinkedIn",
-        "count": 117,
+        "count": 119,
         "daily": {
           "20260101": 0,
           "20260102": 0,
@@ -106294,7 +106674,8 @@
           "20261024": 6,
           "20261025": 2,
           "20261026": 2,
-          "20261027": 0
+          "20261027": 2,
+          "20261028": 0
         }
       },
       {
@@ -106600,7 +106981,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -106906,7 +107288,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -107212,7 +107595,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -107518,7 +107902,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -107824,7 +108209,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -108130,7 +108516,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -108436,7 +108823,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -108742,7 +109130,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -109048,7 +109437,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -109354,7 +109744,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -109660,7 +110051,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -109966,7 +110358,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -110272,7 +110665,8 @@
           "20261024": 0,
           "20261025": 3,
           "20261026": 4,
-          "20261027": 1
+          "20261027": 1,
+          "20261028": 0
         }
       },
       {
@@ -110578,7 +110972,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -110884,12 +111279,13 @@
           "20261024": 0,
           "20261025": 1,
           "20261026": 2,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
         "source": "Word of mouth",
-        "count": 14,
+        "count": 15,
         "daily": {
           "20260101": 0,
           "20260102": 0,
@@ -111190,7 +111586,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 1,
+          "20261028": 0
         }
       },
       {
@@ -111496,7 +111893,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -111802,7 +112200,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -112108,7 +112507,8 @@
           "20261024": 1,
           "20261025": 1,
           "20261026": 1,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -112414,7 +112814,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -112720,7 +113121,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -113026,7 +113428,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -113332,7 +113735,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -113638,7 +114042,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -113944,7 +114349,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -114250,7 +114656,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -114556,7 +114963,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -114862,7 +115270,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -115168,7 +115577,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -115474,7 +115884,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -115780,7 +116191,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -116086,7 +116498,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -116392,7 +116805,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -116698,7 +117112,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -117004,7 +117419,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -117310,7 +117726,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -117616,7 +118033,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -117922,7 +118340,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -118228,7 +118647,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -118534,7 +118954,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -118840,7 +119261,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -119146,7 +119568,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -119452,7 +119875,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -119758,7 +120182,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 1,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -120064,7 +120489,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -120370,7 +120796,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -120676,7 +121103,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -120982,7 +121410,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -121288,7 +121717,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -121594,7 +122024,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -121900,7 +122331,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -122206,7 +122638,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -122512,7 +122945,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -122818,7 +123252,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -123124,7 +123559,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -123430,7 +123866,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -123736,7 +124173,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -124042,7 +124480,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -124348,7 +124787,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -124654,7 +125094,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -124960,7 +125401,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -125266,7 +125708,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -125572,7 +126015,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -125878,7 +126322,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -126184,7 +126629,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -126490,7 +126936,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -126796,7 +127243,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -127102,7 +127550,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -127408,7 +127857,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -127714,7 +128164,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -128020,7 +128471,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -128326,7 +128778,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -128632,7 +129085,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -128938,7 +129392,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -129244,7 +129699,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -129550,7 +130006,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -129856,7 +130313,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -130162,7 +130620,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -130468,7 +130927,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -130774,7 +131234,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -131080,7 +131541,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -131386,7 +131848,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -131692,7 +132155,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -131998,7 +132462,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 1
+          "20261027": 1,
+          "20261028": 0
         }
       },
       {
@@ -132304,7 +132769,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -132610,7 +133076,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -132916,7 +133383,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -133222,7 +133690,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -133528,7 +133997,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -133834,7 +134304,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -134140,7 +134611,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -134446,7 +134918,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -134752,7 +135225,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -135058,7 +135532,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -135364,7 +135839,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -135670,7 +136146,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -135976,7 +136453,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -136282,7 +136760,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -136588,7 +137067,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -136894,7 +137374,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -137200,7 +137681,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -137506,7 +137988,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -137812,7 +138295,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -138118,7 +138602,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -138424,7 +138909,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -138730,7 +139216,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -139036,7 +139523,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -139342,7 +139830,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -139648,7 +140137,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -139954,7 +140444,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -140260,7 +140751,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -140566,7 +141058,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -140872,7 +141365,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -141178,7 +141672,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -141484,7 +141979,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -141790,7 +142286,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -142096,7 +142593,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -142402,7 +142900,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -142708,7 +143207,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -143014,7 +143514,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -143320,7 +143821,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -143626,7 +144128,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -143932,7 +144435,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -144238,7 +144742,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -144544,7 +145049,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -144850,7 +145356,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -145156,7 +145663,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -145462,7 +145970,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -145768,7 +146277,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -146074,7 +146584,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -146380,7 +146891,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -146686,7 +147198,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -146992,7 +147505,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -147298,7 +147812,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -147604,7 +148119,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -147910,7 +148426,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -148216,7 +148733,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -148522,7 +149040,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -148828,7 +149347,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -149134,7 +149654,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -149440,7 +149961,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -149746,7 +150268,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -150052,7 +150575,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -150358,7 +150882,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -150664,7 +151189,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -150970,7 +151496,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -151276,7 +151803,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -151582,7 +152110,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -151888,7 +152417,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -152194,7 +152724,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -152500,7 +153031,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -152806,7 +153338,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -153112,7 +153645,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -153418,7 +153952,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -153724,7 +154259,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -154030,7 +154566,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -154336,7 +154873,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -154642,7 +155180,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -154948,7 +155487,8 @@
           "20261024": 1,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -155254,7 +155794,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -155560,7 +156101,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -155866,7 +156408,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -156172,7 +156715,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -156478,7 +157022,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -156784,7 +157329,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -157090,7 +157636,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -157396,7 +157943,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -157702,7 +158250,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -158008,7 +158557,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -158314,7 +158864,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -158620,7 +159171,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -158926,7 +159478,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -159232,7 +159785,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -159538,7 +160092,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -159844,7 +160399,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -160150,7 +160706,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -160456,7 +161013,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -160762,7 +161320,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -161068,7 +161627,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -161374,7 +161934,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -161680,7 +162241,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -161986,7 +162548,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -162292,7 +162855,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -162598,7 +163162,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -162904,7 +163469,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -163210,7 +163776,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -163516,7 +164083,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -163822,7 +164390,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -164128,7 +164697,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -164434,7 +165004,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -164740,7 +165311,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -165046,7 +165618,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -165352,7 +165925,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -165658,7 +166232,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -165964,7 +166539,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -166270,7 +166846,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -166576,7 +167153,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -166882,7 +167460,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -167188,7 +167767,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -167494,7 +168074,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -167800,7 +168381,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -168106,7 +168688,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -168412,7 +168995,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -168718,7 +169302,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -169024,7 +169609,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -169330,7 +169916,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -169636,7 +170223,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -169942,7 +170530,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -170248,7 +170837,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -170554,7 +171144,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -170860,7 +171451,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -171166,7 +171758,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -171472,7 +172065,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -171778,7 +172372,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -172084,7 +172679,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -172390,7 +172986,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -172696,7 +173293,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -173002,7 +173600,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -173308,7 +173907,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -173614,7 +174214,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -173920,7 +174521,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -174226,7 +174828,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -174532,7 +175135,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -174838,7 +175442,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -175144,7 +175749,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -175450,7 +176056,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -175756,7 +176363,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -176062,7 +176670,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -176368,7 +176977,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -176674,7 +177284,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -176980,7 +177591,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -177286,7 +177898,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -177592,7 +178205,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -177898,7 +178512,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -178204,7 +178819,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -178510,7 +179126,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -178816,7 +179433,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -179122,7 +179740,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -179428,7 +180047,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -179734,7 +180354,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -180040,7 +180661,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -180346,7 +180968,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -180652,7 +181275,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -180958,7 +181582,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -181264,7 +181889,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -181570,7 +182196,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -181876,7 +182503,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -182182,7 +182810,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -182488,7 +183117,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -182794,7 +183424,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -183100,7 +183731,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -183406,7 +184038,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -183712,7 +184345,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -184018,7 +184652,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -184324,7 +184959,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -184630,7 +185266,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -184936,7 +185573,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -185242,7 +185880,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -185548,7 +186187,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -185854,7 +186494,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -186160,7 +186801,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -186466,7 +187108,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -186772,7 +187415,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -187078,7 +187722,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -187384,7 +188029,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -187690,7 +188336,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -187996,7 +188643,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -188302,7 +188950,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -188608,7 +189257,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -188914,7 +189564,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -189220,7 +189871,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -189526,7 +190178,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -189832,7 +190485,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -190138,7 +190792,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -190444,7 +191099,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -190750,7 +191406,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -191056,7 +191713,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -191362,7 +192020,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -191668,7 +192327,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -191974,7 +192634,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -192280,7 +192941,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -192586,7 +193248,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -192892,7 +193555,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -193198,7 +193862,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -193504,7 +194169,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -193810,7 +194476,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -194116,7 +194783,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -194422,7 +195090,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -194728,7 +195397,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -195034,7 +195704,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -195340,7 +196011,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -195646,7 +196318,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -195952,7 +196625,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -196258,7 +196932,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -196564,7 +197239,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -196870,7 +197546,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -197176,7 +197853,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -197482,7 +198160,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -197788,7 +198467,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -198094,7 +198774,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -198400,7 +199081,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -198706,7 +199388,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -199012,7 +199695,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -199318,7 +200002,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -199624,7 +200309,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -199930,7 +200616,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -200236,7 +200923,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -200542,7 +201230,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -200848,7 +201537,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -201154,7 +201844,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -201460,7 +202151,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -201766,7 +202458,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -202072,7 +202765,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -202378,7 +203072,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -202684,7 +203379,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -202990,7 +203686,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -203296,7 +203993,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -203602,7 +204300,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -203908,7 +204607,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -204214,7 +204914,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -204520,7 +205221,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -204826,7 +205528,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -205132,7 +205835,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -205438,7 +206142,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -205744,7 +206449,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -206050,7 +206756,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -206356,7 +207063,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -206662,7 +207370,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -206968,7 +207677,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -207274,7 +207984,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -207580,7 +208291,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -207886,7 +208598,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -208192,7 +208905,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -208498,7 +209212,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -208804,7 +209519,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -209110,7 +209826,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -209416,7 +210133,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -209722,7 +210440,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -210028,7 +210747,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -210334,7 +211054,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -210640,7 +211361,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -210946,7 +211668,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -211252,7 +211975,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -211558,7 +212282,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -211864,7 +212589,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -212170,7 +212896,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -212476,7 +213203,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -212782,7 +213510,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -213088,7 +213817,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -213394,7 +214124,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -213700,7 +214431,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -214006,7 +214738,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -214312,7 +215045,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -214618,7 +215352,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -214924,7 +215659,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -215230,7 +215966,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -215536,7 +216273,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -215842,7 +216580,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -216148,7 +216887,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -216454,7 +217194,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -216760,7 +217501,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -217066,7 +217808,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -217372,7 +218115,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -217678,7 +218422,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -217984,7 +218729,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -218290,7 +219036,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -218596,7 +219343,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -218902,7 +219650,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -219208,7 +219957,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -219514,7 +220264,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -219820,7 +220571,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -220126,7 +220878,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -220432,7 +221185,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -220738,7 +221492,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -221044,7 +221799,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -221350,7 +222106,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -221656,7 +222413,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -221962,7 +222720,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -222268,7 +223027,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -222574,7 +223334,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -222880,7 +223641,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -223186,7 +223948,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -223492,7 +224255,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -223798,7 +224562,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -224104,7 +224869,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -224410,7 +225176,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -224716,7 +225483,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -225022,7 +225790,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -225328,7 +226097,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -225634,7 +226404,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -225940,7 +226711,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -226246,7 +227018,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -226552,7 +227325,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -226858,7 +227632,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -227164,7 +227939,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -227470,7 +228246,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -227776,7 +228553,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -228082,7 +228860,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -228388,7 +229167,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -228694,7 +229474,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -229000,7 +229781,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -229306,7 +230088,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -229612,7 +230395,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -229918,7 +230702,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -230224,7 +231009,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -230530,7 +231316,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -230836,7 +231623,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -231142,7 +231930,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -231448,7 +232237,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -231754,7 +232544,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -232060,7 +232851,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -232366,7 +233158,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -232672,7 +233465,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -232978,7 +233772,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -233284,7 +234079,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -233590,7 +234386,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -233896,7 +234693,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -234202,7 +235000,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -234508,7 +235307,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -234814,7 +235614,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -235120,7 +235921,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -235426,7 +236228,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -235732,7 +236535,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -236038,7 +236842,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -236344,7 +237149,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -236650,7 +237456,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -236956,7 +237763,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -237262,7 +238070,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -237568,7 +238377,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -237874,7 +238684,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -238180,7 +238991,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -238486,7 +239298,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -238792,7 +239605,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -239098,7 +239912,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -239404,7 +240219,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -239710,7 +240526,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -240016,7 +240833,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -240322,7 +241140,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -240628,7 +241447,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -240934,7 +241754,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -241240,7 +242061,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -241546,7 +242368,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -241852,7 +242675,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -242158,7 +242982,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -242464,7 +243289,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -242770,7 +243596,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -243076,7 +243903,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -243382,7 +244210,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -243688,7 +244517,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -243994,7 +244824,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -244300,7 +245131,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -244606,7 +245438,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -244912,7 +245745,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -245218,7 +246052,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -245524,7 +246359,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -245830,7 +246666,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -246136,7 +246973,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -246442,7 +247280,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -246748,7 +247587,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -247054,7 +247894,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -247360,7 +248201,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -247666,7 +248508,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -247972,7 +248815,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -248278,7 +249122,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -248584,7 +249429,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -248890,7 +249736,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -249196,7 +250043,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -249502,7 +250350,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -249808,7 +250657,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -250114,7 +250964,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -250420,7 +251271,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -250726,7 +251578,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -251032,7 +251885,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -251338,7 +252192,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -251644,7 +252499,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -251950,7 +252806,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -252256,7 +253113,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -252562,7 +253420,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -252868,7 +253727,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -253174,7 +254034,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -253480,7 +254341,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -253786,7 +254648,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -254092,7 +254955,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -254398,7 +255262,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -254704,7 +255569,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -255010,7 +255876,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -255316,7 +256183,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -255622,7 +256490,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -255928,7 +256797,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -256234,7 +257104,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -256540,7 +257411,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -256846,7 +257718,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -257152,7 +258025,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -257458,7 +258332,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -257764,7 +258639,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -258070,7 +258946,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -258376,7 +259253,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -258682,7 +259560,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -258988,7 +259867,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -259294,7 +260174,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -259600,7 +260481,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -259906,7 +260788,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -260212,7 +261095,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -260518,7 +261402,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -260824,7 +261709,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -261130,7 +262016,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -261436,7 +262323,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -261742,7 +262630,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -262048,7 +262937,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -262354,7 +263244,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -262660,7 +263551,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -262966,7 +263858,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -263272,7 +264165,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -263578,7 +264472,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -263884,7 +264779,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -264190,7 +265086,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -264496,7 +265393,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -264802,7 +265700,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -265108,7 +266007,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -265414,7 +266314,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -265720,7 +266621,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -266026,7 +266928,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -266332,7 +267235,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -266638,7 +267542,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -266944,7 +267849,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -267250,7 +268156,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -267556,7 +268463,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -267862,7 +268770,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -268168,7 +269077,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -268474,7 +269384,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -268780,7 +269691,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -269086,7 +269998,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -269392,7 +270305,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -269698,7 +270612,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -270004,7 +270919,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -270310,7 +271226,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -270616,7 +271533,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -270922,7 +271840,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -271228,7 +272147,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -271534,7 +272454,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -271840,7 +272761,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -272146,7 +273068,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -272452,7 +273375,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -272758,7 +273682,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -273064,7 +273989,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -273370,7 +274296,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -273676,7 +274603,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -273982,7 +274910,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -274288,7 +275217,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -274594,7 +275524,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -274900,7 +275831,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -275206,7 +276138,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -275512,7 +276445,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -275818,7 +276752,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -276124,7 +277059,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -276430,7 +277366,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -276736,7 +277673,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -277042,7 +277980,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -277348,7 +278287,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -277654,7 +278594,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -277960,7 +278901,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -278266,7 +279208,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -278572,7 +279515,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -278878,7 +279822,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -279184,7 +280129,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -279490,7 +280436,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -279796,7 +280743,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -280102,7 +281050,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -280408,7 +281357,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -280714,7 +281664,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -281020,7 +281971,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -281326,7 +282278,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -281632,7 +282585,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -281938,7 +282892,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -282244,7 +283199,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -282550,7 +283506,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -282856,7 +283813,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -283162,7 +284120,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -283468,7 +284427,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -283774,7 +284734,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -284080,7 +285041,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -284386,7 +285348,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -284692,7 +285655,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       },
       {
@@ -284998,7 +285962,8 @@
           "20261024": 0,
           "20261025": 0,
           "20261026": 0,
-          "20261027": 0
+          "20261027": 0,
+          "20261028": 0
         }
       }
     ],
@@ -286873,7 +287838,7 @@
           "other": 1
         }
       },
-      "regeneratedAt": "2026-10-27T20:23:42.680Z",
+      "regeneratedAt": "2026-10-28T14:17:38.525Z",
       "regeneratedVia": "pull-data.mjs (REST segmentation, daily event totals, event-property group_by user_work_role, cohort-filtered to org-creators via s=userdata_cohort)",
       "periods": {
         "20260101_20260131": {},
@@ -288816,10 +289781,14 @@
           "demand_gen": 1
         },
         "20261027": {
-          "other": 1
+          "other": 3
+        },
+        "20261028": {
+          "other": 1,
+          "abm": 1
         }
       },
-      "regeneratedAt": "2026-10-27T20:23:43.563Z",
+      "regeneratedAt": "2026-10-28T14:17:40.664Z",
       "regeneratedVia": "pull-data.mjs (REST segmentation, daily event totals, event-property group_by user_work_role, no cohort filter)"
     },
     "companySetupDaily": {
@@ -289122,7 +290091,8 @@
       "20261024": 8,
       "20261025": 7,
       "20261026": 10,
-      "20261027": 2
+      "20261027": 5,
+      "20261028": 0
     },
     "companySetupDailyNote": "Daily unique [Onboarding] Company Setup Complete (PREVIOUS signup definition, org-creators only; internal excluded). Sum-of-daily per period. Regenerated each pull via REST segmentation (daily uniques, interval=1); history before the pull window is carried forward.",
     "inviteAcceptedDaily": {
@@ -289425,9 +290395,10 @@
       "20261024": 0,
       "20261025": 0,
       "20261026": 5,
-      "20261027": 1
+      "20261027": 1,
+      "20261028": 1
     },
-    "pulledAt": "2026-10-27T20:23:45.806Z"
+    "pulledAt": "2026-10-28T14:17:46.817Z"
   },
   "hubspot": {
     "meetings": [
@@ -290150,6 +291121,15 @@
         "jobTitle": "Director of Sales",
         "companySize": "0-50",
         "whoWillUse": "Sales only"
+      },
+      {
+        "date": "20261028",
+        "email": "kleese@siftscience.com",
+        "company": "Sift",
+        "referralSource": "Google",
+        "jobTitle": "Senior Director, Product & Customer Enablement",
+        "companySize": "51-200",
+        "whoWillUse": "Both"
       }
     ],
     "enterpriseDeals": [
@@ -291259,14 +292239,23 @@
         "enteredVia": "Stage 0 (Interest)",
         "stage": "8c55c259-5132-4198-a4b9-36b19723b348",
         "source": "OFFLINE"
+      },
+      {
+        "date": "20261028",
+        "dealId": "67024025475",
+        "name": "Sift - 10/28/26",
+        "company": "Sift",
+        "enteredVia": "Stage 0 (Interest)",
+        "stage": "8c55c259-5132-4198-a4b9-36b19723b348",
+        "source": "ORGANIC_SEARCH"
       }
     ],
     "logos": {
-      "total": 117,
+      "total": 116,
       "source": "revenue-repo",
       "repo": "UncleAchoo/revenue-dashboard-official",
       "path": "stripe_data.json",
-      "pulledAt": "2026-10-28T00:47:51.464Z",
+      "pulledAt": "2026-10-28T14:17:11.539Z",
       "weekly": [
         {
           "week_ending": "2026-03-22",
@@ -291430,61 +292419,61 @@
         },
         {
           "week_ending": "2026-10-28",
-          "count": 117,
+          "count": 116,
           "partial": true
         }
       ]
     },
-    "pulledAt": "2026-10-27T20:23:34.084Z"
+    "pulledAt": "2026-10-28T14:17:12.150Z"
   },
   "peec": {
-    "pulledAt": "2026-10-27T20:22:20.000Z",
+    "pulledAt": "2026-10-28T14:13:53.000Z",
     "windowStart": "2026-04-23",
-    "windowEnd": "2026-10-26",
-    "visibility": 0.1576,
-    "mentionCount": 22194,
+    "windowEnd": "2026-10-27",
+    "visibility": 0.1575,
+    "mentionCount": 22283,
     "avgPosition": 3.2,
     "competitorRank": 3,
     "competitorTotal": 16,
     "topCompetitor": {
       "name": "Clay",
-      "visibility": 0.1873
+      "visibility": 0.1876
     },
     "topics": [
       {
         "topicId": "to_c7f0f067-a48f-4d0e-8676-a01f183e416c",
         "name": "Competitor Comparisons",
-        "visibility": 0.3042,
-        "mentions": 9356,
-        "responses": 6318
+        "visibility": 0.3035,
+        "mentions": 9375,
+        "responses": 6350
       },
       {
         "topicId": "to_1f306540-833c-4b81-9753-653c33a70cd7",
         "name": "ABM",
-        "visibility": 0.2602,
-        "mentions": 5396,
-        "responses": 9279
+        "visibility": 0.2603,
+        "mentions": 5429,
+        "responses": 9330
       },
       {
         "topicId": "to_8f9cecf0-a16c-49b7-af05-1c7f6fd5e684",
         "name": "Modern GTM tech stack",
         "visibility": 0.0715,
-        "mentions": 707,
-        "responses": 7766
+        "mentions": 711,
+        "responses": 7808
       },
       {
         "topicId": "to_89f3990a-c991-4a09-9852-23df929174d1",
         "name": "AI Sales Tools",
         "visibility": 0.1171,
-        "mentions": 1863,
-        "responses": 10218
+        "mentions": 1879,
+        "responses": 10275
       },
       {
         "topicId": "to_180aec82-5c6e-4570-8787-7eefa5444185",
         "name": "AI Sales Enablement",
-        "visibility": 0.1088,
-        "mentions": 2518,
-        "responses": 9294
+        "visibility": 0.1089,
+        "mentions": 2532,
+        "responses": 9345
       },
       {
         "topicId": "to_65877128-3c62-43e5-a8cd-a26ad9740afc",
@@ -293364,6 +294353,16 @@
         "AI Sales Tools": 0.1404,
         "AI Sales Enablement": 0.1961,
         "Outbound tools": 0
+      },
+      {
+        "date": "2026-10-27",
+        "visibility": 0.1403,
+        "Competitor Comparisons": 0.1563,
+        "ABM": 0.2941,
+        "Modern GTM tech stack": 0.0714,
+        "AI Sales Tools": 0.1053,
+        "AI Sales Enablement": 0.1373,
+        "Outbound tools": 0
       }
     ],
     "sources": {
@@ -295102,14 +296101,24 @@
             "AI Sales Enablement": 15,
             "Competitor Comparisons": 7,
             "Modern GTM tech stack": 12
+          },
+          {
+            "date": "2026-10-27",
+            "Total": 82,
+            "AI Sales Tools": 23,
+            "AI Sales Enablement": 17,
+            "Assets": 17,
+            "ABM": 10,
+            "Competitor Comparisons": 8,
+            "Modern GTM tech stack": 7
           }
         ],
         "metric": {
-          "retrievedPct": 0.2817,
-          "retrievalRate": 0.4364,
-          "citationRate": 1.7973,
-          "retrievalCount": 21828,
-          "citationCount": 25324
+          "retrievedPct": 0.2818,
+          "retrievalRate": 0.4368,
+          "citationRate": 1.7964,
+          "retrievalCount": 21971,
+          "citationCount": 25458
         },
         "dailyStats": [
           {
@@ -296607,6 +297616,14 @@
             "citationRate": 1.29,
             "retrievalCount": 147,
             "citationCount": 129
+          },
+          {
+            "date": "2026-10-27",
+            "retrievedPct": 0.295,
+            "retrievalRate": 0.5144,
+            "citationRate": 1.6341,
+            "retrievalCount": 143,
+            "citationCount": 134
           }
         ]
       }
@@ -297733,6 +298750,12 @@
         "visCount": 48,
         "visTotal": 278,
         "mentions": 107
+      },
+      {
+        "date": "2026-10-27",
+        "visCount": 39,
+        "visTotal": 278,
+        "mentions": 89
       }
     ]
   }
