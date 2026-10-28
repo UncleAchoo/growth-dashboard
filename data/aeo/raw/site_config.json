@@ -1,0 +1,43 @@
+{
+  "_note": "Hand-kept config for build-aeo. competitorDomains = tracked Peec brands' domains (list_brands, Oct 28 2026). incumbents = big sites Matt says rarely swap inclusions (Highspot, Zapier, Qualified and similar). reviewSites/community = Matt's weighted off-site sources (G2, YouTube, Reddit, LinkedIn). mutinyPages = Mutiny pages AI engines already cite, by new topic, for brief internal links (citations = old prompt set, 30 days to Oct 26, where known).",
+  "competitorDomains": ["letter.ai","dock.us","pandadoc.com","avoma.com","apollo.io","alignedup.com","mindtickle.com","attention.com","gamma.app","fathom.video","rox.com","clari.com","gong.io","showpad.com","sendtrumpet.com","qwilr.com","fireflies.ai","vivun.com","allego.com","attio.com","lavender.ai","clay.com","11x.ai","sybill.ai","day.ai","seismic.com","regie.ai","highspot.com"],
+  "incumbents": ["salesforce.com","hubspot.com","zapier.com","gartner.com","ibm.com","monday.com","clickup.com","hostinger.com","otter.ai","microsoft.com","forrester.com","mckinsey.com","qualified.com","zoominfo.com"],
+  "reviewSites": ["g2.com","capterra.com","trustradius.com","gartner.com/reviews"],
+  "community": ["youtube.com","reddit.com","linkedin.com","github.com"],
+  "mutinyPages": {
+    "SE": [
+      ["https://mutinyhq.com/blog/the-best-sales-enablement-tools-in-2026-a-buyer-s-guide-for-b2b-sales-teams","The best sales enablement tools in 2026: A buyer's guide",84],
+      ["https://mutinyhq.com/blog/highspot-alternatives-8-platforms-b2b-teams-evaluate-in-2026","Highspot alternatives: 9 platforms B2B teams evaluate in 2026",93],
+      ["https://mutinyhq.com/blog/seismic-alternatives-8-platforms-enterprise-b2b-teams-evaluate-in-2026","Seismic alternatives: 9 platforms enterprise B2B teams evaluate in 2026",null],
+      ["https://mutinyhq.com/faqs/what-are-the-best-alternatives-to-highspot-for-ai-native-sales-enablement","What are the best alternatives to Highspot for AI-native sales enablement?",89]
+    ],
+    "DSR": [
+      ["https://mutinyhq.com/blog/best-tools-to-create-deal-rooms","Best tools to create deal rooms in 2026",null],
+      ["https://mutinyhq.com/blog/what-is-a-deal-room-and-what-should-it-include","What is a deal room, and what should it include?",36],
+      ["https://mutinyhq.com/blog/how-b2b-sales-teams-use-ai-for-deal-rooms-and-follow-ups-in-2026","How B2B sales teams use AI for deal rooms and follow-ups in 2026",81]
+    ],
+    "SPP": [
+      ["https://mutinyhq.com/blog/best-tools-to-create-sales-pitch-decks","Best tools to create sales pitch decks in 2026",45],
+      ["https://mutinyhq.com/blog/best-tools-to-create-a-business-case-for-a-sale","Best tools to create a business case for a sale (2026)",55],
+      ["https://mutinyhq.com/blog/business-case-template-for-b2b-sales","Business case template for B2B sales",38],
+      ["https://mutinyhq.com/faqs/what-tools-generate-personalized-sales-collateral-automatically","What tools generate personalized sales collateral automatically?",42],
+      ["https://mutinyhq.com/faqs/what-is-personalized-sales-content-generation","What is personalized sales content generation?",55]
+    ],
+    "GTM": [
+      ["https://mutinyhq.com/blog/the-best-ai-sales-tools-in-2026-a-buyer-s-guide-for-b2b-gtm-teams","The best AI sales tools in 2026: A buyer's guide for B2B GTM teams",85],
+      ["https://mutinyhq.com/blog/how-to-evaluate-ai-sales-tools-a-2026-buyer-s-framework-for-b2b-gtm-teams","How to evaluate AI sales tools: A 2026 buyer's framework",null],
+      ["https://mutinyhq.com/faqs/what-is-the-modern-gtm-tech-stack-in-2026","What is the modern GTM tech stack in 2026?",93],
+      ["https://mutinyhq.com/blog/the-best-ai-tools-for-account-executives-in-2026-a-buyer-s-guide-for-b2b-sales-teams","The best AI tools for account executives in 2026: A buyer's guide",124]
+    ],
+    "CALL": [
+      ["https://mutinyhq.com/faqs/how-can-sales-teams-turn-call-recordings-into-follow-up-content","How can sales teams turn call recordings into follow-up content?",27],
+      ["https://mutinyhq.com/faqs/how-can-aes-use-ai-to-prepare-for-sales-calls","How can AEs use AI to prepare for sales calls?",33]
+    ],
+    "ASA": [
+      ["https://mutinyhq.com/blog/the-best-ai-sales-agents-for-aes-in-2026","The best AI sales agents for AEs in 2026",163],
+      ["https://mutinyhq.com/blog/ai-sales-agents-the-2026-category-guide","AI sales agents: The 2026 category guide",null],
+      ["https://mutinyhq.com/blog/what-ai-tools-help-sellers-create-deal-specific-content","What AI tools help sellers create deal-specific content?",122],
+      ["https://mutinyhq.com/faqs/how-do-aes-personalize-content-without-waiting-on-marketing","How do AEs personalize content without waiting on marketing?",26]
+    ]
+  }
+}

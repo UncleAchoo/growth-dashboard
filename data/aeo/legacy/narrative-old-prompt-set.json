@@ -1,0 +1,52 @@
+{
+  "_note": "Written by Claude at each refresh from `node scripts/build-aeo.mjs --print`. Rules: no em or en dashes, no 'not X but Y' constructions, only numbers that the build prints, never invent recommendations (opportunity text comes from Peec).",
+  "asOf": "2026-10-27",
+  "summary": "Mutiny held #3 overall at 16.5% visibility (down 0.5 pts) with mentions flat at 745, so the top line was steady. The movement is underneath: AI Sales Enablement rose 3.6 pts to 15.8%, while Modern GTM tech stack fell 3.1 pts to 7.2% and average position there slipped from 4.6 to 5.6. mutinyhq.com was retrieved in 674 chats, up from 608, and is still the #1 source domain.",
+  "brandFlags": "Seismic climbed from #7 to #5 (+0.7 pts), driven by sales enablement answers. Demandbase had the biggest drop (down 1.3 pts), mostly in ABM where it fell from 39.6% to 34.9%. Relevance moved up two spots to #11. Clay still leads at 22.1%, 5.6 pts ahead of Mutiny. No brand moved more than 5 pts.",
+  "topics": {
+    "AISE": {
+      "competitive": "Seismic (46.8%) and Highspot (42.5%) own this topic, with Showpad and Mindtickle near 30%. Mutiny is #7 at 15.8%.",
+      "trend": "Up 3.6 pts (29% relative), Mutiny's biggest gain of the week, with sentiment up to 59. Highspot slipped 3.0 pts while Seismic gained 2.4."
+    },
+    "ABM": {
+      "competitive": "A three-way race: Demandbase 34.9%, 6sense 33.2%, Mutiny 31.5%. Mutiny has the best average position of the three (2.0).",
+      "trend": "Steady hold (down 0.9 pts) while Demandbase lost 4.7 pts, so the gap to #1 narrowed from 7.1 to 3.4 pts."
+    },
+    "AST": {
+      "competitive": "Clay dominates at 44.5% and Apollo.io is second at 31.7%. Mutiny is #4 at 15.6%, 2.0 pts behind 11x.",
+      "trend": "Up 0.9 pts while Clay, Apollo.io and 11x all slipped. 11x fell the most, down 4.2 pts."
+    },
+    "MGTM": {
+      "competitive": "Clay leads at 51.9% and 6sense is second at 34.1%. Mutiny is #8 at 7.2% and shows up late in answers (position 5.6).",
+      "trend": "Down 3.1 pts (30% relative) with share of voice down from 3.3% to 2.2%. This is the weakest topic and the one losing ground."
+    },
+    "CC": {
+      "competitive": "Enablement incumbents lead: Mindtickle 36.1%, Seismic 33.5%, Showpad 33.0%, Highspot 30.4%. Mutiny is #11 at 14.8%.",
+      "trend": "Visibility dipped 0.8 pts, yet mentions rose from 111 to 148 and share of voice from 5.2% to 6.7%, so Mutiny gets more airtime in the answers it appears in."
+    }
+  },
+  "channels": "Perplexity is the friendliest engine: best position (2.0) and the highest share of voice (10.9%), with mentions up from 115 to 140. ChatGPT drives the most visibility (21.2%) but fell 2.2 pts. Google AI Overview is the hardest to crack at 13.3%.",
+  "domains": "mutinyhq.com is the #1 retrieved domain (674 chats, up 11%) and is cited inline in 21.6% of chats. gartner.com jumped from #13 to #8 and seismic.com rose from #19 to #15. No new competitor domains entered the top 40; allego.com and clay.com dropped out.",
+  "opportunityContext": {
+    "01a144aa-9f1d-7a81-b128-a3ac9c906207": "ABM is the closest race (3.4 pts behind Demandbase), so this is the quickest topic to take #1.",
+    "01a1209c-ef9e-7a63-97b4-ae937b3d0db3": "Modern GTM tech stack is Mutiny's weakest topic and fell 3.1 pts this week.",
+    "01a1209c-f1f6-7652-b03d-ae91f5af23ac": "GetAccept's Highspot and Seismic alternatives pages are in this week's top 10 cited URLs and Mutiny is on neither.",
+    "01a16925-4f2a-7bb2-a340-f287e44bd67b": "g2.com is the #7 retrieved domain (255 chats) and AI Sales Enablement is where Mutiny is gaining.",
+    "01a10a46-1f3b-7ef0-8a86-ee17141edc98": "mutinyhq.com is already the most retrieved domain (674 chats), so this is a sitewide fix on the biggest source."
+  },
+  "takeaways": [
+    "Go for #1 in ABM. Mutiny is 3.4 pts behind Demandbase with the best position in the topic, and Peec's 1:1 ABM landing pages brief targets 476 competitor citations.",
+    "Modern GTM tech stack needs new pages. Mutiny fell to 7.2% at position 5.6, and the three backlog picks for this topic are prompts where Clay, 6sense, Demandbase and Apollo.io sit on the top cited pages and Mutiny doesn't.",
+    "Build on the sales enablement gain (+3.6 pts). The next targets are the enterprise enablement prompt, where Mindtickle, Showpad, Allego and Seismic are cited, and the GetAccept and Salesforce enablement listicles that lead citations.",
+    "Perplexity treats Mutiny best (position 2.0, 10.9% share of voice). ChatGPT drives the most visibility and slipped 2.2 pts, so watch it next week.",
+    "Mutiny's own listicles and FAQ pages carry the visibility: the business case tools list and the AE agents list are cited first in answers (position 1.4 and 1.6). Keep shipping that format."
+  ],
+  "lean": {
+    "AST": "Include Mutiny in the list as the pick for AEs who need deal-specific content (business cases, deal rooms, follow-ups). Rank on fit and give every other tool the same depth.",
+    "AISE": "Place Mutiny in the AI-native section as the option that generates personalized, on-brand assets per deal. Describe Seismic and Highspot fairly on content management.",
+    "MGTM": "Organize the stack by job and slot Mutiny into the sales asset and deal execution layer. Keep it out of any website personalization framing.",
+    "CC": "Include Mutiny where it matches the buyer's reason for switching (agentic GTM assistant, on-brand asset generation). State the original product's strengths plainly.",
+    "ABM": "The narrow ABM exception applies: Mutiny can appear for 1:1 account pages and ABM asset creation. Keep the definition sections vendor-neutral."
+  },
+  "backlogNote": "Notion isn't connected in this setup, so no On-site Content rows or drafts are created and existing drafts aren't checked. Commercial intent comes from Peec's prompt tags."
+}

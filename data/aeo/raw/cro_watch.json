@@ -1,0 +1,102 @@
+{
+ "_note": "CRO positioning watch. Non-Mutiny pages AI engines read (Jul 30 to Oct 28 2026) that mention Mutiny, on CRO/personalization/martech domains. snippet = verbatim text from Peec's stored snapshot.",
+ "rows": [
+  {
+   "url": "https://warmly.ai/p/blog/ai-sales-marketing-tech-stack",
+   "framing": "cro",
+   "snippet": "**Mutiny:** An AI-powered website personalization platform. | Mutiny alters your website copy or offers dynamically based on who comes to your website.",
+   "snapshotAt": "2026-08-10T04:21:10.412Z",
+   "type": "Article",
+   "title": "How to Use AI in Your Sales and Marketing Tech Stack",
+   "retrievals": 129,
+   "citations": 151
+  },
+  {
+   "url": "https://warmly.ai/p/blog/b2b-martech-stack",
+   "framing": "cro",
+   "snippet": "Mutiny offers a no-code AI platform that helps performance marketing teams personalize website experiences at scale.",
+   "snapshotAt": "2026-10-27T05:26:21.329Z",
+   "type": "Listicle",
+   "title": "The Complete B2B MarTech Stack That We'd Use [2026]",
+   "retrievals": 76,
+   "citations": 24
+  },
+  {
+   "url": "https://mida.so/blog/website-personalization-tools",
+   "framing": "cro",
+   "snippet": "[Mutiny](https://www.mutinyhq.com/?ref=mida.so) is an AI-driven personalization platform purpose-built for B2B companies. | Rather than requiring a developer or data engineer to define segments, Mutiny uses firmographic data (company industry, size, funding stage, tech stack) enriched through integrations with Clearbit, Bombora, and LinkedIn to automatically identify which visitor company should see which variant.",
+   "snapshotAt": "2026-10-24T02:41:11.869Z",
+   "type": "Listicle",
+   "title": "Best Website Personalization Software & Tools (2026) | Mida",
+   "retrievals": 24,
+   "citations": 1
+  },
+  {
+   "url": "https://cxl.com/blog/account-based-marketing",
+   "framing": "cro",
+   "snippet": "- **Website personalization:** Demandbase, Mutiny, Optimizely;",
+   "snapshotAt": "2026-10-24T04:03:15.474Z",
+   "type": "Article",
+   "title": "Account-Based Marketing Strategy: A Step-by-Step Guide | CXL",
+   "retrievals": 13,
+   "citations": 17
+  },
+  {
+   "url": "https://webflow.com/vs/mutiny",
+   "framing": "cro",
+   "snippet": null,
+   "snapshotAt": null,
+   "note": "Peec could not return the page text; the title itself pitches Webflow Optimize (website testing) as a Mutiny alternative.",
+   "type": "Comparison",
+   "title": "Mutiny alternative: Mutiny vs. Webflow Optimize",
+   "retrievals": 9,
+   "citations": 9
+  },
+  {
+   "url": "https://userpilot.com/blog/saas-ai-tools",
+   "framing": "mixed",
+   "snippet": "- **Increase the volume of deal-ready content:** Ask Mutiny\u2019s AI agent to build deal rooms, pitch decks, pricing proposals, and 1:1 ABM pages that help close deals. All you need to do is feed it context from your CRM, Gong calls, or emails. | Unbounce is a more affordable Mutiny alternative.",
+   "snapshotAt": "2026-10-25T04:20:41.200Z",
+   "type": "Listicle",
+   "title": "7 SaaS AI Tools I'd Use to Build a Connected GTM Workflow",
+   "retrievals": 3,
+   "citations": 8
+  },
+  {
+   "url": "https://scandiweb.com/blog/top-9-website-personalization-tools",
+   "framing": "cro",
+   "snippet": "Out of scope for this list (which focuses on broad eCommerce personalization), but worth flagging: **Mutiny** and **Demandbase** anchor the B2B category for teams running account-based marketing. | 1. **What are you personalizing?** Search results \u2192 Category 3 (Klevu, Algolia, Clerk.io). Hero banners and content variation \u2192 Category 1 or 2 (Adobe Target, Optimizely, VWO). Full-page B2B targeting \u2192 Category 4 (Mutiny, Demandbase \u2013 out of scope here).",
+   "snapshotAt": "2026-10-27T00:03:46.734Z",
+   "type": "Listicle",
+   "title": "Top 9 Website Personalization Tools - scandiweb",
+   "retrievals": 2,
+   "citations": 0
+  },
+  {
+   "url": "https://convert.com/blog/personalization/personalization-tools-lean-teams",
+   "framing": "cro",
+   "snippet": "Mutiny is a B2B-focused website personalization platform built around account-based marketing (ABM) use cases. | - **Account-based website personalization:** Mutiny identifies visiting accounts using firmographic data and matches them to predefined segments or target account lists, enabling teams to tailor on-site messaging for specific industries, companies, or account tiers.",
+   "snapshotAt": "2026-10-26T04:02:51.632Z",
+   "type": "Listicle",
+   "title": "Top personalization tools for lean teams",
+   "retrievals": 2,
+   "citations": 1
+  }
+ ],
+ "window": {
+  "start": "2026-07-30",
+  "end": "2026-10-28"
+ },
+ "perceptionAttributes": {
+  "_note": "get_brand_perception_brand_attributes for Mutiny (Oct 28 2026): attribute words AI engines use for Mutiny that point to the old website/CRO product.",
+  "terms": [
+   "website",
+   "conversion-oriented",
+   "conversion optimization",
+   "website optimization",
+   "landing pages",
+   "no-code",
+   "conversion-focused"
+  ]
+ }
+}

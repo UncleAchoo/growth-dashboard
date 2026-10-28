@@ -1,0 +1,12 @@
+{
+  "_note": "Deep links from ?aeo cards into the Peec app. Fill each with the URL of the matching Peec view (copy it from the browser while signed in). null = no link shown. topics: one URL per topic key (the Peec view filtered to that topic). prompt: optional template with {id} for a single prompt page.",
+  "overview": null,
+  "brands": null,
+  "models": null,
+  "topics": { "SE": null, "DSR": null, "SPP": null, "GTM": null, "CALL": null, "ASA": null },
+  "domains": null,
+  "urls": null,
+  "prompts": null,
+  "prompt": null,
+  "actions": "https://app.peec.ai/actions/recommendations"
+}

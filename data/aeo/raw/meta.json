@@ -1,6 +1,9 @@
 {
-  "pulledAt": "2026-10-27T21:00:00.000Z",
+  "pulledAt": "2026-10-28T21:00:00.000Z",
   "projectId": "or_0887d1ed-129a-4dcd-a14c-d5fd9905d06c",
-  "cur": { "start": "2026-10-20", "end": "2026-10-26" },
-  "prev": { "start": "2026-10-13", "end": "2026-10-19" }
+  "promptSet": { "since": "2026-10-28", "prompts": 145, "topics": 6, "brands": 29, "note": "Jon reconfigured Peec on Oct 28 2026 (Matt's priority 2). The 93 old prompts are archived; history for them is in legacy.json." },
+  "cur": { "start": "2026-10-28", "end": "2026-10-28" },
+  "prev": null,
+  "partialCur": true,
+  "topicFilter": ["to_35555ef7-147a-45d7-91d2-04fd57304ecb","to_4bbe43bd-ce10-4ba7-a6eb-1238d9ee77b8","to_74dd09af-5f9e-4d6b-9207-f2699b9971e5","to_8b8f709a-2231-4169-8603-b0459a614309","to_afdd3822-78c4-4781-a9ba-4c12d52bfffa","to_dd7866a1-5c51-4ac0-8df6-e1d3e9c53f7d"]
 }

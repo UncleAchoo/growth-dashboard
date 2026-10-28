@@ -1,0 +1,30 @@
+{
+ "_note": "Final week of the original Peec prompt set (93 prompts, 5 topics, 16 brands), archived Oct 28 2026 when Jon reconfigured Peec. Not comparable with the new set.",
+ "window": {
+  "start": "2026-10-20",
+  "end": "2026-10-26"
+ },
+ "prompts": 93,
+ "brands": 16,
+ "mutiny": {
+  "visibility": 0.1649,
+  "mentions": 745,
+  "sov": 0.0835,
+  "sentiment": 59,
+  "position": 2.4,
+  "winRate": 0.0809
+ },
+ "rank": 3,
+ "leader": {
+  "name": "Clay",
+  "visibility": 0.2205
+ },
+ "ownDomain": {
+  "domain": "mutinyhq.com",
+  "cls": "You",
+  "chats": 674,
+  "retrieved": 0.3472,
+  "cited": 0.2164,
+  "citations": 1028
+ }
+}

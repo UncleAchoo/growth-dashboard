@@ -1,0 +1,27 @@
+{
+  "_note": "get_url_report Oct 20 to Oct 26, top 10 by citation_count. Row = [url, classification, title, citation_count, retrieval_count, citation_position, mentioned_brand_names].",
+  "topCited": [
+    ["https://zoomforth.com/abm/abm-landing-pages-guide","How-To Guide","ABM landing pages: a guide for B2B teams | Zoomforth",72,60,3.17,["Relevance"]],
+    ["https://getaccept.com/blog/highspot-alternatives","Alternative","6 Highspot alternatives for sales enablement",63,64,4.09,["Highspot","Showpad","Mindtickle","Allego","Seismic","Dock"]],
+    ["https://ibm.com/think/topics/ai-sales-enablement","Article","AI in Sales Enablement | IBM",62,45,2.09,["Seismic","Highspot"]],
+    ["https://zapier.com/blog/ai-sales-assistant","Listicle","The best AI sales assistant software in 2026 | Zapier",59,32,3.95,["Clay"]],
+    ["https://getaccept.com/blog/best-digital-sales-room-software","Listicle","The Best Digital Sales Room Software Comparison",57,28,2.08,["Dock","Highspot","Seismic","6sense","Mindtickle","Allego"]],
+    ["https://salesforce.com/sales/enablement/software","Listicle","9 Best Sales Enablement Software Tools in 2026 | Salesforce",56,29,2.66,["Seismic","Mindtickle","Highspot","Showpad"]],
+    ["https://getaccept.com/blog/seismic-alternatives","Alternative","6 Seismic alternatives & competitors for sales enablement teams",55,32,3.86,["Seismic","Highspot","Mindtickle","Dock"]],
+    ["https://mutinyhq.com/blog/best-tools-to-create-a-business-case-for-a-sale","Listicle","Best tools to create a business case for a sale (2026)",55,28,1.42,["Mutiny"]],
+    ["https://dock.us/library/sales-business-case","How-To Guide","Win over CFOs with this sales business case (free template)",52,43,3.43,["Dock","Highspot","Seismic"]],
+    ["https://salesforce.com/blog/small-business/write-a-business-case","How-To Guide","How to Write a Business Case: The Complete Guide",52,32,4.11,[]]
+  ],
+  "mutinyTop": [
+    ["https://mutinyhq.com/blog/best-tools-to-create-a-business-case-for-a-sale","Listicle","Best tools to create a business case for a sale (2026)",55,28,1.42],
+    ["https://mutinyhq.com/blog/the-best-ai-sales-agents-for-aes-in-2026","Listicle","The best AI sales agents for AEs in 2026",48,25,1.59],
+    ["https://mutinyhq.com/faqs/what-are-the-best-alternatives-to-highspot-for-ai-native-sales-enablement","Alternative","What are the best alternatives to Highspot for AI-native sales enablement?",47,29,1.55],
+    ["https://mutinyhq.com/blog/the-best-ai-tools-for-account-executives-in-2026-a-buyer-s-guide-for-b2b-sales-teams","Listicle","The best AI tools for account executives in 2026: A buyer's guide",39,44,2.71],
+    ["https://mutinyhq.com/blueprints/1-1-abm","Product Page","Blueprints: 1:1 ABM",39,42,1.7],
+    ["https://mutinyhq.com/blog/the-best-ai-sales-tools-in-2026-a-buyer-s-guide-for-b2b-gtm-teams","Listicle","The best AI sales tools in 2026: A buyer's guide for B2B GTM teams",38,59,3.86],
+    ["https://mutinyhq.com/blog/business-case-template-for-b2b-sales","How-To Guide","Business case template for B2B sales",38,52,3.04],
+    ["https://mutinyhq.com/blog/what-ai-tools-help-sellers-create-deal-specific-content","Listicle","What AI tools help sellers create deal-specific content?",37,20,1.64],
+    ["https://mutinyhq.com/blog/highspot-alternatives-8-platforms-b2b-teams-evaluate-in-2026","Alternative","Highspot alternatives: 9 platforms B2B teams evaluate in 2026",36,40,2.5],
+    ["https://mutinyhq.com/blog/what-is-a-deal-room-and-what-should-it-include","How-To Guide","What is a deal room, and what should it include?",36,23,2.53]
+  ]
+}

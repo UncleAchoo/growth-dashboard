@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------
-// AEO interactive walkthrough (Nick, Oct 27 2026). A beginner tour of the ?aeo
-// page, started from the "New to AEO? Take the tour" button.
+// AEO interactive walkthrough (Nick, Oct 27 2026; updated Oct 28 for Matt's
+// AEO model and Jon's Peec reset). A beginner tour of the ?aeo page, started
+// from the "New to AEO? Take the tour" button.
 //
 // Each step spotlights one element (data-tour="<id>" in aeo_section.jsx) with
 // a tooltip anchored beside, below or above it (pointer arrow included), and
@@ -9,10 +10,11 @@
 //   2. What this means  a live insight computed from src/aeo.json, so it stays
 //                       true after every refresh
 //   3. Do this          one-click actions that act on the page: filter the
-//                       backlog, open the top brief, copy a brief for a writer,
-//                       open the page to beat, jump to a related step
+//                       backlog, open the top brief, copy a brief or the Jaleh
+//                       update, open the page to beat, jump to a related step
 // plus three quick knowledge checks. The page stays clickable during the tour.
-// Steps whose target isn't rendered are skipped.
+// Steps whose target isn't rendered are skipped. Never compares topics with
+// each other (Matt): topic insights compare Mutiny with that topic's leader.
 // ---------------------------------------------------------------------------
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, X, Lightbulb, MousePointerClick, Copy, ExternalLink, Filter, FileText, CornerDownRight, RotateCcw } from 'lucide-react';
@@ -27,41 +29,41 @@ const FONT_BODY = "'Manrope', 'KMR Waldenburg', Arial, sans-serif";
 export const TOUR_DONE_KEY = 'aeo-tour-done-v1';
 
 const pct = (v) => (v == null ? '?' : `${(v * 100).toFixed(1)}%`);
-const ptsAbs = (d) => `${Math.abs(d * 100).toFixed(1)} pts`;
-const upDown = (d) => (d >= 0 ? 'up' : 'down');
-const TOPIC_KEYS = ['AISE', 'ABM', 'AST', 'MGTM', 'CC'];
 
 // --- Live facts ---------------------------------------------------------------------
 function facts() {
   const brands = aeo.brands || [];
   const me = brands.find((b) => b.own) || {};
   const m = aeo.mutiny?.cur || {};
-  const p = aeo.mutiny?.prev || {};
-  const movers = brands.filter((b) => b.prev).map((b) => ({ ...b, d: b.visibility - b.prev.visibility })).sort((a, b) => Math.abs(b.d) - Math.abs(a.d));
-  const topics = (aeo.topics || []).filter((t) => t.mutiny && TOPIC_KEYS.includes(t.key));
-  const byVis = [...topics].sort((a, b) => b.mutiny.visibility - a.mutiny.visibility);
-  const topicMoves = topics.filter((t) => t.mutiny.prev).map((t) => ({ t, d: t.mutiny.visibility - t.mutiny.prev.visibility })).sort((a, b) => b.d - a.d);
-  const channels = aeo.channels || [];
-  const engineMoves = channels.map((c) => ({ c, d: c.cur.visibility - c.prev.visibility })).sort((a, b) => Math.abs(b.d) - Math.abs(a.d));
+  const L = aeo.mutiny?.ladder || {};
+  const topics = aeo.topics || [];
+  // Priority topic: the one named for AI sales assistants if present, else the
+  // first topic where Mutiny isn't named. No cross-topic ranking.
+  const focus = topics.find((t) => /assistant/i.test(t.name)) || topics.find((t) => !t.mutiny) || topics[0];
+  const channels = (aeo.channels || []).filter((c) => c.cur);
   const engines = [...channels].sort((a, b) => b.cur.visibility - a.cur.visibility);
   const prompts = aeo.backlog?.prompts || [];
   const count = (s) => prompts.filter((x) => x.status === s).length;
-  const thirdParty = (aeo.domains?.top || []).find((d) => d.cls === 'UGC') || (aeo.domains?.top || []).find((d) => d.cls !== 'You' && d.cls !== 'Competitor');
-  const cited = aeo.topCitedUrls || [];
+  const O = aeo.outreach || {};
+  const firstTarget = (O.targets || [])[0];
+  const croTop = (aeo.cro?.rows || []).filter((r) => r.framing === 'cro').sort((a, b) => b.retrievals - a.retrievals)[0];
+  const J = aeo.jaleh || {}; const w = J.weeks || [];
   return {
-    me, m, p, brands, movers,
-    above: brands[me.rank - 2], below: brands[me.rank],
+    me, m, L, brands, leader: brands[0],
     answers: channels.reduce((s, c) => s + (c.cur?.responses || 0), 0),
-    best: byVis[0], worst: byVis[byVis.length - 1], riser: topicMoves[0], faller: topicMoves[topicMoves.length - 1],
-    engineMove: engineMoves[0], topEngine: engines[0], lowEngine: engines[engines.length - 1],
-    own: aeo.domains?.own, thirdParty,
-    firstUrl: cited[0], citedWithoutUs: cited.filter((u) => !(u.brands || []).includes('Mutiny')).length, citedTotal: cited.length,
+    focus, topEngine: engines[0], lowEngine: engines[engines.length - 1],
+    own: aeo.domains?.own,
+    firstUrl: (aeo.topCitedUrls || [])[0],
     briefs: aeo.backlog?.briefs || [],
     wins: aeo.backlog?.wins || [],
     nPrompts: aeo.backlog?.evaluated,
     absent: count('absent'), weak: count('weak'), present: count('present'), winning: count('winning'),
+    heads: prompts.filter((x) => x.head).length,
     opp: aeo.opportunities?.items?.[0],
     takeaway: aeo.narrative?.takeaways?.[0],
+    O, firstTarget, croTop, croCount: aeo.cro?.cro || 0,
+    lastWeek: w[w.length - 1], prevWeek: w[w.length - 2],
+    reset: aeo.promptSet,
   };
 }
 
@@ -75,17 +77,17 @@ function briefText(b) {
     `Topic: ${b.topicName} | Score ${b.score} | ${b.role === 'anchor' ? 'Anchor piece' : `Supplementary (link back to "${b.anchor}")`} | ${b.volume} volume, ${b.intent}`,
     `Why: ${b.signal}.`,
     '',
-    'Pages to beat (top 5 cited, last 30 days):',
-    ...b.top5.map((u, i) => `${i + 1}. ${u.title || u.url} - ${u.url} (${u.retrievals} retrievals, ${u.citations} citations)`),
+    'Pages to beat (top 5 AI reads for this question):',
+    ...b.top5.map((u, i) => `${i + 1}. ${u.title || u.url} - ${u.url} (${u.retrievals} reads, ${u.citations} citations)`),
     '',
     `Winning shape: ${p.summary || 'n/a'}`,
-    `Target: about ${p.targetWords?.toLocaleString?.() || '?'} words. H1 = the literal question. Open every H2 with a 40-60 word direct answer. ${p.withTable >= Math.ceil((p.analyzed || 1) / 2) ? 'Include a comparison table. ' : ''}End with an FAQ (up to 9 Q&As). At least ${Math.max(5, p.medianStats || 0)} sourced stats.`,
+    `Structure: H1 = the exact question. A 40-60 word answer right under it. Fan-out H2s that go deeper, each opening with a direct answer. About ${p.targetWords?.toLocaleString?.() || '?'} words. ${p.withTable >= Math.ceil((p.analyzed || 1) / 2) ? 'Include a comparison table. ' : ''}End with an FAQ (up to 9 Q&As). Verifiable specifics: at least ${Math.max(5, p.medianStats || 0)} sourced stats, named sources, expert quotes.`,
     p.sharedSources?.length ? `Sources the winners cite: ${p.sharedSources.map((s) => s.domain).join(', ')}` : null,
     '',
-    'Internal Mutiny links (already cited by AI):',
+    'Internal Mutiny links:',
     ...(b.internalLinks || []).slice(0, 5).map((l) => `- ${l.title}: ${l.url}`),
     lean ? `\nMutiny lean: ${lean}` : null,
-    '\nRules: no invented stats, customers or quotes (use [PLACEHOLDER: ...]); no em or en dashes.',
+    '\nRules: position Mutiny as an AI sales assistant (never website personalization / CRO); no invented stats, customers or quotes (use [PLACEHOLDER: ...]); no em or en dashes.',
   ].filter((x) => x != null).join('\n');
 }
 
@@ -98,7 +100,7 @@ function Flow() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 3, margin: '4px 0 10px' }}>
       <div style={box}><b>1. Prompt</b><br />a buyer question</div>{arrow}
-      <div style={box}><b>2. AI engine</b><br />reads the web</div>{arrow}
+      <div style={box}><b>2. AI engine</b><br />searches + reads</div>{arrow}
       <div style={box}><b>3. Answer</b><br />names brands</div>{arrow}
       <div style={{ ...box, background: C.lightPurple }}><b>4. Peec logs</b><br />mentions + sources</div>
     </div>
@@ -107,129 +109,162 @@ function Flow() {
 
 // --- Steps ----------------------------------------------------------------------------------
 // target: data-tour id (null = centered). read: how to read it. insight: what it
-// means this week. actions: [{label, icon, run(ctx) | href, done}]. check: quiz.
+// means now. actions: [{label, icon, run(ctx) | href, done}]. check: quiz.
 function buildSteps(f, ctx) {
   const brief = ctx.brief;
-  const visD = (f.m.visibility ?? 0) - (f.p.visibility ?? 0);
   return [
     {
       id: 'welcome', target: null, kicker: 'Welcome', title: 'What is AEO?',
       read: <>
-        <P><Term>AEO</Term> means answer engine optimization: getting your brand <b>named inside the answer</b> when a buyer asks ChatGPT, Perplexity or Google's AI Overview something like “what are the best AI sales tools?”.</P>
-        <P>SEO is about ranking in Google's list of links. AEO is about being in the AI's answer, because more and more buyers build their shortlist there and never click a link.</P>
-        <P style={{ margin: 0 }}>This walkthrough takes about 4 minutes. You'll learn to read each section, see what it means for Mutiny this week, and get one-click next steps. The page stays clickable the whole time.</P>
+        <P><Term>AEO</Term> means answer engine optimization: getting Mutiny <b>named inside the answer</b> when a buyer asks ChatGPT, Perplexity or Google's AI Overview something like “what's the best AI sales assistant?”.</P>
+        <P>SEO is about ranking in Google's list of links. AEO is about being in the AI's answer. Someone asking that question is already shopping, so being named is a high-intent moment.</P>
+        <P style={{ margin: 0 }}>A fair warning from Matt, who ran AEO before: it compounds slowly and stalls when the work stops. It's a long game. This walkthrough takes about 4 minutes.</P>
       </>,
     },
     {
       id: 'how', target: null, kicker: 'How it works', title: 'Where these numbers come from',
       read: <>
-        <P>Our tracking tool, <b>Peec</b>, asks three AI engines the same buyer questions every day. Each question is a <Term>prompt</Term>.</P>
+        <P>To answer a question, an AI runs several searches, reads pages and looks for agreement across sources. Our tool, <b>Peec</b>, asks three AI engines the same buyer questions every day. Each question is a <Term>prompt</Term>.</P>
         <Flow />
-        <P style={{ margin: 0 }}>For every answer Peec records <b>which brands were mentioned</b> (and in what order) and <b>which web pages the AI read</b> to write it. Everything on this page comes from those two records.</P>
+        <P style={{ margin: 0 }}>For every answer Peec logs which brands were named (and in what order) and which pages the AI read. Everything on this page comes from those two records.</P>
       </>,
-      insight: <>In the last 7 days that was <b>{f.answers.toLocaleString()} AI answers</b>. One prompt we track: “{f.briefs[0]?.text}”.</>,
+      insight: <>{f.reset ? <>Peec was reset on {f.reset.since.slice(5).replace('-', '/')} with {f.reset.prompts} new prompts across {f.reset.topics} topics, so we're on day one of a new baseline. </> : null}So far that's <b>{f.answers.toLocaleString()} AI answers</b>.</>,
     },
     {
       id: 'summary', target: 'summary', kicker: 'Read the week', title: 'Start with the summary',
-      read: <P style={{ margin: 0 }}>The week in plain English, written from the numbers below. “This week” is the last 7 full days, compared with the 7 days before. Short on time? Read only this.</P>,
-      insight: <>Mutiny's visibility is {upDown(visD)} {ptsAbs(visD)} to <b>{pct(f.m.visibility)}</b>. {f.riser && f.faller && f.riser.t.key !== f.faller.t.key ? <>Biggest topic gain: {f.riser.t.name} ({f.riser.d >= 0 ? '+' : ''}{(f.riser.d * 100).toFixed(1)} pts). Biggest drop: {f.faller.t.name} ({(f.faller.d * 100).toFixed(1)} pts).</> : null}</>,
+      read: <P style={{ margin: 0 }}>The state of play in plain English, written from the numbers below. Short on time? Read only this. Arrows appear once there's a full comparable week to compare against.</P>,
     },
     {
-      id: 'kpis', target: 'kpis', kicker: 'Read the week', title: 'The five scores',
+      id: 'ladder', target: 'ladder', kicker: 'Read the week', title: 'The ladder: read, linked, named',
       read: <>
-        <P><Term>Visibility</Term>: share of AI answers that mention Mutiny. The headline number.</P>
-        <P><b>Mentions</b>: how many times we came up. <b>Share of voice</b>: our slice of all brand mentions. <b>Sentiment</b> (0 to 100): how positively we're described; 65 to 85 is typical.</P>
-        <P style={{ margin: 0 }}><b>Avg position</b>: where we appear in the answer's list. <b>Lower is better</b> (1 = named first). Green arrow = good move, red = bad. “pts” = percentage points.</P>
+        <P>Matt's three steps, from easiest to hardest:</P>
+        <P><b>1. Retrieved</b>: the AI <i>read</i> one of our pages while researching. We're in the game.</P>
+        <P><b>2. Cited</b>: the AI <i>linked</i> our page in its answer. Our content is specific enough to use.</P>
+        <P style={{ margin: 0 }}><b>3. Visible</b>: the AI <i>named</i> Mutiny. That's the goal and the hardest step to move.</P>
       </>,
-      insight: <>About <b>1 in {Math.max(1, Math.round(1 / (f.m.visibility || 1)))}</b> AI answers mentions Mutiny. Avg position is {f.m.position?.toFixed(1)} (was {f.p.position?.toFixed(1)}){f.m.sentiment < 65 ? <>, and sentiment at {f.m.sentiment} is below the typical 65 to 85 range, worth watching</> : null}.</>,
-      actions: [{ label: 'Which topic drove the change?', icon: CornerDownRight, run: () => ctx.goTo('topics') }],
+      insight: <>The AI reads mutinyhq.com in <b>{pct(f.L.retrieved)}</b> of chats, links it in <b>{pct(f.L.cited)}</b>, and names Mutiny in <b>{pct(f.L.visibility)}</b> of answers. The biggest drop is the step to focus on.</>,
       check: {
-        q: 'Brand A has avg position 1.5, Brand B has 3.0. Which is usually named earlier?',
-        options: ['Brand A (1.5)', 'Brand B (3.0)'], answer: 0,
-        why: 'Position is a rank, so lower is better. Brand A usually appears first or second.',
+        q: 'Which step tells you a buyer heard the name Mutiny?',
+        options: ['Visible (named)', 'Retrieved (read)', 'Cited (linked)'], answer: 0,
+        why: 'Retrieved and cited are about our pages. Visible means the answer itself recommends Mutiny by name.',
       },
     },
     {
-      id: 'landscape', target: 'landscape', kicker: 'Competition', title: 'Who is winning overall',
-      read: <P style={{ margin: 0 }}>Every brand Peec tracks for us, ranked by visibility. Mutiny's row is purple. ▲ or ▼ next to a name = moved up or down since last week. “Flags” calls out the moves that matter.</P>,
-      insight: <>Mutiny is <b>#{f.me.rank}</b>. {f.above ? <>{f.above.name} is just above, {ptsAbs(f.above.visibility - f.me.visibility)} ahead. </> : <>Nobody is above us. </>}{f.below ? <>{f.below.name} is right behind, {ptsAbs(f.me.visibility - f.below.visibility)} back. </> : null}{f.movers[0] ? <>Biggest mover: {f.movers[0].name} ({f.movers[0].d >= 0 ? '+' : ''}{(f.movers[0].d * 100).toFixed(1)} pts).</> : null}</>,
-      actions: [{ label: 'See where they beat us, topic by topic', icon: CornerDownRight, run: () => ctx.goTo('topics') }],
+      id: 'kpis', target: 'kpis', kicker: 'Read the week', title: 'The supporting scores',
+      read: <>
+        <P><b>Mentions</b>: how many times we were named. <b>Share of voice</b>: our slice of all brand mentions.</P>
+        <P><b>Sentiment</b>: how positively we're described. About 50 is neutral; higher is better. It mostly comes from reviews and community posts like G2.</P>
+        <P style={{ margin: 0 }}><b>Avg position</b>: where we appear in the answer's list. <b>Lower is better</b> (1 = named first).</P>
+      </>,
+      insight: <>When Mutiny is named, it's at position <b>{f.m.position?.toFixed(1)}</b> on average, and sentiment is <b>{f.m.sentiment}</b>{f.m.sentiment >= 50 ? ' (above neutral)' : ' (below neutral)'}.</>,
+      check: {
+        q: 'Brand A has avg position 1.5, Brand B has 3.0. Which is usually named earlier?',
+        options: ['Brand A (1.5)', 'Brand B (3.0)'], answer: 0,
+        why: 'Position is a rank, so lower is better. Brand A usually comes first or second.',
+      },
+    },
+    {
+      id: 'ask', target: 'ask', kicker: 'Learning', title: 'Ask Claude anytime',
+      read: <P style={{ margin: 0 }}>Stuck on a number or a term? Type a question here, or use the <b>Ask Claude</b> button on any card. Claude opens in a new tab with a short AEO primer and that section's numbers already attached, so you can keep asking follow-ups there. Cards with an <b>Open in Peec</b> link jump to the same view in Peec, so you can match what you see here to the source.</P>,
+    },
+    {
+      id: 'jaleh', target: 'jaleh', kicker: 'Reporting', title: 'The weekly update for Jaleh',
+      read: <P style={{ margin: 0 }}>Matt's format for the exec update: what we did, how visibility moved, a directional read on signups from AI, and what's next. Signups are self-reported because AI tools rarely pass referral data, so treat them as direction, never as exact attribution.</P>,
+      insight: f.lastWeek ? <>Last full week, <b>{f.lastWeek.aeo}</b> people said they found us through an AI tool and <b>{f.lastWeek.searchAeo}</b> said search or AI{f.prevWeek ? ` (prior week ${f.prevWeek.aeo} and ${f.prevWeek.searchAeo})` : ''}.</> : null,
+      actions: [{ label: 'Jump to the update card', icon: CornerDownRight, run: () => document.querySelector('[data-tour="jaleh"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }],
+    },
+    {
+      id: 'landscape', target: 'landscape', kicker: 'Competition', title: 'Who AI engines name',
+      read: <P style={{ margin: 0 }}>Every tracked brand, ranked by visibility. The overall list mixes categories (call recording tools next to sales enablement tools), so use the topic buttons to compare like with like. Mutiny's row is purple.</P>,
+      insight: <>Overall, {f.leader?.name} leads at {pct(f.leader?.visibility)} and Mutiny is <b>#{f.me.rank}</b> at {pct(f.me.visibility)}. Click a topic button to see the race that matters.</>,
+      check: {
+        q: 'Mutiny is at 30% in Topic A and 5% in Topic B. Can you say Topic A is going better?',
+        options: ['Not from that alone: compare each with its own leader', 'Yes, 30% beats 5%'], answer: 0,
+        why: 'Matt\'s rule: topics name different numbers of brands, so raw visibility across topics misleads. Compare Mutiny with the leader inside each topic.',
+      },
     },
     {
       id: 'engines', target: 'engines', kicker: 'Competition', title: 'Each AI engine behaves differently',
-      read: <P style={{ margin: 0 }}>ChatGPT, Google's AI Overview and Perplexity read different sources, so the same brand can score very differently on each. Green tile = the engine that treats us best. The chart shows 14 days; the dashed line is all three combined.</P>,
-      insight: <>{f.topEngine?.name} mentions us most ({pct(f.topEngine?.cur.visibility)}), {f.lowEngine?.name} least ({pct(f.lowEngine?.cur.visibility)}). {f.engineMove ? <>Biggest swing this week: {f.engineMove.c.name}, {upDown(f.engineMove.d)} {ptsAbs(f.engineMove.d)}.</> : null}</>,
+      read: <P style={{ margin: 0 }}>ChatGPT, Google's AI Overview and Perplexity read different sources, so the same brand can score very differently on each. Green tile = the engine that names us most.</P>,
+      insight: f.topEngine ? <>{f.topEngine.name} names Mutiny most ({pct(f.topEngine.cur.visibility)}), {f.lowEngine.name} least ({pct(f.lowEngine.cur.visibility)}).</> : null,
     },
     {
-      id: 'topics', target: 'topics', kicker: 'Where to focus', title: 'Topics: strong and weak spots',
-      read: <P style={{ margin: 0 }}>Prompts are grouped into five <Term>topics</Term>, the conversations we want to own. Each card shows Mutiny's five scores in that topic and who leads it. The weakest topic is where new content pays off most.</P>,
-      insight: <>Strongest: <b>{f.best?.name}</b> ({pct(f.best?.mutiny.visibility)}, #{f.best?.mutiny.rank}). Weakest: <b>{f.worst?.name}</b> ({pct(f.worst?.mutiny.visibility)}, #{f.worst?.mutiny.rank}), led by {f.worst?.brands?.[0]?.brand} at {pct(f.worst?.brands?.[0]?.visibility)}.</>,
-      actions: f.worst ? [{ label: `Show the content gaps for ${f.worst.name}`, icon: Filter, run: () => { ctx.filterBacklog({ topic: f.worst.key, status: 'gaps' }); ctx.goTo('backlog'); } }] : [],
+      id: 'topics', target: 'topics', kicker: 'Where to focus', title: 'Topics: one race each',
+      read: <P style={{ margin: 0 }}>Prompts are grouped into <Term>topics</Term>, the conversations we want to own. Each card shows Mutiny against that topic's leader and the gap to close. The “What to do” line says where to start.</P>,
+      insight: f.focus ? <>In <b>{f.focus.name}</b>, {f.focus.leader?.brand} leads at {pct(f.focus.leader?.visibility)} and Mutiny {f.focus.mutiny ? <>is #{f.focus.mutiny.rank} at {pct(f.focus.mutiny.visibility)}</> : 'isn\'t named yet'}.</> : null,
+      actions: f.focus ? [{ label: `Show the content gaps for ${f.focus.name}`, icon: Filter, run: () => { ctx.filterBacklog({ topic: f.focus.key, status: 'gaps' }); ctx.goTo('backlog'); } }] : [],
+    },
+    {
+      id: 'cro', target: 'cro', kicker: 'Priority 1', title: 'Fix how the web describes us',
+      read: <P style={{ margin: 0 }}>AI repeats what it reads. Some sites still describe Mutiny as a website personalization / A/B testing tool, its old product. Until those are fixed, AI keeps putting us in the wrong category. Matt calls this the biggest risk and priority 1.</P>,
+      insight: f.croTop ? <><b>{f.croCount}</b> pages still use the old framing. The most read is {f.croTop.title} ({f.croTop.retrievals} reads).</> : null,
+      actions: f.croTop ? [{ label: 'Open the most read one', icon: ExternalLink, href: f.croTop.url }] : [],
     },
     {
       id: 'domains', target: 'domains', kicker: 'Sources', title: 'The websites AI reads',
       read: <>
-        <P>Before answering, an AI searches the web. Reading a page = a <Term>retrieval</Term>. Linking it in the answer = a <Term>citation</Term>.</P>
-        <P style={{ margin: 0 }}>Labels: <b>You</b> = us, <b>Competitor</b> = a tracked rival, <b>UGC</b> = community and review sites (Reddit, G2, YouTube, LinkedIn), <b>Corporate</b> = other companies. AI repeats what it reads, so getting onto these sites gets us mentioned.</P>
+        <P>The sites AI pulls from most for our topics. Labels: <b>You</b> = us, <b>Competitor</b> = a tracked rival, <b>UGC</b> = community and review sites (G2, YouTube, Reddit, LinkedIn), <b>Corporate</b> = other companies.</P>
+        <P style={{ margin: 0 }}>Matt: almost all citations come from a tiny slice of the internet. This table is that slice.</P>
       </>,
-      insight: <>mutinyhq.com was read in <b>{f.own?.cur?.chats?.toLocaleString()} chats</b> (was {f.own?.prev?.chats?.toLocaleString()}). {f.thirdParty ? <>The biggest community site is {f.thirdParty.domain} ({pct(f.thirdParty.retrieved)} of chats): being featured or discussed there puts Mutiny in front of the AI.</> : null}</>,
-      actions: [{ label: 'See the exact pages AI links to', icon: CornerDownRight, run: () => ctx.goTo('urls') }],
+      insight: <>mutinyhq.com is the <b>#{f.own?.rank}</b> most read domain ({f.own?.cur?.chats?.toLocaleString()} chats) and cited in {pct(f.own?.cur?.cited)} of chats.</>,
       check: {
-        q: 'A page is retrieved a lot but rarely cited. What does that mean?',
-        options: ['The AI reads it but seldom links it in the answer', 'The AI links it in almost every answer', 'The page is broken'], answer: 0,
-        why: 'Retrieved = read while researching. Cited = link shown to the reader. Both shape the answer; citations also send traffic.',
+        q: 'A page is read a lot but rarely cited. What does that mean?',
+        options: ['The AI uses it for research but seldom links it', 'The AI links it in almost every answer', 'The page is broken'], answer: 0,
+        why: 'Read = used while researching. Cited = linked for the reader. A 40 to 60 word direct answer under each heading makes a page easier to cite.',
       },
     },
     {
       id: 'urls', target: 'urls', kicker: 'Sources', title: 'The exact pages being cited',
-      read: <P style={{ margin: 0 }}>The individual pages AI links most, with citation counts. “Pos” = order the link appeared (1 = first). Notice the type: “best X tools” lists and “X alternatives” pages win a lot, which tells us what to write.</P>,
-      insight: <><b>{f.citedWithoutUs} of the top {f.citedTotal}</b> cited pages don't mention Mutiny. Each one is a page to get added to, or to out-write.</>,
-      actions: f.firstUrl ? [{ label: 'Open the #1 cited page', icon: ExternalLink, href: f.firstUrl.url }] : [],
+      read: <P style={{ margin: 0 }}>The individual pages AI links most. Notice the shapes that win: “best X tools” lists and “X alternatives” pages. Each row says whether Mutiny is on it.</P>,
+      actions: f.firstUrl ? [{ label: 'Open the most cited page', icon: ExternalLink, href: f.firstUrl.url }] : [],
+    },
+    {
+      id: 'outreach', target: 'outreach', kicker: 'Off-site', title: 'Get onto the top 50',
+      read: <P style={{ margin: 0 }}>Matt's “currency exchange”: our best pages are the currency. Ask the sites behind the most read lists to include Mutiny, and offer to include them in ours. Smaller <b>challenger</b> sites usually say yes; incumbents rarely do. Once we're on enough of these, new AI-written lists start including us on their own.</P>,
+      insight: <>Mutiny is on <b>{f.O.top50With} of the top 50</b>. {f.firstTarget ? <>First swap to pitch: {f.firstTarget.domain} (#{f.firstTarget.rank}).</> : null}</>,
+      actions: f.firstTarget ? [{ label: `Open ${f.firstTarget.domain}'s list`, icon: ExternalLink, href: f.firstTarget.url }] : [],
     },
     {
       id: 'opps', target: 'opps', kicker: 'Next steps', title: "Peec's recommended actions",
-      read: <P style={{ margin: 0 }}>Peec suggests actions where competitors get cited and we don't. <b>Owned</b> = work on our own site. <b>UGC</b> = show up on review and community sites. Each card adds a line tying it to this week's numbers.</P>,
-      insight: f.opp ? <>Top suggestion: “{f.opp.title}” ({f.opp.impact?.toLowerCase()} impact, {f.opp.topic || 'sitewide'}).</> : null,
-      actions: [
-        { label: 'Open Peec Actions', icon: ExternalLink, href: 'https://app.peec.ai/actions/recommendations' },
-        ...(f.opp?.topic ? (() => { const t = (aeo.topics || []).find((x) => x.name === f.opp.topic); return t ? [{ label: `Show our ${t.name} gaps`, icon: Filter, run: () => { ctx.filterBacklog({ topic: t.key, status: 'gaps' }); ctx.goTo('backlog'); } }] : []; })() : []),
-      ],
+      read: <P style={{ margin: 0 }}>Peec suggests actions where competitors get cited and we don't. <b>Owned</b> = work on our site. <b>UGC</b> = review and community sites. Each card adds a line tying it to the current numbers.</P>,
+      insight: f.opp ? <>Top suggestion: “{f.opp.title}”.</> : null,
+      actions: [{ label: 'Open Peec Actions', icon: ExternalLink, href: 'https://app.peec.ai/actions/recommendations' }],
     },
     {
       id: 'takeaways', target: 'takeaways', kicker: 'Next steps', title: 'What to focus on',
-      read: <P style={{ margin: 0 }}>The week turned into 3 to 5 priorities. If you share one thing with your team, share this list.</P>,
-      insight: f.takeaway ? <>#1 this week: {f.takeaway}</> : null,
+      read: <P style={{ margin: 0 }}>The state of play turned into 3 to 5 priorities. If you share one thing with your team, share this list.</P>,
+      insight: f.takeaway ? <>#1: {f.takeaway}</> : null,
     },
     {
       id: 'backlog', target: 'backlog', kicker: 'Content backlog', title: 'The to-do list',
       read: <>
-        <P>Every tracked prompt gets a <Term>status</Term> from the last 30 days: <b>Absent</b> (we're on none of the 5 pages AI cites most), <b>Weak</b> (on one, but in under 10% of answers), <b>Present</b> (sometimes), <b>Winning</b> (half the answers or more).</P>
-        <P style={{ margin: 0 }}>Gaps get a <Term>score</Term>: higher when competitors are cited instead of us, when many buyers ask it, and when the buyer is shopping (“best”, “alternatives”). Use the topic chips to filter.</P>
+        <P>Every tracked prompt gets a <Term>status</Term>: <b>Absent</b> (Mutiny in none of the answers), <b>Weak</b> (under 10%), <b>Present</b> (10 to 49%), <b>Winning</b> (half or more).</P>
+        <P style={{ margin: 0 }}>Gaps get a <Term>score</Term>: higher when rival brands own the question, when many buyers ask it, and when the buyer is shopping. Broad <b>head terms</b> lose a point because Matt found they barely move; niche questions are where to win.</P>
       </>,
-      insight: <>{f.absent} of {f.nPrompts} prompts are Absent and {f.weak} are Weak. {brief ? <>Top priority{ctx.topic !== 'all' ? ' in this topic' : ''}: “{brief.text}” (score {brief.score}).</> : null}</>,
+      insight: <>{f.absent} of {f.nPrompts} prompts are Absent. {brief ? <>Top priority{ctx.topic !== 'all' ? ' in this topic' : ''}: “{brief.text}” (score {brief.score}).</> : null}</>,
       actions: [
         brief && { label: 'Open the top brief', icon: FileText, run: () => { ctx.openBrief(brief.id); ctx.goTo('brief'); } },
         ctx.topic !== 'all' && { label: 'Show all topics again', icon: RotateCcw, run: () => ctx.filterBacklog({ topic: 'all' }) },
       ].filter(Boolean),
       check: {
-        q: 'A prompt is “Absent” with score 7. What should we do?',
-        options: ['Prioritize it: competitors own a popular question', 'Nothing, we already win it', 'Delete the prompt'], answer: 0,
-        why: 'Absent = off the pages AI relies on. A high score = competitors are there and many buyers ask it. Top content priority.',
+        q: 'A prompt is “Absent” with a high score. What should we do?',
+        options: ['Prioritize it: rivals own a question buyers ask', 'Nothing, we already win it', 'Delete the prompt'], answer: 0,
+        why: 'Absent = the AI never names us there. A high score = rivals do and many buyers ask it.',
       },
     },
     {
       id: 'brief', target: 'brief', kicker: 'Content backlog', title: 'Turn a brief into a page',
       read: <>
-        <P style={{ margin: '0 0 4px' }}>Click a card to open its brief. Everything a writer needs:</P>
+        <P style={{ margin: '0 0 4px' }}>Each brief has what a writer needs:</P>
         <ul style={{ margin: '0 0 8px', paddingLeft: 18 }}>
-          <li><b>Top 5 cited URLs</b>: the pages to beat.</li>
+          <li><b>Top 5 pages</b> the AI reads for this question: the ones to beat.</li>
           <li><b>Winning shape</b>: length, tables, FAQ, stats.</li>
-          <li><b>Internal links</b>: Mutiny pages AI already cites.</li>
+          <li><b>Matt's structure</b>: H1 = the exact question, a 40 to 60 word answer right under it, deeper H2s, verifiable specifics.</li>
           <li><b>Mutiny lean</b>: how to mention us without sounding like an ad.</li>
         </ul>
-        <P style={{ margin: 0 }}><b>Anchor</b> = the main piece for a topic. <b>Supplementary</b> pieces link back to it.</P>
+        <P style={{ margin: 0 }}>Recency matters: AI favors fresh content, so a steady publishing cadence beats one big push.</P>
       </>,
-      insight: brief ? <>To win “{brief.text}”, aim for about <b>{brief.pattern?.targetWords?.toLocaleString()} words</b> shaped like the winners: {brief.pattern?.summary}</> : null,
+      insight: brief ? <>To win “{brief.text}”, aim for about <b>{brief.pattern?.targetWords?.toLocaleString()} words</b>. {brief.pattern?.summary}</> : null,
       actions: brief ? [
         { label: 'Copy this brief for a writer', icon: Copy, run: () => ctx.copy(briefText(brief)), done: 'Copied to clipboard' },
         brief.top5?.[0] && { label: 'Open the #1 page to beat', icon: ExternalLink, href: brief.top5[0].url },
@@ -237,28 +272,28 @@ function buildSteps(f, ctx) {
     },
     {
       id: 'prompts', target: 'prompts', kicker: 'Content backlog', title: 'Every prompt in one table',
-      read: <P style={{ margin: 0 }}>All tracked prompts with status and score. The dropdown switches between gaps, wins and everything. “Comp” = how many of the top 5 pages mention a competitor.</P>,
-      insight: <>Mutiny is already winning <b>{f.winning}</b> prompts{f.wins[0] ? <>, best of all “{f.wins[0].text}” ({Math.round(f.wins[0].mutinyVis * 100)}% of answers)</> : null}. Protect those pages and link new content to them.</>,
-      actions: [{ label: 'Show only our wins', icon: Filter, run: () => ctx.filterBacklog({ topic: 'all', status: 'winning' }) }],
+      read: <P style={{ margin: 0 }}>All tracked prompts with status, who owns each one, and the score. The dropdown switches between gaps, wins and everything. A “head” tag marks broad prompts that are hard to move.</P>,
+      insight: <>Mutiny already shows up on <b>{f.wins.length}</b> prompts{f.wins[0] ? <>, best on “{f.wins[0].text}” ({Math.round(f.wins[0].mutinyVis * 100)}% of answers)</> : null}. Protect those pages and link new content to them.</>,
+      actions: [{ label: 'Show only where we show up', icon: Filter, run: () => ctx.filterBacklog({ topic: 'all', status: 'present' }) }],
     },
     {
       id: 'done', target: null, kicker: 'You made it', title: "You're ready to use this page",
       read: <>
-        <P><b>Weekly routine:</b> read the summary, check the visibility arrow, find the weakest topic, then copy its top brief to a writer.</P>
+        <P><b>Weekly routine:</b> read the summary, check the ladder, fix one CRO page, pitch one swap from the outreach list, ship briefs from the backlog, then copy the Jaleh update.</P>
         <div style={{ display: 'grid', gridTemplateColumns: 'max-content 1fr', gap: '3px 12px', fontSize: 12.5, margin: '0 0 10px' }}>
-          <b>AEO</b><span>Getting your brand named in AI answers.</span>
+          <b>AEO</b><span>Getting Mutiny named in AI answers.</span>
           <b>Prompt</b><span>A buyer question Peec asks the AI daily.</span>
-          <b>Visibility</b><span>Share of AI answers that mention us.</span>
-          <b>Share of voice</b><span>Our share of all brand mentions.</span>
+          <b>Retrieved</b><span>The AI read our page.</span>
+          <b>Cited</b><span>The AI linked our page.</span>
+          <b>Visible</b><span>The AI named Mutiny.</span>
           <b>Position</b><span>Where we appear. Lower is better.</span>
-          <b>Retrieval</b><span>The AI read a page.</span>
-          <b>Citation</b><span>The AI linked that page in its answer.</span>
-          <b>Backlog</b><span>Prompts we're losing, ranked by priority.</span>
+          <b>Head term</b><span>A broad prompt that barely moves.</span>
+          <b>Top 50</b><span>The pages AI reads most; get on them.</span>
         </div>
         <P style={{ margin: 0 }}>Replay anytime from the “Take the tour” button.</P>
       </>,
       actions: [
-        f.worst && { label: `Start: gaps in ${f.worst.name}`, icon: Filter, run: () => { ctx.filterBacklog({ topic: f.worst.key, status: 'gaps' }); ctx.finish(); setTimeout(() => document.querySelector('[data-tour="backlog"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); } },
+        f.focus && { label: `Start: gaps in ${f.focus.name}`, icon: Filter, run: () => { ctx.filterBacklog({ topic: f.focus.key, status: 'gaps' }); ctx.finish(); setTimeout(() => document.querySelector('[data-tour="backlog"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); } },
         { label: 'Restart the tour', icon: RotateCcw, run: () => ctx.goTo('welcome') },
       ].filter(Boolean),
     },

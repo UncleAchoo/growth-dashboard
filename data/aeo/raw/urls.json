@@ -1,27 +1,484 @@
 {
-  "_note": "get_url_report Oct 20 to Oct 26, top 10 by citation_count. Row = [url, classification, title, citation_count, retrieval_count, citation_position, mentioned_brand_names].",
-  "topCited": [
-    ["https://zoomforth.com/abm/abm-landing-pages-guide","How-To Guide","ABM landing pages: a guide for B2B teams | Zoomforth",72,60,3.17,["Relevance"]],
-    ["https://getaccept.com/blog/highspot-alternatives","Alternative","6 Highspot alternatives for sales enablement",63,64,4.09,["Highspot","Showpad","Mindtickle","Allego","Seismic","Dock"]],
-    ["https://ibm.com/think/topics/ai-sales-enablement","Article","AI in Sales Enablement | IBM",62,45,2.09,["Seismic","Highspot"]],
-    ["https://zapier.com/blog/ai-sales-assistant","Listicle","The best AI sales assistant software in 2026 | Zapier",59,32,3.95,["Clay"]],
-    ["https://getaccept.com/blog/best-digital-sales-room-software","Listicle","The Best Digital Sales Room Software Comparison",57,28,2.08,["Dock","Highspot","Seismic","6sense","Mindtickle","Allego"]],
-    ["https://salesforce.com/sales/enablement/software","Listicle","9 Best Sales Enablement Software Tools in 2026 | Salesforce",56,29,2.66,["Seismic","Mindtickle","Highspot","Showpad"]],
-    ["https://getaccept.com/blog/seismic-alternatives","Alternative","6 Seismic alternatives & competitors for sales enablement teams",55,32,3.86,["Seismic","Highspot","Mindtickle","Dock"]],
-    ["https://mutinyhq.com/blog/best-tools-to-create-a-business-case-for-a-sale","Listicle","Best tools to create a business case for a sale (2026)",55,28,1.42,["Mutiny"]],
-    ["https://dock.us/library/sales-business-case","How-To Guide","Win over CFOs with this sales business case (free template)",52,43,3.43,["Dock","Highspot","Seismic"]],
-    ["https://salesforce.com/blog/small-business/write-a-business-case","How-To Guide","How to Write a Business Case: The Complete Guide",52,32,4.11,[]]
+ "_note": "topCited = the 10 most-cited URLs among top_urls.json (top 60 by retrievals), filled in by build-aeo. mutinyTop = get_url_report filtered to mutinyhq.com, top 10 by retrieval_count. Row = [url, classification, title, citation_count, retrieval_count, citation_position]. byTopic = get_url_report filtered to one topic, top 8 by citation_count. Row = [url, classification, title, citation_count, retrieval_count, mutinyMentioned].",
+ "topCited": null,
+ "mutinyTop": [
+  [
+   "https://mutinyhq.com/blog/best-tools-to-create-deal-rooms",
+   "Listicle",
+   "Best tools to create deal rooms in 2026 (digital sales room software)",
+   5,
+   35,
+   1.67
   ],
-  "mutinyTop": [
-    ["https://mutinyhq.com/blog/best-tools-to-create-a-business-case-for-a-sale","Listicle","Best tools to create a business case for a sale (2026)",55,28,1.42],
-    ["https://mutinyhq.com/blog/the-best-ai-sales-agents-for-aes-in-2026","Listicle","The best AI sales agents for AEs in 2026",48,25,1.59],
-    ["https://mutinyhq.com/faqs/what-are-the-best-alternatives-to-highspot-for-ai-native-sales-enablement","Alternative","What are the best alternatives to Highspot for AI-native sales enablement?",47,29,1.55],
-    ["https://mutinyhq.com/blog/the-best-ai-tools-for-account-executives-in-2026-a-buyer-s-guide-for-b2b-sales-teams","Listicle","The best AI tools for account executives in 2026: A buyer's guide",39,44,2.71],
-    ["https://mutinyhq.com/blueprints/1-1-abm","Product Page","Blueprints: 1:1 ABM",39,42,1.7],
-    ["https://mutinyhq.com/blog/the-best-ai-sales-tools-in-2026-a-buyer-s-guide-for-b2b-gtm-teams","Listicle","The best AI sales tools in 2026: A buyer's guide for B2B GTM teams",38,59,3.86],
-    ["https://mutinyhq.com/blog/business-case-template-for-b2b-sales","How-To Guide","Business case template for B2B sales",38,52,3.04],
-    ["https://mutinyhq.com/blog/what-ai-tools-help-sellers-create-deal-specific-content","Listicle","What AI tools help sellers create deal-specific content?",37,20,1.64],
-    ["https://mutinyhq.com/blog/highspot-alternatives-8-platforms-b2b-teams-evaluate-in-2026","Alternative","Highspot alternatives: 9 platforms B2B teams evaluate in 2026",36,40,2.5],
-    ["https://mutinyhq.com/blog/what-is-a-deal-room-and-what-should-it-include","How-To Guide","What is a deal room, and what should it include?",36,23,2.53]
+  [
+   "https://mutinyhq.com/blog/the-best-sales-enablement-tools-in-2026-a-buyer-s-guide-for-b2b-sales-teams",
+   "Listicle",
+   "The best sales enablement tools in 2026: A buyer's guide for B2B sales teams",
+   8,
+   24,
+   1.5
+  ],
+  [
+   "https://mutinyhq.com/blog/the-best-ai-sales-tools-in-2026-a-buyer-s-guide-for-b2b-gtm-teams",
+   "Listicle",
+   "The best AI sales tools in 2026: A buyer's guide for B2B GTM teams",
+   11,
+   21,
+   2.75
+  ],
+  [
+   "https://mutinyhq.com/blog/highspot-alternatives-8-platforms-b2b-teams-evaluate-in-2026",
+   "Alternative",
+   "Highspot alternatives: 9 platforms B2B teams evaluate in 2026",
+   4,
+   11,
+   1
+  ],
+  [
+   "https://mutinyhq.com/blog/how-to-evaluate-ai-sales-tools-a-2026-buyer-s-framework-for-b2b-gtm-teams",
+   "Listicle",
+   "How to evaluate AI sales tools: A 2026 buyer's framework for B2B GTM teams",
+   0,
+   9,
+   null
+  ],
+  [
+   "https://mutinyhq.com/blog/seismic-alternatives-8-platforms-enterprise-b2b-teams-evaluate-in-2026",
+   "Alternative",
+   "Seismic alternatives: 9 platforms enterprise B2B teams evaluate in 2026",
+   0,
+   9,
+   null
+  ],
+  [
+   "https://mutinyhq.com/blog/the-best-ai-agents-for-b2b-sales-in-2026-what-s-real-vs.-hype",
+   "Listicle",
+   "The best AI agents for B2B sales in 2026: What's real vs. hype",
+   0,
+   8,
+   null
+  ],
+  [
+   "https://mutinyhq.com/blog/ai-sales-agents-the-2026-category-guide",
+   "Listicle",
+   "AI sales agents: The 2026 category guide",
+   3,
+   7,
+   1
+  ],
+  [
+   "https://mutinyhq.com/blog/best-tools-to-create-sales-pitch-decks",
+   "Listicle",
+   "Best tools to create sales pitch decks in 2026 (AI sales presentation tools)",
+   1,
+   7,
+   4
+  ],
+  [
+   "https://mutinyhq.com/faqs/what-are-the-best-alternatives-to-highspot-for-ai-native-sales-enablement",
+   "Alternative",
+   "What are the best alternatives to Highspot for AI-native sales enablement?",
+   3,
+   7,
+   1.33
   ]
+ ],
+ "byTopic": {
+  "SE": [
+   [
+    "https://blog.hubspot.com/sales/sales-content-management-platform",
+    "Listicle",
+    "Sales content management platforms: Our favorite picks for 2026",
+    35,
+    39,
+    0
+   ],
+   [
+    "https://salesforce.com/sales/enablement/software?bc=OTH",
+    "Listicle",
+    "9 Best Sales Enablement Software Tools in 2026 | Salesforce",
+    28,
+    36,
+    0
+   ],
+   [
+    "https://dock.us/library/ai-sales-enablement-software",
+    "Listicle",
+    "AI Sales Enablement Software Guide: 13 best tools compared",
+    22,
+    9,
+    1
+   ],
+   [
+    "https://salesenablementcollective.com/what-are-sales-enablement-tools",
+    "Article",
+    "Sales enablement tools: Guide to platforms, software & tech",
+    21,
+    10,
+    0
+   ],
+   [
+    "https://learn.g2.com/best-sales-enablement-software",
+    "Listicle",
+    "My Take On The 6 Best Sales Enablement Software in 2026",
+    19,
+    44,
+    0
+   ],
+   [
+    "https://vendr.com/marketplace/seismic",
+    "Comparison",
+    "Seismic Software Pricing & Plans 2026: See Your Cost",
+    19,
+    8,
+    0
+   ],
+   [
+    "https://spotsaas.com/blog/best-sales-enablement-software-2026",
+    "Listicle",
+    "Best Sales Enablement Software & Platforms in 2026: 12 Tools Compared",
+    18,
+    27,
+    0
+   ],
+   [
+    "https://reddit.com/r/sales/comments/1im2dh0/what_sales_enablement_tools_are_you_using",
+    "Discussion",
+    "What sales enablement tools are you using? (r/sales)",
+    18,
+    9,
+    0
+   ]
+  ],
+  "DSR": [
+   [
+    "https://getaccept.com/blog/best-digital-sales-room-software",
+    "Listicle",
+    "The Best Digital Sales Room Software Comparison",
+    36,
+    46,
+    0
+   ],
+   [
+    "https://gartner.com/reviews/market/digital-sales-rooms",
+    "Category Page",
+    "Best Digital Sales Rooms Reviews 2026 | Gartner Peer Insights",
+    36,
+    28,
+    0
+   ],
+   [
+    "https://highspot.com/blog/digital-sales-room",
+    "Article",
+    "What Is a Digital Sales Room? - Highspot",
+    33,
+    34,
+    0
+   ],
+   [
+    "https://youtube.com/watch?v=_M0p-dDrjn4",
+    "Article",
+    "What is a Digital Sales Room? | DealHub AI (YouTube)",
+    26,
+    18,
+    0
+   ],
+   [
+    "https://seismic.com/explainers/what-is-a-digital-sales-room",
+    "Article",
+    "What is a Digital Sales Room? | Seismic",
+    20,
+    26,
+    0
+   ],
+   [
+    "https://showpad.com/blog/best-digital-sales-room-platforms-a-ranked-comparison-2026",
+    "Listicle",
+    "Best digital sales room platforms: a ranked comparison for 2026 - Showpad",
+    19,
+    33,
+    0
+   ],
+   [
+    "https://1up.ai/blog/best-digital-sales-rooms",
+    "Listicle",
+    "5 Digital Sales Rooms for AI-Native Teams",
+    19,
+    11,
+    0
+   ],
+   [
+    "https://zoomforth.com/blog/digital-sales-room-vs-sales-enablement-platform",
+    "Comparison",
+    "Digital sales room vs. sales enablement platform | Zoomforth",
+    17,
+    11,
+    0
+   ]
+  ],
+  "SPP": [
+   [
+    "https://moda.app/blog/best-ai-tools-sales-reps-client-presentations",
+    "Listicle",
+    "7 AI Presentation Tools for Sales Teams | Moda",
+    14,
+    11,
+    0
+   ],
+   [
+    "https://thedigideck.com/top-7-sales-presentation-tools-for-enterprise-teams",
+    "Listicle",
+    "Top 7 Sales Presentation Tools for Enterprise Teams (2026)",
+    12,
+    3,
+    0
+   ],
+   [
+    "https://highspot.com/blog/sales-proposal",
+    "How-To Guide",
+    "How to Write a Winning Sales Proposal: A Guide",
+    11,
+    8,
+    0
+   ],
+   [
+    "https://reddit.com/r/digitalmarketing/comments/1ocb2bj/why_personalization_at_scale_is_mostly_bs_and",
+    "Discussion",
+    "Why 'personalization at scale' is mostly BS (r/DigitalMarketing)",
+    10,
+    3,
+    0
+   ],
+   [
+    "https://zapier.com/blog/best-ai-presentation-maker",
+    "Listicle",
+    "The 8 best AI presentation makers in 2026 | Zapier",
+    9,
+    9,
+    0
+   ],
+   [
+    "https://dupple.com/learn/best-proposal-software",
+    "Listicle",
+    "The 7 Best Proposal Software Tools in 2026 | Dupple",
+    9,
+    8,
+    0
+   ],
+   [
+    "https://bookipi.com/business/best-proposal-writers",
+    "Listicle",
+    "8 Best AI Proposal Writers in 2026 | Bookipi",
+    9,
+    6,
+    0
+   ],
+   [
+    "https://zapier.com/blog/best-proposal-software",
+    "Listicle",
+    "The 8 best proposal software tools | Zapier",
+    8,
+    5,
+    0
+   ]
+  ],
+  "GTM": [
+   [
+    "https://zapier.com/blog/ai-sales-assistant",
+    "Listicle",
+    "The best AI sales assistant software in 2026 | Zapier",
+    29,
+    19,
+    0
+   ],
+   [
+    "https://youtube.com/watch?v=T5mbscgOlRw",
+    "Listicle",
+    "5 AI Sales Tools That Save You 3 Hours Every Single Day (YouTube)",
+    25,
+    18,
+    0
+   ],
+   [
+    "https://ironcladapp.com/journal/contract-management/how-to-increase-win-rate",
+    "How-To Guide",
+    "How to Increase Win Rate and Sales Velocity | Ironclad",
+    15,
+    10,
+    0
+   ],
+   [
+    "https://gtmengineerclub.com/tools/best-gtm-tools",
+    "Listicle",
+    "I tested dozens of GTM Software: Here are the best 7 tools for 2026",
+    15,
+    6,
+    0
+   ],
+   [
+    "https://hostinger.com/in/tutorials/best-ai-sales-tools",
+    "Listicle",
+    "14 best AI sales tools for 2026",
+    13,
+    18,
+    0
+   ],
+   [
+    "https://github.com/ong/awesome-ai-gtm",
+    "Listicle",
+    "awesome-ai-gtm: A curated guide to the new generation of AI GTM tools",
+    12,
+    3,
+    1
+   ],
+   [
+    "https://youtube.com/watch?v=fXcxxSkNg2Y",
+    "Article",
+    "Implementing AI into your sales process? It only works when you have a playbook (YouTube)",
+    12,
+    3,
+    0
+   ],
+   [
+    "https://zapier.com/blog/best-sales-tools",
+    "Listicle",
+    "The 8 best sales tools in 2026 | Zapier",
+    11,
+    5,
+    0
+   ]
+  ],
+  "CALL": [
+   [
+    "https://itsconvo.com/blog/sales-call-recording-software",
+    "Alternative",
+    "8 Best Sales Call Recording Software in 2026 (Tested & Ranked)",
+    12,
+    7,
+    0
+   ],
+   [
+    "https://hubspot.com/best-notetakers",
+    "Listicle",
+    "9 Best Notetaker Tools for 2026 | HubSpot",
+    10,
+    10,
+    0
+   ],
+   [
+    "https://claap.io/blog/gong-alternatives",
+    "Alternative",
+    "9 Best Gong Alternatives in 2026 | Claap",
+    10,
+    6,
+    0
+   ],
+   [
+    "https://blog.hubspot.com/sales/best-conversation-intelligence-software",
+    "Listicle",
+    "12 best conversation intelligence software platforms for 2026",
+    9,
+    12,
+    0
+   ],
+   [
+    "https://getmaxiq.com/blog/best-conversation-intelligence-software",
+    "Listicle",
+    "10 Best Conversation Intelligence Software Tools (2026)",
+    9,
+    7,
+    0
+   ],
+   [
+    "https://read.ai/articles/how-to-take-and-use-sales-call-notes",
+    "How-To Guide",
+    "How to Take and Use Sales Call Notes",
+    9,
+    5,
+    0
+   ],
+   [
+    "https://mixmax.com/blog/automated-meeting-notes-sales",
+    "Comparison",
+    "Smarter Sales Meeting Notes: 8 AI Tools Reviewed | Mixmax",
+    8,
+    7,
+    0
+   ],
+   [
+    "https://toolradar.com/guides/best-ai-note-takers-for-sales",
+    "Listicle",
+    "Best AI Note Takers for Sales in 2026, Ranked and Priced",
+    8,
+    4,
+    0
+   ]
+  ],
+  "ASA": [
+   [
+    "https://zapier.com/blog/ai-sales-assistant",
+    "Listicle",
+    "The best AI sales assistant software in 2026 | Zapier",
+    38,
+    25,
+    0
+   ],
+   [
+    "https://blog.hubspot.com/sales/ai-sales-assistant",
+    "Listicle",
+    "AI sales assistant software: Best tools for sales teams",
+    15,
+    21,
+    0
+   ],
+   [
+    "https://ruralsprout.com/lavender-plant-alternatives",
+    "Alternative",
+    "7 Plants to Grow If Your Lavender Keeps Dying",
+    12,
+    6,
+    0
+   ],
+   [
+    "https://saleshood.com/blog/sales-call-planning-tips",
+    "How-To Guide",
+    "Sales call planning: Tips to prepare for productive sales calls",
+    12,
+    3,
+    0
+   ],
+   [
+    "https://youtube.com/watch?v=T5mbscgOlRw",
+    "Listicle",
+    "5 AI Sales Tools That Save You 3 Hours Every Single Day (YouTube)",
+    11,
+    4,
+    0
+   ],
+   [
+    "https://highspot.com/blog/multithreading-in-sales",
+    "Other",
+    "Multithreading in Sales: The B2B Selling Framework",
+    10,
+    13,
+    0
+   ],
+   [
+    "https://slite.com/learn/ai-sales-assistant-tools",
+    "Listicle",
+    "The 12 best AI sales assistant tools in 2026",
+    10,
+    10,
+    0
+   ],
+   [
+    "https://g2.com/products/sybill-ai/competitors/alternatives",
+    "Alternative",
+    "Top 10 Sybill.ai Alternatives & Competitors in 2026 | G2",
+    10,
+    6,
+    0
+   ]
+  ]
+ }
 }
