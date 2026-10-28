@@ -38,3 +38,4 @@ reports/
 
 # Framer Analytics raw exports (~500MB, visitor ids) — only the aggregated src/framer.json is committed
 data/framer/
+data/aeo/content/

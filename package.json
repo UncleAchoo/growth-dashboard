@@ -16,7 +16,8 @@
     "ingest-framer": "node scripts/ingest-framer.mjs",
     "pull-posthog": "node scripts/pull-posthog.mjs",
     "compare-orgs": "node scripts/compare-org-creators.mjs",
-    "build-ph-signups": "node scripts/build-posthog-signups.mjs"
+    "build-ph-signups": "node scripts/build-posthog-signups.mjs",
+    "build-aeo": "node scripts/build-aeo.mjs --print"
   },
   "dependencies": {
     "lucide-react": "^0.379.0",

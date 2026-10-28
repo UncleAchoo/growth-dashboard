@@ -34,6 +34,10 @@ import betaPaying from './src/beta-paying.json';
 import betaCredits from './src/beta-credits.json';
 import framerJson from './src/framer.json';
 import betaPosthog from './src/beta-posthog.json';
+// AEO section (Nick, Oct 27): behind ?aeo for now. Tabs under the header switch
+// between the PLG funnel and AEO; #aeo in the URL opens AEO directly.
+import AeoSection from './aeo_section.jsx';
+const SHOW_AEO = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('aeo');
 import { categorizeReferralSource as categorizeReferralSourceShared } from './channel-categorization.js';
 // ?beta combines Search and AEO into one self-reported bucket (Nick, Oct 8). The
 // shared engine (also used by the live dashboard) is left untouched.
@@ -6173,6 +6177,13 @@ function DateField({ label, value, onCommit, min = CUSTOM_MIN, max = DATA_END })
 
 export default function BetaDashboard() {
   const [view, setViewState] = useState(readHashView);
+  const readSection = () => (SHOW_AEO && !VIEWS[(window.location.hash || '').replace('#', '')] ? 'aeo' : 'funnel');
+  const [section, setSectionState] = useState(readSection);
+  const setSection = (s) => {
+    setSectionState(s);
+    try { window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${s === 'aeo' ? 'aeo' : view}`); } catch (e) { /* ignore */ }
+  };
+  const isAeo = SHOW_AEO && section === 'aeo';
   // Reporting period = date range + granularity (Nick, Oct 20), remembered per browser.
   resetPrefsOnce();
   const stored = (key, ok, dflt) => { try { const v = window.localStorage.getItem(key); return ok(v) ? v : dflt; } catch (e) { return dflt; } };
@@ -6215,7 +6226,7 @@ export default function BetaDashboard() {
     try { window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${v}`); } catch (e) { /* ignore */ }
   };
   useEffect(() => {
-    const onHash = () => setViewState(readHashView());
+    const onHash = () => { setViewState(readHashView()); setSectionState(readSection()); };
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
@@ -6246,9 +6257,27 @@ export default function BetaDashboard() {
         </div>
       </header>
 
+      {/* ?aeo tabs (Nick, Oct 27): PLG funnel vs AEO. Hidden without ?aeo. */}
+      {SHOW_AEO && (
+        <div style={{ background: C.white, borderBottom: `1px solid ${C.black}` }}>
+          <div role="tablist" style={{ maxWidth: 1400, margin: '0 auto', padding: '0 32px', display: 'flex', gap: 4 }}>
+            {[['funnel', 'PLG funnel'], ['aeo', 'AEO']].map(([id, label]) => {
+              const on = (id === 'aeo') === isAeo;
+              return (
+                <button key={id} type="button" role="tab" aria-selected={on} onClick={() => setSection(id)}
+                  style={{ all: 'unset', cursor: 'pointer', padding: '12px 18px 10px', fontFamily: FONT_BODY, fontSize: 14, fontWeight: 700, borderBottom: `4px solid ${on ? C.purple : 'transparent'}`, color: on ? C.black : C.muted }}>
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Controls bar (Nick, Oct 8): reporting period, stuck to the top of the
-          viewport while scrolling. Conversion window lives in each chart (Oct 14). */}
-      <div className="beta-controls" style={{ position: 'sticky', top: 0, zIndex: 900, background: C.lightBlue, borderBottom: `1px solid ${C.black}` }}>
+          viewport while scrolling. Conversion window lives in each chart (Oct 14).
+          Hidden on the AEO tab, which has its own fixed weekly windows. */}
+      {!isAeo && <div className="beta-controls" style={{ position: 'sticky', top: 0, zIndex: 900, background: C.lightBlue, borderBottom: `1px solid ${C.black}` }}>
         <div style={{ maxWidth: 1400, margin: '0 auto', padding: '10px 32px', display: 'flex', alignItems: 'center', gap: '10px 24px', flexWrap: 'wrap', fontSize: 13 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             {/* Amplitude-style filter (Nick, Oct 20): granularity + date range dropdowns. */}
@@ -6279,9 +6308,10 @@ export default function BetaDashboard() {
             {M.WTD && <span style={{ color: C.muted, whiteSpace: 'nowrap' }}>· week to date {rangeLabel(M.WTD.start, M.WTD.end)} not in totals</span>}
           </div>
         </div>
-      </div>
+      </div>}
 
       <main style={{ maxWidth: 1400, margin: '0 auto', padding: '40px 32px 96px' }}>
+        {isAeo ? <AeoSection /> : <>
 
         <PlgFunnel view={view} setView={setView} />
         <ViewingBar view={view} />
@@ -6293,6 +6323,7 @@ export default function BetaDashboard() {
         </div>
         {/* Data coverage (Nick, Oct 20): when each product data source starts. */}
         <DataCoverage />
+        </>}
       </main>
       <UsersModal data={usersModal} onClose={closeUsersModal} />
     </div>

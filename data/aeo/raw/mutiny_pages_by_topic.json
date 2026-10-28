@@ -1,0 +1,43 @@
+{
+  "_note": "get_url_report Sep 27 to Oct 26, domain mutinyhq.com, dims=[topic_id], top 40 by citation_count, compacted. Row = [url, title, citation_count]. Used as the internal backlink pool for briefs (pages AI engines already cite).",
+  "AST": [
+    ["https://mutinyhq.com/blog/the-best-ai-sales-agents-for-aes-in-2026","The best AI sales agents for AEs in 2026",163],
+    ["https://mutinyhq.com/blog/the-best-ai-tools-for-account-executives-in-2026-a-buyer-s-guide-for-b2b-sales-teams","The best AI tools for account executives in 2026: A buyer's guide",124],
+    ["https://mutinyhq.com/blog/what-ai-tools-help-sellers-create-deal-specific-content","What AI tools help sellers create deal-specific content?",122],
+    ["https://mutinyhq.com/blog/top-ai-sales-agents-for-2026","Top AI sales agents for 2026",95],
+    ["https://mutinyhq.com/blog/the-best-ai-sales-tools-in-2026-a-buyer-s-guide-for-b2b-gtm-teams","The best AI sales tools in 2026: A buyer's guide for B2B GTM teams",85],
+    ["https://mutinyhq.com/blog/how-b2b-sales-teams-use-ai-for-deal-rooms-and-follow-ups-in-2026","How B2B sales teams use AI for deal rooms and follow-ups in 2026",81],
+    ["https://mutinyhq.com/blog/what-ai-tools-should-every-bdr-and-ae-have","What AI tools should every BDR and AE have?",81],
+    ["https://mutinyhq.com/blog/best-ai-sales-tools-for-enterprise-b2b-teams","Best AI sales tools for enterprise B2B teams",73],
+    ["https://mutinyhq.com/faqs/what-is-the-difference-between-an-ai-sales-tool-and-a-traditional-sales-platform","What is the difference between an AI sales tool and a traditional sales platform?",43],
+    ["https://mutinyhq.com/faqs/how-can-aes-use-ai-to-prepare-for-sales-calls","How can AEs use AI to prepare for sales calls?",33]
+  ],
+  "ABM": [
+    ["https://mutinyhq.com/faqs/what-does-an-effective-1-1-abm-page-look-like","What does an effective 1:1 ABM page look like?",138],
+    ["https://mutinyhq.com/blueprints/1-1-abm","Blueprints: 1:1 ABM",137],
+    ["https://mutinyhq.com/blog/userled-alternatives-8-abm-personalization-platforms-b2b-teams-evaluate-in-2026","Userled alternatives: 8 ABM personalization platforms",117],
+    ["https://mutinyhq.com/faqs/what-is-a-1-1-abm-landing-page","What is a 1:1 ABM landing page?",109],
+    ["https://mutinyhq.com/blog/the-best-abm-tools-in-2026-a-buyer-s-guide-for-b2b-gtm-teams","The best ABM tools in 2026: A buyer's guide",53],
+    ["https://mutinyhq.com/faqs/how-can-a-small-marketing-team-run-1-1-abm-without-a-designer","How can a small marketing team run 1:1 ABM without a designer?",45],
+    ["https://mutinyhq.com/blog/how-to-measure-abm","How to Measure ABM: Metrics That Prove ROI",25]
+  ],
+  "CC": [
+    ["https://mutinyhq.com/blog/highspot-alternatives-8-platforms-b2b-teams-evaluate-in-2026","Highspot alternatives: 9 platforms B2B teams evaluate in 2026",93],
+    ["https://mutinyhq.com/faqs/what-are-the-best-alternatives-to-highspot-for-ai-native-sales-enablement","What are the best alternatives to Highspot for AI-native sales enablement?",89],
+    ["https://mutinyhq.com/faqs/what-are-the-best-alternatives-to-userled-for-full-funnel-personalization","What are the best alternatives to Userled for full-funnel personalization?",75],
+    ["https://mutinyhq.com/blog/userled-alternatives-8-abm-personalization-platforms-b2b-teams-evaluate-in-2026","Userled alternatives: 8 ABM personalization platforms",66]
+  ],
+  "MGTM": [
+    ["https://mutinyhq.com/faqs/what-is-the-modern-gtm-tech-stack-in-2026","What is the modern GTM tech stack in 2026?",93],
+    ["https://mutinyhq.com/faqs/what-is-replacing-traditional-abm-tools-in-modern-gtm-stacks","What is replacing traditional ABM tools in modern GTM stacks?",33]
+  ],
+  "AISE": [
+    ["https://mutinyhq.com/blog/the-best-sales-enablement-tools-in-2026-a-buyer-s-guide-for-b2b-sales-teams","The best sales enablement tools in 2026: A buyer's guide",84],
+    ["https://mutinyhq.com/faqs/what-are-the-best-alternatives-to-highspot-for-ai-native-sales-enablement","What are the best alternatives to Highspot for AI-native sales enablement?",83],
+    ["https://mutinyhq.com/faqs/what-is-personalized-sales-content-generation","What is personalized sales content generation?",55],
+    ["https://mutinyhq.com/faqs/what-tools-generate-personalized-sales-collateral-automatically","What tools generate personalized sales collateral automatically?",42],
+    ["https://mutinyhq.com/blog/best-tools-to-create-a-business-case-for-a-sale","Best tools to create a business case for a sale (2026)",34],
+    ["https://mutinyhq.com/faqs/how-can-sales-teams-turn-call-recordings-into-follow-up-content","How can sales teams turn call recordings into follow-up content?",27],
+    ["https://mutinyhq.com/faqs/how-do-aes-personalize-content-without-waiting-on-marketing","How do AEs personalize content without waiting on marketing?",26]
+  ]
+}

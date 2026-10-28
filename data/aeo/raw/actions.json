@@ -1,0 +1,26 @@
+{
+  "_note": "Peec list_actions (statuses PENDING/ACCEPTED/PLANNED, ordered by impact) + get_action description for the ones shown. Text is Peec's, lightly trimmed. Never invent recommendations.",
+  "totalOpen": 108,
+  "items": [
+    { "id": "01a144aa-9f1d-7a81-b128-a3ac9c906207", "type": "Content brief", "group": "Owned", "format": "Article", "topic": "ABM", "impact": "Very high",
+      "title": "Scaling 1:1 ABM Landing Pages with AI",
+      "text": "A strategic framework for B2B revenue teams to deploy personalized, AI-driven ABM landing pages at scale. Primary query: \"Best tools for creating 1:1 ABM landing pages\". Target: 476 competitor citations to win back.",
+      "sources": ["zoomforth.com/abm/abm-landing-pages-guide", "userled.io/articles/best-abm-tools-2026", "prismic.io/blog/10-best-account-based-marketing-tools-with-landing-page-personalization", "zenabm.com/blog/best-abm-tools"] },
+    { "id": "01a1209c-ef9e-7a63-97b4-ae937b3d0db3", "type": "Content brief", "group": "Owned", "format": "Article", "topic": "Modern GTM tech stack", "impact": "Very high",
+      "title": "The Modern AI-Powered GTM Tech Stack for 2026",
+      "text": "A guide to building an AI-native go-to-market stack that replaces fragmented manual tools with agentic automation. Primary query: \"What is the modern GTM tech stack in 2026?\". Target: 438 competitor citations.",
+      "sources": ["zapier.com/blog/ai-sales-assistant", "demandbase.com/blog/ai-platform-for-gtm-teams", "reddit.com/r/b2b_sales/comments/1sil6kn/best_gtmsales_tools_in_2026", "mckinsey.com (future of B2B sales)"] },
+    { "id": "01a1209c-f1f6-7652-b03d-ae91f5af23ac", "type": "Content brief", "group": "Owned", "format": "Article", "topic": "Competitor Comparisons", "impact": "Very high",
+      "title": "Modern Alternatives to Legacy Sales Enablement Platforms",
+      "text": "A guide for revenue teams evaluating AI-native GTM assistants as alternatives to traditional, static sales enablement tools. Primary query: \"best legacy sales enablement (highspot, seismic) alternatives\". Peec also asks to check whether Mutiny is in the GetAccept, Mindtickle and Spekit Highspot-alternative roundups.",
+      "sources": ["getaccept.com/blog/highspot-alternatives", "mindtickle.com/blog/top-highspot-competitors-and-alternatives", "spekit.com/blog/highspot-competitors-alternatives", "g2.com/products/highspot-by-seismic/competitors/alternatives"] },
+    { "id": "01a16925-4f2a-7bb2-a340-f287e44bd67b", "type": "Review directory", "group": "UGC", "format": "G2 profile", "topic": "AI Sales Enablement", "impact": "Very high",
+      "title": "Win buyer trust in sales enablement through a stronger review presence",
+      "text": "Optimize your G2 profile to reflect your capabilities in sales enablement and align your messaging with the vocabulary users rely on when evaluating tools in this category.",
+      "sources": ["g2.com/categories/sales-enablement", "learn.g2.com/best-sales-enablement-software"] },
+    { "id": "01a10a46-1f3b-7ef0-8a86-ee17141edc98", "type": "Site fix", "group": "Owned", "format": "llms.txt", "topic": null, "impact": "Very high",
+      "title": "Publish an llms.txt file",
+      "text": "llms.txt gives AI assistants a short, curated map of your site, so they find your most useful pages without crawling everything.",
+      "sources": ["mutinyhq.com"] }
+  ]
+}
