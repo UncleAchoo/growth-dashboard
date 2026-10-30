@@ -1,16 +1,16 @@
 {
   "source": "PostHog project 381053 (dashboard 2240501 logic)",
-  "pulledAt": "2026-10-28T14:17:02.823Z",
+  "pulledAt": "2026-10-30T15:47:50.375Z",
   "rolloutStart": "2026-10-21",
   "rolloutStartUtc": "2026-10-21T04:00:00Z",
   "tz": "America/New_York",
   "counts": {
-    "org": 95,
-    "gmail": 27,
-    "cal": 15,
-    "rec": 20,
-    "perms": 19,
-    "a1": 6,
+    "org": 109,
+    "gmail": 32,
+    "cal": 20,
+    "rec": 25,
+    "perms": 24,
+    "a1": 8,
     "a2": 0
   },
   "creators": [
@@ -1258,6 +1258,15 @@
       ]
     },
     {
+      "pid": "b421f33e-b802-570b-8257-9111384286cb",
+      "uid": "945f66dd-c13d-4510-a3d5-88064c3b074b",
+      "email": "deekshaa@magihq.com",
+      "orgUtc": "2026-10-27T19:00:00.000Z",
+      "a1": "2026-10-27T08:24",
+      "org": "2026-10-27T00:00",
+      "viaExport": 1
+    },
+    {
       "pid": "7c852378-c4b3-5821-97bf-9a85541fe3d2",
       "uid": "c0211348-b2f5-43cf-ac68-0286a258dd5d",
       "email": "stefan@battistetti.com",
@@ -1323,6 +1332,196 @@
         {
           "co": "4994e895-e786-43ec-8b07-a0f260e7a8ce",
           "utc": "2026-10-28T05:16:32.141Z"
+        }
+      ]
+    },
+    {
+      "pid": "71307fb3-9039-5078-b7e8-21c9327f15fd",
+      "uid": "9c054e21-d9d9-4dc0-9cd7-dcd4737666f7",
+      "email": "sophie@parkifyrec.com",
+      "orgUtc": "2026-10-28T16:10:55.111Z",
+      "org": "2026-10-28T12:10",
+      "gmail": "2026-10-28T12:11",
+      "cal": "2026-10-28T12:12",
+      "rec": "2026-10-28T12:13",
+      "perms": "2026-10-28T12:13",
+      "a1": "2026-10-28T16:00",
+      "orgs": [
+        {
+          "co": "7b6d94bb-2ffb-46a6-8c1b-8f72a76b449b",
+          "utc": "2026-10-28T16:10:55.111Z"
+        }
+      ]
+    },
+    {
+      "pid": "63924c7e-e2be-5400-91e5-d0ae6443b123",
+      "uid": "e922e2df-b04b-49e8-8f6f-2693e80a444a",
+      "email": "sylvester@quantumdesk.com",
+      "orgUtc": "2026-10-28T17:05:46.294Z",
+      "org": "2026-10-28T13:05",
+      "orgs": [
+        {
+          "co": "baa7ee3b-0169-43cf-93d3-2d3b149929d1",
+          "utc": "2026-10-28T17:05:46.294Z"
+        }
+      ]
+    },
+    {
+      "pid": "2825bc45-d9c4-5963-9c48-a4bc706eb0f0",
+      "uid": "d7e4ac13-bff3-4dce-86e3-bccc861aefa6",
+      "email": "kartik.chandrayana@empirik.ai",
+      "orgUtc": "2026-10-28T20:45:50.083Z",
+      "org": "2026-10-28T16:45",
+      "gmail": "2026-10-28T16:47",
+      "cal": "2026-10-28T16:48",
+      "rec": "2026-10-28T16:50",
+      "perms": "2026-10-28T16:50",
+      "orgs": [
+        {
+          "co": "0a2bc1e8-6b8d-4697-aaa9-5bf57650d7b1",
+          "utc": "2026-10-28T20:45:50.083Z"
+        }
+      ]
+    },
+    {
+      "pid": "db9f0da0-a694-5ed3-9821-28c5abfdbdf4",
+      "uid": "fbfc2da2-bf4d-4a21-9d95-1fe89a20627e",
+      "email": "charlie.chu@empirik.ai",
+      "orgUtc": "2026-10-28T20:46:34.547Z",
+      "org": "2026-10-28T16:46",
+      "gmail": "2026-10-28T16:47",
+      "cal": "2026-10-28T16:48",
+      "rec": "2026-10-28T16:48",
+      "perms": "2026-10-28T16:49",
+      "orgs": [
+        {
+          "co": "86386ae1-0d5e-43cc-95b8-2caef117e3db",
+          "utc": "2026-10-28T20:46:34.547Z"
+        }
+      ]
+    },
+    {
+      "pid": "eae4592a-cb3f-5b65-bf88-2ab0afe02e89",
+      "uid": "a4fe2733-117c-48fb-8c6b-37d39cfe70f5",
+      "email": "rawanaw@sas.upenn.edu",
+      "orgUtc": "2026-10-28T20:57:28.777Z",
+      "org": "2026-10-28T16:57",
+      "orgs": [
+        {
+          "co": "a0df7d63-e68a-4192-b077-fd34bdcb5151",
+          "utc": "2026-10-28T20:57:28.777Z"
+        }
+      ]
+    },
+    {
+      "pid": "9da204ee-2f2f-5530-b337-596bf262044d",
+      "uid": "2e445c60-f990-4694-96b1-6c60148a910a",
+      "email": "drashti@artonest.com",
+      "orgUtc": "2026-10-29T06:57:39.197Z",
+      "org": "2026-10-29T02:57",
+      "orgs": [
+        {
+          "co": "fb72c387-5c32-41e4-8cbf-7fc168add64f",
+          "utc": "2026-10-29T06:57:39.197Z"
+        }
+      ]
+    },
+    {
+      "pid": "d65c4194-979d-5c2f-9a49-adcab1b0177e",
+      "uid": "15678394-d47d-485b-9a9d-3381970b6356",
+      "email": "pratham.o@zoca.com",
+      "orgUtc": "2026-10-29T11:15:56.212Z",
+      "org": "2026-10-29T07:15",
+      "orgs": [
+        {
+          "co": "45675fbd-6d80-4a50-a48f-9d184898f843",
+          "utc": "2026-10-29T11:15:56.212Z"
+        }
+      ]
+    },
+    {
+      "pid": "8c69cbd6-5a5c-59f0-bb0e-3737b58a18e9",
+      "uid": "f58f2a8e-fae2-452c-8f46-d3ce8141b837",
+      "email": "nour@naturamarket.ca",
+      "orgUtc": "2026-10-29T14:23:27.102Z",
+      "org": "2026-10-29T10:23",
+      "orgs": [
+        {
+          "co": "31e9c9b2-cbe3-4e38-b26f-30bc6cd2f962",
+          "utc": "2026-10-29T14:23:27.102Z"
+        }
+      ]
+    },
+    {
+      "pid": "b721ef00-1cce-5ff9-878a-7c5f37a9d6d3",
+      "uid": "9cac0142-82f5-458b-92b0-94220259f922",
+      "email": "simon@legacypointads.com",
+      "orgUtc": "2026-10-29T18:37:38.664Z",
+      "org": "2026-10-29T14:37",
+      "gmail": "2026-10-29T14:38",
+      "cal": "2026-10-29T14:39",
+      "rec": "2026-10-29T14:40",
+      "perms": "2026-10-29T14:40",
+      "orgs": [
+        {
+          "co": "dc5f4c72-f811-4e8b-bfbb-391297b25b92",
+          "utc": "2026-10-29T18:37:38.664Z"
+        }
+      ]
+    },
+    {
+      "pid": "8f1146c1-dd2c-50a6-9c98-1375836854e1",
+      "uid": "c2ae6327-b2c2-4643-b753-36d7107461dc",
+      "email": "hello@rebeleyestory.com",
+      "orgUtc": "2026-10-29T20:36:33.908Z",
+      "org": "2026-10-29T16:36",
+      "orgs": [
+        {
+          "co": "525fd926-9ea1-438c-b9e1-8edf63950057",
+          "utc": "2026-10-29T20:36:33.908Z"
+        }
+      ]
+    },
+    {
+      "pid": "abf8b5ba-3cfd-5e09-b601-f7ebb665d050",
+      "uid": "02ba26d2-8222-419a-9c0a-6aeeb324d8b0",
+      "email": "sbattistetti@cbovero.com",
+      "orgUtc": "2026-10-29T21:23:33.473Z",
+      "org": "2026-10-29T17:23",
+      "gmail": "2026-10-29T17:28",
+      "cal": "2026-10-29T17:29",
+      "rec": "2026-10-29T17:30",
+      "perms": "2026-10-29T17:30",
+      "orgs": [
+        {
+          "co": "8b80fe88-fb5a-4df9-88bb-077747df6e15",
+          "utc": "2026-10-29T21:23:33.473Z"
+        }
+      ]
+    },
+    {
+      "pid": "10dfc3d3-36c9-55fa-866f-3b82f9f92f29",
+      "uid": "252421d2-a998-49cc-ae50-6418447f2d17",
+      "email": "nastyanagorkina@ottsathi.store",
+      "orgUtc": "2026-10-30T09:08:43.026Z",
+      "org": "2026-10-30T05:08",
+      "orgs": [
+        {
+          "co": "d78209e9-4618-4e93-88a2-3bf987d3c0bf",
+          "utc": "2026-10-30T09:08:43.026Z"
+        }
+      ]
+    },
+    {
+      "pid": "5d70dad8-5996-5f91-870d-8363a640394d",
+      "uid": "790c8d19-ae08-477a-a4e1-e98f27c94d21",
+      "email": "oliver@symbe.co",
+      "orgUtc": "2026-10-30T09:19:34.196Z",
+      "org": "2026-10-30T05:19",
+      "orgs": [
+        {
+          "co": "d096ec90-ada6-46e8-8280-fd11cd103a5d",
+          "utc": "2026-10-30T09:19:34.196Z"
         }
       ]
     }
